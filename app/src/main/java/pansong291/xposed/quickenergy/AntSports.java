@@ -1,10 +1,13 @@
 package pansong291.xposed.quickenergy;
 
-import java.util.HashSet;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.HashSet;
+
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntSportsRpcCall;
+import pansong291.xposed.quickenergy.hook.XposedHook;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
@@ -15,44 +18,34 @@ public class AntSports {
 
     private static final HashSet<String> waitOpenBoxNos = new HashSet<>();
 
-    public static void start(ClassLoader loader) {
-        new Thread() {
-            ClassLoader loader;
+    public static Task init() {
+        return new Task("AntSports", () -> {
+            try {
+                ClassLoader loader = XposedHook.classLoader;
+                if (Config.openTreasureBox())
+                    queryMyHomePage(loader);
 
-            public Thread setData(ClassLoader cl) {
-                loader = cl;
-                return this;
-            }
+                if (Config.receiveCoinAsset())
+                    receiveCoinAsset();
 
-            @Override
-            public void run() {
-                try {
-                    FriendIdMap.waitingCurrentUid();
-                    if (Config.openTreasureBox())
-                        queryMyHomePage(loader);
+                if (Config.donateCharityCoin())
+                    queryProjectList(loader);
 
-                    if (Config.receiveCoinAsset())
-                        receiveCoinAsset();
+                if (Config.minExchangeCount() > 0 && Statistics.canExchangeToday(FriendIdMap.getCurrentUid()))
+                    queryWalkStep(loader);
 
-                    if (Config.donateCharityCoin())
-                        queryProjectList(loader);
-
-                    if (Config.minExchangeCount() > 0 && Statistics.canExchangeToday(FriendIdMap.getCurrentUid()))
-                        queryWalkStep(loader);
-
-                    if (Config.tiyubiz()) {
-                        userTaskGroupQuery("SPORTS_DAILY_SIGN_GROUP");
-                        userTaskGroupQuery("SPORTS_DAILY_GROUP");
-                        userTaskRightsReceive();
-                        pathFeatureQuery();
-                        participate();
-                    }
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
+                if (Config.tiyubiz()) {
+                    userTaskGroupQuery("SPORTS_DAILY_SIGN_GROUP");
+                    userTaskGroupQuery("SPORTS_DAILY_GROUP");
+                    userTaskRightsReceive();
+                    pathFeatureQuery();
+                    participate();
                 }
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.setData(loader).start();
+        }, () -> true);
     }
 
     private static void receiveCoinAsset() {

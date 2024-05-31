@@ -2,13 +2,19 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntStallRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
-
-import java.util.*;
 
 /**
  * @author Constanline
@@ -38,16 +44,12 @@ public class AntStall {
         taskTypeList.add("ANTSTALL_TASK_diantao202311");// 去点淘赚元宝提现
     }
 
-    public static void start() {
-        if (!Config.enableStall()) {
-            return;
-        }
-        new Thread() {
-            @Override
-            public void run() {
-                home();
-            }
-        }.start();
+    public static Boolean check() {
+        return Config.enableStall();
+    }
+
+    public static Task init() {
+        return new Task("AntStall", AntStall::home, AntStall::check);
     }
 
     private static void home() {

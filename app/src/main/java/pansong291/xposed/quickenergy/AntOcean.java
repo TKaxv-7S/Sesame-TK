@@ -2,12 +2,14 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import pansong291.xposed.quickenergy.AntFarm.TaskStatus;
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
 import pansong291.xposed.quickenergy.hook.AntOceanRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 /**
@@ -17,32 +19,30 @@ import pansong291.xposed.quickenergy.util.StringUtil;
 public class AntOcean {
     private static final String TAG = AntOcean.class.getCanonicalName();
 
-    public static void start() {
-        if (!Config.antOcean())
-            return;
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    FriendIdMap.waitingCurrentUid();
-                    String s = AntOceanRpcCall.queryOceanStatus();
-                    JSONObject jo = new JSONObject(s);
-                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                        if (jo.getBoolean("opened")) {
-                            queryHomePage();
-                        } else {
-                            Config.setAntOcean(false);
-                            Log.recordLog("请先开启神奇海洋，并完成引导教程");
-                        }
+    public static Boolean check() {
+        return Config.antOcean();
+    }
+
+    public static Task init() {
+        return new Task("AntOcean", () -> {
+            try {
+                String s = AntOceanRpcCall.queryOceanStatus();
+                JSONObject jo = new JSONObject(s);
+                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                    if (jo.getBoolean("opened")) {
+                        queryHomePage();
                     } else {
-                        Log.i(TAG, jo.getString("resultDesc"));
+                        Config.setAntOcean(false);
+                        Log.recordLog("请先开启神奇海洋，并完成引导教程");
                     }
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
+                } else {
+                    Log.i(TAG, jo.getString("resultDesc"));
                 }
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, AntOcean::check);
     }
 
     private static void queryHomePage() {

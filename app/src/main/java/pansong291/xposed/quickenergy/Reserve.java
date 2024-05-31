@@ -2,11 +2,12 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.ReserveRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.ReserveIdMap;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
@@ -16,37 +17,36 @@ public class Reserve {
 
     private static boolean isProtecting = false;
 
-    public static void start() {
+    public static Boolean check() {
         if (!Config.reserve() && !Config.beach())
-            return;
+            return false;
 
         if (isProtecting) {
             Log.recordLog("之前的兑换保护地未结束，本次暂停", "");
-            return;
-        } else {
-            Log.recordLog("开始检测保护地", "");
-            isProtecting = true;
+            return false;
         }
-        new Thread() {
+        return true;
+    }
 
-            @Override
-            public void run() {
-                try {
-                    FriendIdMap.waitingCurrentUid();
-                    if (Config.reserve()) {
-                        animalReserve();
-                    }
+    public static Task init() {
+        return new Task("Reserve", () -> {
+            try {
+                Log.recordLog("开始检测保护地", "");
+                isProtecting = true;
 
-                    if (Config.beach()) {
-                        protectBeach();
-                    }
-                    isProtecting = false;
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
+                if (Config.reserve()) {
+                    animalReserve();
                 }
+
+                if (Config.beach()) {
+                    protectBeach();
+                }
+                isProtecting = false;
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, Reserve::check);
     }
 
     private static void animalReserve() {

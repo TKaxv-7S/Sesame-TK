@@ -38,6 +38,7 @@ import pansong291.xposed.quickenergy.GreenFinance;
 import pansong291.xposed.quickenergy.OmegakoiTown;
 import pansong291.xposed.quickenergy.Reserve;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.ui.MainActivity;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
@@ -47,33 +48,60 @@ import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class XposedHook implements IXposedHookLoadPackage {
+
     private static final String TAG = XposedHook.class.getCanonicalName();
 
-    @SuppressLint("StaticFieldLeak")
-    private static Service service;
-    public static ClassLoader classLoader;
-    private static PowerManager.WakeLock wakeLock;
-    public static Handler handler;
-    private static Runnable runnable;
+    private static boolean isInit = false;
 
     private static boolean isHooked = false;
 
     private static boolean isRestart = false;
 
-    public enum StayAwakeType {
-        BROADCAST, ALARM, NONE;
+    @SuppressLint("StaticFieldLeak")
+    private static Service service;
 
-        public static final CharSequence[] nickNames = {"广播", "闹钟", "不重启"};
-    }
+    public static ClassLoader classLoader;
 
-    public enum StayAwakeTarget {
-        SERVICE, ACTIVITY;
+    private static PowerManager.WakeLock wakeLock;
 
-        public static final CharSequence[] nickNames = {"Service", "Activity"};
-    }
+    public static Handler mainHandler;
+
+    private static Runnable mainRunner;
+
+    private static Task antForestTask;
+
+    private static Task antCooperateTask;
+
+    private static Task antFarmTask;
+
+    private static Task reserveTask;
+
+    private static Task ancientTreeTask;
+
+    private static Task antBookReadTask;
+
+    private static Task antSportsTask;
+
+    private static Task antMemberTask;
+
+    private static Task antOceanTask;
+
+    private static Task antOrchardTask;
+
+    private static Task antStallTask;
+
+    private static Task greenFinanceTask;
+
+    private static Task omegakoiTownTask;
+
+    private static Task consumeGoldTask;
 
     public static boolean getIsRestart() {
         return isRestart;
+    }
+
+    public static Task getAntForestTask() {
+        return antForestTask;
     }
 
     @Override
@@ -103,66 +131,88 @@ public class XposedHook implements IXposedHookLoadPackage {
     }
 
     private static void restartHandler() {
-        if (handler != null && runnable != null) {
-            handler.removeCallbacks(runnable);
-            AntForest.stop();
-            AntForestNotification.stop(service, false);
-            AntForestNotification.start(service);
-            handler.post(runnable);
-        }
+        mainHandler.removeCallbacks(mainRunner);
+        AntForestNotification.stop(service, false);
+        Task.stopAllTask();
+
+        AntForestNotification.start(service);
+        mainHandler.post(mainRunner);
     }
 
     private static void initHandler() {
-        Log.recordLog("尝试初始化");
-        if (runnable == null) {
-            runnable = new Runnable() {
-                @Override
-                public void run() {
-                    PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.START);
-                    String targetUid = RpcUtil.getUserId(XposedHook.classLoader);
-                    if (targetUid != null) {
-                        FriendIdMap.setCurrentUid(targetUid);
-                        Config.shouldReload = true;
-
-                        Statistics.resetToday();
-                        AntForest.checkEnergyRanking(XposedHook.classLoader);
-
-                        if (TimeUtil.getTimeStr().compareTo("0700") < 0
-                                || TimeUtil.getTimeStr().compareTo("0730") > 0) {
-                            AntCooperate.start();
-                            AntFarm.start();
-                            Reserve.start();
-                            if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
-                                AncientTree.start();
-                                AntBookRead.start();
-                            }
-                            AntSports.start(XposedHook.classLoader);
-                            AntMember.receivePoint();
-                            AntOcean.start();
-                            AntOrchard.start();
-                            AntStall.start();
-                            GreenFinance.start();
-                            OmegakoiTown.start();
-                            ConsumeGold.start();
-                        }
-                    }
-                    if (Config.collectEnergy() || Config.enableFarm()) {
-                        AntForestNotification.setNextScanTime(System.currentTimeMillis() + Config.checkInterval());
-                        handler.postDelayed(this, Config.checkInterval());
-                    } else {
-                        AntForestNotification.stop(service, false);
-                    }
-
-                    PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.STOP);
-                }
-            };
-        }
         try {
-            if (handler == null) {
-                handler = new Handler();
+            if (!isInit) {
+                Log.recordLog("尝试初始化");
                 if (Config.startAt7()) {
                     Config.setAlarm7(AntForestToast.context);
                 }
+                Task.putTask(antForestTask = AntForest.init());
+                Task.putTask(antCooperateTask = AntCooperate.init());
+                Task.putTask(antFarmTask = AntFarm.init());
+                Task.putTask(reserveTask = Reserve.init());
+                Task.putTask(ancientTreeTask = AncientTree.init());
+                Task.putTask(antBookReadTask = AntBookRead.init());
+                Task.putTask(antSportsTask = AntSports.init());
+                Task.putTask(antMemberTask = AntMember.init());
+                Task.putTask(antOceanTask = AntOcean.init());
+                Task.putTask(antOrchardTask = AntOrchard.init());
+                Task.putTask(antStallTask = AntStall.init());
+                Task.putTask(greenFinanceTask = GreenFinance.init());
+                Task.putTask(omegakoiTownTask = OmegakoiTown.init());
+                Task.putTask(consumeGoldTask = ConsumeGold.init());
+                mainHandler = new Handler();
+                mainRunner = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isInit) {
+                            return;
+                        }
+                        PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.START);
+                        String targetUid = RpcUtil.getUserId(XposedHook.classLoader);
+                        if (targetUid != null) {
+                            FriendIdMap.setCurrentUid(targetUid);
+                            Config.shouldReload = true;
+                            Statistics.resetToday();
+
+                            antForestTask.startTask();
+                            if (TimeUtil.getTimeStr().compareTo("0700") < 0
+                                    || TimeUtil.getTimeStr().compareTo("0730") > 0) {
+                                try {
+                                    FriendIdMap.waitingCurrentUid();
+                                } catch (InterruptedException e) {
+                                    Log.i(TAG, "waitingCurrentUid err:");
+                                    Log.printStackTrace(TAG, e);
+                                    mainHandler.postDelayed(this, 60_000);
+                                    return;
+                                }
+                                antCooperateTask.startTask();
+                                antFarmTask.startTask();
+                                reserveTask.startTask();
+                                if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
+                                    ancientTreeTask.startTask();
+                                    antBookReadTask.startTask();
+                                }
+                                antSportsTask.startTask();
+                                antMemberTask.startTask();
+                                antOceanTask.startTask();
+                                antOrchardTask.startTask();
+                                antStallTask.startTask();
+                                greenFinanceTask.startTask();
+                                omegakoiTownTask.startTask();
+                                consumeGoldTask.startTask();
+                            }
+                        }
+                        if (Config.collectEnergy() || Config.enableFarm()) {
+                            AntForestNotification.setNextScanTime(System.currentTimeMillis() + Config.checkInterval());
+                            mainHandler.postDelayed(this, Config.checkInterval());
+                        } else {
+                            AntForestNotification.stop(service, false);
+                        }
+
+                        PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.STOP);
+                    }
+                };
+                isInit = true;
             }
             restartHandler();
             AntForestToast.show("芝麻粒加载成功");
@@ -196,8 +246,8 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 isRestart = false;
                                 restartHandler();
                                 ((Activity) param.thisObject).finish();
-                            } else if (handler != null) {
-                                initHandler();
+                            } else if (isInit) {
+                                restartHandler();
                             }
                         }
                     });
@@ -251,6 +301,8 @@ public class XposedHook implements IXposedHookLoadPackage {
                         wakeLock.release();
                         wakeLock = null;
                     }
+                    Task.stopAllTask();
+                    isInit = false;
                     AntForestNotification.stop(service, false);
                     AntForestNotification.setContentText("支付宝前台服务被销毁");
                     Log.recordLog("支付宝前台服务被销毁", "");
@@ -401,6 +453,18 @@ public class XposedHook implements IXposedHookLoadPackage {
             Log.i(TAG, "hook registerBroadcastReceiver err:");
             Log.printStackTrace(TAG, th);
         }
+    }
+
+    public enum StayAwakeType {
+        BROADCAST, ALARM, NONE;
+
+        public static final CharSequence[] nickNames = {"广播", "闹钟", "不重启"};
+    }
+
+    public enum StayAwakeTarget {
+        SERVICE, ACTIVITY;
+
+        public static final CharSequence[] nickNames = {"Service", "Activity"};
     }
 
 }

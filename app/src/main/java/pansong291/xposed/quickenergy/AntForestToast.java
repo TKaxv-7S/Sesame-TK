@@ -20,7 +20,7 @@ public class AntForestToast {
     public static void show(CharSequence cs, boolean force) {
         try {
             if (context != null && (force || Config.showToast())) {
-                XposedHook.handler.post(
+                XposedHook.mainHandler.post(
                         new Runnable() {
                             CharSequence cs;
 

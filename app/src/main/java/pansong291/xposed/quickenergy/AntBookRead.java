@@ -2,7 +2,9 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntBookReadRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
@@ -12,29 +14,25 @@ import pansong291.xposed.quickenergy.util.StringUtil;
 public class AntBookRead {
     private static final String TAG = AntBookRead.class.getCanonicalName();
 
-    public static void start() {
+    public static Boolean check() {
         if (!Config.antBookRead())
-            return;
-
+            return false;
         long executeTime = RuntimeInfo.getInstance().getLong("consumeGold", 0);
-        if (System.currentTimeMillis() - executeTime < 21600000) {
-            return;
-        }
-        RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
+        return System.currentTimeMillis() - executeTime >= 21600000;
+    }
 
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    queryTaskCenterPage();
-                    queryTask();
-                    queryTreasureBox();
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
-                }
+    public static Task init() {
+        return new Task("AntBookRead", () -> {
+            try {
+                RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
+                queryTaskCenterPage();
+                queryTask();
+                queryTreasureBox();
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, AntBookRead::check);
     }
 
     private static void queryTaskCenterPage() {

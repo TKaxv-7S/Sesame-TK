@@ -2,72 +2,71 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntMemberRpcCall;
-import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class AntMember {
     private static final String TAG = AntMember.class.getCanonicalName();
 
-    public static void receivePoint() {
-        if (!Config.receivePoint())
-            return;
+    public static Boolean check() {
+        return Config.receivePoint();
+    }
 
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    FriendIdMap.waitingCurrentUid();
-                    if (Statistics.canMemberSignInToday(FriendIdMap.getCurrentUid())) {
-                        String s = AntMemberRpcCall.queryMemberSigninCalendar();
-                        JSONObject jo = new JSONObject(s);
-                        if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                            Log.other("每日签到📅[" + jo.getString("signinPoint") + "积分]#已签到" + jo.getString("signinSumDay")
-                                    + "天");
-                            Statistics.memberSignInToday(FriendIdMap.getCurrentUid());
-                        } else {
-                            Log.recordLog(jo.getString("resultDesc"), s);
-                        }
+    public static Task init() {
+        return new Task("AntMember", () -> {
+            try {
+                if (Statistics.canMemberSignInToday(FriendIdMap.getCurrentUid())) {
+                    String s = AntMemberRpcCall.queryMemberSigninCalendar();
+                    JSONObject jo = new JSONObject(s);
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                        Log.other("每日签到📅[" + jo.getString("signinPoint") + "积分]#已签到" + jo.getString("signinSumDay")
+                                + "天");
+                        Statistics.memberSignInToday(FriendIdMap.getCurrentUid());
+                    } else {
+                        Log.recordLog(jo.getString("resultDesc"), s);
                     }
-
-                    queryPointCert(1, 8);
-
-                    insBlueBean();
-
-                    signPageTaskList();
-
-                    if (Config.collectSesame())
-                        zmxy();
-
-                    if (Config.merchantKmdk() || Config.zcjSignIn()) {
-                        JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
-                        if (jo.getBoolean("success")) {
-                            JSONObject data = jo.getJSONObject("data");
-                            if (data.optBoolean("isOpened")) {
-                                if (Config.zcjSignIn())
-                                    zcjSignIn();
-
-                                if (Config.merchantKmdk()) {
-                                    if (TimeUtil.getTimeStr().compareTo("0600") > 0
-                                            && TimeUtil.getTimeStr().compareTo("1200") < 0)
-                                        kmdkSignIn();
-                                    kmdkSignUp();
-                                }
-                                taskListQuery();
-                            } else {
-                                Log.recordLog("商家服务未开通！");
-                            }
-                        }
-                    }
-                } catch (Throwable t) {
-                    Log.i(TAG, "receivePoint.run err:");
-                    Log.printStackTrace(TAG, t);
                 }
+
+                queryPointCert(1, 8);
+
+                insBlueBean();
+
+                signPageTaskList();
+
+                if (Config.collectSesame())
+                    zmxy();
+
+                if (Config.merchantKmdk() || Config.zcjSignIn()) {
+                    JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
+                    if (jo.getBoolean("success")) {
+                        JSONObject data = jo.getJSONObject("data");
+                        if (data.optBoolean("isOpened")) {
+                            if (Config.zcjSignIn())
+                                zcjSignIn();
+
+                            if (Config.merchantKmdk()) {
+                                if (TimeUtil.getTimeStr().compareTo("0600") > 0
+                                        && TimeUtil.getTimeStr().compareTo("1200") < 0)
+                                    kmdkSignIn();
+                                kmdkSignUp();
+                            }
+                            taskListQuery();
+                        } else {
+                            Log.recordLog("商家服务未开通！");
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                Log.i(TAG, "receivePoint.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, AntMember::check);
     }
 
     private static void queryPointCert(int page, int pageSize) {

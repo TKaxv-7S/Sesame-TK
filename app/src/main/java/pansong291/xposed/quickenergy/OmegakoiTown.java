@@ -2,7 +2,9 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.OmegakoiTownRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
@@ -45,29 +47,25 @@ public class OmegakoiTown {
         }
     }
 
-    public static void start() {
+    public static Boolean check() {
         if (!Config.omegakoiTown())
-            return;
-
+            return false;
         long executeTime = RuntimeInfo.getInstance().getLong("omegakoiTown", 0);
-        if (System.currentTimeMillis() - executeTime < 21600000) {
-            return;
-        }
-        RuntimeInfo.getInstance().put("omegakoiTown", System.currentTimeMillis());
+        return System.currentTimeMillis() - executeTime >= 21600000;
+    }
 
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    getUserTasks();
-                    getSignInStatus();
-                    houseProduct();
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
-                }
+    public static Task init() {
+        return new Task("OmegakoiTown", () -> {
+            try {
+                RuntimeInfo.getInstance().put("omegakoiTown", System.currentTimeMillis());
+                getUserTasks();
+                getSignInStatus();
+                houseProduct();
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, OmegakoiTown::check);
     }
 
     private static void getUserTasks() {

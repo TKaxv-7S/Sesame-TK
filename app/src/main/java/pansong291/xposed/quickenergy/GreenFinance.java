@@ -2,6 +2,8 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.GreenFinanceRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
@@ -13,16 +15,12 @@ import pansong291.xposed.quickenergy.util.Log;
 public class GreenFinance {
     private static final String TAG = GreenFinance.class.getCanonicalName();
 
-    public static void start() {
-        if (!Config.greenFinance()) {
-            return;
-        }
-        new Thread() {
-            @Override
-            public void run() {
-                index();
-            }
-        }.start();
+    public static Boolean check() {
+        return Config.greenFinance();
+    }
+
+    public static Task init() {
+        return new Task("GreenFinance", GreenFinance::index, GreenFinance::check);
     }
 
     private static void batchSelfCollect(JSONArray bsnIds) {

@@ -2,9 +2,10 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AncientTreeRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
@@ -13,23 +14,20 @@ import java.util.List;
 public class AncientTree {
     private static final String TAG = AncientTree.class.getCanonicalName();
 
-    public static void start() {
-        if (!Config.ancientTree() || !Config.isAncientTreeWeek())
-            return;
-        Log.recordLog("开始检测古树保护", "");
-        new Thread() {
+    public static Boolean check() {
+        return Config.ancientTree() && Config.isAncientTreeWeek();
+    }
 
-            @Override
-            public void run() {
-                try {
-                    FriendIdMap.waitingCurrentUid();
-                    ancientTree(Config.getAncientTreeCityCodeList()); // 二次检查 有时会返回繁忙漏保护
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
-                }
+    public static Task init() {
+        return new Task("AncientTree", () -> {
+            try {
+                Log.recordLog("开始检测古树保护", "");
+                ancientTree(Config.getAncientTreeCityCodeList()); // 二次检查 有时会返回繁忙漏保护
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, AncientTree::check);
     }
 
     private static void ancientTree(List<String> ancientTreeCityCodeList) {

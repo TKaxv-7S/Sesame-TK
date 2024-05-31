@@ -1,20 +1,34 @@
 package pansong291.xposed.quickenergy;
 
-import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
 import pansong291.xposed.quickenergy.hook.EcoLifeRpcCall;
 import pansong291.xposed.quickenergy.hook.FriendManager;
 import pansong291.xposed.quickenergy.hook.XposedHook;
-import pansong291.xposed.quickenergy.util.*;
-
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import pansong291.xposed.quickenergy.util.Config;
+import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.PluginUtils;
+import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.Statistics;
+import pansong291.xposed.quickenergy.util.StringUtil;
+import pansong291.xposed.quickenergy.util.TimeUtil;
 
 /**
  * 蚂蚁森林
@@ -100,123 +114,89 @@ public class AntForest {
         // AntForestTaskTypeList.add("GYG-TAOCAICAI");//逛一逛淘宝买菜
     }
 
-    private static Thread mainThread;
-
-    private static final List<Thread> taskThreads = new ArrayList<>();
-
-    public static void stop() {
-        if (mainThread != null) {
-            mainThread.interrupt();
-            mainThread = null;
-        }
-        synchronized (taskThreads) {
-            for (Thread thread : taskThreads) {
-                if (thread.isAlive()) {
-                    thread.interrupt();
-                }
-            }
-            taskThreads.clear();
-        }
-        isScanning = false;
-    }
-
-    public static void start() {
-        PluginUtils.invoke(AntForest.class, PluginUtils.PluginAction.START);
-
-        checkEnergyRanking(XposedHook.classLoader);
-    }
-
-    /**
-     * Check energy ranking.
-     *
-     * @param loader the loader
-     */
-    public static void checkEnergyRanking(ClassLoader loader) {
+    public static Boolean check() {
         if (RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System
                 .currentTimeMillis()) {
             Log.recordLog("异常等待中，暂不执行检测！", "");
-            return;
+            return false;
         }
         if (isScanning) {
             if (lastCollectTime + 5000 > System.currentTimeMillis()) {
                 Log.recordLog("之前的检测未结束，本次暂停", "");
-                return;
+                return false;
             }
             Log.recordLog("之前的检测未结束，但是上次收取时间超过5秒，继续执行本次检测");
-        } else {
-            Log.recordLog("定时检测开始", "");
-            isScanning = true;
         }
-        mainThread = new Thread() {
-            ClassLoader loader;
+        return true;
+    }
 
-            public Thread setData(ClassLoader cl) {
-                loader = cl;
-                return this;
-            }
+    /**
+     * Check energy ranking.
+     */
+    public static Task init() {
+        return new Task("AntForest", () -> {
+            try {
+                PluginUtils.invoke(AntForest.class, PluginUtils.PluginAction.START);
 
-            @Override
-            public void run() {
-                try {
-                    canCollectSelfEnergy();
-                    queryEnergyRanking();
-                    isScanning = false;
-                    if (TimeUtil.getTimeStr().compareTo("0700") < 0 || TimeUtil.getTimeStr().compareTo("0730") > 0) {
-                        popupTask();
-                        if (Statistics.canSyncStepToday(FriendIdMap.getCurrentUid())
-                                && TimeUtil.getTimeStr().compareTo("0600") >= 0) {
-                            new StepTask(loader).start();
-                        }
-                        if (Config.energyRain()) {
-                            energyRain();
-                        }
-                        if (Config.receiveForestTaskAward()) {
-                            receiveTaskAward();
-                        }
-                        if (Config.ecoLifeTick()) {
-                            ecoLifeTick();
-                        }
-                        for (int i = 0; i < Config.getWaterFriendList().size(); i++) {
-                            String uid = Config.getWaterFriendList().get(i);
-                            if (selfId.equals(uid))
-                                continue;
-                            int waterCount = Config.getWaterCountList().get(i);
-                            if (waterCount <= 0)
-                                continue;
-                            if (waterCount > 3)
-                                waterCount = 3;
-                            if (Statistics.canWaterFriendToday(uid, waterCount)) {
-                                waterFriendEnergy(uid, waterCount);
-                            }
-                        }
-                        if (Config.antdodoCollect()) {
-                            antdodoReceiveTaskAward();
-                            antdodoPropList();
-                            antdodoCollect();
-                        }
-                        if (!Config.whoYouWantGiveTo().isEmpty()
-                                && !FriendIdMap.getCurrentUid().equals(Config.whoYouWantGiveTo().get(0))) {
-                            giveProp(Config.whoYouWantGiveTo().get(0));
-                        }
-                        if (Config.userPatrol()) {
-                            UserPatrol();
-                        }
-                        if (Config.ExchangeEnergyDoubleClick() && Statistics.canExchangeDoubleCardToday()) {
-                            int exchangeCount = Config.getExchangeEnergyDoubleClickCount();
-                            exchangeEnergyDoubleClick(exchangeCount);
+                Log.recordLog("定时检测开始", "");
+                isScanning = true;
+                canCollectSelfEnergy();
+                queryEnergyRanking();
+                isScanning = false;
+                if (TimeUtil.getTimeStr().compareTo("0700") < 0 || TimeUtil.getTimeStr().compareTo("0730") > 0) {
+                    popupTask();
+                    if (Statistics.canSyncStepToday(FriendIdMap.getCurrentUid())
+                            && TimeUtil.getTimeStr().compareTo("0600") >= 0) {
+                        new StepTask(XposedHook.classLoader).start();
+                    }
+                    if (Config.energyRain()) {
+                        energyRain();
+                    }
+                    if (Config.receiveForestTaskAward()) {
+                        receiveTaskAward();
+                    }
+                    if (Config.ecoLifeTick()) {
+                        ecoLifeTick();
+                    }
+                    for (int i = 0; i < Config.getWaterFriendList().size(); i++) {
+                        String uid = Config.getWaterFriendList().get(i);
+                        if (selfId.equals(uid))
+                            continue;
+                        int waterCount = Config.getWaterCountList().get(i);
+                        if (waterCount <= 0)
+                            continue;
+                        if (waterCount > 3)
+                            waterCount = 3;
+                        if (Statistics.canWaterFriendToday(uid, waterCount)) {
+                            waterFriendEnergy(uid, waterCount);
                         }
                     }
-
-                    PluginUtils.invoke(AntForest.class, PluginUtils.PluginAction.STOP);
-                } catch (Throwable t) {
-                    Log.i(TAG, "checkEnergyRanking.run err:");
-                    Log.printStackTrace(TAG, t);
-                } finally {
-                    isScanning = false;
+                    if (Config.antdodoCollect()) {
+                        antdodoReceiveTaskAward();
+                        antdodoPropList();
+                        antdodoCollect();
+                    }
+                    if (!Config.whoYouWantGiveTo().isEmpty()
+                            && !FriendIdMap.getCurrentUid().equals(Config.whoYouWantGiveTo().get(0))) {
+                        giveProp(Config.whoYouWantGiveTo().get(0));
+                    }
+                    if (Config.userPatrol()) {
+                        UserPatrol();
+                    }
+                    if (Config.ExchangeEnergyDoubleClick() && Statistics.canExchangeDoubleCardToday()) {
+                        int exchangeCount = Config.getExchangeEnergyDoubleClickCount();
+                        exchangeEnergyDoubleClick(exchangeCount);
+                    }
                 }
+
+                PluginUtils.invoke(AntForest.class, PluginUtils.PluginAction.STOP);
+            } catch (Throwable t) {
+                Log.i(TAG, "checkEnergyRanking.run err:");
+                Log.printStackTrace(TAG, t);
+            } finally {
+                isScanning = false;
             }
-        }.setData(loader);
-        mainThread.start();
+        }, AntForest::check);
     }
 
     private static void fillUserRobFlag(List<String> idList) {
@@ -1843,11 +1823,9 @@ public class AntForest {
             return;
         }
         waitCollectBubbleIds.add(bubbleId);
-        BubbleTimerTask btt = new BubbleTimerTask(userId, bizNo, bubbleId, produceTime);
-        synchronized (taskThreads) {
-            taskThreads.add(btt);
-        }
-        long delay = btt.getDelayTime();
+        BubbleTimerTask btt = new BubbleTimerTask(userId, bizNo, bubbleId, produceTime + offsetTime - System.currentTimeMillis() - Config.advanceTime());
+        XposedHook.getAntForestTask().addChildThread(btt.getTid(), btt);
+        long delay = btt.getSleep();
         btt.start();
         collectTaskCount++;
         Log.recordLog(delay / 1000 + "秒后尝试收取能量", "");
@@ -1920,26 +1898,24 @@ public class AntForest {
      * The type Bubble timer task.
      */
     public static class BubbleTimerTask extends Thread {
+
+        private final String id;
         /**
          * The User id.
          */
-        String userId;
+        private final String userId;
         /**
          * The Biz no.
          */
-        String bizNo;
+        private final String bizNo;
         /**
          * The Bubble id.
          */
-        long bubbleId;
-        /**
-         * The Produce time.
-         */
-        long produceTime;
+        private final long bubbleId;
         /**
          * The Sleep.
          */
-        long sleep = 0;
+        private final long sleep;
 
         /**
          * Instantiates a new Bubble timer task.
@@ -1947,13 +1923,17 @@ public class AntForest {
          * @param ui the ui
          * @param bn the bn
          * @param bi the bi
-         * @param pt the pt
          */
-        BubbleTimerTask(String ui, String bn, long bi, long pt) {
+        BubbleTimerTask(String ui, String bn, long bi, long sp) {
+            id = ui + "|" + bn + "|" + bi + "|" + sp;
             bizNo = bn;
             userId = ui;
             bubbleId = bi;
-            produceTime = pt;
+            sleep = sp;
+        }
+
+        public String getTid() {
+            return id;
         }
 
         /**
@@ -1961,8 +1941,7 @@ public class AntForest {
          *
          * @return the delay time
          */
-        public long getDelayTime() {
-            sleep = produceTime + offsetTime - System.currentTimeMillis() - Config.advanceTime();
+        public long getSleep() {
             return sleep;
         }
 
@@ -1991,9 +1970,7 @@ public class AntForest {
             String s = "  收：" + totalCollected + "，帮：" + totalHelpCollected;
             Log.recordLog(s, "");
             AntForestNotification.setContentText(Log.getFormatTime() + s);
-            synchronized (taskThreads) {
-                taskThreads.remove(this);
-            }
+            XposedHook.getAntForestTask().removeChildThread(getTid());
         }
     }
 }

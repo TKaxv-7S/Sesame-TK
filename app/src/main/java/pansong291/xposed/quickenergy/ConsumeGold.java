@@ -2,44 +2,39 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.ConsumeGoldRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.Statistics;
-
-import pansong291.xposed.quickenergy.util.*;
 
 public class ConsumeGold {
     private static final String TAG = ConsumeGold.class.getCanonicalName();
 
-    public static void start() {
+    public static Boolean check() {
         if (!Config.consumeGold())
-            return;
-
+            return false;
         long executeTime = RuntimeInfo.getInstance().getLong("consumeGold", 0);
-        if (System.currentTimeMillis() - executeTime < 21600000) {
-            return;
-        }
-        RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
+        return System.currentTimeMillis() - executeTime >= 21600000;
+    }
 
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    signinCalendar();
-                    taskV2Index("CG_TASK_LIST");
-                    taskV2Index("HOME_NAVIGATION");
-                    taskV2Index("CG_SIGNIN_AD_FEEDS");
-                    taskV2Index("SURPRISE_TASK");
-                    taskV2Index("CG_BROWSER_AD_FEEDS");
-                    consumeGoldIndex();
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
-                }
+    public static Task init() {
+        return new Task("ConsumeGold", () -> {
+            try {
+                RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
+                signinCalendar();
+                taskV2Index("CG_TASK_LIST");
+                taskV2Index("HOME_NAVIGATION");
+                taskV2Index("CG_SIGNIN_AD_FEEDS");
+                taskV2Index("SURPRISE_TASK");
+                taskV2Index("CG_BROWSER_AD_FEEDS");
+                consumeGoldIndex();
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, ConsumeGold::check);
     }
 
     private static void taskV2Index(String taskSceneCode) {

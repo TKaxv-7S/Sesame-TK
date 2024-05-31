@@ -112,12 +112,6 @@ public class RpcUtil {
                                     }
                                 }
                             }
-                            try {
-                                Thread.sleep(3000 + RandomUtils.delay());
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                            continue;
                         } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(args0)) {
                             if (Config.waitWhenException() > 0) {
                                 long waitTime = System.currentTimeMillis() + Config.waitWhenException();

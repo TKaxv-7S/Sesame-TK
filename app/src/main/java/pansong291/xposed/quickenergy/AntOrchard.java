@@ -2,11 +2,20 @@ package pansong291.xposed.quickenergy;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import pansong291.xposed.quickenergy.hook.AntOrchardRpcCall;
-import pansong291.xposed.quickenergy.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pansong291.xposed.quickenergy.entity.Task;
+import pansong291.xposed.quickenergy.hook.AntOrchardRpcCall;
+import pansong291.xposed.quickenergy.util.Config;
+import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.PluginUtils;
+import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.Statistics;
+import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class AntOrchard {
     private static final String TAG = AntOrchard.class.getCanonicalName();
@@ -14,62 +23,60 @@ public class AntOrchard {
     private static String userId;
     private static String treeLevel;
 
-    public static void start() {
-        if (!Config.antOrchard())
-            return;
+    public static Boolean check() {
+        return Config.antOrchard();
+    }
 
-        PluginUtils.invoke(AntOrchard.class, PluginUtils.PluginAction.START);
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    String s = AntOrchardRpcCall.orchardIndex();
-                    JSONObject jo = new JSONObject(s);
-                    if ("100".equals(jo.getString("resultCode"))) {
-                        if (jo.optBoolean("userOpenOrchard")) {
-                            JSONObject taobaoData = new JSONObject(jo.getString("taobaoData"));
-                            treeLevel = Integer.toString(taobaoData.getJSONObject("gameInfo").getJSONObject("plantInfo")
-                                    .getJSONObject("seedStage").getInt("stageLevel"));
-                            JSONObject joo = new JSONObject(AntOrchardRpcCall.mowGrassInfo());
-                            if ("100".equals(jo.getString("resultCode"))) {
-                                userId = joo.getString("userId");
-                                if (jo.has("lotteryPlusInfo"))
-                                    drawLotteryPlus(jo.getJSONObject("lotteryPlusInfo"));
-                                extraInfoGet();
-                                if (!joo.optBoolean("hireCountOnceLimit", true)
-                                        && !joo.optBoolean("hireCountOneDayLimit", true))
-                                    batchHireAnimalRecommend();
-                                if (Config.receiveOrchardTaskAward()) {
-                                    doOrchardDailyTask(userId);
-                                    triggerTbTask();
-                                }
-                                if (Config.getOrchardSpreadManureCount() > 0 && Statistics.canSpreadManureToday(userId))
-                                    orchardSpreadManure();
-
-                                if (Config.getOrchardSpreadManureCount() >= 3
-                                        && Config.getOrchardSpreadManureCount() < 10) {
-                                    querySubplotsActivity(3);
-                                } else if (Config.getOrchardSpreadManureCount() >= 10) {
-                                    querySubplotsActivity(10);
-                                }
-
-                            } else {
-                                Log.recordLog(jo.getString("resultDesc"), jo.toString());
+    public static Task init() {
+        return new Task("AntOrchard", () -> {
+            try {
+                PluginUtils.invoke(AntOrchard.class, PluginUtils.PluginAction.START);
+                String s = AntOrchardRpcCall.orchardIndex();
+                JSONObject jo = new JSONObject(s);
+                if ("100".equals(jo.getString("resultCode"))) {
+                    if (jo.optBoolean("userOpenOrchard")) {
+                        JSONObject taobaoData = new JSONObject(jo.getString("taobaoData"));
+                        treeLevel = Integer.toString(taobaoData.getJSONObject("gameInfo").getJSONObject("plantInfo")
+                                .getJSONObject("seedStage").getInt("stageLevel"));
+                        JSONObject joo = new JSONObject(AntOrchardRpcCall.mowGrassInfo());
+                        if ("100".equals(jo.getString("resultCode"))) {
+                            userId = joo.getString("userId");
+                            if (jo.has("lotteryPlusInfo"))
+                                drawLotteryPlus(jo.getJSONObject("lotteryPlusInfo"));
+                            extraInfoGet();
+                            if (!joo.optBoolean("hireCountOnceLimit", true)
+                                    && !joo.optBoolean("hireCountOneDayLimit", true))
+                                batchHireAnimalRecommend();
+                            if (Config.receiveOrchardTaskAward()) {
+                                doOrchardDailyTask(userId);
+                                triggerTbTask();
                             }
+                            if (Config.getOrchardSpreadManureCount() > 0 && Statistics.canSpreadManureToday(userId))
+                                orchardSpreadManure();
+
+                            if (Config.getOrchardSpreadManureCount() >= 3
+                                    && Config.getOrchardSpreadManureCount() < 10) {
+                                querySubplotsActivity(3);
+                            } else if (Config.getOrchardSpreadManureCount() >= 10) {
+                                querySubplotsActivity(10);
+                            }
+
                         } else {
-                            Config.setAntOrchard(false);
-                            Log.recordLog("请先开启芭芭农场！");
+                            Log.recordLog(jo.getString("resultDesc"), jo.toString());
                         }
                     } else {
-                        Log.i(TAG, jo.getString("resultDesc"));
+                        Config.setAntOrchard(false);
+                        Log.recordLog("请先开启芭芭农场！");
                     }
-                    PluginUtils.invoke(AntOrchard.class, PluginUtils.PluginAction.STOP);
-                } catch (Throwable t) {
-                    Log.i(TAG, "start.run err:");
-                    Log.printStackTrace(TAG, t);
+                } else {
+                    Log.i(TAG, jo.getString("resultDesc"));
                 }
+                PluginUtils.invoke(AntOrchard.class, PluginUtils.PluginAction.STOP);
+            } catch (Throwable t) {
+                Log.i(TAG, "start.run err:");
+                Log.printStackTrace(TAG, t);
             }
-        }.start();
+        }, AntOrchard::check);
     }
 
     private static String[] wuaList;
