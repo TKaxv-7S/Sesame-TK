@@ -41,7 +41,6 @@ public class AntForest {
     private static int helpCollectedEnergy = 0;
     private static int totalCollected = 0;
     private static int totalHelpCollected = 0;
-    private static int collectTaskCount = 0;
     private static long serverTime = -1;
     private static long offsetTime = -1;
     private static long laterTime = -1;
@@ -1207,7 +1206,7 @@ public class AntForest {
         Log.recordLog(
                 "收[" + collectedEnergy + "g]，帮["
                         + helpCollectedEnergy + "g]，"
-                        + collectTaskCount + "个蹲点任务");
+                        + XposedHook.getAntForestTask().countChildThread() + "个蹲点任务");
         FriendIdMap.saveIdMap();
         collectedEnergy = 0;
         helpCollectedEnergy = 0;
@@ -1819,15 +1818,15 @@ public class AntForest {
      */
     private static void execute(String userId, String bizNo, long bubbleId,
             long produceTime) {
-        if (waitCollectBubbleIds.contains(bubbleId)) {
+        Task antForestTask = XposedHook.getAntForestTask();
+        String tid = BubbleTimerTask.getTid(userId, bizNo, bubbleId);
+        if (antForestTask.hasChildThread(tid)) {
             return;
         }
-        waitCollectBubbleIds.add(bubbleId);
         BubbleTimerTask btt = new BubbleTimerTask(userId, bizNo, bubbleId, produceTime + offsetTime - System.currentTimeMillis() - Config.advanceTime());
-        XposedHook.getAntForestTask().addChildThread(btt.getTid(), btt);
+        antForestTask.addChildThread(btt.getTid(), btt);
         long delay = btt.getSleep();
         btt.start();
-        collectTaskCount++;
         Log.recordLog(delay / 1000 + "秒后尝试收取能量", "");
     }
 
@@ -1925,7 +1924,7 @@ public class AntForest {
          * @param bi the bi
          */
         BubbleTimerTask(String ui, String bn, long bi, long sp) {
-            id = ui + "|" + bn + "|" + bi + "|" + sp;
+            id = getTid(ui, bn, bi);
             bizNo = bn;
             userId = ui;
             bubbleId = bi;
@@ -1947,11 +1946,11 @@ public class AntForest {
 
         @Override
         public void run() {
+            Task antForestTask = XposedHook.getAntForestTask();
             try {
                 if (sleep > 0)
                     sleep(sleep);
-                Log.recordLog("[" + FriendIdMap.getNameById(userId) + "]蹲点收取开始" + collectTaskCount, "");
-                collectTaskCount--;
+                Log.recordLog("[" + FriendIdMap.getNameById(userId) + "]蹲点收取开始" + antForestTask.countChildThread(), "");
                 // 20230725收取失败不再继续尝试
 //                collectEnergy(userId, bubbleId, bizNo);
 
@@ -1970,7 +1969,11 @@ public class AntForest {
             String s = "  收：" + totalCollected + "，帮：" + totalHelpCollected;
             Log.recordLog(s, "");
             AntForestNotification.setContentText(Log.getFormatTime() + s);
-            XposedHook.getAntForestTask().removeChildThread(getTid());
+            antForestTask.removeChildThread(getTid());
+        }
+
+        public static String getTid(String ui, String bn, long bi) {
+            return ui + "|" + bn + "|" + bi;
         }
     }
 }

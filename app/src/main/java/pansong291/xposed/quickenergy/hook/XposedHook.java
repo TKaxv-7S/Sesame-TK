@@ -64,7 +64,7 @@ public class XposedHook implements IXposedHookLoadPackage {
 
     private static PowerManager.WakeLock wakeLock;
 
-    public static Handler mainHandler;
+    private static Handler mainHandler;
 
     private static Runnable mainRunner;
 
@@ -98,6 +98,10 @@ public class XposedHook implements IXposedHookLoadPackage {
 
     public static boolean getIsRestart() {
         return isRestart;
+    }
+
+    public static Handler getMainHandler() {
+        return mainHandler;
     }
 
     public static Task getAntForestTask() {
@@ -302,7 +306,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                         wakeLock = null;
                     }
                     Task.stopAllTask();
-                    isInit = false;
                     AntForestNotification.stop(service, false);
                     AntForestNotification.setContentText("支付宝前台服务被销毁");
                     Log.recordLog("支付宝前台服务被销毁", "");

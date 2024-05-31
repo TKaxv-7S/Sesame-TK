@@ -78,6 +78,23 @@ public class Task {
         childThreadMap.clear();
     }
 
+    public synchronized Boolean hasChildThread(String childName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            childThreadMap.compute(childName, (key, value) -> {
+                if (value != null && !value.isAlive()) {
+                    value = null;
+                }
+                return value;
+            });
+        } else {
+            Thread oldThread = childThreadMap.get(childName);
+            if (oldThread != null && !oldThread.isAlive()) {
+                childThreadMap.remove(childName);
+            }
+        }
+        return childThreadMap.containsKey(childName);
+    }
+
     public synchronized void addChildThread(String childName, Thread childThread) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childThreadMap.compute(childName, (key, value) -> {
@@ -95,7 +112,7 @@ public class Task {
         }
     }
 
-    public void removeChildThread(String childName) {
+    public synchronized void removeChildThread(String childName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childThreadMap.compute(childName, (key, value) -> {
                 if (value != null) {
@@ -110,6 +127,10 @@ public class Task {
             }
             childThreadMap.remove(childName);
         }
+    }
+
+    public synchronized Integer countChildThread() {
+        return childThreadMap.size();
     }
 
 
