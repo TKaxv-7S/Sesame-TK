@@ -8,6 +8,10 @@ public class AntMemberRpcCall {
         return String.valueOf(System.currentTimeMillis()) + RandomUtils.nextLong();
     }
 
+    public static Boolean check() {
+        return RpcUtil.requestTest("alipay.antmember.biz.rpc.member.h5.queryPointCert", "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]");
+    }
+
     /* ant member point */
     public static String queryPointCert(int page, int pageSize) {
         String args1 = "[{\"page\":" + page + ",\"pageSize\":" + pageSize + "}]";

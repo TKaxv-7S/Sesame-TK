@@ -64,25 +64,19 @@ public class RpcUtil {
     }
 
     public static String request(String args0, String args1) {
+        return request(args0, args1, 3);
+    }
+
+    public static String request(String args0, String args1, int retryCount) {
         if (isInterrupted) {
             return null;
         }
-        String result = null;
+        String result;
         int count = 0;
-        while (count < 3) {
+        do {
             count++;
             try {
-                Object o;
-                if (rpcCallMethod.getParameterTypes().length == 12) {
-                    o = rpcCallMethod.invoke(
-                            null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1);
-                } else {
-                    o = rpcCallMethod.invoke(
-                            null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
-                }
-                String str = getResponse(o);
-                Log.i(TAG, "argument: " + args0 + ", " + args1);
-                Log.i(TAG, "response: " + str);
+                String str = getResponse(doRequest(args0, args1));
                 try {
                     JSONObject jo = new JSONObject(str);
                     if (jo.optString("memo", "").contains("系统繁忙")) {
@@ -95,7 +89,7 @@ public class RpcUtil {
                 }
                 return str;
             } catch (Throwable t) {
-                Log.i(TAG, "rpc [" + args0 + "] err:");
+                Log.i(TAG, "rpc call err:");
                 Log.printStackTrace(TAG, t);
                 result = null;
                 if (t instanceof InvocationTargetException) {
@@ -120,7 +114,7 @@ public class RpcUtil {
                                 Log.recordLog("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
                             try {
-                                Thread.sleep(900 + RandomUtils.delay());
+                                Thread.sleep(600 + RandomUtils.delay());
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -128,7 +122,7 @@ public class RpcUtil {
                         } else if (msg.contains("MMTPException")) {
                             result = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
                             try {
-                                Thread.sleep(900 + RandomUtils.delay());
+                                Thread.sleep(600 + RandomUtils.delay());
                             } catch (InterruptedException e) {
                                 throw new RuntimeException(e);
                             }
@@ -138,15 +132,78 @@ public class RpcUtil {
                 }
                 return result;
             }
-        }
+        } while (count < retryCount);
         return result;
     }
 
-    public static String getResponse(Object resp) throws Throwable {
-        if (getResponseMethod == null)
-            getResponseMethod = resp.getClass().getMethod(ClassMember.getResponse);
+    public static Boolean requestTest(String args0, String args1) {
+        try {
+            String str = getResponse(doRequest(args0, args1));
+            try {
+                JSONObject jo = new JSONObject(str);
+                if (jo.optString("memo", "").contains("系统繁忙")) {
+                    isInterrupted = true;
+                    AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
+                    Log.recordLog("系统繁忙，可能需要滑动验证");
+                    return false;
+                }
+            } catch (Throwable ignored) {
+            }
+            return true;
+        } catch (Throwable t) {
+            Log.i(TAG, "rpc check err:");
+            Log.printStackTrace(TAG, t);
+            if (t instanceof InvocationTargetException) {
+                String msg = t.getCause().getMessage();
+                if (!StringUtil.isEmpty(msg)) {
+                    if (msg.contains("登录超时")) {
+                        if (!isInterrupted && !XposedHook.getIsRestart()) {
+                            isInterrupted = true;
+                            AntForestNotification.setContentText("登录超时");
+                            if (AntForestToast.context != null) {
+                                if (Config.timeoutRestart()) {
+                                    Log.recordLog("尝试重启！");
+                                    XposedHook.restartHook(AntForestToast.context, Config.timeoutType(), 500, true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
-        return (String) getResponseMethod.invoke(resp);
+    public static Object doRequest(String args0, String args1) {
+        try {
+            Object o;
+            if (rpcCallMethod.getParameterTypes().length == 12) {
+                o = rpcCallMethod.invoke(
+                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1);
+            } else {
+                o = rpcCallMethod.invoke(
+                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
+            }
+            Log.i(TAG, "rpc argument: " + args0 + ", " + args1);
+            return o;
+        } catch (Throwable t) {
+            Log.i(TAG, "rpc request [" + args0 + "] err:");
+            Log.printStackTrace(TAG, t);
+            try {
+                throw t;
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static String getResponse(Object resp) throws Throwable {
+        if (getResponseMethod == null) {
+            getResponseMethod = resp.getClass().getMethod(ClassMember.getResponse);
+        }
+        String str = (String) getResponseMethod.invoke(resp);
+        Log.i(TAG, "rpc response: " + str);
+        return str;
     }
 
 }

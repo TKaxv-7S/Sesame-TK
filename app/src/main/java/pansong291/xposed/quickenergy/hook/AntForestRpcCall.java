@@ -1,12 +1,10 @@
 package pansong291.xposed.quickenergy.hook;
 
-import pansong291.xposed.quickenergy.util.StringUtil;
-
-import pansong291.xposed.quickenergy.util.RandomUtils;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class AntForestRpcCall {
 

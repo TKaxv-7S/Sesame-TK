@@ -15,6 +15,7 @@ import android.os.PowerManager;
 
 import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.FutureTask;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -56,6 +57,8 @@ public class XposedHook implements IXposedHookLoadPackage {
     private static boolean isHooked = false;
 
     private static boolean isRestart = false;
+
+    private static Integer retryCount = 0;
 
     @SuppressLint("StaticFieldLeak")
     private static Service service;
@@ -178,17 +181,31 @@ public class XposedHook implements IXposedHookLoadPackage {
                             Config.shouldReload = true;
                             Statistics.resetToday();
 
+                            try {
+                                FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
+                                Thread checkThread = new Thread(checkTask);
+                                checkThread.start();
+                                if (!checkTask.get()) {
+                                    if (retryCount < 3) {
+                                        mainHandler.postDelayed(this, 1000);
+                                    } else if (retryCount < 7) {
+                                        mainHandler.postDelayed(this, 3000);
+                                    } else {
+                                        mainHandler.postDelayed(this, Config.checkInterval());
+                                        return;
+                                    }
+                                    retryCount++;
+                                    return;
+                                }
+                            } catch (Exception e) {
+                                Log.i(TAG, "check err:");
+                                Log.printStackTrace(TAG, e);
+                                mainHandler.postDelayed(this, 20_000);
+                                return;
+                            }
                             antForestTask.startTask();
                             if (TimeUtil.getTimeStr().compareTo("0700") < 0
                                     || TimeUtil.getTimeStr().compareTo("0730") > 0) {
-                                try {
-                                    FriendIdMap.waitingCurrentUid();
-                                } catch (InterruptedException e) {
-                                    Log.i(TAG, "waitingCurrentUid err:");
-                                    Log.printStackTrace(TAG, e);
-                                    mainHandler.postDelayed(this, 60_000);
-                                    return;
-                                }
                                 antCooperateTask.startTask();
                                 antFarmTask.startTask();
                                 reserveTask.startTask();
