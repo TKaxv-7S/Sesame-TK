@@ -174,7 +174,7 @@ public class RpcUtil {
         return false;
     }
 
-    public static Object doRequest(String args0, String args1) {
+    public static Object doRequest(String args0, String args1) throws Throwable {
         try {
             Object o;
             if (rpcCallMethod.getParameterTypes().length == 12) {
@@ -188,12 +188,7 @@ public class RpcUtil {
             return o;
         } catch (Throwable t) {
             Log.i(TAG, "rpc request [" + args0 + "] err:");
-            Log.printStackTrace(TAG, t);
-            try {
-                throw t;
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
+            throw t;
         }
     }
 
