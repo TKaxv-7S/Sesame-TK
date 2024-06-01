@@ -22,7 +22,7 @@ public class FriendIdMap {
     public static void setCurrentUid(String uid) {
         if (currentUid == null || !currentUid.equals(uid)) {
             currentUid = uid;
-            FriendManager.fillUser(XposedHook.classLoader);
+            FriendManager.fillUser(XposedHook.getClassLoader());
             PluginUtils.invoke(FriendIdMap.class, PluginUtils.PluginAction.INIT);
         }
     }

@@ -1,6 +1,5 @@
 package pansong291.xposed.quickenergy;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.Toast;
 
@@ -11,15 +10,13 @@ import pansong291.xposed.quickenergy.util.Log;
 public class AntForestToast {
     private static final String TAG = AntForestToast.class.getCanonicalName();
 
-    @SuppressLint("StaticFieldLeak")
-    public static Context context;
-
     public static void show(CharSequence cs) {
         show(cs, false);
     }
 
     public static void show(CharSequence cs, boolean force) {
         try {
+            Context context = XposedHook.getContext();
             if (context != null && (force || Config.showToast())) {
                 XposedHook.getMainHandler().post(() -> {
                     try {

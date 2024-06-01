@@ -8,7 +8,6 @@ import java.text.DateFormat;
 
 import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.AntForestNotification;
-import pansong291.xposed.quickenergy.AntForestToast;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
@@ -20,8 +19,6 @@ public class RpcUtil {
     private static Method rpcCallMethod;
     private static Method getResponseMethod;
     private static Object curH5PageImpl;
-
-    public static volatile boolean isInterrupted = false;
 
     public static void init(ClassLoader loader) {
         if (rpcCallMethod == null) {
@@ -68,7 +65,7 @@ public class RpcUtil {
     }
 
     public static String request(String args0, String args1, int retryCount) {
-        if (isInterrupted) {
+        if (XposedHook.getIsOffline()) {
             return null;
         }
         String result;
@@ -80,7 +77,7 @@ public class RpcUtil {
                 try {
                     JSONObject jo = new JSONObject(str);
                     if (jo.optString("memo", "").contains("系统繁忙")) {
-                        isInterrupted = true;
+                        XposedHook.setIsOffline(true);
                         AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
                         Log.recordLog("系统繁忙，可能需要滑动验证");
                         return str;
@@ -96,14 +93,12 @@ public class RpcUtil {
                     String msg = t.getCause().getMessage();
                     if (!StringUtil.isEmpty(msg)) {
                         if (msg.contains("登录超时")) {
-                            if (!isInterrupted && !XposedHook.getIsRestart()) {
-                                isInterrupted = true;
+                            if (!XposedHook.getIsOffline()) {
+                                XposedHook.setIsOffline(true);
                                 AntForestNotification.setContentText("登录超时");
-                                if (AntForestToast.context != null) {
-                                    if (Config.timeoutRestart()) {
-                                        Log.recordLog("尝试重启！");
-                                        XposedHook.restartHook(AntForestToast.context, Config.timeoutType(), 500, true);
-                                    }
+                                if (Config.timeoutRestart()) {
+                                    Log.recordLog("尝试重启！");
+                                    XposedHook.restartHook(Config.timeoutType(), 500, true);
                                 }
                             }
                         } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(args0)) {
@@ -142,7 +137,7 @@ public class RpcUtil {
             try {
                 JSONObject jo = new JSONObject(str);
                 if (jo.optString("memo", "").contains("系统繁忙")) {
-                    isInterrupted = true;
+                    XposedHook.setIsOffline(true);
                     AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
                     Log.recordLog("系统繁忙，可能需要滑动验证");
                     return false;
@@ -157,14 +152,12 @@ public class RpcUtil {
                 String msg = t.getCause().getMessage();
                 if (!StringUtil.isEmpty(msg)) {
                     if (msg.contains("登录超时")) {
-                        if (!isInterrupted && !XposedHook.getIsRestart()) {
-                            isInterrupted = true;
+                        if (!XposedHook.getIsOffline()) {
+                            XposedHook.setIsOffline(true);
                             AntForestNotification.setContentText("登录超时");
-                            if (AntForestToast.context != null) {
-                                if (Config.timeoutRestart()) {
-                                    Log.recordLog("尝试重启！");
-                                    XposedHook.restartHook(AntForestToast.context, Config.timeoutType(), 500, true);
-                                }
+                            if (Config.timeoutRestart()) {
+                                Log.recordLog("尝试重启！");
+                                XposedHook.restartHook(Config.timeoutType(), 500, true);
                             }
                         }
                     }

@@ -21,7 +21,7 @@ public class AntSports {
     public static Task init() {
         return new Task("AntSports", () -> {
             try {
-                ClassLoader loader = XposedHook.classLoader;
+                ClassLoader loader = XposedHook.getClassLoader();
                 if (Config.openTreasureBox())
                     queryMyHomePage(loader);
 

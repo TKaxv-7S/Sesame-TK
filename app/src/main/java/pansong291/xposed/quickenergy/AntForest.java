@@ -146,7 +146,7 @@ public class AntForest {
                     popupTask();
                     if (Statistics.canSyncStepToday(FriendIdMap.getCurrentUid())
                             && TimeUtil.getTimeStr().compareTo("0600") >= 0) {
-                        new StepTask(XposedHook.classLoader).start();
+                        new StepTask(XposedHook.getClassLoader()).start();
                     }
                     if (Config.energyRain()) {
                         energyRain();
