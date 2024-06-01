@@ -1,8 +1,8 @@
 # XQuickEnergy
 
-[![License](https://img.shields.io/github/license/constanline/XQuickEnergy.svg)](LICENSE)
-[![Latest Release](https://img.shields.io/github/release/constanline/XQuickEnergy.svg)](../../releases)
-[![All Releases Download](https://img.shields.io/github/downloads/constanline/XQuickEnergy/total.svg)](../../releases)
+[![License](https://img.shields.io/github/license/TKaxv-7S/XQuickEnergy.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/release/TKaxv-7S/XQuickEnergy.svg)](../../releases)
+[![All Releases Download](https://img.shields.io/github/downloads/TKaxv-7S/XQuickEnergy/total.svg)](../../releases)
 
 ## 主要功能
 感谢蚂蚁森林对绿化事业的贡献。快速收取蚂蚁森林能量，也为祖国的绿化事业出一份微薄之力~
