@@ -203,8 +203,8 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 mainHandler.postDelayed(this, 20_000);
                                 return;
                             }
-retryCount = 0;                            
-antForestTask.startTask();
+                            retryCount = 0;
+                            antForestTask.startTask();
                             if (TimeUtil.getTimeStr().compareTo("0700") < 0
                                     || TimeUtil.getTimeStr().compareTo("0730") > 0) {
                                 antCooperateTask.startTask();
