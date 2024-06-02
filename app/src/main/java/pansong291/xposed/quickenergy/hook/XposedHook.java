@@ -264,6 +264,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                             }
                             if (!targetUid.equals(FriendIdMap.getCurrentUid())) {
                                 FriendIdMap.setCurrentUid(targetUid);
+                                isOffline = true;
                             }
                             if (isOffline) {
                                 isOffline = false;
@@ -285,19 +286,19 @@ public class XposedHook implements IXposedHookLoadPackage {
                         @SuppressLint("WakelockTimeout")
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
-                            Service service = (Service) param.thisObject;
-                            if (!ClassMember.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
+                            Service appService = (Service) param.thisObject;
+                            if (!ClassMember.CURRENT_USING_SERVICE.equals(appService.getClass().getCanonicalName())) {
                                 return;
                             }
                             Log.i(TAG, "Service onCreate");
                             AntForestNotification.setContentText("运行中...");
-                            registerBroadcastReceiver(service);
-                            XposedHook.service = service;
-                            XposedHook.context = service.getApplicationContext();
-                            RpcUtil.init(XposedHook.classLoader);
+                            registerBroadcastReceiver(appService);
+                            service = appService;
+                            context = appService.getApplicationContext();
+                            RpcUtil.init(classLoader);
                             if (Config.stayAwake()) {
-                                PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
-                                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
+                                PowerManager pm = (PowerManager) appService.getSystemService(Context.POWER_SERVICE);
+                                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, appService.getClass().getName());
                                 wakeLock.acquire();
                                 restartHook(Config.stayAwakeType(), 30 * 60 * 1000, false);
                             }
