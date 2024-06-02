@@ -36,6 +36,10 @@ public class Log {
         FileUtils.append2File(getFormatTime() + " " + s + "\n", FileUtils.getOtherLogFile());
     }
 
+    public static void debug(String s) {
+        FileUtils.append2DebugLogFile(TAG + ", " + s);
+    }
+
     public static void recordLog(String str) {
         recordLog(str, "");
     }

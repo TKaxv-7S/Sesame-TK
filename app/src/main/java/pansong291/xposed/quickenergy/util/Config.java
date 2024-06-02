@@ -30,6 +30,8 @@ public class Config {
 
     private static final String TAG = Config.class.getCanonicalName();
 
+    public static final Boolean DEBUG = true;
+
     /* application */
     public static final String jn_immediateEffect = "immediateEffect";
     public static final String jn_recordLog = "recordLog";

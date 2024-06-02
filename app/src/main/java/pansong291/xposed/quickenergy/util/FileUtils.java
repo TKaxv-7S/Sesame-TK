@@ -1,9 +1,8 @@
 package pansong291.xposed.quickenergy.util;
 
 import android.os.Environment;
-import pansong291.xposed.quickenergy.AntForestToast;
-import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.ClassMember;
+
+import org.json.JSONObject;
 
 import java.io.Closeable;
 import java.io.File;
@@ -11,7 +10,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
-import org.json.JSONObject;
+
+import pansong291.xposed.quickenergy.AntForestToast;
+import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.hook.ClassMember;
 
 public class FileUtils {
     private static final String TAG = FileUtils.class.getCanonicalName();
@@ -30,6 +32,7 @@ public class FileUtils {
     private static File farmLogFile;
     private static File otherLogFile;
     private static File simpleLogFile;
+    private static File debugLogFile;
     private static File runtimeLogFile;
     private static File cityCodeFile;
     private static File friendWatchFile;
@@ -298,6 +301,20 @@ public class FileUtils {
         return simpleLogFile;
     }
 
+    public static File getDebugLogFile() {
+        if (debugLogFile == null) {
+            debugLogFile = new File(getMainDirectoryFile(), "debug.log");
+            if (debugLogFile.exists() && debugLogFile.isDirectory())
+                debugLogFile.delete();
+            if (!debugLogFile.exists())
+                try {
+                    debugLogFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+        }
+        return debugLogFile;
+    }
+
     public static File getRuntimeLogFileBak() {
         return new File(getMainDirectoryFile(), "runtime.log." + System.currentTimeMillis());
     }
@@ -370,6 +387,13 @@ public class FileUtils {
             getRuntimeLogFile().delete();
         }
         append2File(Log.getFormatDateTime() + "  " + s + "\n", getRuntimeLogFile());
+    }
+
+    public synchronized static void append2DebugLogFile(String s) {
+        if (getDebugLogFile().length() > 31_457_280) {// 30MB
+            getDebugLogFile().delete();
+        }
+        append2File(Log.getFormatDateTime() + "  " + s + "\n", getDebugLogFile());
     }
 
     public static boolean write2File(String s, File f) {

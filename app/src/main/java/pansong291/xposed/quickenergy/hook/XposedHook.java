@@ -13,8 +13,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -264,6 +268,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                             }
                             if (!targetUid.equals(FriendIdMap.getCurrentUid())) {
                                 FriendIdMap.setCurrentUid(targetUid);
+                                isOffline = true;
                             }
                             if (isOffline) {
                                 isOffline = false;
@@ -271,6 +276,41 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 ((Activity) param.thisObject).finish();
                                 Log.i(TAG, "Activity reLogin");
                             }
+
+                            Log.debug("start      mNativeExtensionManager");
+                            if (Config.DEBUG) {
+                                Class<?> aClass = XposedHelpers.findClass("com.alibaba.ariver.jsapi.rpc.RpcBridgeExtension", classLoader);
+
+                                if (aClass != null) {
+                                    Log.debug("aClass");
+                                }
+
+                                Object newInstance = XposedHelpers.newInstance(aClass);
+
+                                if (newInstance != null) {
+                                    Log.debug("newInstance");
+                                }
+
+                                //TODO
+                                Object aaa = XposedHelpers.callMethod(
+                                        newInstance, "rpc");
+
+                                if (aaa != null) {
+                                    Log.debug("mNativeExtensionManager");
+                                }
+
+
+                                /*try {
+                                    Class<?> BridgeDispatcherClazz = classLoader.loadClass("com.alibaba.ariver.engine.common.bridge.dispatch.BridgeDispatcher");
+                                    Method getInstance = BridgeDispatcherClazz.getMethod("getInstance");
+                                    Object bridgeDispatcher = getInstance.invoke(null);
+                                    classLoader.loadClass("com.alibaba.ariver.engine.common.bridge.dispatch.BridgeDispatcher")
+                                } catch (ClassNotFoundException | NoSuchMethodException |
+                                         IllegalAccessException | InvocationTargetException e) {
+                                    throw new RuntimeException(e);
+                                }*/
+                            }
+                            Log.debug("end      mNativeExtensionManager");
                         }
                     });
             Log.i(TAG, "hook login successfully");
@@ -285,19 +325,19 @@ public class XposedHook implements IXposedHookLoadPackage {
                         @SuppressLint("WakelockTimeout")
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
-                            Service service = (Service) param.thisObject;
-                            if (!ClassMember.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
+                            Service appService = (Service) param.thisObject;
+                            if (!ClassMember.CURRENT_USING_SERVICE.equals(appService.getClass().getCanonicalName())) {
                                 return;
                             }
                             Log.i(TAG, "Service onCreate");
                             AntForestNotification.setContentText("运行中...");
-                            registerBroadcastReceiver(service);
-                            XposedHook.service = service;
-                            XposedHook.context = service.getApplicationContext();
-                            RpcUtil.init(XposedHook.classLoader);
+                            registerBroadcastReceiver(appService);
+                            service = appService;
+                            context = appService.getApplicationContext();
+                            RpcUtil.init(classLoader);
                             if (Config.stayAwake()) {
-                                PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
-                                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
+                                PowerManager pm = (PowerManager) appService.getSystemService(Context.POWER_SERVICE);
+                                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, appService.getClass().getName());
                                 wakeLock.acquire();
                                 restartHook(Config.stayAwakeType(), 30 * 60 * 1000, false);
                             }
@@ -332,6 +372,89 @@ public class XposedHook implements IXposedHookLoadPackage {
         } catch (Throwable t) {
             Log.i(TAG, "hook onDestroy err:");
             Log.printStackTrace(TAG, t);
+        }
+
+        if (Config.DEBUG) {
+
+            Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
+
+            /*try {
+                XposedHelpers.findAndHookMethod(
+                        "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                        , "callJavaBridgeExtensionWithJson"
+                        , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), long.class, String.class
+                        , new XC_MethodHook() {
+
+                            @SuppressLint("WakelockTimeout")
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                                if ("rpc".equals(param.args[1])) {
+                                    Object[] args = param.args;
+                                    Long id = (Long) args[3];
+                                    Log.debug("CallBridge id[" + id + "]: " + Arrays.toString(args));
+                                    callMap.put(id, true);
+                                }
+                            }
+
+                        });
+                Log.i(TAG, "hook callJavaBridgeExtensionWithJson successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook callJavaBridgeExtensionWithJson err:");
+                Log.printStackTrace(TAG, t);
+            }*/
+            /*try {
+                XposedHelpers.findAndHookMethod(
+                        "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                        , "nativeCallBridge"
+                        , long.class, int.class, String.class, String.class, String.class, String.class
+                        , new XC_MethodHook() {
+
+                            @SuppressLint("WakelockTimeout")
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                                Object[] args = param.args;
+                                Log.debug("CallBridge: " + Arrays.toString(args));
+                            }
+
+                        });
+                Log.i(TAG, "hook nativeCallBridge successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook nativeCallBridge err:");
+                Log.printStackTrace(TAG, t);
+            }*/
+            /*try {
+                XposedHelpers.findAndHookMethod(
+                        "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                        , "nativeInvokeCallback"
+                        , long.class, Object.class, boolean.class
+                        , new XC_MethodHook() {
+
+                            @SuppressLint("WakelockTimeout")
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                                Object[] args = param.args;
+                                Long id = (Long) args[0];
+                                if (Boolean.TRUE.equals(callMap.remove(id))) {
+                                    Log.debug("Callback id[" + id + "]: " + Arrays.toString(args));
+                                    printCallStack();
+                                }
+                            }
+
+                        });
+                Log.i(TAG, "hook nativeInvokeCallback successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook nativeInvokeCallback err:");
+                Log.printStackTrace(TAG, t);
+            }*/
+        }
+
+    }
+
+    public static void printCallStack() {
+        try {
+            throw new RuntimeException();
+        } catch (Exception e) {
+            Log.debug(android.util.Log.getStackTraceString(e));
         }
     }
 
