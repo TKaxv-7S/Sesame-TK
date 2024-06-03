@@ -60,8 +60,6 @@ public class AntForest {
 
     private static volatile long doubleEndTime = 0;
 
-    private static final HashSet<Long> waitCollectBubbleIds = new HashSet<>();
-
     /**
      * 检查是否到达一分钟内收取限制
      *
@@ -804,7 +802,6 @@ public class AntForest {
                     lastCollectTime = System.currentTimeMillis();
                 }
             }
-            waitCollectBubbleIds.remove(bubbleId);
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 offerCollectQueue();

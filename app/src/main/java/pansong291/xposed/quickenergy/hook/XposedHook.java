@@ -52,9 +52,9 @@ public class XposedHook implements IXposedHookLoadPackage {
 
     private static final String TAG = XposedHook.class.getCanonicalName();
 
-    private static boolean isInit = false;
+    private static volatile boolean isInit = false;
 
-    private static boolean isHooked = false;
+    private static volatile boolean isHooked = false;
 
     private static volatile boolean isOffline = true;
 
@@ -166,6 +166,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                 if (Config.startAt7()) {
                     Config.setAlarm7(context);
                 }
+                Task.removeAllTask();
                 Task.putTask(antForestTask = AntForest.init());
                 Task.putTask(antCooperateTask = AntCooperate.init());
                 Task.putTask(antFarmTask = AntFarm.init());
@@ -269,7 +270,10 @@ public class XposedHook implements IXposedHookLoadPackage {
                             if (isOffline) {
                                 isOffline = false;
                                 restartHandler();
-                                ((Activity) param.thisObject).finish();
+                                Activity activity = (Activity) param.thisObject;
+                                if(!activity.isTaskRoot()) {
+                                    activity.finish();
+                                }
                                 Log.i(TAG, "Activity reLogin");
                             }
                         }

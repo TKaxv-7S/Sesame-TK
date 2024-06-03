@@ -52,7 +52,9 @@ public class RpcUtil {
                             "findServiceByInterface",
                             XposedHelpers.findClass("com.alipay.mobile.personalbase.service.SocialSdkContactService",
                                     classLoader).getName()), "getMyAccountInfoModelByLocal");
-            return (String) XposedHelpers.getObjectField(callMethod, "userId");
+            if  (callMethod != null) {
+                return (String) XposedHelpers.getObjectField(callMethod, "userId");
+            }
         } catch (Throwable th) {
             Log.i(TAG, "getUserId err");
             Log.printStackTrace(TAG, th);
