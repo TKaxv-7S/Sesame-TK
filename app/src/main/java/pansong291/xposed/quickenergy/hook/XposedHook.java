@@ -170,6 +170,10 @@ public class XposedHook implements IXposedHookLoadPackage {
                 if (Config.startAt7()) {
                     Config.setAlarm7(context);
                 }
+                if (mainHandler != null && mainRunner != null) {
+                    mainHandler.removeCallbacks(mainRunner);
+                    AntForestNotification.stop(service, false);
+                }
                 Task.removeAllTask();
                 Task.putTask(antForestTask = AntForest.init());
                 Task.putTask(antCooperateTask = AntCooperate.init());
@@ -269,7 +273,9 @@ public class XposedHook implements IXposedHookLoadPackage {
                             }
                             if (!targetUid.equals(FriendIdMap.getCurrentUid())) {
                                 FriendIdMap.setCurrentUid(targetUid);
-                                isOffline = true;
+                                initHandler();
+                                Log.i(TAG, "Activity changeUser");
+                                return;
                             }
                             if (isOffline) {
                                 isOffline = false;
