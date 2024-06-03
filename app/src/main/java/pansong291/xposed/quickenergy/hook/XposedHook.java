@@ -60,12 +60,12 @@ public class XposedHook implements IXposedHookLoadPackage {
     private static volatile boolean isOffline = true;
 
     @SuppressLint("StaticFieldLeak")
-    private static Context context;
+    private static volatile Context context;
 
     @SuppressLint("StaticFieldLeak")
-    private static Service service;
+    private static volatile Service service;
 
-    private static ClassLoader classLoader;
+    private static volatile ClassLoader classLoader;
 
     private static PowerManager.WakeLock wakeLock;
 
@@ -162,12 +162,17 @@ public class XposedHook implements IXposedHookLoadPackage {
 
     private static void initHandler() {
         try {
-            if (!isInit) {
-                Log.recordLog("尝试初始化");
-                if (Config.startAt7()) {
-                    Config.setAlarm7(context);
-                }
-                if (mainHandler != null && mainRunner != null) {
+            if (context != null) {
+                if (!isInit) {
+                    Log.recordLog("尝试初始化");
+                    if (Config.startAt7()) {
+                        Config.setAlarm7(context);
+                    }
+                    if (mainHandler != null && mainRunner != null) {
+                        mainHandler.removeCallbacks(mainRunner);
+                        AntForestNotification.stop(service, false);
+                    }
+                    if (mainHandler != null && mainRunner != null) {
                     mainHandler.removeCallbacks(mainRunner);
                     AntForestNotification.stop(service, false);
                 }
@@ -200,55 +205,56 @@ public class XposedHook implements IXposedHookLoadPackage {
                             Config.shouldReload = true;
                             Statistics.resetToday();
 
-                            try {
-                                FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
-                                Thread checkThread = new Thread(checkTask);
-                                checkThread.start();
-                                if (!checkTask.get()) {
+                                try {
+                                    FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
+                                    Thread checkThread = new Thread(checkTask);
+                                    checkThread.start();
+                                    if (!checkTask.get()) {
+                                        mainHandler.postDelayed(this, Config.checkInterval());
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    Log.i(TAG, "check err:");
+                                    Log.printStackTrace(TAG, e);
                                     mainHandler.postDelayed(this, Config.checkInterval());
                                     return;
                                 }
-                            } catch (Exception e) {
-                                Log.i(TAG, "check err:");
-                                Log.printStackTrace(TAG, e);
-                                mainHandler.postDelayed(this, Config.checkInterval());
-                                return;
-                            }
-                            antForestTask.startTask();
-                            if (TimeUtil.getTimeStr().compareTo("0700") < 0
-                                    || TimeUtil.getTimeStr().compareTo("0730") > 0) {
-                                antCooperateTask.startTask();
-                                antFarmTask.startTask();
-                                reserveTask.startTask();
-                                if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
-                                    ancientTreeTask.startTask();
-                                    antBookReadTask.startTask();
+                                antForestTask.startTask();
+                                if (TimeUtil.getTimeStr().compareTo("0700") < 0
+                                        || TimeUtil.getTimeStr().compareTo("0730") > 0) {
+                                    antCooperateTask.startTask();
+                                    antFarmTask.startTask();
+                                    reserveTask.startTask();
+                                    if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
+                                        ancientTreeTask.startTask();
+                                        antBookReadTask.startTask();
+                                    }
+                                    antSportsTask.startTask();
+                                    antMemberTask.startTask();
+                                    antOceanTask.startTask();
+                                    antOrchardTask.startTask();
+                                    antStallTask.startTask();
+                                    greenFinanceTask.startTask();
+                                    omegakoiTownTask.startTask();
+                                    consumeGoldTask.startTask();
                                 }
-                                antSportsTask.startTask();
-                                antMemberTask.startTask();
-                                antOceanTask.startTask();
-                                antOrchardTask.startTask();
-                                antStallTask.startTask();
-                                greenFinanceTask.startTask();
-                                omegakoiTownTask.startTask();
-                                consumeGoldTask.startTask();
                             }
-                        }
-                        if (Config.collectEnergy() || Config.enableFarm()) {
-                            AntForestNotification.setNextScanTime(System.currentTimeMillis() + Config.checkInterval());
-                            mainHandler.postDelayed(this, Config.checkInterval());
-                        } else {
-                            AntForestNotification.stop(service, false);
-                        }
+                            if (Config.collectEnergy() || Config.enableFarm()) {
+                                AntForestNotification.setNextScanTime(System.currentTimeMillis() + Config.checkInterval());
+                                mainHandler.postDelayed(this, Config.checkInterval());
+                            } else {
+                                AntForestNotification.stop(service, false);
+                            }
 
-                        PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.STOP);
-                    }
-                };
-                isInit = true;
+                            PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.STOP);
+                        }
+                    };
+                    isInit = true;
+                }
+                isOffline = false;
+                restartHandler();
+                AntForestToast.show("芝麻粒加载成功");
             }
-            isOffline = false;
-            restartHandler();
-            AntForestToast.show("芝麻粒加载成功");
         } catch (Throwable th) {
             Log.i(TAG, "initHandler err:");
             Log.printStackTrace(TAG, th);
