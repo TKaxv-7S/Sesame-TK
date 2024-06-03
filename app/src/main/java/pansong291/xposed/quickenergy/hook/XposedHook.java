@@ -283,7 +283,22 @@ public class XposedHook implements IXposedHookLoadPackage {
 
                             Log.debug("start      mNativeExtensionManager");
                             if (Config.DEBUG) {
-                                Class<?> aClass = XposedHelpers.findClass("com.alibaba.ariver.jsapi.rpc.RpcBridgeExtension", classLoader);
+
+                                XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alibaba.ariver.ExtHubInitializer", classLoader), "init");
+
+
+                                Object bridgeDispatcher = XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alibaba.ariver.engine.common.bridge.dispatch.BridgeDispatcher", classLoader), "getInstance");
+                                if (bridgeDispatcher != null) {
+                                    Log.debug("bridgeDispatcher");
+                                }
+
+                                Object extHubExtensionManager = XposedHelpers.callMethod(bridgeDispatcher, "getNativeExtensionManager");
+                                if (extHubExtensionManager != null) {
+                                    Log.debug("extHubExtensionManager");
+                                }
+
+                                //TODO
+                                /*Class<?> aClass = XposedHelpers.findClass("com.alibaba.ariver.jsapi.rpc.RpcBridgeExtension", classLoader);
 
                                 if (aClass != null) {
                                     Log.debug("aClass");
@@ -295,13 +310,12 @@ public class XposedHook implements IXposedHookLoadPackage {
                                     Log.debug("newInstance");
                                 }
 
-                                //TODO
                                 Object aaa = XposedHelpers.callMethod(
                                         newInstance, "rpc");
 
                                 if (aaa != null) {
-                                    Log.debug("mNativeExtensionManager");
-                                }
+                                    Log.debug("aaa");
+                                }*/
 
 
                                 /*try {
