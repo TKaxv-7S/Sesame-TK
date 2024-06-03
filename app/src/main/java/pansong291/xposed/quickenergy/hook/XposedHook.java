@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -290,68 +291,11 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 Log.i(TAG, "Activity reLogin");
                             }
 
-                            if (Config.DEBUG) {
-                                Log.debug("start      mNativeExtensionManager");
+                            new Thread(() -> {
+                                AntFarmRpcCall.newEnterFarm("", FriendIdMap.getCurrentUid());
+                                AntForestRpcCall.newQueryHomePage();
+                            }).start();
 
-                                XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alibaba.ariver.ExtHubInitializer", classLoader), "init");
-
-
-                                Object bridgeDispatcher = XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alibaba.ariver.engine.common.bridge.dispatch.BridgeDispatcher", classLoader), "getInstance");
-                                if (bridgeDispatcher != null) {
-                                    Log.debug("bridgeDispatcher");
-                                }
-
-                                Object extHubExtensionManager = XposedHelpers.callMethod(bridgeDispatcher, "getNativeExtensionManager");
-                                if (extHubExtensionManager != null) {
-                                    Log.debug("extHubExtensionManager");
-                                }
-
-                                Object mapObj = XposedHelpers.callMethod(extHubExtensionManager, "getNodeExtensionMap");
-                                if (mapObj != null) {
-                                    Log.debug("mapObj");
-                                    Map<Object, Map<String, Object>> map = (Map<Object, Map<String, Object>>) mapObj;
-                                    for (Map.Entry<Object, Map<String, Object>> entry : map.entrySet()) {
-                                        String k1 = entry.getKey().toString();
-                                        Map<String, Object> map1 = entry.getValue();
-                                        for (Map.Entry<String, Object> entry1 : map1.entrySet()) {
-                                            Log.debug("key: "+ k1 + ", map.key: " + entry1.getKey() + ", map.value: " + entry1.getValue());
-                                        }
-                                    }
-                                }
-
-                                Log.debug("end      mNativeExtensionManager");
-
-                                //TODO
-                                /*Class<?> aClass = XposedHelpers.findClass("com.alibaba.ariver.jsapi.rpc.RpcBridgeExtension", classLoader);
-
-                                if (aClass != null) {
-                                    Log.debug("aClass");
-                                }
-
-                                Object newInstance = XposedHelpers.newInstance(aClass);
-
-                                if (newInstance != null) {
-                                    Log.debug("newInstance");
-                                }
-
-                                Object aaa = XposedHelpers.callMethod(
-                                        newInstance, "rpc");
-
-                                if (aaa != null) {
-                                    Log.debug("aaa");
-                                }*/
-
-
-                                /*try {
-                                    Class<?> BridgeDispatcherClazz = classLoader.loadClass("com.alibaba.ariver.engine.common.bridge.dispatch.BridgeDispatcher");
-                                    Method getInstance = BridgeDispatcherClazz.getMethod("getInstance");
-                                    Object bridgeDispatcher = getInstance.invoke(null);
-                                    classLoader.loadClass("com.alibaba.ariver.engine.common.bridge.dispatch.BridgeDispatcher")
-                                } catch (ClassNotFoundException | NoSuchMethodException |
-                                         IllegalAccessException | InvocationTargetException e) {
-                                    throw new RuntimeException(e);
-                                }*/
-                            }
                         }
                     });
             Log.i(TAG, "hook login successfully");
@@ -415,78 +359,121 @@ public class XposedHook implements IXposedHookLoadPackage {
             Log.printStackTrace(TAG, t);
         }
 
-        if (Config.DEBUG) {
+        /*try {
+            XposedHelpers.findAndHookMethod(
+                    "com.alibaba.ariver.kernel.api.extension.DefaultExtensionManager", loader
+                    , "getBridgeExtensionByActionMeta"
+                    , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), classLoader.loadClass("com.alibaba.ariver.kernel.api.extension.bridge.ActionMeta")
+                    , new XC_MethodHook() {
 
-            Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Object[] args = param.args;
+                            Log.debug("getBridgeExtensionByActionMeta args: " + Arrays.toString(args));
+                        }
 
-            /*try {
-                XposedHelpers.findAndHookMethod(
-                        "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
-                        , "callJavaBridgeExtensionWithJson"
-                        , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), long.class, String.class
-                        , new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            Log.debug("getBridgeExtensionByActionMeta result: " + param.getResult().toString());
+                        }
+                    });
+            Log.i(TAG, "hook getBridgeExtensionByActionMeta successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook getBridgeExtensionByActionMeta err:");
+            Log.printStackTrace(TAG, t);
+        }*/
 
-                            @SuppressLint("WakelockTimeout")
-                            @Override
-                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                if ("rpc".equals(param.args[1])) {
-                                    Object[] args = param.args;
-                                    Long id = (Long) args[3];
-                                    Log.debug("CallBridge id[" + id + "]: " + Arrays.toString(args));
-                                    callMap.put(id, true);
-                                }
-                            }
+        try {
+            XposedHelpers.findAndHookMethod(
+                    "com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension", loader
+                    , "rpc"
+                    , String.class, boolean.class, boolean.class, String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), boolean.class, boolean.class, int.class, boolean.class, String.class, classLoader.loadClass("com.alibaba.ariver.app.api.App"), classLoader.loadClass("com.alibaba.ariver.app.api.Page"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.model.ApiContext"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.extension.BridgeCallback")
+                    , new XC_MethodHook() {
 
-                        });
-                Log.i(TAG, "hook callJavaBridgeExtensionWithJson successfully");
-            } catch (Throwable t) {
-                Log.i(TAG, "hook callJavaBridgeExtensionWithJson err:");
-                Log.printStackTrace(TAG, t);
-            }*/
-            /*try {
-                XposedHelpers.findAndHookMethod(
-                        "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
-                        , "nativeCallBridge"
-                        , long.class, int.class, String.class, String.class, String.class, String.class
-                        , new XC_MethodHook() {
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Object[] args = param.args;
+                            Log.debug("rpc: " + Arrays.toString(args));
+                        }
 
-                            @SuppressLint("WakelockTimeout")
-                            @Override
-                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    });
+            Log.i(TAG, "hook rpc successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook rpc err:");
+            Log.printStackTrace(TAG, t);
+        }
+
+        Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
+        try {
+            XposedHelpers.findAndHookMethod(
+                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                    , "callJavaBridgeExtensionWithJson"
+                    , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), long.class, String.class
+                    , new XC_MethodHook() {
+
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            if ("rpc".equals(param.args[1])) {
                                 Object[] args = param.args;
-                                Log.debug("CallBridge: " + Arrays.toString(args));
+                                Long id = (Long) args[3];
+                                Log.debug("CallBridge id[" + id + "]: " + Arrays.toString(args));
+                                callMap.put(id, true);
                             }
+                        }
 
-                        });
-                Log.i(TAG, "hook nativeCallBridge successfully");
-            } catch (Throwable t) {
-                Log.i(TAG, "hook nativeCallBridge err:");
-                Log.printStackTrace(TAG, t);
-            }*/
-            /*try {
-                XposedHelpers.findAndHookMethod(
-                        "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
-                        , "nativeInvokeCallback"
-                        , long.class, Object.class, boolean.class
-                        , new XC_MethodHook() {
+                    });
+            Log.i(TAG, "hook callJavaBridgeExtensionWithJson successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook callJavaBridgeExtensionWithJson err:");
+            Log.printStackTrace(TAG, t);
+        }
 
-                            @SuppressLint("WakelockTimeout")
-                            @Override
-                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                Object[] args = param.args;
-                                Long id = (Long) args[0];
-                                if (Boolean.TRUE.equals(callMap.remove(id))) {
-                                    Log.debug("Callback id[" + id + "]: " + Arrays.toString(args));
-                                    printCallStack();
-                                }
+        /*try {
+            XposedHelpers.findAndHookMethod(
+                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                    , "nativeCallBridge"
+                    , long.class, int.class, String.class, String.class, String.class, String.class
+                    , new XC_MethodHook() {
+
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Object[] args = param.args;
+                            Log.debug("NativeCallBridge: " + Arrays.toString(args));
+                        }
+
+                    });
+            Log.i(TAG, "hook nativeCallBridge successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook nativeCallBridge err:");
+            Log.printStackTrace(TAG, t);
+        }*/
+
+        try {
+            XposedHelpers.findAndHookMethod(
+                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                    , "nativeInvokeCallback"
+                    , long.class, Object.class, boolean.class
+                    , new XC_MethodHook() {
+
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Object[] args = param.args;
+                            Long id = (Long) args[0];
+                            if (Boolean.TRUE.equals(callMap.remove(id))) {
+                                Log.debug("Callback id[" + id + "]: " + Arrays.toString(args));
                             }
+                        }
 
-                        });
-                Log.i(TAG, "hook nativeInvokeCallback successfully");
-            } catch (Throwable t) {
-                Log.i(TAG, "hook nativeInvokeCallback err:");
-                Log.printStackTrace(TAG, t);
-            }*/
+                    });
+            Log.i(TAG, "hook nativeInvokeCallback successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook nativeInvokeCallback err:");
+            Log.printStackTrace(TAG, t);
         }
 
     }

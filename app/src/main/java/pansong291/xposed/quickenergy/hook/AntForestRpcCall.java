@@ -31,6 +31,11 @@ public class AntForestRpcCall {
                         + VERSION + "\"}]");
     }
 
+    public static String newQueryHomePage() {
+        return RpcUtil.doNewRequest("alipay.antforest.forest.h5.queryHomePage",
+                "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\"20240403\"}]");
+    }
+
     public static String queryFriendHomePage(String userId) {
         return RpcUtil.request("alipay.antforest.forest.h5.queryFriendHomePage",
                 "[{\"canRobFlags\":\"F,F,F,F,F\",\"configVersionMap\":{\"redPacketConfig\":0,\"wateringBubbleConfig\":\"10\"},\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\""

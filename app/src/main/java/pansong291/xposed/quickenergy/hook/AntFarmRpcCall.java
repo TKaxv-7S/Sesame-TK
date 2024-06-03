@@ -16,6 +16,13 @@ public class AntFarmRpcCall {
                         + userId + "\",\"version\":\"" + VERSION + "\"}]");
     }
 
+    public static String newEnterFarm(String farmId, String userId) {
+        return RpcUtil.doNewRequest("com.alipay.antfarm.enterFarm",
+                "[{\"animalId\":\"\",\"farmId\":\"" + farmId +
+                        "\",\"gotoneScene\":\"\",\"gotoneTemplateId\":\"\",\"masterFarmId\":\"\",\"queryLastRecordNum\":true,\"recall\":false,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ANTFOREST\",\"touchRecordId\":\"\",\"userId\":\""
+                        + userId + "\",\"version\":\"" + VERSION + "\"}]");
+    }
+
     public static String syncAnimalStatus(String farmId) {
         String args1 = "[{\"farmId\":\"" + farmId +
                 "\",\"operType\":\"FEEDSYNC\",\"queryFoodStockInfo\":false,\"recall\":false,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"userId\":\""

@@ -2,9 +2,12 @@ package pansong291.xposed.quickenergy.hook;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.text.DateFormat;
+import java.util.Map;
 
 import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.AntForestNotification;
@@ -15,26 +18,105 @@ import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class RpcUtil {
+
     private static final String TAG = RpcUtil.class.getCanonicalName();
+
+    private static ClassLoader loader;
+
+
     private static Method rpcCallMethod;
     private static Method getResponseMethod;
     private static Object curH5PageImpl;
 
+
+
+    private static Object newRpcInstance;
+
+    private static Method newRpcCallMethod;
+
+
+    private static Class<?> JSONObjectClazz;
+    private static Class<?> jsonClazz;
+    private static Method jsonParse;
+    private static Class<?> bridgeCallbackClazz;
+
+
     public static void init(ClassLoader loader) {
+        RpcUtil.loader = loader;
+        try {
+            JSONObjectClazz = loader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject);
+            jsonClazz = loader.loadClass("com.alibaba.fastjson.JSON");
+            jsonParse = jsonClazz.getMethod("parseObject", String.class);
+            bridgeCallbackClazz = loader.loadClass("com.alibaba.ariver.engine.api.bridge.extension.BridgeCallback");
+            Log.i(TAG, "loadClass successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "loadClass err:");
+            Log.printStackTrace(TAG, t);
+        }
         if (rpcCallMethod == null) {
             try {
                 Class<?> h5PageClazz = loader.loadClass(ClassMember.com_alipay_mobile_h5container_api_H5Page);
-                Class<?> jsonClazz = loader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject);
                 Class<?> rpcClazz = loader.loadClass(ClassMember.com_alipay_mobile_nebulaappproxy_api_rpc_H5RpcUtil);
                 rpcCallMethod = rpcClazz.getMethod(
-                        ClassMember.rpcCall, String.class, String.class, String.class,
-                        boolean.class, jsonClazz, String.class, boolean.class, h5PageClazz,
+                        "rpcCall", String.class, String.class, String.class,
+                        boolean.class, JSONObjectClazz, String.class, boolean.class, h5PageClazz,
                         int.class, String.class, boolean.class, int.class, String.class);
                 Log.i(TAG, "get RpcCallMethod successfully");
             } catch (Throwable t) {
                 Log.i(TAG, "get RpcCallMethod err:");
                 Log.printStackTrace(TAG, t);
             }
+        }
+
+        if (newRpcInstance == null) {
+            try {
+                Object service = XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alipay.mobile.nebulacore.Nebula", loader), "getService");
+                Object extensionManager = XposedHelpers.callMethod(service, "getExtensionManager");
+                Method getExtensionByName = extensionManager.getClass().getDeclaredMethod("createExtensionInstance", Class.class);
+                getExtensionByName.setAccessible(true);
+                newRpcInstance = getExtensionByName.invoke(null, loader.loadClass("com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension"));
+                if (newRpcInstance == null) {
+                    Object nodeExtensionMap = XposedHelpers.callMethod(extensionManager, "getNodeExtensionMap");
+                    if (nodeExtensionMap != null) {
+                        Map<Object, Map<String, Object>> map = (Map<Object, Map<String, Object>>) nodeExtensionMap;
+                        for (Map.Entry<Object, Map<String, Object>> entry : map.entrySet()) {
+                            Map<String, Object> map1 = entry.getValue();
+                            for (Map.Entry<String, Object> entry1 : map1.entrySet()) {
+                                if ("com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension".equals(entry1.getKey())) {
+                                    newRpcInstance = entry1.getValue();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (newRpcInstance == null) {
+                        throw new RuntimeException("newRpcInstance is null");
+                    }
+                }
+                newRpcCallMethod = newRpcInstance.getClass().getMethod("rpc"
+                        , String.class
+                        , boolean.class
+                        , boolean.class
+                        , String.class
+                        , JSONObjectClazz
+                        , String.class
+                        , JSONObjectClazz
+                        , boolean.class
+                        , boolean.class
+                        , int.class
+                        , boolean.class
+                        , String.class
+                        , loader.loadClass("com.alibaba.ariver.app.api.App")
+                        , loader.loadClass("com.alibaba.ariver.app.api.Page")
+                        , loader.loadClass("com.alibaba.ariver.engine.api.bridge.model.ApiContext")
+                        , bridgeCallbackClazz
+                );
+                Log.debug("newRpcInstance: " + newRpcInstance.getClass().getName());
+            } catch (Exception e) {
+                Log.debug("newRpcInstance err:");
+                Log.debug(android.util.Log.getStackTraceString(e));
+            }
+
         }
     }
 
@@ -169,6 +251,30 @@ public class RpcUtil {
         return false;
     }
 
+    public static String doNewRequest(String args0, String args1) {
+        try {
+            Object callback =  Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    if(method.getName().equals("sendJSONResponse")){
+                        Object res = args[0];
+                        Log.i(TAG, "new rpc response: " + XposedHelpers.callMethod(res,"toJSONString"));
+                    }
+                    return null;
+                }
+            });
+
+            Object o = newRpcCallMethod.invoke(
+                    newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, callback);
+            Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
+            return (String) o;
+        } catch (Throwable t) {
+            Log.i(TAG, "new rpc request [" + args0 + "] err:");
+            Log.printStackTrace(TAG, t);
+            return null;
+        }
+    }
+
     public static Object doRequest(String args0, String args1) throws Throwable {
         try {
             Object o;
@@ -189,7 +295,7 @@ public class RpcUtil {
 
     public static String getResponse(Object resp) throws Throwable {
         if (getResponseMethod == null) {
-            getResponseMethod = resp.getClass().getMethod(ClassMember.getResponse);
+            getResponseMethod = resp.getClass().getMethod("getResponse");
         }
         String str = (String) getResponseMethod.invoke(resp);
         Log.i(TAG, "rpc response: " + str);
