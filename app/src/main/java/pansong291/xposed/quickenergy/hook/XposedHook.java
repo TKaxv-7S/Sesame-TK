@@ -13,9 +13,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -287,8 +284,8 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 Log.i(TAG, "Activity reLogin");
                             }
 
-                            Log.debug("start      mNativeExtensionManager");
                             if (Config.DEBUG) {
+                                Log.debug("start      mNativeExtensionManager");
 
                                 XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alibaba.ariver.ExtHubInitializer", classLoader), "init");
 
@@ -302,6 +299,21 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 if (extHubExtensionManager != null) {
                                     Log.debug("extHubExtensionManager");
                                 }
+
+                                Object mapObj = XposedHelpers.callMethod(extHubExtensionManager, "getNodeExtensionMap");
+                                if (mapObj != null) {
+                                    Log.debug("mapObj");
+                                    Map<Object, Map<String, Object>> map = (Map<Object, Map<String, Object>>) mapObj;
+                                    for (Map.Entry<Object, Map<String, Object>> entry : map.entrySet()) {
+                                        String k1 = entry.getKey().toString();
+                                        Map<String, Object> map1 = entry.getValue();
+                                        for (Map.Entry<String, Object> entry1 : map1.entrySet()) {
+                                            Log.debug("key: "+ k1 + ", map.key: " + entry1.getKey() + ", map.value: " + entry1.getValue());
+                                        }
+                                    }
+                                }
+
+                                Log.debug("end      mNativeExtensionManager");
 
                                 //TODO
                                 /*Class<?> aClass = XposedHelpers.findClass("com.alibaba.ariver.jsapi.rpc.RpcBridgeExtension", classLoader);
@@ -334,7 +346,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                                     throw new RuntimeException(e);
                                 }*/
                             }
-                            Log.debug("end      mNativeExtensionManager");
                         }
                     });
             Log.i(TAG, "hook login successfully");
