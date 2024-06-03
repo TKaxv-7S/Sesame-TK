@@ -2,6 +2,7 @@ package pansong291.xposed.quickenergy.entity;
 
 import android.os.Build;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -243,6 +244,14 @@ public class Task {
     public static void stopAllTask() {
         for (Task task : taskMap.values()) {
             task.stopTask();
+        }
+    }
+
+    public static void removeAllTask() {
+        Iterator<Task> iterator = taskMap.values().iterator();
+        while (iterator.hasNext()) {
+            iterator.next().stopTask();
+            iterator.remove();
         }
     }
 
