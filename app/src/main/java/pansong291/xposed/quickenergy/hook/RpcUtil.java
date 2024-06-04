@@ -12,6 +12,7 @@ import java.util.Map;
 import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.AntForestNotification;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
@@ -252,40 +253,51 @@ public class RpcUtil {
     }
 
     public static String newDoRequest(String args0, String args1) {
+        RpcEntity rpcEntity = new RpcEntity(Thread.currentThread());
+        Long id = rpcEntity.getId();
         try {
-            Thread thread = Thread.currentThread();
-            final String[] result = {"0", null};
-            synchronized (thread) {
+            synchronized (id) {
                 newRpcCallMethod.invoke(
                         newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
                             @Override
                             public Object invoke(Object proxy, Method method, Object[] args) {
                                 try {
                                     if(method.getName().equals("sendJSONResponse")){
-                                        result[1] = (String) XposedHelpers.callMethod(args[0], "toJSONString");
-                                        result[0] = "1";
+                                        synchronized (id) {
+                                            rpcEntity.setResult((String) XposedHelpers.callMethod(args[0], "toJSONString"));
+                                            Thread thread = rpcEntity.getThread();
+                                            if (thread != null) {
+                                                id.notifyAll();
+                                            }
+                                        }
                                     }
                                 } catch (Exception e) {
                                     Log.i(TAG, "new rpc response err:");
                                     Log.printStackTrace(TAG, e);
-                                } finally {
-                                    thread.notifyAll();
+                                    synchronized (id) {
+                                        Thread thread = rpcEntity.getThread();
+                                        if (thread != null) {
+                                            id.notifyAll();
+                                        }
+                                    }
                                 }
                                 return null;
                             }
                         })
                 );
                 Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
-                thread.wait(30_000);
+                id.wait(30_000);
             }
-            if (result[0].equals("1")) {
-                String res = result[1];
+            if (rpcEntity.getHasResult()) {
+                String res = rpcEntity.getResult();
                 Log.i(TAG, "new rpc response: " + res);
                 return res;
             }
         } catch (Throwable t) {
             Log.i(TAG, "new rpc request [" + args0 + "] err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            rpcEntity.delThread();
         }
         return null;
     }
