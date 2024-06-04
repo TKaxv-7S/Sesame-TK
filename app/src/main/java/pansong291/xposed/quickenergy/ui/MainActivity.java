@@ -12,6 +12,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,9 +31,16 @@ import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 
 public class MainActivity extends Activity {
-    TextView tvStatistics;
 
     public static String version = "";
+
+    private boolean hasPermissions = false;
+
+    private boolean isBackground = false;
+
+    private Handler handler = new Handler();
+
+    private TextView tvStatistics;
 
     private static boolean isExpModuleActive(Context context) {
         boolean isExp = false;
@@ -81,8 +89,12 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PermissionUtil.checkOrRequestPermissions(this);
-        LanguageUtil.setLocale(this);
+        hasPermissions = PermissionUtil.checkOrRequestPermissions(this);
+        if (hasPermissions) {
+            LanguageUtil.setLocale(this);
+        } else {
+            Toast.makeText(MainActivity.this, "未获取文件读写权限", Toast.LENGTH_SHORT).show();
+        }
         setContentView(R.layout.activity_main);
         RuntimeInfo.process = "app";
 
@@ -98,7 +110,6 @@ public class MainActivity extends Activity {
         }
         this.setTitle(this.getTitle() + version);
 
-        setModuleActive(isExpModuleActive(this));
         new AlertDialog.Builder(this)
                 .setTitle("提示")
                 .setMessage("本APP是为了学习研究开发，免费提供，不得进行任何形式的转发、发布、传播。请于24小时内卸载本APP。如果您是购买的可能已经被骗，请联系卖家退款。")
@@ -107,9 +118,34 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (!hasPermissions) {
+            if (!hasFocus) {
+                isBackground = true;
+                return;
+            }
+            isBackground = false;
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "未获取文件读写权限", Toast.LENGTH_SHORT).show();
+                    hasPermissions = PermissionUtil.checkOrRequestPermissions(MainActivity.this);
+                    if (hasPermissions || isBackground) {
+                        return;
+                    }
+                    handler.postDelayed(this, 2000);
+                }
+            });
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        tvStatistics.setText(Statistics.getText());
+        setModuleActive(isExpModuleActive(this));
+        if (hasPermissions) {
+            tvStatistics.setText(Statistics.getText());
+        }
     }
 
     @SuppressLint("NonConstantResourceId")

@@ -1,6 +1,7 @@
 package pansong291.xposed.quickenergy;
 
 import android.content.Context;
+import android.os.Handler;
 import android.widget.Toast;
 
 import pansong291.xposed.quickenergy.hook.XposedHook;
@@ -15,20 +16,24 @@ public class AntForestToast {
     }
 
     public static void show(CharSequence cs, boolean force) {
+        Context context = XposedHook.getContext();
+        if (context != null && (force || Config.showToast())) {
+            show(context, XposedHook.getMainHandler(), cs);
+        }
+    }
+
+    public static void show(Context context, Handler handler, CharSequence cs) {
         try {
-            Context context = XposedHook.getContext();
-            if (context != null && (force || Config.showToast())) {
-                XposedHook.getMainHandler().post(() -> {
-                    try {
-                        Toast toast = Toast.makeText(context, cs, Toast.LENGTH_SHORT);
-                        toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.toastOffsetY());
-                        toast.show();
-                    } catch (Throwable t) {
-                        Log.i(TAG, "show.run err:");
-                        Log.printStackTrace(TAG, t);
-                    }
-                });
-            }
+            handler.post(() -> {
+                try {
+                    Toast toast = Toast.makeText(context, cs, Toast.LENGTH_SHORT);
+                    toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.toastOffsetY());
+                    toast.show();
+                } catch (Throwable t) {
+                    Log.i(TAG, "show.run err:");
+                    Log.printStackTrace(TAG, t);
+                }
+            });
         } catch (Throwable t) {
             Log.i(TAG, "show err:");
             Log.printStackTrace(TAG, t);
