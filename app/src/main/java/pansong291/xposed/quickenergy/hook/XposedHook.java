@@ -287,12 +287,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 ((Activity) param.thisObject).finish();
                                 Log.i(TAG, "Activity reLogin");
                             }
-
-                            new Thread(() -> {
-                                AntFarmRpcCall.newEnterFarm("", FriendIdMap.getCurrentUid());
-                                AntForestRpcCall.newQueryHomePage();
-                            }).start();
-
                         }
                     });
             Log.i(TAG, "hook login successfully");
@@ -383,7 +377,7 @@ public class XposedHook implements IXposedHookLoadPackage {
 
         try {
             XposedHelpers.findAndHookMethod(
-                    "com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension", loader
+                    "com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension", classLoader
                     , "rpc"
                     , String.class, boolean.class, boolean.class, String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), boolean.class, boolean.class, int.class, boolean.class, String.class, classLoader.loadClass("com.alibaba.ariver.app.api.App"), classLoader.loadClass("com.alibaba.ariver.app.api.Page"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.model.ApiContext"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.extension.BridgeCallback")
                     , new XC_MethodHook() {
@@ -405,7 +399,7 @@ public class XposedHook implements IXposedHookLoadPackage {
         Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
         try {
             XposedHelpers.findAndHookMethod(
-                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
                     , "callJavaBridgeExtensionWithJson"
                     , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), long.class, String.class
                     , new XC_MethodHook() {
@@ -451,7 +445,7 @@ public class XposedHook implements IXposedHookLoadPackage {
 
         try {
             XposedHelpers.findAndHookMethod(
-                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
+                    "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
                     , "nativeInvokeCallback"
                     , long.class, Object.class, boolean.class
                     , new XC_MethodHook() {
@@ -473,14 +467,6 @@ public class XposedHook implements IXposedHookLoadPackage {
             Log.printStackTrace(TAG, t);
         }
 
-    }
-
-    public static void printCallStack() {
-        try {
-            throw new RuntimeException();
-        } catch (Exception e) {
-            Log.debug(android.util.Log.getStackTraceString(e));
-        }
     }
 
     private void hookRpcCall() {
