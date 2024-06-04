@@ -32,7 +32,7 @@ public class AntForestRpcCall {
     }
 
     public static String newQueryHomePage() {
-        return RpcUtil.doNewRequest("alipay.antforest.forest.h5.queryHomePage",
+        return RpcUtil.newDoRequest("alipay.antforest.forest.h5.queryHomePage",
                 "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\"20240403\"}]");
     }
 

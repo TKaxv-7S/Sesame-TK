@@ -34,7 +34,6 @@ public class RpcUtil {
 
     private static Method newRpcCallMethod;
 
-
     private static Class<?> JSONObjectClazz;
     private static Class<?> jsonClazz;
     private static Method jsonParse;
@@ -251,28 +250,43 @@ public class RpcUtil {
         return false;
     }
 
-    public static String doNewRequest(String args0, String args1) {
+    public static String newDoRequest(String args0, String args1) {
         try {
-            Object callback =  Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    if(method.getName().equals("sendJSONResponse")){
-                        Object res = args[0];
-                        Log.i(TAG, "new rpc response: " + XposedHelpers.callMethod(res,"toJSONString"));
-                    }
-                    return null;
-                }
-            });
-
-            Object o = newRpcCallMethod.invoke(
-                    newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, callback);
-            Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
-            return (String) o;
+            Thread thread = Thread.currentThread();
+            final String[] result = {"0", null};
+            synchronized (thread) {
+                newRpcCallMethod.invoke(
+                        newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args) {
+                                try {
+                                    if(method.getName().equals("sendJSONResponse")){
+                                        result[1] = (String) XposedHelpers.callMethod(args[0], "toJSONString");
+                                        result[0] = "1";
+                                    }
+                                } catch (Exception e) {
+                                    Log.i(TAG, "new rpc response err:");
+                                    Log.printStackTrace(TAG, e);
+                                } finally {
+                                    thread.notifyAll();
+                                }
+                                return null;
+                            }
+                        })
+                );
+                Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
+                thread.wait(30_000);
+            }
+            if (result[0].equals("1")) {
+                String res = result[1];
+                Log.i(TAG, "new rpc response: " + res);
+                return res;
+            }
         } catch (Throwable t) {
             Log.i(TAG, "new rpc request [" + args0 + "] err:");
             Log.printStackTrace(TAG, t);
-            return null;
         }
+        return null;
     }
 
     public static Object doRequest(String args0, String args1) throws Throwable {

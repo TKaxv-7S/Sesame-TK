@@ -17,7 +17,7 @@ public class AntFarmRpcCall {
     }
 
     public static String newEnterFarm(String farmId, String userId) {
-        return RpcUtil.doNewRequest("com.alipay.antfarm.enterFarm",
+        return RpcUtil.newDoRequest("com.alipay.antfarm.enterFarm",
                 "[{\"animalId\":\"\",\"farmId\":\"" + farmId +
                         "\",\"gotoneScene\":\"\",\"gotoneTemplateId\":\"\",\"masterFarmId\":\"\",\"queryLastRecordNum\":true,\"recall\":false,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ANTFOREST\",\"touchRecordId\":\"\",\"userId\":\""
                         + userId + "\",\"version\":\"" + VERSION + "\"}]");
