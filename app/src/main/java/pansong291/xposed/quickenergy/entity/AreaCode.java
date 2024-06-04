@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AreaCode extends IdAndName {
-    private static final String TAG = AreaCode.class.getCanonicalName();
+    private static final String TAG = AreaCode.class.getSimpleName();
     private static List<AreaCode> list;
 
     public AreaCode(String i, String n) {

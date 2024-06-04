@@ -12,13 +12,12 @@ import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.PluginUtils;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class AntOrchard {
-    private static final String TAG = AntOrchard.class.getCanonicalName();
+    private static final String TAG = AntOrchard.class.getSimpleName();
 
     private static String userId;
     private static String treeLevel;
@@ -30,7 +29,6 @@ public class AntOrchard {
     public static Task init() {
         return new Task("AntOrchard", () -> {
             try {
-                PluginUtils.invoke(AntOrchard.class, PluginUtils.PluginAction.START);
                 String s = AntOrchardRpcCall.orchardIndex();
                 JSONObject jo = new JSONObject(s);
                 if ("100".equals(jo.getString("resultCode"))) {
@@ -71,7 +69,6 @@ public class AntOrchard {
                 } else {
                     Log.i(TAG, jo.getString("resultDesc"));
                 }
-                PluginUtils.invoke(AntOrchard.class, PluginUtils.PluginAction.STOP);
             } catch (Throwable t) {
                 Log.i(TAG, "start.run err:");
                 Log.printStackTrace(TAG, t);

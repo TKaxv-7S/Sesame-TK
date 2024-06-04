@@ -14,14 +14,13 @@ import pansong291.xposed.quickenergy.hook.DadaDailyRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.PluginUtils;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class AntFarm {
-    private static final String TAG = AntFarm.class.getCanonicalName();
+    private static final String TAG = AntFarm.class.getSimpleName();
 
     public enum SendType {
         HIT, NORMAL;
@@ -130,7 +129,6 @@ public class AntFarm {
     public static Task init() {
         return new Task("AntFarm", () -> {
             try {
-                PluginUtils.invoke(AntFarm.class, PluginUtils.PluginAction.START);
                 String s = AntFarmRpcCall.enterFarm("", FriendIdMap.getCurrentUid());
                 if (s == null) {
                     throw new RuntimeException("庄园加载失败");
@@ -319,7 +317,6 @@ public class AntFarm {
                     }
                 }
 
-                PluginUtils.invoke(AntFarm.class, PluginUtils.PluginAction.STOP);
             } catch (Throwable t) {
                 Log.i(TAG, "AntFarm.start.run err:");
                 Log.printStackTrace(TAG, t);

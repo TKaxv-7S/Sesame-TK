@@ -9,7 +9,7 @@ public class AntMemberRpcCall {
     }
 
     public static Boolean check() {
-        return RpcUtil.requestTest("alipay.antmember.biz.rpc.member.h5.queryPointCert", "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]");
+        return RpcUtil.newRequestTest("alipay.antmember.biz.rpc.member.h5.queryPointCert", "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]");
     }
 
     /* ant member point */

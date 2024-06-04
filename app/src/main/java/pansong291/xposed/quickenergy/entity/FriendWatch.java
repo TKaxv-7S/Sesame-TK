@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class FriendWatch extends IdAndName {
 
-    private static final String TAG = FriendWatch.class.getCanonicalName();
+    private static final String TAG = FriendWatch.class.getSimpleName();
 
     public String startTime;
 

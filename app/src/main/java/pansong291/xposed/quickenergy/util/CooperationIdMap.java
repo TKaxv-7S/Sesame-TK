@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class CooperationIdMap {
-    private static final String TAG = CooperationIdMap.class.getCanonicalName();
+    private static final String TAG = CooperationIdMap.class.getSimpleName();
 
     public static boolean shouldReload = false;
 

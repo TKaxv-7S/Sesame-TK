@@ -10,7 +10,7 @@ import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class OmegakoiTown {
-    private static final String TAG = OmegakoiTown.class.getCanonicalName();
+    private static final String TAG = OmegakoiTown.class.getSimpleName();
 
     public enum RewardType {
         gold, diamond, dyestuff, rubber, glass, certificate, shipping, tpuPhoneCaseCertificate,

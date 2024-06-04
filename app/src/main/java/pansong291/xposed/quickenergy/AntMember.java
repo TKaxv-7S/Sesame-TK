@@ -12,7 +12,7 @@ import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class AntMember {
-    private static final String TAG = AntMember.class.getCanonicalName();
+    private static final String TAG = AntMember.class.getSimpleName();
 
     public static Boolean check() {
         return Config.receivePoint();

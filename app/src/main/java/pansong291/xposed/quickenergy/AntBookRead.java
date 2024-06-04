@@ -12,7 +12,7 @@ import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class AntBookRead {
-    private static final String TAG = AntBookRead.class.getCanonicalName();
+    private static final String TAG = AntBookRead.class.getSimpleName();
 
     public static Boolean check() {
         if (!Config.antBookRead())

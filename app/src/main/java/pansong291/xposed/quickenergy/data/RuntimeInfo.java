@@ -13,7 +13,7 @@ import java.util.Objects;
  * @since 2023/08/18
  */
 public class RuntimeInfo {
-    private static final String TAG = RuntimeInfo.class.getCanonicalName();
+    private static final String TAG = RuntimeInfo.class.getSimpleName();
 
     private static RuntimeInfo instance;
 

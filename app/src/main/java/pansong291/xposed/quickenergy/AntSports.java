@@ -14,7 +14,7 @@ import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
 public class AntSports {
-    private static final String TAG = AntSports.class.getCanonicalName();
+    private static final String TAG = AntSports.class.getSimpleName();
 
     private static final HashSet<String> waitOpenBoxNos = new HashSet<>();
 

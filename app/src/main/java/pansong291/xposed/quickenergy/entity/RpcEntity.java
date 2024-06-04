@@ -8,6 +8,8 @@ public class RpcEntity {
 
     private volatile Boolean hasResult = false;
 
+    private volatile Boolean hasError = false;
+
     private volatile String result;
 
     public Long getId() {
@@ -26,9 +28,19 @@ public class RpcEntity {
         return result;
     }
 
+    public Boolean getHasError() {
+        return hasError;
+    }
+
     public RpcEntity(Thread thread) {
         this.id = thread.getId();
         this.thread = thread;
+        this.result = null;
+    }
+
+    public RpcEntity() {
+        this.id = null;
+        this.thread = null;
         this.result = null;
     }
 
@@ -39,5 +51,9 @@ public class RpcEntity {
     public void setResult(String result) {
         this.hasResult = true;
         this.result = result;
+    }
+
+    public void setError() {
+        this.hasError = true;
     }
 }

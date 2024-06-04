@@ -13,7 +13,7 @@ import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 
 public class Reserve {
-    private static final String TAG = Reserve.class.getCanonicalName();
+    private static final String TAG = Reserve.class.getSimpleName();
 
     private static boolean isProtecting = false;
 

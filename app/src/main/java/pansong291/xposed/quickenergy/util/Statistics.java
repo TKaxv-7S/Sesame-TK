@@ -98,7 +98,7 @@ public class Statistics {
         }
     }
 
-    private static final String TAG = Statistics.class.getCanonicalName();
+    private static final String TAG = Statistics.class.getSimpleName();
     private static final String jn_year = "year", jn_month = "month", jn_day = "day",
             jn_collected = "collected", jn_helped = "helped", jn_watered = "watered",
             jn_answerQuestionList = "answerQuestionList", jn_syncStepList = "syncStepList",

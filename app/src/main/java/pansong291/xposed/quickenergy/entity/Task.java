@@ -12,7 +12,7 @@ import pansong291.xposed.quickenergy.util.Log;
 
 public class Task {
 
-    private static final String TAG = Task.class.getCanonicalName();
+    private static final String TAG = Task.class.getSimpleName();
 
     private static final Map<String, Task> taskMap = new ConcurrentHashMap<>();
 

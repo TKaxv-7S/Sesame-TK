@@ -46,13 +46,18 @@ import pansong291.xposed.quickenergy.ui.MainActivity;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.PluginUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class XposedHook implements IXposedHookLoadPackage {
 
-    private static final String TAG = XposedHook.class.getCanonicalName();
+    private static final String TAG = XposedHook.class.getSimpleName();
+
+    public static final String PACKAGE_NAME = "com.eg.android.AlipayGphone";
+
+    public static final String CURRENT_USING_SERVICE = "com.alipay.dexaop.power.RuntimePowerService";
+
+    public static final String CURRENT_USING_ACTIVITY = "com.eg.android.AlipayGphone.AlipayLogin";
 
     private static volatile boolean isInit = false;
 
@@ -138,16 +143,14 @@ public class XposedHook implements IXposedHookLoadPackage {
                     });
         }
 
-        if (ClassMember.PACKAGE_NAME.equals(lpparam.processName) && ClassMember.PACKAGE_NAME.equals(lpparam.packageName)) {
+        if (XposedHook.PACKAGE_NAME.equals(lpparam.processName) && XposedHook.PACKAGE_NAME.equals(lpparam.packageName)) {
             if (!isHooked) {
                 isHooked = true;
-                RuntimeInfo.process = lpparam.packageName;
                 classLoader = lpparam.classLoader;
+                RuntimeInfo.process = lpparam.packageName;
                 Log.i(TAG, lpparam.packageName);
-                hookRpcCall();
-                hookStep();
+                RpcUtil.initClazz();
                 hookService();
-                PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.INIT);
             }
         }
     }
@@ -195,7 +198,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                             if (!isInit) {
                                 return;
                             }
-                            PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.START);
                             String targetUid = RpcUtil.getUserId();
                             if (targetUid != null) {
                                 FriendIdMap.setCurrentUid(targetUid);
@@ -243,7 +245,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 AntForestNotification.stop(service, false);
                             }
 
-                            PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.STOP);
                         }
                     };
                     isInit = true;
@@ -259,6 +260,34 @@ public class XposedHook implements IXposedHookLoadPackage {
     }
 
     private void hookService() {
+        try {
+            Class<?> clazz = classLoader.loadClass("com.alipay.mobile.nebulaappproxy.api.rpc.H5AppRpcUpdate");
+            XposedHelpers.findAndHookMethod(
+                    clazz, "matchVersion", RpcUtil.getH5PageClazz(), Map.class, String.class,
+                    XC_MethodReplacement.returnConstant(false));
+            Log.i(TAG, "hook matchVersion successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook matchVersion err:");
+            Log.printStackTrace(TAG, t);
+        }
+        try {
+            XposedHelpers.findAndHookMethod("com.alibaba.health.pedometer.core.datasource.PedometerAgent", classLoader,
+                    "readDailyStep", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) {
+                            int originStep = (Integer) param.getResult();
+                            int step = Config.tmpStepCount();
+                            if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 6 || originStep >= step) {
+                                return;
+                            }
+                            param.setResult(step);
+
+                        }
+                    });
+        } catch (Throwable t) {
+            Log.i(TAG, "hookStep err:");
+            Log.printStackTrace(TAG, t);
+        }
         try {
             XposedHelpers.findAndHookMethod("com.alipay.mobile.quinox.LauncherActivity", classLoader,
                     "onResume", new XC_MethodHook() {
@@ -302,7 +331,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
                             Service appService = (Service) param.thisObject;
-                            if (!ClassMember.CURRENT_USING_SERVICE.equals(appService.getClass().getCanonicalName())) {
+                            if (!CURRENT_USING_SERVICE.equals(appService.getClass().getCanonicalName())) {
                                 return;
                             }
                             Log.i(TAG, "Service onCreate");
@@ -310,7 +339,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                             registerBroadcastReceiver(appService);
                             service = appService;
                             context = appService.getApplicationContext();
-                            RpcUtil.init(classLoader);
+                            RpcUtil.initMethod();
                             if (Config.stayAwake()) {
                                 PowerManager pm = (PowerManager) appService.getSystemService(Context.POWER_SERVICE);
                                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, appService.getClass().getName());
@@ -330,7 +359,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     Service service = (Service) param.thisObject;
-                    if (!ClassMember.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
+                    if (!CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
                         return;
                     }
                     if (wakeLock != null) {
@@ -354,7 +383,7 @@ public class XposedHook implements IXposedHookLoadPackage {
             XposedHelpers.findAndHookMethod(
                     "com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension", classLoader
                     , "rpc"
-                    , String.class, boolean.class, boolean.class, String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), boolean.class, boolean.class, int.class, boolean.class, String.class, classLoader.loadClass("com.alibaba.ariver.app.api.App"), classLoader.loadClass("com.alibaba.ariver.app.api.Page"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.model.ApiContext"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.extension.BridgeCallback")
+                    , String.class, boolean.class, boolean.class, String.class, RpcUtil.getJsonObjectClazz(), String.class, RpcUtil.getJsonObjectClazz(), boolean.class, boolean.class, int.class, boolean.class, String.class, classLoader.loadClass("com.alibaba.ariver.app.api.App"), classLoader.loadClass("com.alibaba.ariver.app.api.Page"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.model.ApiContext"), classLoader.loadClass("com.alibaba.ariver.engine.api.bridge.extension.BridgeCallback")
                     , new XC_MethodHook() {
 
                         @SuppressLint("WakelockTimeout")
@@ -376,7 +405,7 @@ public class XposedHook implements IXposedHookLoadPackage {
             XposedHelpers.findAndHookMethod(
                     "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
                     , "callJavaBridgeExtensionWithJson"
-                    , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, classLoader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject), long.class, String.class
+                    , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, RpcUtil.getJsonObjectClazz(), long.class, String.class
                     , new XC_MethodHook() {
 
                         @SuppressLint("WakelockTimeout")
@@ -444,42 +473,6 @@ public class XposedHook implements IXposedHookLoadPackage {
 
     }
 
-    private void hookRpcCall() {
-        try {
-            Class<?> clazz = classLoader.loadClass(ClassMember.com_alipay_mobile_nebulaappproxy_api_rpc_H5AppRpcUpdate);
-            Class<?> H5PageClazz = classLoader.loadClass(ClassMember.com_alipay_mobile_h5container_api_H5Page);
-            XposedHelpers.findAndHookMethod(
-                    clazz, ClassMember.matchVersion, H5PageClazz, Map.class, String.class,
-                    XC_MethodReplacement.returnConstant(false));
-            Log.i(TAG, "hook " + ClassMember.matchVersion + " successfully");
-        } catch (Throwable t) {
-            Log.i(TAG, "hook " + ClassMember.matchVersion + " err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private void hookStep() {
-        try {
-            XposedHelpers.findAndHookMethod("com.alibaba.health.pedometer.core.datasource.PedometerAgent", classLoader,
-                    "readDailyStep", new XC_MethodHook() {
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) {
-                            int originStep = (Integer) param.getResult();
-                            int step = Config.tmpStepCount();
-                            if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 6 || originStep >= step) {
-                                return;
-                            }
-                            param.setResult(step);
-
-                        }
-                    });
-        } catch (Throwable t) {
-            Log.i(TAG, "hookStep err:");
-            Log.printStackTrace(TAG, t);
-        }
-
-    }
-
     public static void restartHook(StayAwakeType stayAwakeType, long delayTime, boolean force) {
         if (stayAwakeType == StayAwakeType.ALARM) {
             alarmHook(delayTime, force);
@@ -493,7 +486,7 @@ public class XposedHook implements IXposedHookLoadPackage {
             Intent intent;
             if (force || Config.stayAwakeTarget() == StayAwakeTarget.ACTIVITY) {
                 intent = new Intent(Intent.ACTION_VIEW);
-                intent.setClassName(ClassMember.PACKAGE_NAME, ClassMember.CURRENT_USING_ACTIVITY);
+                intent.setClassName(XposedHook.PACKAGE_NAME, CURRENT_USING_ACTIVITY);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (force) {
                     isOffline = true;
@@ -501,7 +494,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                 context.startActivity(intent);
             } else {
                 intent = new Intent();
-                intent.setClassName(ClassMember.PACKAGE_NAME, ClassMember.CURRENT_USING_SERVICE);
+                intent.setClassName(XposedHook.PACKAGE_NAME, CURRENT_USING_SERVICE);
                 context.startService(intent);
             }
         } catch (Throwable t) {
@@ -536,14 +529,14 @@ public class XposedHook implements IXposedHookLoadPackage {
             PendingIntent pi;
             if (force || Config.stayAwakeTarget() == StayAwakeTarget.ACTIVITY) {
                 Intent it = new Intent();
-                it.setClassName(ClassMember.PACKAGE_NAME, ClassMember.CURRENT_USING_ACTIVITY);
+                it.setClassName(XposedHook.PACKAGE_NAME, CURRENT_USING_ACTIVITY);
                 pi = PendingIntent.getActivity(context, 1, it, getPendingIntentFlag());
                 if (force) {
                     isOffline = true;
                 }
             } else {
                 Intent it = new Intent();
-                it.setClassName(ClassMember.PACKAGE_NAME, ClassMember.CURRENT_USING_SERVICE);
+                it.setClassName(XposedHook.PACKAGE_NAME, CURRENT_USING_SERVICE);
                 pi = PendingIntent.getService(context, 2, it, getPendingIntentFlag());
             }
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayTime, pi);

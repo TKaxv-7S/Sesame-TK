@@ -13,7 +13,7 @@ import android.provider.Settings;
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
 
 public class PermissionUtil {
-    private static final String TAG = AntForestRpcCall.class.getCanonicalName();
+    private static final String TAG = AntForestRpcCall.class.getSimpleName();
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
 

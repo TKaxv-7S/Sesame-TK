@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class ReserveIdMap {
-    private static final String TAG = ReserveIdMap.class.getCanonicalName();
+    private static final String TAG = ReserveIdMap.class.getSimpleName();
 
     public static boolean shouldReload = false;
 

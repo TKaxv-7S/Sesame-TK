@@ -7,7 +7,7 @@ import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
 public class KBMember {
-    private static final String TAG = KBMember.class.getCanonicalName();
+    private static final String TAG = KBMember.class.getSimpleName();
 
     public static void start(ClassLoader loader) {
         if (!Config.kbSginIn() || !Statistics.canKbSignInToday())

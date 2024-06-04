@@ -12,7 +12,7 @@ import pansong291.xposed.quickenergy.util.Statistics;
 import java.util.List;
 
 public class AncientTree {
-    private static final String TAG = AncientTree.class.getCanonicalName();
+    private static final String TAG = AncientTree.class.getSimpleName();
 
     public static Boolean check() {
         return Config.ancientTree() && Config.isAncientTreeWeek();

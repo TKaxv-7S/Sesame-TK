@@ -10,7 +10,7 @@ import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class ConsumeGold {
-    private static final String TAG = ConsumeGold.class.getCanonicalName();
+    private static final String TAG = ConsumeGold.class.getSimpleName();
 
     public static Boolean check() {
         if (!Config.consumeGold())

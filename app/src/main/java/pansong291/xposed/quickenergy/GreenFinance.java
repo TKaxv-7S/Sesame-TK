@@ -13,7 +13,7 @@ import pansong291.xposed.quickenergy.util.Log;
  * @since 2023/09/08
  */
 public class GreenFinance {
-    private static final String TAG = GreenFinance.class.getCanonicalName();
+    private static final String TAG = GreenFinance.class.getSimpleName();
 
     public static Boolean check() {
         return Config.greenFinance();

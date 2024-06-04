@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.List;
 
 public class FriendManager {
-    private static final String TAG = FriendManager.class.getCanonicalName();
+    private static final String TAG = FriendManager.class.getSimpleName();
 
     public static void fillUser(ClassLoader loader) {
             new Thread() {

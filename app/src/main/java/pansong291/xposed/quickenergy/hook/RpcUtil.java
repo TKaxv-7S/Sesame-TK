@@ -20,9 +20,14 @@ import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class RpcUtil {
 
-    private static final String TAG = RpcUtil.class.getCanonicalName();
+    private static final String TAG = RpcUtil.class.getSimpleName();
 
     private static ClassLoader loader;
+
+    private static Class<?> jsonObjectClazz;
+    private static Method jsonParse;
+    private static Class<?> bridgeCallbackClazz;
+    private static Class<?> h5PageClazz;
 
 
     private static Method rpcCallMethod;
@@ -30,37 +35,34 @@ public class RpcUtil {
     private static Object curH5PageImpl;
 
 
-
     private static Object newRpcInstance;
-
     private static Method newRpcCallMethod;
 
-    private static Class<?> JSONObjectClazz;
-    private static Class<?> jsonClazz;
-    private static Method jsonParse;
-    private static Class<?> bridgeCallbackClazz;
 
-
-    public static void init(ClassLoader loader) {
-        RpcUtil.loader = loader;
+    public static void initClazz() {
+        loader = XposedHook.getClassLoader();
         try {
-            JSONObjectClazz = loader.loadClass(ClassMember.com_alibaba_fastjson_JSONObject);
-            jsonClazz = loader.loadClass("com.alibaba.fastjson.JSON");
+            jsonObjectClazz = loader.loadClass("com.alibaba.fastjson.JSONObject");
+            Class<?> jsonClazz = loader.loadClass("com.alibaba.fastjson.JSON");
             jsonParse = jsonClazz.getMethod("parseObject", String.class);
             bridgeCallbackClazz = loader.loadClass("com.alibaba.ariver.engine.api.bridge.extension.BridgeCallback");
+            h5PageClazz = loader.loadClass("com.alipay.mobile.h5container.api.H5Page");
             Log.i(TAG, "loadClass successfully");
         } catch (Throwable t) {
             Log.i(TAG, "loadClass err:");
             Log.printStackTrace(TAG, t);
         }
+    }
+
+
+    public static void initMethod() {
         if (rpcCallMethod == null) {
             try {
-                Class<?> h5PageClazz = loader.loadClass(ClassMember.com_alipay_mobile_h5container_api_H5Page);
-                Class<?> rpcClazz = loader.loadClass(ClassMember.com_alipay_mobile_nebulaappproxy_api_rpc_H5RpcUtil);
-                rpcCallMethod = rpcClazz.getMethod(
+                rpcCallMethod = loader.loadClass("com.alipay.mobile.nebulaappproxy.api.rpc.H5RpcUtil").getMethod(
                         "rpcCall", String.class, String.class, String.class,
-                        boolean.class, JSONObjectClazz, String.class, boolean.class, h5PageClazz,
+                        boolean.class, jsonObjectClazz, String.class, boolean.class, h5PageClazz,
                         int.class, String.class, boolean.class, int.class, String.class);
+                getResponseMethod = loader.loadClass("com.alipay.mobile.nebulaappproxy.api.rpc.H5Response").getMethod("getResponse");
                 Log.i(TAG, "get RpcCallMethod successfully");
             } catch (Throwable t) {
                 Log.i(TAG, "get RpcCallMethod err:");
@@ -98,9 +100,9 @@ public class RpcUtil {
                         , boolean.class
                         , boolean.class
                         , String.class
-                        , JSONObjectClazz
+                        , jsonObjectClazz
                         , String.class
-                        , JSONObjectClazz
+                        , jsonObjectClazz
                         , boolean.class
                         , boolean.class
                         , int.class
@@ -118,6 +120,14 @@ public class RpcUtil {
             }
 
         }
+    }
+
+    public static Class<?> getJsonObjectClazz() {
+        return jsonObjectClazz;
+    }
+
+    public static Class<?> getH5PageClazz() {
+        return h5PageClazz;
     }
 
     public static Object getMicroApplicationContext(ClassLoader classLoader) {
@@ -146,7 +156,7 @@ public class RpcUtil {
     }
 
     public static String request(String args0, String args1) {
-        return request(args0, args1, 3);
+        return newRequest(args0, args1, 3);
     }
 
     public static String request(String args0, String args1, int retryCount) {
@@ -216,6 +226,30 @@ public class RpcUtil {
         return result;
     }
 
+    public static Object doRequest(String args0, String args1) throws Throwable {
+        try {
+            Object o;
+            if (rpcCallMethod.getParameterTypes().length == 12) {
+                o = rpcCallMethod.invoke(
+                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1);
+            } else {
+                o = rpcCallMethod.invoke(
+                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
+            }
+            Log.i(TAG, "rpc argument: " + args0 + ", " + args1);
+            return o;
+        } catch (Throwable t) {
+            Log.i(TAG, "rpc request [" + args0 + "] err:");
+            throw t;
+        }
+    }
+
+    public static String getResponse(Object resp) throws Throwable {
+        String str = (String) getResponseMethod.invoke(resp);
+        Log.i(TAG, "rpc response: " + str);
+        return str;
+    }
+
     public static Boolean requestTest(String args0, String args1) {
         try {
             String str = getResponse(doRequest(args0, args1));
@@ -252,81 +286,270 @@ public class RpcUtil {
         return false;
     }
 
-    public static String newDoRequest(String args0, String args1) {
-        RpcEntity rpcEntity = new RpcEntity(Thread.currentThread());
-        Long id = rpcEntity.getId();
-        try {
-            synchronized (id) {
+    public static String newRequest(String args0, String args1) {
+        return newRequest(args0, args1, 3);
+    }
+
+    public static String newRequest(String args0, String args1, int retryCount) {
+        if (XposedHook.getIsOffline()) {
+            return null;
+        }
+        String result = null;
+        int count = 0;
+        do {
+            count++;
+            RpcEntity rpcEntity = new RpcEntity();
+            try {
+                Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
                 newRpcCallMethod.invoke(
                         newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
                             @Override
                             public Object invoke(Object proxy, Method method, Object[] args) {
-                                try {
-                                    if(method.getName().equals("sendJSONResponse")){
-                                        synchronized (id) {
-                                            rpcEntity.setResult((String) XposedHelpers.callMethod(args[0], "toJSONString"));
-                                            Thread thread = rpcEntity.getThread();
-                                            if (thread != null) {
-                                                id.notifyAll();
-                                            }
+                                if(args.length == 1 && "sendJSONResponse".equals(method.getName())) {
+                                    try {
+                                        Object obj = args[0];
+                                        if (!(Boolean) XposedHelpers.callMethod(obj, "containsKey", "success")) {
+                                            rpcEntity.setError();
                                         }
-                                    }
-                                } catch (Exception e) {
-                                    Log.i(TAG, "new rpc response err:");
-                                    Log.printStackTrace(TAG, e);
-                                    synchronized (id) {
-                                        Thread thread = rpcEntity.getThread();
-                                        if (thread != null) {
-                                            id.notifyAll();
-                                        }
+                                        String result = (String) XposedHelpers.callMethod(obj, "toJSONString");
+                                        rpcEntity.setResult(result);
+                                        Log.i(TAG, "new rpc response: " + result);
+                                    } catch (Exception e) {
+                                        Log.i(TAG, "new rpc response err:");
+                                        Log.printStackTrace(TAG, e);
                                     }
                                 }
                                 return null;
                             }
                         })
                 );
-                Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
-                id.wait(30_000);
+                if (rpcEntity.getHasResult()) {
+                    if (rpcEntity.getHasError()) {
+                        try {
+                            Thread.sleep(600 + RandomUtils.delay());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        continue;
+                    }
+                    return rpcEntity.getResult();
+                }
+                return null;
+            } catch (Throwable t) {
+                Log.i(TAG, "new rpc request [" + args0 + "] err:");
+                Log.printStackTrace(TAG, t);
+                result = null;
+                if (t instanceof InvocationTargetException) {
+                    String msg = t.getCause().getMessage();
+                    if (!StringUtil.isEmpty(msg)) {
+                        if (msg.contains("登录超时")) {
+                            if (!XposedHook.getIsOffline()) {
+                                XposedHook.setIsOffline(true);
+                                AntForestNotification.setContentText("登录超时");
+                                if (Config.timeoutRestart()) {
+                                    Log.recordLog("尝试重启！");
+                                    XposedHook.restartHook(Config.timeoutType(), 500, true);
+                                }
+                            }
+                        } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(args0)) {
+                            if (Config.waitWhenException() > 0) {
+                                long waitTime = System.currentTimeMillis() + Config.waitWhenException();
+                                RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                AntForestNotification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                Log.recordLog("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                            }
+                            try {
+                                Thread.sleep(600 + RandomUtils.delay());
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                            continue;
+                        } else if (msg.contains("MMTPException")) {
+                            result = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
+                            try {
+                                Thread.sleep(600 + RandomUtils.delay());
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                            continue;
+                        }
+                    }
+                }
+                return result;
             }
+        } while (count < retryCount);
+        return result;
+    }
+
+    public static Boolean newRequestTest(String args0, String args1) {
+        RpcEntity rpcEntity = new RpcEntity();
+        try {
+            Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
+            newRpcCallMethod.invoke(
+                    newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
+                        @Override
+                        public Object invoke(Object proxy, Method method, Object[] args) {
+                            if(args.length == 1 && "sendJSONResponse".equals(method.getName())) {
+                                try {
+                                    Object obj = args[0];
+                                    if (!(Boolean) XposedHelpers.callMethod(obj, "containsKey", "success")) {
+                                        rpcEntity.setError();
+                                    }
+                                    String result = (String) XposedHelpers.callMethod(obj, "toJSONString");
+                                    rpcEntity.setResult(result);
+                                    Log.i(TAG, "new rpc response: " + result);
+                                } catch (Exception e) {
+                                    Log.i(TAG, "new rpc response err:");
+                                    Log.printStackTrace(TAG, e);
+                                }
+                            }
+                            return null;
+                        }
+                    })
+            );
             if (rpcEntity.getHasResult()) {
-                String res = rpcEntity.getResult();
-                Log.i(TAG, "new rpc response: " + res);
-                return res;
+                if (rpcEntity.getHasError()) {
+                    return false;
+                }
+                JSONObject jo = new JSONObject(rpcEntity.getResult());
+                if (jo.optString("memo", "").contains("系统繁忙")) {
+                    XposedHook.setIsOffline(true);
+                    AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
+                    Log.recordLog("系统繁忙，可能需要滑动验证");
+                    return false;
+                }
+                return true;
             }
+            return false;
         } catch (Throwable t) {
             Log.i(TAG, "new rpc request [" + args0 + "] err:");
             Log.printStackTrace(TAG, t);
-        } finally {
-            rpcEntity.delThread();
-        }
-        return null;
-    }
-
-    public static Object doRequest(String args0, String args1) throws Throwable {
-        try {
-            Object o;
-            if (rpcCallMethod.getParameterTypes().length == 12) {
-                o = rpcCallMethod.invoke(
-                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1);
-            } else {
-                o = rpcCallMethod.invoke(
-                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
+            if (t instanceof InvocationTargetException) {
+                String msg = t.getCause().getMessage();
+                if (!StringUtil.isEmpty(msg)) {
+                    if (msg.contains("登录超时")) {
+                        if (!XposedHook.getIsOffline()) {
+                            XposedHook.setIsOffline(true);
+                            AntForestNotification.setContentText("登录超时");
+                            if (Config.timeoutRestart()) {
+                                Log.recordLog("尝试重启！");
+                                XposedHook.restartHook(Config.timeoutType(), 500, true);
+                            }
+                        }
+                    }
+                }
             }
-            Log.i(TAG, "rpc argument: " + args0 + ", " + args1);
-            return o;
-        } catch (Throwable t) {
-            Log.i(TAG, "rpc request [" + args0 + "] err:");
-            throw t;
         }
+        return false;
     }
 
-    public static String getResponse(Object resp) throws Throwable {
-        if (getResponseMethod == null) {
-            getResponseMethod = resp.getClass().getMethod("getResponse");
+    public static String newAsyncRequest(String args0, String args1, int retryCount) {
+        if (XposedHook.getIsOffline()) {
+            return null;
         }
-        String str = (String) getResponseMethod.invoke(resp);
-        Log.i(TAG, "rpc response: " + str);
-        return str;
+        String result = null;
+        int count = 0;
+        do {
+            count++;
+            RpcEntity rpcEntity = new RpcEntity(Thread.currentThread());
+            Long id = rpcEntity.getId();
+            try {
+                synchronized (id) {
+                    Log.i(TAG, "new rpc argument: " + args0 + ", " + args1);
+                    newRpcCallMethod.invoke(
+                            newRpcInstance, args0, false, false, "json", jsonParse.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, new Class[]{bridgeCallbackClazz}, new InvocationHandler() {
+                                @Override
+                                public Object invoke(Object proxy, Method method, Object[] args) {
+                                    if(args.length == 1 && "sendJSONResponse".equals(method.getName())) {
+                                        try {
+                                            synchronized (id) {
+                                                Object obj = args[0];
+                                                if (!(Boolean) XposedHelpers.callMethod(obj, "containsKey", "success")) {
+                                                    rpcEntity.setError();
+                                                }
+                                                String result = (String) XposedHelpers.callMethod(obj, "toJSONString");
+                                                rpcEntity.setResult(result);
+                                                Log.i(TAG, "new rpc response: " + result);
+                                                Thread thread = rpcEntity.getThread();
+                                                if (thread != null) {
+                                                    id.notifyAll();
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            Log.i(TAG, "new rpc response err:");
+                                            Log.printStackTrace(TAG, e);
+                                            synchronized (id) {
+                                                Thread thread = rpcEntity.getThread();
+                                                if (thread != null) {
+                                                    id.notifyAll();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    return null;
+                                }
+                            })
+                    );
+                    id.wait(30_000);
+                }
+                if (rpcEntity.getHasResult()) {
+                    if (rpcEntity.getHasError()) {
+                        try {
+                            Thread.sleep(600 + RandomUtils.delay());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        continue;
+                    }
+                    return rpcEntity.getResult();
+                }
+                return null;
+            } catch (Throwable t) {
+                Log.i(TAG, "new rpc request [" + args0 + "] err:");
+                Log.printStackTrace(TAG, t);
+                result = null;
+                if (t instanceof InvocationTargetException) {
+                    String msg = t.getCause().getMessage();
+                    if (!StringUtil.isEmpty(msg)) {
+                        if (msg.contains("登录超时")) {
+                            if (!XposedHook.getIsOffline()) {
+                                XposedHook.setIsOffline(true);
+                                AntForestNotification.setContentText("登录超时");
+                                if (Config.timeoutRestart()) {
+                                    Log.recordLog("尝试重启！");
+                                    XposedHook.restartHook(Config.timeoutType(), 500, true);
+                                }
+                            }
+                        } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(args0)) {
+                            if (Config.waitWhenException() > 0) {
+                                long waitTime = System.currentTimeMillis() + Config.waitWhenException();
+                                RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                AntForestNotification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                Log.recordLog("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                            }
+                            try {
+                                Thread.sleep(600 + RandomUtils.delay());
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                            continue;
+                        } else if (msg.contains("MMTPException")) {
+                            result = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
+                            try {
+                                Thread.sleep(600 + RandomUtils.delay());
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                            continue;
+                        }
+                    }
+                }
+                return result;
+            } finally {
+                rpcEntity.delThread();
+            }
+        } while (count < retryCount);
+        return result;
     }
 
 }

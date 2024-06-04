@@ -10,7 +10,7 @@ import pansong291.xposed.quickenergy.util.StringUtil;
  * @since 2023/08/22
  */
 public class ReadingDada {
-    private static final String TAG = ReadingDada.class.getCanonicalName();
+    private static final String TAG = ReadingDada.class.getSimpleName();
 
     public static boolean answerQuestion(JSONObject bizInfo) {
         try {

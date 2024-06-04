@@ -17,7 +17,7 @@ import pansong291.xposed.quickenergy.util.StringUtil;
  * @since 2023/08/01
  */
 public class AntOcean {
-    private static final String TAG = AntOcean.class.getCanonicalName();
+    private static final String TAG = AntOcean.class.getSimpleName();
 
     public static Boolean check() {
         return Config.antOcean();

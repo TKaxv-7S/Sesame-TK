@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import pansong291.xposed.quickenergy.AntFarm.SendType;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.ClassMember;
 import pansong291.xposed.quickenergy.hook.XposedHook;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +27,7 @@ public class Config {
         }
     }
 
-    private static final String TAG = Config.class.getCanonicalName();
+    private static final String TAG = Config.class.getSimpleName();
 
     public static final Boolean DEBUG = true;
 
@@ -2427,7 +2426,7 @@ public class Config {
     private static PendingIntent getAlarm7Pi(Context context) {
         if (alarm7Pi == null) {
             Intent it = new Intent();
-            it.setClassName(ClassMember.PACKAGE_NAME, ClassMember.CURRENT_USING_ACTIVITY);
+            it.setClassName(XposedHook.PACKAGE_NAME, XposedHook.CURRENT_USING_ACTIVITY);
             int piFlag;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 piFlag = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;

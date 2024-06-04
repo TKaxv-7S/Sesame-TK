@@ -9,7 +9,7 @@ import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class AntForestToast {
-    private static final String TAG = AntForestToast.class.getCanonicalName();
+    private static final String TAG = AntForestToast.class.getSimpleName();
 
     public static void show(CharSequence cs) {
         show(cs, false);

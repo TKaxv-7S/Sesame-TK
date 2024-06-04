@@ -21,7 +21,7 @@ import pansong291.xposed.quickenergy.util.Statistics;
  * @since 2023/08/22
  */
 public class AntStall {
-    private static final String TAG = AntStall.class.getCanonicalName();
+    private static final String TAG = AntStall.class.getSimpleName();
 
     private static class Seat {
         public String userId;

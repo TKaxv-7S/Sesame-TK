@@ -6,7 +6,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.locks.Lock;
@@ -24,7 +23,6 @@ import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.PluginUtils;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
@@ -35,7 +33,7 @@ import pansong291.xposed.quickenergy.util.TimeUtil;
  * @author Constanline
  */
 public class AntForest {
-    private static final String TAG = AntForest.class.getCanonicalName();
+    private static final String TAG = AntForest.class.getSimpleName();
     private static String selfId;
     private static int collectedEnergy = 0;
     private static int helpCollectedEnergy = 0;
@@ -133,7 +131,6 @@ public class AntForest {
     public static Task init() {
         return new Task("AntForest", () -> {
             try {
-                PluginUtils.invoke(AntForest.class, PluginUtils.PluginAction.START);
 
                 Log.recordLog("定时检测开始", "");
                 isScanning = true;
@@ -186,7 +183,6 @@ public class AntForest {
                     }
                 }
 
-                PluginUtils.invoke(AntForest.class, PluginUtils.PluginAction.STOP);
             } catch (Throwable t) {
                 Log.i(TAG, "checkEnergyRanking.run err:");
                 Log.printStackTrace(TAG, t);

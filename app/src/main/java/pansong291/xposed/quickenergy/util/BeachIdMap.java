@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class BeachIdMap {
-    private static final String TAG = BeachIdMap.class.getCanonicalName();
+    private static final String TAG = BeachIdMap.class.getSimpleName();
 
     public static boolean shouldReload = false;
 
