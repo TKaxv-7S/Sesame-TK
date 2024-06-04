@@ -138,13 +138,13 @@ public class XposedHook implements IXposedHookLoadPackage {
 
         if (ClassMember.PACKAGE_NAME.equals(lpparam.processName) && ClassMember.PACKAGE_NAME.equals(lpparam.packageName)) {
             if (!isHooked) {
-                RuntimeInfo.process = lpparam.packageName;
                 isHooked = true;
-                Log.i(TAG, lpparam.packageName);
+                RuntimeInfo.process = lpparam.packageName;
                 classLoader = lpparam.classLoader;
+                Log.i(TAG, lpparam.packageName);
                 hookRpcCall();
                 hookStep();
-                hookService(lpparam.classLoader);
+                hookService();
                 PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.INIT);
             }
         }
@@ -194,7 +194,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 return;
                             }
                             PluginUtils.invoke(XposedHook.class, PluginUtils.PluginAction.START);
-                            String targetUid = RpcUtil.getUserId(XposedHook.classLoader);
+                            String targetUid = RpcUtil.getUserId();
                             if (targetUid != null) {
                                 FriendIdMap.setCurrentUid(targetUid);
                                 Config.shouldReload = true;
@@ -256,16 +256,16 @@ public class XposedHook implements IXposedHookLoadPackage {
         }
     }
 
-    private void hookService(ClassLoader loader) {
+    private void hookService() {
         try {
-            XposedHelpers.findAndHookMethod("com.alipay.mobile.quinox.LauncherActivity", loader,
+            XposedHelpers.findAndHookMethod("com.alipay.mobile.quinox.LauncherActivity", classLoader,
                     "onResume", new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
                             Log.i(TAG, "Activity onResume");
                             //PermissionUtil.requestPermissions((Activity) param.thisObject);
                             AntForestNotification.setContentText("运行中...");
-                            String targetUid = RpcUtil.getUserId(loader);
+                            String targetUid = RpcUtil.getUserId();
                             if (targetUid == null) {
                                 return;
                             }
@@ -294,7 +294,7 @@ public class XposedHook implements IXposedHookLoadPackage {
         }
         try {
             XposedHelpers.findAndHookMethod(
-                    "android.app.Service", loader, "onCreate", new XC_MethodHook() {
+                    "android.app.Service", classLoader, "onCreate", new XC_MethodHook() {
 
                         @SuppressLint("WakelockTimeout")
                         @Override
@@ -324,7 +324,7 @@ public class XposedHook implements IXposedHookLoadPackage {
             Log.printStackTrace(TAG, t);
         }
         try {
-            XposedHelpers.findAndHookMethod("android.app.Service", loader, "onDestroy", new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod("android.app.Service", classLoader, "onDestroy", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     Service service = (Service) param.thisObject;

@@ -45,8 +45,9 @@ public class RpcUtil {
                         "getInstance"), "getMicroApplicationContext");
     }
 
-    public static String getUserId(ClassLoader classLoader) {
+    public static String getUserId() {
         try {
+            ClassLoader classLoader = XposedHook.getClassLoader();
             Object callMethod =
                     XposedHelpers.callMethod(XposedHelpers.callMethod(getMicroApplicationContext(classLoader),
                             "findServiceByInterface",
