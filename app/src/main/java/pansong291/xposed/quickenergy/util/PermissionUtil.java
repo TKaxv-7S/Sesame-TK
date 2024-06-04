@@ -1,9 +1,15 @@
 package pansong291.xposed.quickenergy.util;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
+
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
 
 public class PermissionUtil {
@@ -17,20 +23,36 @@ public class PermissionUtil {
     };
 
     public static boolean checkPermissions(Context context) {
-        for (String permission : PERMISSIONS_STORAGE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //判断是否有管理外部存储的权限
+            return Environment.isExternalStorageManager();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (String permission : PERMISSIONS_STORAGE) {
                 if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                     return false;
                 }
             }
+            return true;
+        } else {
+            return true;
         }
-        return true;
     }
 
-    public static void requestPermissions(Activity activity) {
+    public static void checkOrRequestPermissions(Activity activity) {
         try {
             if (!checkPermissions(activity)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    //跳转到权限页，请求权限
+                    Intent appIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    appIntent.setData(Uri.parse("package:" + activity.getPackageName()));
+                    //appIntent.setData(Uri.fromParts("package", activity.getPackageName(), null));
+                    try {
+                        activity.startActivity(appIntent);
+                    } catch (ActivityNotFoundException ex) {
+                        Intent allFileIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                        activity.startActivity(allFileIntent);
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     activity.requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
                 }
             }
