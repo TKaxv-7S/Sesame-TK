@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 29
+    compileSdk 30
 
     defaultConfig {
         applicationId "pansong291.xposed.quickenergy.repair"
         minSdk 21
         //noinspection ExpiredTargetSdkVersion
-        targetSdk 29
+        targetSdk 30
         versionCode 71
-        versionName "1.2.3-tk-v9"
+        versionName "1.2.3-tk-v10"
     }
     buildTypes {
         release {
@@ -17,6 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildToolsVersion '30.0.2'
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
             def outputFile = output.outputFile

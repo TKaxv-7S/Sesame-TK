@@ -1369,7 +1369,7 @@ public class Config {
     private static synchronized Config getConfig() {
         if (config == null || shouldReload && config.immediateEffect) {
             shouldReload = false;
-            Log.i(TAG, "get config from" + RuntimeInfo.process);
+            Log.i(TAG, "get config from " + RuntimeInfo.process);
             String confJson = null;
             if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists())
                 confJson = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));

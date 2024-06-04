@@ -269,19 +269,20 @@ public class XposedHook implements IXposedHookLoadPackage {
                             if (targetUid == null) {
                                 return;
                             }
-                            if (!targetUid.equals(FriendIdMap.getCurrentUid())) {
+                            String currentUid = FriendIdMap.getCurrentUid();
+                            if (!targetUid.equals(currentUid)) {
                                 FriendIdMap.setCurrentUid(targetUid);
-                                initHandler();
-                                Log.i(TAG, "Activity changeUser");
-                                return;
+                                if (currentUid != null) {
+                                    initHandler();
+                                    Log.i(TAG, "Activity changeUser");
+                                    return;
+                                }
+                                isOffline = true;
                             }
                             if (isOffline) {
                                 isOffline = false;
                                 restartHandler();
-                                Activity activity = (Activity) param.thisObject;
-                                if(!activity.isTaskRoot()) {
-                                    activity.finish();
-                                }
+                                ((Activity) param.thisObject).finish();
                                 Log.i(TAG, "Activity reLogin");
                             }
                         }
