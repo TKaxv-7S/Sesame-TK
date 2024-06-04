@@ -38,26 +38,30 @@ public class PermissionUtil {
         }
     }
 
-    public static void checkOrRequestPermissions(Activity activity) {
+    public static Boolean checkOrRequestPermissions(Activity activity) {
         try {
-            if (!checkPermissions(activity)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    //跳转到权限页，请求权限
-                    Intent appIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                    appIntent.setData(Uri.parse("package:" + activity.getPackageName()));
-                    //appIntent.setData(Uri.fromParts("package", activity.getPackageName(), null));
-                    try {
-                        activity.startActivity(appIntent);
-                    } catch (ActivityNotFoundException ex) {
-                        Intent allFileIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                        activity.startActivity(allFileIntent);
-                    }
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    activity.requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
+            if (checkPermissions(activity)) {
+                return true;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                //跳转到权限页，请求权限
+                Intent appIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                appIntent.setData(Uri.parse("package:" + activity.getPackageName()));
+                //appIntent.setData(Uri.fromParts("package", activity.getPackageName(), null));
+                try {
+                    activity.startActivity(appIntent);
+                } catch (ActivityNotFoundException ex) {
+                    Intent allFileIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    allFileIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    activity.startActivity(allFileIntent);
                 }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                activity.requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
             }
         } catch (Exception e) {
             Log.printStackTrace(TAG, e);
         }
+        return false;
     }
 }
