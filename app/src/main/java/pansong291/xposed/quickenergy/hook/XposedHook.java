@@ -350,31 +350,6 @@ public class XposedHook implements IXposedHookLoadPackage {
             Log.printStackTrace(TAG, t);
         }
 
-        /*try {
-            XposedHelpers.findAndHookMethod(
-                    "com.alibaba.ariver.kernel.api.extension.DefaultExtensionManager", loader
-                    , "getBridgeExtensionByActionMeta"
-                    , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), classLoader.loadClass("com.alibaba.ariver.kernel.api.extension.bridge.ActionMeta")
-                    , new XC_MethodHook() {
-
-                        @SuppressLint("WakelockTimeout")
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            Object[] args = param.args;
-                            Log.debug("getBridgeExtensionByActionMeta args: " + Arrays.toString(args));
-                        }
-
-                        @Override
-                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                            Log.debug("getBridgeExtensionByActionMeta result: " + param.getResult().toString());
-                        }
-                    });
-            Log.i(TAG, "hook getBridgeExtensionByActionMeta successfully");
-        } catch (Throwable t) {
-            Log.i(TAG, "hook getBridgeExtensionByActionMeta err:");
-            Log.printStackTrace(TAG, t);
-        }*/
-
         try {
             XposedHelpers.findAndHookMethod(
                     "com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension", classLoader
