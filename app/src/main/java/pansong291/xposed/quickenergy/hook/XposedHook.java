@@ -173,10 +173,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                         mainHandler.removeCallbacks(mainRunner);
                         AntForestNotification.stop(service, false);
                     }
-                    if (mainHandler != null && mainRunner != null) {
-                    mainHandler.removeCallbacks(mainRunner);
-                    AntForestNotification.stop(service, false);
-                }
                 Task.removeAllTask();
                 Task.putTask(antForestTask = AntForest.init());
                 Task.putTask(antCooperateTask = AntCooperate.init());
