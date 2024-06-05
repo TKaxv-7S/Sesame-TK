@@ -36,6 +36,7 @@ public class EditDialog {
     }
 
     private static AlertDialog getEditDialog(Context c) {
+        Config config = Config.INSTANCE;
         EditText edt = new EditText(c);
         AlertDialog editDialog = new AlertDialog.Builder(c)
                 .setTitle("title")
@@ -59,81 +60,81 @@ public class EditDialog {
                                     } catch (Throwable ignored) { }
                                     switch (mode) {
                                         case TOAST_OFFSET_Y:
-                                            Config.setToastOffsetY(i);
+                                            config.setToastOffsetY(i);
                                             break;
 
                                         case CHECK_INTERVAL:
                                             if (i > 0)
-                                                Config.setCheckInterval(i * 60_000);
+                                                config.setCheckInterval(i * 60_000);
                                             break;
 
                                         case ADVANCE_TIME:
-                                            Config.setAdvanceTime(i);
+                                            config.setAdvanceTime(i);
                                             break;
 
                                         case COLLECT_INTERVAL:
                                             if (i >= 0)
-                                                Config.setCollectInterval(i);
+                                                config.setCollectInterval(i);
                                             break;
 
                                         case LIMIT_COUNT:
                                             if (i > 0) {
-                                                Config.setLimitCount(i);
+                                                config.setLimitCount(i);
                                             }
                                             break;
 
                                         case DOUBLE_CARD_TIME:
-                                            Config.setDoubleCardTime(edt.getText().toString());
+                                            config.setDoubleCardTime(edt.getText().toString());
                                             break;
 
                                         case DOUBLE_COUNT_LIMIT:
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setDoubleCountLimit(i);
+                                            config.setDoubleCountLimit(i);
                                             break;
 
                                         case COLLECT_TIMEOUT:
                                             if (i > 0)
-                                                Config.setCollectTimeout(i * 1_000);
+                                                config.setCollectTimeout(i * 1_000);
                                             break;
 
                                         case RETURN_WATER_30:
                                             if (i >= 0)
-                                                Config.setReturnWater33(i);
+                                                config.setReturnWater33(i);
                                             break;
 
                                         case RETURN_WATER_20:
 
                                             if (i >= 0)
-                                                Config.setReturnWater18(i);
+                                                config.setReturnWater18(i);
                                             break;
 
                                         case RETURN_WATER_10:
                                             if (i >= 0)
-                                                Config.setReturnWater10(i);
+                                                config.setReturnWater10(i);
                                             break;
 
                                         case WATER_FRIEND_COUNT:
                                             if (i >= 0)
-                                                Config.setWaterFriendCount(i);
+                                                config.setWaterFriendCount(i);
                                             break;
 
                                         case FARM_GAME_TIME:
-                                            Config.setFarmGameTime(edt.getText().toString());
+                                            config.setFarmGameTime(edt.getText().toString());
                                             break;
 
                                         case ANIMAL_SLEEP_TIME:
-                                            Config.setAnimalSleepTime(edt.getText().toString());
+                                            config.setAnimalSleepTime(edt.getText().toString());
                                             break;
 
                                         case MIN_EXCHANGE_COUNT:
                                             if (i >= 0)
-                                                Config.setMinExchangeCount(i);
+                                                config.setMinExchangeCount(i);
                                             break;
 
                                         case LATEST_EXCHANGE_TIME:
                                             if (i >= 0 && i < 24)
-                                                Config.setLatestExchangeTime(i);
+                                                config.setLatestExchangeTime(i);
                                             break;
 
                                         case SYNC_STEP_COUNT:
@@ -141,37 +142,37 @@ public class EditDialog {
                                                 i = 100000;
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setSyncStepCount(i);
+                                            config.setSyncStepCount(i);
                                             break;
 
                                         case WAIT_WHEN_EXCEPTION:
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setWaitWhenException(i * 60 * 1000);
+                                            config.setWaitWhenException(i * 60 * 1000);
                                             break;
 
                                         case EXCHANGE_ENERGY_DOUBLE_CLICK_COUNT:
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setExchangeEnergyDoubleClickCount(i);
+                                            config.setExchangeEnergyDoubleClickCount(i);
                                             break;
 
                                         case ORCHARD_SPREAD_MANURE_COUNT:
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setOrchardSpreadManureCount(i);
+                                            config.setOrchardSpreadManureCount(i);
                                             break;
 
                                         case STALL_ALLOW_OPEN_TIME:
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setStallAllowOpenTime(i);
+                                            config.setStallAllowOpenTime(i);
                                             break;
 
                                         case STALL_SELF_OPEN_TIME:
                                             if (i < 0)
                                                 i = 0;
-                                            Config.setStallSelfOpenTime(i);
+                                            config.setStallSelfOpenTime(i);
                                             break;
 
                                     }
@@ -182,91 +183,91 @@ public class EditDialog {
         String str = "";
         switch (mode) {
             case TOAST_OFFSET_Y:
-                str = String.valueOf(Config.toastOffsetY());
+                str = String.valueOf(config.getToastOffsetY());
                 break;
 
             case CHECK_INTERVAL:
-                str = String.valueOf(Config.checkInterval() / 60_000);
+                str = String.valueOf(config.getCheckInterval() / 60_000);
                 break;
 
             case ADVANCE_TIME:
-                str = String.valueOf(Config.advanceTime());
+                str = String.valueOf(config.getAdvanceTime());
                 break;
 
             case COLLECT_INTERVAL:
-                str = String.valueOf(Config.collectInterval());
+                str = String.valueOf(config.getCollectInterval());
                 break;
 
             case LIMIT_COUNT:
-                str = String.valueOf(Config.getLimitCount());
+                str = String.valueOf(config.getLimitCount());
                 break;
 
             case DOUBLE_CARD_TIME:
-                str = Config.doubleCardTime();
+                str = config.getDoubleCardTime();
                 break;
 
             case DOUBLE_COUNT_LIMIT:
-                str = String.valueOf(Config.getDoubleCountLimit());
+                str = String.valueOf(config.getDoubleCountLimit());
                 break;
 
             case COLLECT_TIMEOUT:
-                str = String.valueOf(Config.collectTimeout() / 1_000);
+                str = String.valueOf(config.getCollectTimeout() / 1_000);
                 break;
 
             case RETURN_WATER_30:
-                str = String.valueOf(Config.returnWater33());
+                str = String.valueOf(config.getReturnWater33());
                 break;
 
             case RETURN_WATER_20:
-                str = String.valueOf(Config.returnWater18());
+                str = String.valueOf(config.getReturnWater18());
                 break;
 
             case RETURN_WATER_10:
-                str = String.valueOf(Config.returnWater10());
+                str = String.valueOf(config.getReturnWater10());
                 break;
 
             case WATER_FRIEND_COUNT:
-                str = String.valueOf(Config.waterFriendCount());
+                str = String.valueOf(config.getWaterFriendCount());
                 break;
 
             case FARM_GAME_TIME:
-                str = Config.farmGameTime();
+                str = config.getFarmGameTime();
                 break;
 
             case ANIMAL_SLEEP_TIME:
-                str = Config.animalSleepTime();
+                str = config.getAnimalSleepTime();
                 break;
 
             case MIN_EXCHANGE_COUNT:
-                str = String.valueOf(Config.minExchangeCount());
+                str = String.valueOf(config.getMinExchangeCount());
                 break;
 
             case LATEST_EXCHANGE_TIME:
-                str = String.valueOf(Config.latestExchangeTime());
+                str = String.valueOf(config.getLatestExchangeTime());
                 break;
 
             case SYNC_STEP_COUNT:
-                str = String.valueOf(Config.syncStepCount());
+                str = String.valueOf(config.getSyncStepCount());
                 break;
 
             case WAIT_WHEN_EXCEPTION:
-                str = String.valueOf(Config.waitWhenException() / 60 / 1000);
+                str = String.valueOf(config.getWaitWhenException() / 60 / 1000);
                 break;
 
             case EXCHANGE_ENERGY_DOUBLE_CLICK_COUNT:
-                str = String.valueOf(Config.getExchangeEnergyDoubleClickCount());
+                str = String.valueOf(config.getExchangeEnergyDoubleClickCount());
                 break;
 
             case ORCHARD_SPREAD_MANURE_COUNT:
-                str = String.valueOf(Config.getOrchardSpreadManureCount());
+                str = String.valueOf(config.getOrchardSpreadManureCount());
                 break;
 
             case STALL_ALLOW_OPEN_TIME:
-                str = String.valueOf(Config.stallAllowOpenTime());
+                str = String.valueOf(config.getStallAllowOpenTime());
                 break;
 
             case STALL_SELF_OPEN_TIME:
-                str = String.valueOf(Config.stallSelfOpenTime());
+                str = String.valueOf(config.getStallSelfOpenTime());
                 break;
         }
         edt.setText(str);

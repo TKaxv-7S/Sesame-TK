@@ -15,7 +15,7 @@ public class AntMember {
     private static final String TAG = AntMember.class.getSimpleName();
 
     public static Boolean check() {
-        return Config.receivePoint();
+        return Config.INSTANCE.isReceivePoint();
     }
 
     public static Task init() {
@@ -39,18 +39,18 @@ public class AntMember {
 
                 signPageTaskList();
 
-                if (Config.collectSesame())
+                if (Config.INSTANCE.isCollectSesame())
                     zmxy();
 
-                if (Config.merchantKmdk() || Config.zcjSignIn()) {
+                if (Config.INSTANCE.isMerchantKmdk() || Config.INSTANCE.isZcjSignIn()) {
                     JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
                     if (jo.getBoolean("success")) {
                         JSONObject data = jo.getJSONObject("data");
                         if (data.optBoolean("isOpened")) {
-                            if (Config.zcjSignIn())
+                            if (Config.INSTANCE.isZcjSignIn())
                                 zcjSignIn();
 
-                            if (Config.merchantKmdk()) {
+                            if (Config.INSTANCE.isMerchantKmdk()) {
                                 if (TimeUtil.getTimeStr().compareTo("0600") > 0
                                         && TimeUtil.getTimeStr().compareTo("1200") < 0)
                                     kmdkSignIn();
@@ -116,7 +116,7 @@ public class AntMember {
                     } else if ("兑换时光加速器".equals(jo.getString("name"))) {
                         String oneStopId = jo.getJSONObject("content").getJSONObject("beanDeductBanner")
                                 .getString("oneStopId");
-                        if (Config.insBlueBeanExchange())
+                        if (Config.INSTANCE.isInsBlueBeanExchange())
                             insBlueBeanExchange(oneStopId);
                     }
                 }

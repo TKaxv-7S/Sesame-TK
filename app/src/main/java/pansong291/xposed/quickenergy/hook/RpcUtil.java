@@ -196,14 +196,14 @@ public class RpcUtil {
                             if (!XposedHook.getIsOffline()) {
                                 XposedHook.setIsOffline(true);
                                 AntForestNotification.setContentText("登录超时");
-                                if (Config.timeoutRestart()) {
+                                if (Config.INSTANCE.isTimeoutRestart()) {
                                     Log.recordLog("尝试重启！");
-                                    XposedHook.restartHook(Config.timeoutType(), 500, true);
+                                    XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                                 }
                             }
                         } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(args0)) {
-                            if (Config.waitWhenException() > 0) {
-                                long waitTime = System.currentTimeMillis() + Config.waitWhenException();
+                            if (Config.INSTANCE.getWaitWhenException() > 0) {
+                                long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
                                 RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
                                 AntForestNotification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 Log.recordLog("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
@@ -279,9 +279,9 @@ public class RpcUtil {
                         if (!XposedHook.getIsOffline()) {
                             XposedHook.setIsOffline(true);
                             AntForestNotification.setContentText("登录超时");
-                            if (Config.timeoutRestart()) {
+                            if (Config.INSTANCE.isTimeoutRestart()) {
                                 Log.recordLog("尝试重启！");
-                                XposedHook.restartHook(Config.timeoutType(), 500, true);
+                                XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                             }
                         }
                     }
@@ -339,9 +339,9 @@ public class RpcUtil {
                         if (!XposedHook.getIsOffline()) {
                             XposedHook.setIsOffline(true);
                             AntForestNotification.setContentText("登录超时");
-                            if (Config.timeoutRestart()) {
+                            if (Config.INSTANCE.isTimeoutRestart()) {
                                 Log.recordLog("尝试重启！");
-                                XposedHook.restartHook(Config.timeoutType(), 500, true);
+                                XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                             }
                         }
                         return null;
@@ -428,9 +428,9 @@ public class RpcUtil {
                         if (!XposedHook.getIsOffline()) {
                             XposedHook.setIsOffline(true);
                             AntForestNotification.setContentText("登录超时");
-                            if (Config.timeoutRestart()) {
+                            if (Config.INSTANCE.isTimeoutRestart()) {
                                 Log.recordLog("尝试重启！");
-                                XposedHook.restartHook(Config.timeoutType(), 500, true);
+                                XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                             }
                         }
                         return null;
@@ -497,9 +497,9 @@ public class RpcUtil {
                     if (!XposedHook.getIsOffline()) {
                         XposedHook.setIsOffline(true);
                         AntForestNotification.setContentText("登录超时");
-                        if (Config.timeoutRestart()) {
+                        if (Config.INSTANCE.isTimeoutRestart()) {
                             Log.recordLog("尝试重启！");
-                            XposedHook.restartHook(Config.timeoutType(), 500, true);
+                            XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                         }
                     }
                 } else {
@@ -507,9 +507,9 @@ public class RpcUtil {
                         XposedHook.setIsOffline(true);
                         AntForestNotification.setContentText("其他异常");
                     }
-                    if (Config.timeoutRestart()) {
+                    if (Config.INSTANCE.isTimeoutRestart()) {
                         Log.recordLog("尝试重启！");
-                        XposedHook.restartHook(Config.timeoutType(), 500, true);
+                        XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                     }
                 }
             } catch (Exception e) {
@@ -523,9 +523,9 @@ public class RpcUtil {
             if (!XposedHook.getIsOffline()) {
                 XposedHook.setIsOffline(true);
                 AntForestNotification.setContentText("登录超时");
-                if (Config.timeoutRestart()) {
+                if (Config.INSTANCE.isTimeoutRestart()) {
                     Log.recordLog("尝试重启！");
-                    XposedHook.restartHook(Config.timeoutType(), 500, true);
+                    XposedHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
                 }
             }
         }

@@ -328,10 +328,6 @@ public class FileUtils {
         return runtimeLogFile;
     }
 
-    public static File getBackupFile(File f) {
-        return new File(f.getAbsolutePath() + ".bak");
-    }
-
     public static File getCertCountFile(String userId) {
         File certCountFile = new File(getCertCountDirectoryFile(), "certCount-" + userId + ".json");
         if (!certCountFile.exists()) {
@@ -346,7 +342,7 @@ public class FileUtils {
             File certCountFile = getCertCountFile(userId);
             JSONObject jo_certCount = new JSONObject(readFromFile(certCountFile));
             jo_certCount.put(dateString, Integer.toString(certCount));
-            write2File(Config.formatJson(jo_certCount, false), certCountFile);
+            write2File(JsonUtil.toJsonString(jo_certCount), certCountFile);
         } catch (Throwable ignored) {
         }
     }

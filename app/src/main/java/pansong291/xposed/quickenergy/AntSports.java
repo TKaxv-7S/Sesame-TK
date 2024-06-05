@@ -22,19 +22,19 @@ public class AntSports {
         return new Task("AntSports", () -> {
             try {
                 ClassLoader loader = XposedHook.getClassLoader();
-                if (Config.openTreasureBox())
+                if (Config.INSTANCE.isOpenTreasureBox())
                     queryMyHomePage(loader);
 
-                if (Config.receiveCoinAsset())
+                if (Config.INSTANCE.isReceiveCoinAsset())
                     receiveCoinAsset();
 
-                if (Config.donateCharityCoin())
+                if (Config.INSTANCE.isDonateCharityCoin())
                     queryProjectList(loader);
 
-                if (Config.minExchangeCount() > 0 && Statistics.canExchangeToday(FriendIdMap.getCurrentUid()))
+                if (Config.INSTANCE.getMinExchangeCount() > 0 && Statistics.canExchangeToday(FriendIdMap.getCurrentUid()))
                     queryWalkStep(loader);
 
-                if (Config.tiyubiz()) {
+                if (Config.INSTANCE.isTiyubiz()) {
                     userTaskGroupQuery("SPORTS_DAILY_SIGN_GROUP");
                     userTaskGroupQuery("SPORTS_DAILY_GROUP");
                     userTaskRightsReceive();
@@ -220,7 +220,7 @@ public class AntSports {
                 long now = Long.parseLong(rankCacheKey);
                 long delay = cot - now;
                 Log.recordLog("还有 " + delay + "ms 才能开宝箱", "");
-                if (delay < Config.checkInterval()) {
+                if (delay < Config.INSTANCE.getCheckInterval()) {
                     if (waitOpenBoxNos.contains(boxNo)) {
                         return;
                     }
@@ -342,7 +342,7 @@ public class AntSports {
                 jo = jo.getJSONObject("dailyStepModel");
                 int produceQuantity = jo.getInt("produceQuantity");
                 int hour = Integer.parseInt(Log.getFormatTime().split(":")[0]);
-                if (produceQuantity >= Config.minExchangeCount() || hour >= Config.latestExchangeTime()) {
+                if (produceQuantity >= Config.INSTANCE.getMinExchangeCount() || hour >= Config.INSTANCE.getLatestExchangeTime()) {
                     s = AntSportsRpcCall.walkDonateSignInfo(produceQuantity);
                     s = AntSportsRpcCall.donateWalkHome(produceQuantity);
                     jo = new JSONObject(s);

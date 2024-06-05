@@ -68,7 +68,7 @@ public class AntForest {
      * @return  如果到达上限，则返回True，否则返回False
      */
     private static boolean checkCollectLimited() {
-        if (Config.isLimitCollect()) {
+        if (Config.INSTANCE.isLimitCollect()) {
             limitLock.lock();
             try {
                 Long ts;
@@ -76,7 +76,7 @@ public class AntForest {
                 while ((ts = collectedQueue.peek()) != null && ts < dropTime) {
                     collectedQueue.poll();
                 }
-                return collectedQueue.size() >= Config.getLimitCount();
+                return collectedQueue.size() >= Config.INSTANCE.getLimitCount();
             } finally {
                 limitLock.unlock();
             }
@@ -85,7 +85,7 @@ public class AntForest {
     }
 
     private static void offerCollectQueue() {
-        if (Config.isLimitCollect()) {
+        if (Config.INSTANCE.isLimitCollect()) {
             limitLock.lock();
             collectedQueue.offer(System.currentTimeMillis());
             limitLock.unlock();
@@ -143,20 +143,20 @@ public class AntForest {
                             && TimeUtil.getTimeStr().compareTo("0600") >= 0) {
                         new StepTask(XposedHook.getClassLoader()).start();
                     }
-                    if (Config.energyRain()) {
+                    if (Config.INSTANCE.isEnergyRain()) {
                         energyRain();
                     }
-                    if (Config.receiveForestTaskAward()) {
+                    if (Config.INSTANCE.isReceiveForestTaskAward()) {
                         receiveTaskAward();
                     }
-                    if (Config.ecoLifeTick()) {
+                    if (Config.INSTANCE.isEcoLifeTick()) {
                         ecoLifeTick();
                     }
-                    for (int i = 0; i < Config.getWaterFriendList().size(); i++) {
-                        String uid = Config.getWaterFriendList().get(i);
+                    for (int i = 0; i < Config.INSTANCE.getWaterFriendList().size(); i++) {
+                        String uid = Config.INSTANCE.getWaterFriendList().get(i);
                         if (selfId.equals(uid))
                             continue;
-                        int waterCount = Config.getWaterCountList().get(i);
+                        int waterCount = Config.INSTANCE.getWaterCountList().get(i);
                         if (waterCount <= 0)
                             continue;
                         if (waterCount > 3)
@@ -165,20 +165,20 @@ public class AntForest {
                             waterFriendEnergy(uid, waterCount);
                         }
                     }
-                    if (Config.antdodoCollect()) {
+                    if (Config.INSTANCE.isAntdodoCollect()) {
                         antdodoReceiveTaskAward();
                         antdodoPropList();
                         antdodoCollect();
                     }
-                    if (!Config.whoYouWantGiveTo().isEmpty()
-                            && !FriendIdMap.getCurrentUid().equals(Config.whoYouWantGiveTo().get(0))) {
-                        giveProp(Config.whoYouWantGiveTo().get(0));
+                    if (!Config.INSTANCE.getWhoYouWantGiveTo().isEmpty()
+                            && !FriendIdMap.getCurrentUid().equals(Config.INSTANCE.getWhoYouWantGiveTo().get(0))) {
+                        giveProp(Config.INSTANCE.getWhoYouWantGiveTo().get(0));
                     }
-                    if (Config.userPatrol()) {
+                    if (Config.INSTANCE.isUserPatrol()) {
                         UserPatrol();
                     }
-                    if (Config.ExchangeEnergyDoubleClick() && Statistics.canExchangeDoubleCardToday()) {
-                        int exchangeCount = Config.getExchangeEnergyDoubleClickCount();
+                    if (Config.INSTANCE.isExchangeEnergyDoubleClick() && Statistics.canExchangeDoubleCardToday()) {
+                        int exchangeCount = Config.INSTANCE.getExchangeEnergyDoubleClickCount();
                         exchangeEnergyDoubleClick(exchangeCount);
                     }
                 }
@@ -249,7 +249,7 @@ public class AntForest {
     }
 
     private static void queryEnergyRanking() {
-        if (!Config.collectEnergy() && !(Config.helpFriendCollect() && Statistics.canProtectBubbleToday(selfId)
+        if (!Config.INSTANCE.isCollectEnergy() && !(Config.INSTANCE.isHelpFriendCollect() && Statistics.canProtectBubbleToday(selfId)
                 && TimeUtil.getTimeStr().compareTo("0800") > 0)) {
             return;
         }
@@ -276,7 +276,7 @@ public class AntForest {
             } else {
                 Log.recordLog(jo.getString("resultDesc"), s);
             }
-            if (Config.helpFriendCollect() && Statistics.canProtectBubbleToday(selfId)
+            if (Config.INSTANCE.isHelpFriendCollect() && Statistics.canProtectBubbleToday(selfId)
                     && TimeUtil.getTimeStr().compareTo("0800") > 0)
                 Statistics.protectBubbleToday(selfId);
         } catch (Throwable t) {
@@ -292,17 +292,17 @@ public class AntForest {
         for (int i = 0; i < jaFriendRanking.length(); i++) {
             jo = jaFriendRanking.getJSONObject(i);
             boolean optBoolean = jo.getBoolean("canCollectEnergy") || (jo.getLong("canCollectLaterTime") > 0
-                    && jo.getLong("canCollectLaterTime") - System.currentTimeMillis() < Config.checkInterval());
+                    && jo.getLong("canCollectLaterTime") - System.currentTimeMillis() < Config.INSTANCE.getCheckInterval());
             String userId = jo.getString("userId");
-            if (Config.collectEnergy() && optBoolean && !userId.equals(selfId)) {
+            if (Config.INSTANCE.isCollectEnergy() && optBoolean && !userId.equals(selfId)) {
                 canCollectEnergy(userId);
             }
-            if (Config.helpFriendCollect() && jo.getBoolean("canProtectBubble") && restTimes > 0) {
+            if (Config.INSTANCE.isHelpFriendCollect() && jo.getBoolean("canProtectBubble") && restTimes > 0) {
                 restTimes = protectBubble(userId);
                 if (restTimes == 0)
                     Statistics.protectBubbleToday(selfId);
             }
-            if (Config.collectGiftBox() && jo.getBoolean("canCollectGiftBox")) {
+            if (Config.INSTANCE.isCollectGiftBox() && jo.getBoolean("canCollectGiftBox")) {
                 collectFriendGiftBox(userId);
             }
         }
@@ -357,29 +357,29 @@ public class AntForest {
                     selfName = "我";
                 FriendIdMap.putIdMapIfEmpty(selfId, selfName);
                 FriendIdMap.saveIdMap();
-                if (Config.totalCertCount()) {
+                if (Config.INSTANCE.isTotalCertCount()) {
                     JSONObject userBaseInfo = joHomePage.getJSONObject("userBaseInfo");
                     int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
                     FileUtils.setCertCount(selfId, Log.getFormatDate(), totalCertCount);
                 }
-                if (Config.collectEnergy()) {
+                if (Config.INSTANCE.isCollectEnergy()) {
                     Log.recordLog("进入[" + selfName + "]的蚂蚁森林", "");
                     for (int i = 0; i < jaBubbles.length(); i++) {
                         JSONObject bubble = jaBubbles.getJSONObject(i);
                         long bubbleId = bubble.getLong("id");
                         switch (CollectStatus.valueOf(bubble.getString("collectStatus"))) {
                             case AVAILABLE:
-                                if (Config.getDontCollectList().contains(selfId))
+                                if (Config.INSTANCE.getDontCollectList().contains(selfId))
                                     Log.recordLog("不收取[" + selfName + "]", ", userId=" + selfId);
                                 else
                                     collectedEnergy += collectEnergy(selfId, bubbleId, selfName, null);
                                 break;
 
                             case WAITING:
-                                if (Config.getDontCollectList().contains(selfId))
+                                if (Config.INSTANCE.getDontCollectList().contains(selfId))
                                     break;
                                 long produceTime = bubble.getLong("produceTime");
-                                if (produceTime - serverTime < Config.checkInterval())
+                                if (produceTime - serverTime < Config.INSTANCE.getCheckInterval())
                                     execute(selfId, null, bubbleId, produceTime);
                                 else
                                     setLaterTime(produceTime);
@@ -387,7 +387,7 @@ public class AntForest {
                         }
                     }
                 }
-                if (Config.collectWateringBubble()) {
+                if (Config.INSTANCE.isCollectWateringBubble()) {
                     JSONArray wateringBubbles = joHomePage.has("wateringBubbles")
                             ? joHomePage.getJSONArray("wateringBubbles")
                             : new JSONArray();
@@ -459,7 +459,7 @@ public class AntForest {
                             hasMore = true;
                     }
                 }
-                if (Config.collectProp()) {
+                if (Config.INSTANCE.isCollectProp()) {
                     JSONArray givenProps = joHomePage.has("givenProps")
                             ? joHomePage.getJSONArray("givenProps")
                             : new JSONArray();
@@ -535,7 +535,7 @@ public class AntForest {
             Log.recordLog("异常等待中，暂不执行检测！", "");
             return;
         }
-        if (Config.getDontCollectList().contains(userId)) {
+        if (Config.INSTANCE.getDontCollectList().contains(userId)) {
             Log.recordLog("不偷取[" + FriendIdMap.getNameById(userId) + "]", ", userId=" + userId);
             return;
         }
@@ -579,7 +579,7 @@ public class AntForest {
                     long bubbleId = bubble.getLong("id");
                     switch (CollectStatus.valueOf(bubble.getString("collectStatus"))) {
                         case AVAILABLE:
-                            if (Config.batchRobEnergy() && jaBubbles.length() < 7) {
+                            if (Config.INSTANCE.isBatchRobEnergy() && jaBubbles.length() < 7) {
                                 batchIdList.add(String.valueOf(bubbleId));
                             } else {
                                 collected += collectEnergy(userId, bubbleId, bizNo);
@@ -587,17 +587,17 @@ public class AntForest {
                             break;
 
                         case WAITING:
-                            if (Config.getDontCollectList().contains(userId))
+                            if (Config.INSTANCE.getDontCollectList().contains(userId))
                                 break;
                             long produceTime = bubble.getLong("produceTime");
-                            if (produceTime - serverTime < Config.checkInterval())
+                            if (produceTime - serverTime < Config.INSTANCE.getCheckInterval())
                                 execute(userId, bizNo, bubbleId, produceTime);
                             else
                                 setLaterTime(produceTime);
                             break;
                     }
                 }
-                if (Config.batchRobEnergy()) {
+                if (Config.INSTANCE.isBatchRobEnergy()) {
                     if (!batchIdList.isEmpty())
                         batchRobEnergy(userId, batchIdList, null);
                 }
@@ -625,7 +625,7 @@ public class AntForest {
                         if ("fuhuo".equals(wateringBubble.getString("bizType"))) {
                             restTimes = wateringBubble.getJSONObject("extInfo").optInt("restTimes", 0);
                             if (wateringBubble.getBoolean("canProtect")) {
-                                if (Config.getDontHelpCollectList().contains(userId)) {
+                                if (Config.INSTANCE.getDontHelpCollectList().contains(userId)) {
                                     Log.recordLog("不复活[" + FriendIdMap.getNameById(userId) + "]", "");
                                 } else {
                                     JSONObject joProtect = new JSONObject(AntForestRpcCall.protectBubble(userId));
@@ -708,13 +708,13 @@ public class AntForest {
         }
         try {
             String s = "{\"resultCode\": \"FAILED\"}";
-            if (Config.collectInterval() > 0) {
+            if (Config.INSTANCE.getCollectInterval() > 0) {
                 synchronized (collectLock) {
-                    while (System.currentTimeMillis() - lastCollectTime < Config.collectInterval()) {
+                    while (System.currentTimeMillis() - lastCollectTime < Config.INSTANCE.getCollectInterval()) {
                         Thread.sleep(System.currentTimeMillis() - lastCollectTime);
                     }
-                    if (Config.doubleCard() && doubleEndTime < System.currentTimeMillis()) {
-                        if (Config.isDoubleCardTime() && !selfId.equals(userId) && Statistics.canDoubleToday()) {
+                    if (Config.INSTANCE.isDoubleCard() && doubleEndTime < System.currentTimeMillis()) {
+                        if (Config.INSTANCE.hasDoubleCardTime() && !selfId.equals(userId) && Statistics.canDoubleToday()) {
                             useDoubleCard();
                         }
                     }
@@ -779,9 +779,9 @@ public class AntForest {
         // }
         try {
             String s = "{\"resultCode\": \"FAILED\"}";
-            if (Config.collectInterval() > 0) {
+            if (Config.INSTANCE.getCollectInterval() > 0) {
                 synchronized (collectLock) {
-                    while (System.currentTimeMillis() - lastCollectTime < Config.collectInterval()) {
+                    while (System.currentTimeMillis() - lastCollectTime < Config.INSTANCE.getCollectInterval()) {
                         Thread.sleep(System.currentTimeMillis() - lastCollectTime);
                     }
                     if (RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System
@@ -789,8 +789,8 @@ public class AntForest {
                         Log.recordLog("异常等待中，暂不收取能量！", "");
                         return 0;
                     }
-                    if (Config.doubleCard() && doubleEndTime < System.currentTimeMillis()) {
-                        if (Config.isDoubleCardTime() && !selfId.equals(userId) && Statistics.canDoubleToday()) {
+                    if (Config.INSTANCE.isDoubleCard() && doubleEndTime < System.currentTimeMillis()) {
+                        if (Config.INSTANCE.hasDoubleCardTime() && !selfId.equals(userId) && Statistics.canDoubleToday()) {
                             useDoubleCard();
                         }
                     }
@@ -822,11 +822,11 @@ public class AntForest {
                 if (bizNo == null || bizNo.isEmpty())
                     return collected;
                 int returnCount = 0;
-                if (Config.returnWater33() > 0 && collected >= Config.returnWater33())
+                if (Config.INSTANCE.getReturnWater33() > 0 && collected >= Config.INSTANCE.getReturnWater33())
                     returnCount = 33;
-                else if (Config.returnWater18() > 0 && collected >= Config.returnWater18())
+                else if (Config.INSTANCE.getReturnWater18() > 0 && collected >= Config.INSTANCE.getReturnWater18())
                     returnCount = 18;
-                else if (Config.returnWater10() > 0 && collected >= Config.returnWater10())
+                else if (Config.INSTANCE.getReturnWater10() > 0 && collected >= Config.INSTANCE.getReturnWater10())
                     returnCount = 10;
                 if (returnCount > 0)
                     returnFriendWater(userId, bizNo, 1, returnCount);
@@ -877,7 +877,7 @@ public class AntForest {
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 String bizNo = jo.getString("bizNo");
-                count = returnFriendWater(userId, bizNo, count, Config.waterFriendCount());
+                count = returnFriendWater(userId, bizNo, count, Config.INSTANCE.getWaterFriendCount());
                 if (count > 0)
                     Statistics.waterFriendToday(userId, count);
             } else {
@@ -1137,7 +1137,7 @@ public class AntForest {
                     JSONObject joEnergyRainCanGrantList = new JSONObject(
                             AntForestRpcCall.queryEnergyRainCanGrantList());
                     JSONArray grantInfos = joEnergyRainCanGrantList.getJSONArray("grantInfos");
-                    List<String> list = Config.getGiveEnergyRainList();
+                    List<String> list = Config.INSTANCE.getGiveEnergyRainList();
                     String userId;
                     boolean granted = false;
                     for (int j = 0; j < grantInfos.length(); j++) {
@@ -1203,7 +1203,7 @@ public class AntForest {
         FriendIdMap.saveIdMap();
         collectedEnergy = 0;
         helpCollectedEnergy = 0;
-        if (Config.collectEnergy()) {
+        if (Config.INSTANCE.isCollectEnergy()) {
             StringBuilder sb = new StringBuilder();
             sb.append("  收：").append(totalCollected).append("，帮：").append(totalHelpCollected);
             if (laterTime > 0) {
@@ -1408,11 +1408,11 @@ public class AntForest {
                             String ecosystem = animal.getString("ecosystem");
                             String name = animal.getString("name");
                             Log.forest("神奇物种🦕[" + ecosystem + "]#" + name);
-                            if (!Config.sendFriendCard().isEmpty()
-                                    && !FriendIdMap.getCurrentUid().equals(Config.sendFriendCard().get(0))) {
+                            if (!Config.INSTANCE.getSendFriendCard().isEmpty()
+                                    && !FriendIdMap.getCurrentUid().equals(Config.INSTANCE.getSendFriendCard().get(0))) {
                                 int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
                                 if (fantasticStarQuantity == 3) {
-                                    sendCard(animal, Config.sendFriendCard().get(0));
+                                    sendCard(animal, Config.INSTANCE.getSendFriendCard().get(0));
                                 }
                             }
                         } else {
@@ -1420,9 +1420,9 @@ public class AntForest {
                         }
                     }
                 }
-                if (!Config.sendFriendCard().isEmpty()
-                        && !FriendIdMap.getCurrentUid().equals(Config.sendFriendCard().get(0))) {
-                    sendAntdodoCard(bookId, Config.sendFriendCard().get(0));
+                if (!Config.INSTANCE.getSendFriendCard().isEmpty()
+                        && !FriendIdMap.getCurrentUid().equals(Config.INSTANCE.getSendFriendCard().get(0))) {
+                    sendAntdodoCard(bookId, Config.INSTANCE.getSendFriendCard().get(0));
                 }
             } else {
                 Log.i(TAG, jo.getString("resultDesc"));
@@ -1504,11 +1504,11 @@ public class AntForest {
                             String ecosystem = animal.getString("ecosystem");
                             String name = animal.getString("name");
                             Log.forest("使用道具🎭[" + propName + "]#" + ecosystem + "-" + name);
-                            if (!Config.sendFriendCard().isEmpty()
-                                    && !FriendIdMap.getCurrentUid().equals(Config.sendFriendCard().get(0))) {
+                            if (!Config.INSTANCE.getSendFriendCard().isEmpty()
+                                    && !FriendIdMap.getCurrentUid().equals(Config.INSTANCE.getSendFriendCard().get(0))) {
                                 int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
                                 if (fantasticStarQuantity == 3) {
-                                    sendCard(animal, Config.sendFriendCard().get(0));
+                                    sendCard(animal, Config.INSTANCE.getSendFriendCard().get(0));
                                 }
                             }
                             if (holdsNum > 1) {
@@ -1707,7 +1707,7 @@ public class AntForest {
                     JSONObject animal = jo.getJSONObject("animal");
                     int id = animal.getInt("id");
                     String name = animal.getString("name");
-                    if (canConsumeProp && Config.animalConsumeProp()) {
+                    if (canConsumeProp && Config.INSTANCE.isAnimalConsumeProp()) {
                         JSONObject main = jo.optJSONObject("main");
                         if (main != null && main.optInt("holdsNum", 0) > 0) {
                             canConsumeProp = !AnimalConsumeProp(id);
@@ -1817,7 +1817,7 @@ public class AntForest {
         if (antForestTask.hasChildThread(tid)) {
             return;
         }
-        BubbleTimerTask btt = new BubbleTimerTask(userId, bizNo, bubbleId, produceTime + offsetTime - System.currentTimeMillis() - Config.advanceTime());
+        BubbleTimerTask btt = new BubbleTimerTask(userId, bizNo, bubbleId, produceTime + offsetTime - System.currentTimeMillis() - Config.INSTANCE.getAdvanceTime());
         antForestTask.addChildThread(btt.getTid(), btt);
         long delay = btt.getSleep();
         btt.start();
@@ -1950,7 +1950,7 @@ public class AntForest {
 
                 long time = System.currentTimeMillis();
                 boolean first = true;
-                while (first || System.currentTimeMillis() - time < Config.collectTimeout()) {
+                while (first || System.currentTimeMillis() - time < Config.INSTANCE.getCollectTimeout()) {
                     first = false;
                     if (collectEnergy(userId, bubbleId, bizNo) > 0)
                         break;

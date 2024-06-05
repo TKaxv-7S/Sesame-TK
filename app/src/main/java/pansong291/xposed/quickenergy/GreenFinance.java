@@ -16,7 +16,7 @@ public class GreenFinance {
     private static final String TAG = GreenFinance.class.getSimpleName();
 
     public static Boolean check() {
-        return Config.greenFinance();
+        return Config.INSTANCE.isGreenFinance();
     }
 
     public static Task init() {

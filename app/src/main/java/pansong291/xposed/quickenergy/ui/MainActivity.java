@@ -26,7 +26,6 @@ import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.FriendWatch;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.LanguageUtil;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 
@@ -128,6 +127,8 @@ public class MainActivity extends Activity {
                     }
                     hasPermissions = PermissionUtil.checkOrRequestFilePermissions(MainActivity.this);
                     if (hasPermissions) {
+                        Config.load();
+                        Statistics.load();
                         return;
                     }
                     Toast.makeText(MainActivity.this, "未获取文件读写权限", Toast.LENGTH_SHORT).show();
@@ -150,7 +151,7 @@ public class MainActivity extends Activity {
         if (v.getId() == R.id.btn_test) {
             if (isApkInDebug(this)) {
                 Toast toast = Toast.makeText(this, "测试", Toast.LENGTH_SHORT);
-                toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.toastOffsetY());
+                toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.INSTANCE.getToastOffsetY());
                 toast.show();
                 sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.test"));
             }

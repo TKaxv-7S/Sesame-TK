@@ -23,7 +23,7 @@ public class AntOrchard {
     private static String treeLevel;
 
     public static Boolean check() {
-        return Config.antOrchard();
+        return Config.INSTANCE.isAntOrchard();
     }
 
     public static Task init() {
@@ -45,17 +45,17 @@ public class AntOrchard {
                             if (!joo.optBoolean("hireCountOnceLimit", true)
                                     && !joo.optBoolean("hireCountOneDayLimit", true))
                                 batchHireAnimalRecommend();
-                            if (Config.receiveOrchardTaskAward()) {
+                            if (Config.INSTANCE.isReceiveOrchardTaskAward()) {
                                 doOrchardDailyTask(userId);
                                 triggerTbTask();
                             }
-                            if (Config.getOrchardSpreadManureCount() > 0 && Statistics.canSpreadManureToday(userId))
+                            if (Config.INSTANCE.getOrchardSpreadManureCount() > 0 && Statistics.canSpreadManureToday(userId))
                                 orchardSpreadManure();
 
-                            if (Config.getOrchardSpreadManureCount() >= 3
-                                    && Config.getOrchardSpreadManureCount() < 10) {
+                            if (Config.INSTANCE.getOrchardSpreadManureCount() >= 3
+                                    && Config.INSTANCE.getOrchardSpreadManureCount() < 10) {
                                 querySubplotsActivity(3);
-                            } else if (Config.getOrchardSpreadManureCount() >= 10) {
+                            } else if (Config.INSTANCE.getOrchardSpreadManureCount() >= 10) {
                                 querySubplotsActivity(10);
                             }
 
@@ -63,7 +63,7 @@ public class AntOrchard {
                             Log.recordLog(jo.getString("resultDesc"), jo.toString());
                         }
                     } else {
-                        Config.setAntOrchard(false);
+                        Config.INSTANCE.setAntOrchard(false);
                         Log.recordLog("请先开启芭芭农场！");
                     }
                 } else {
@@ -137,7 +137,7 @@ public class AntOrchard {
                 int wateringCost = accountInfo.getInt("wateringCost");
                 int wateringLeftTimes = accountInfo.getInt("wateringLeftTimes");
                 if (happyPoint > wateringCost && wateringLeftTimes > 0
-                        && (200 - wateringLeftTimes < Config.getOrchardSpreadManureCount())) {
+                        && (200 - wateringLeftTimes < Config.INSTANCE.getOrchardSpreadManureCount())) {
                     jo = new JSONObject(AntOrchardRpcCall.orchardSpreadManure(getWua()));
                     if ("100".equals(jo.getString("resultCode"))) {
                         taobaoData = jo.getString("taobaoData");

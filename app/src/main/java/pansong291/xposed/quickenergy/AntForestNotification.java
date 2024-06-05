@@ -83,7 +83,7 @@ public class AntForestNotification {
                     .setContentTitle("芝麻粒")
                     .setAutoCancel(false)
                     .setContentIntent(pi);
-            if (Config.enableOnGoing()) {
+            if (Config.INSTANCE.isEnableOnGoing()) {
                 builder.setOngoing(true);
             }
             mNotification = builder.build();

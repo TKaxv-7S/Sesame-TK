@@ -10,7 +10,7 @@ public class KBMember {
     private static final String TAG = KBMember.class.getSimpleName();
 
     public static void start(ClassLoader loader) {
-        if (!Config.kbSginIn() || !Statistics.canKbSignInToday())
+        if (!Config.INSTANCE.isKbSignIn() || !Statistics.canKbSignInToday())
             return;
 
         new Thread() {

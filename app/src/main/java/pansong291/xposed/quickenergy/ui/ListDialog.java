@@ -151,7 +151,6 @@ public class ListDialog {
                                 curViewHolder.cb.setChecked(true);
                             }
                         }
-                        Config.hasChanged = true;
                     } else {
                         showEdtDialog(p1.getContext());
                     }
@@ -229,7 +228,6 @@ public class ListDialog {
                             }
                             curViewHolder.cb.setChecked(false);
                         }
-                        Config.hasChanged = true;
                     }
                     ListAdapter.get(c).notifyDataSetChanged();
                 }
@@ -379,7 +377,6 @@ public class ListDialog {
                     la.SelectInvert();
                     break;
             }
-            Config.hasChanged = true;
         }
     }
 

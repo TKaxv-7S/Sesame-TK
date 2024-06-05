@@ -1,115 +1,20 @@
 package pansong291.xposed.quickenergy.util;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import lombok.Data;
 
+@Data
 public class Statistics {
-    public enum TimeType {
-        YEAR, MONTH, DAY
-    }
 
-    public enum DataType {
-        TIME, COLLECTED, HELPED, WATERED
-    }
-
-    private static class TimeStatistics {
-        int time;
-        int collected, helped, watered;
-
-        TimeStatistics(int i) {
-            reset(i);
-        }
-
-        public void reset(int i) {
-            time = i;
-            collected = 0;
-            helped = 0;
-            watered = 0;
-        }
-    }
-
-    private static class WaterFriendLog {
-        String userId;
-        int waterCount = 0;
-
-        public WaterFriendLog(String id) {
-            userId = id;
-        }
-    }
-
-    private static class ReserveLog {
-        String projectId;
-        int applyCount = 0;
-
-        public ReserveLog(String id) {
-            projectId = id;
-        }
-    }
-
-    private static class BeachLog {
-        String cultivationCode;
-        int applyCount = 0;
-
-        public BeachLog(String id) {
-            cultivationCode = id;
-        }
-    }
-
-    private static class FeedFriendLog {
-        String userId;
-        int feedCount = 0;
-
-        public FeedFriendLog(String id) {
-            userId = id;
-        }
-    }
-
-    private static class VisitFriendLog {
-        String userId;
-        int visitCount = 0;
-
-        public VisitFriendLog(String id) {
-            userId = id;
-        }
-    }
-
-    private static class StallShareIdLog {
-        String userId;
-        String shareId;
-
-        public StallShareIdLog(String uid, String sid) {
-            userId = uid;
-            shareId = sid;
-        }
-    }
-
-    private static class StallHelpedCountLog {
-        String userId;
-        int helpedCount = 0;
-        int beHelpedCount = 0;
-
-        public StallHelpedCountLog(String id) {
-            userId = id;
-        }
-    }
+    public static final Statistics INSTANCE = defInit();
 
     private static final String TAG = Statistics.class.getSimpleName();
-    private static final String jn_year = "year", jn_month = "month", jn_day = "day",
-            jn_collected = "collected", jn_helped = "helped", jn_watered = "watered",
-            jn_answerQuestionList = "answerQuestionList", jn_syncStepList = "syncStepList",
-            jn_exchangeList = "exchangeList", jn_beachTodayList = "beachTodayList",
-            jn_questionHint = "questionHint", jn_donationEggList = "donationEggList",
-            jn_memberSignInList = "memberSignInList", jn_kbSignIn = "kbSignIn",
-            jn_exchangeDoubleCard = "exchangeDoubleCard", jn_exchangeTimes = "exchangeTimes",
-            jn_dailyAnswerList = "dailyAnswerList", jn_doubleTimes = "doubleTimes",
-            jn_spreadManureList = "spreadManureList", jn_protectBubbleList = "protectBubbleList",
-            jn_stallShareIdList = "stallShareIdList", jn_stallP2PHelpedList = "stallP2PHelpedList",
-            jn_stallHelpedCountList = "stallHelpedCountList";
 
     private TimeStatistics year;
     private TimeStatistics month;
@@ -145,10 +50,8 @@ public class Statistics {
     private ArrayList<String> memberSignInList;
     private int kbSignIn = 0;
 
-    private static Statistics statistics;
-
     public static void addData(DataType dt, int i) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         resetToday();
         switch (dt) {
             case COLLECTED:
@@ -171,7 +74,7 @@ public class Statistics {
     }
 
     public static int getData(TimeType tt, DataType dt) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int data = 0;
         TimeStatistics ts = null;
         switch (tt) {
@@ -204,8 +107,7 @@ public class Statistics {
     }
 
     public static String getText() {
-        statistics = null;
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         StringBuilder sb = new StringBuilder(getData(TimeType.YEAR, DataType.TIME) + "年 : 收 ");
         sb.append(getData(TimeType.YEAR, DataType.COLLECTED));
         sb.append(",   帮 ").append(getData(TimeType.YEAR, DataType.HELPED));
@@ -226,7 +128,7 @@ public class Statistics {
 
     public static boolean canWaterFriendToday(String id, int count) {
         id = FriendIdMap.getCurrentUid() + "-" + id;
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.waterFriendLogList.size(); i++)
             if (stat.waterFriendLogList.get(i).userId.equals(id)) {
@@ -241,7 +143,7 @@ public class Statistics {
 
     public static void waterFriendToday(String id, int count) {
         id = FriendIdMap.getCurrentUid() + "-" + id;
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         WaterFriendLog wfl;
         int index = -1;
         for (int i = 0; i < stat.waterFriendLogList.size(); i++)
@@ -260,7 +162,7 @@ public class Statistics {
     }
 
     public static int getReserveTimes(String id) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.reserveLogList.size(); i++)
             if (stat.reserveLogList.get(i).projectId.equals(id)) {
@@ -278,7 +180,7 @@ public class Statistics {
     }
 
     public static void reserveToday(String id, int count) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         ReserveLog rl;
         int index = -1;
         for (int i = 0; i < stat.reserveLogList.size(); i++)
@@ -297,7 +199,7 @@ public class Statistics {
     }
 
     public static int getBeachTimes(String id) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.beachLogList.size(); i++)
             if (stat.beachLogList.get(i).cultivationCode.equals(id)) {
@@ -311,7 +213,7 @@ public class Statistics {
     }
 
     public static boolean canBeach(String id, int count) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.beachLogList.size(); i++)
             if (stat.beachLogList.get(i).cultivationCode.equals(id)) {
@@ -325,7 +227,7 @@ public class Statistics {
     }
 
     public static void beachRecord(String id, int count) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         BeachLog bl;
         int index = -1;
         for (int i = 0; i < stat.beachLogList.size(); i++)
@@ -344,12 +246,11 @@ public class Statistics {
     }
 
     public static boolean canCooperateWaterToday(String uid, String coopId) {
-        Statistics stat = getStatistics();
-        return !stat.cooperateWaterList.contains(uid + "_" + coopId);
+        return !INSTANCE.cooperateWaterList.contains(uid + "_" + coopId);
     }
 
     public static void cooperateWaterToday(String uid, String coopId) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         String v = uid + "_" + coopId;
         if (!stat.cooperateWaterList.contains(v)) {
             stat.cooperateWaterList.add(v);
@@ -358,12 +259,11 @@ public class Statistics {
     }
 
     public static boolean canAncientTreeToday(String cityCode) {
-        Statistics stat = getStatistics();
-        return !stat.ancientTreeCityCodeList.contains(cityCode);
+        return !INSTANCE.ancientTreeCityCodeList.contains(cityCode);
     }
 
     public static void ancientTreeToday(String cityCode) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.ancientTreeCityCodeList.contains(cityCode)) {
             stat.ancientTreeCityCodeList.add(cityCode);
             save();
@@ -371,12 +271,11 @@ public class Statistics {
     }
 
     public static boolean canAnswerQuestionToday(String uid) {
-        Statistics stat = getStatistics();
-        return !stat.answerQuestionList.contains(uid);
+        return !INSTANCE.answerQuestionList.contains(uid);
     }
 
     public static void answerQuestionToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.answerQuestionList.contains(uid)) {
             stat.answerQuestionList.add(uid);
             save();
@@ -384,7 +283,7 @@ public class Statistics {
     }
 
     public static void setQuestionHint(String s) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (stat.questionHint == null) {
             stat.questionHint = s;
             save();
@@ -392,7 +291,7 @@ public class Statistics {
     }
 
     public static boolean canFeedFriendToday(String id, int count) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.feedFriendLogList.size(); i++)
             if (stat.feedFriendLogList.get(i).userId.equals(id)) {
@@ -406,7 +305,7 @@ public class Statistics {
     }
 
     public static void feedFriendToday(String id) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         FeedFriendLog ffl;
         int index = -1;
         for (int i = 0; i < stat.feedFriendLogList.size(); i++)
@@ -426,7 +325,7 @@ public class Statistics {
 
     public static boolean canVisitFriendToday(String id, int count) {
         id = FriendIdMap.getCurrentUid() + "-" + id;
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.visitFriendLogList.size(); i++)
             if (stat.visitFriendLogList.get(i).userId.equals(id)) {
@@ -441,7 +340,7 @@ public class Statistics {
 
     public static void visitFriendToday(String id, int count) {
         id = FriendIdMap.getCurrentUid() + "-" + id;
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         VisitFriendLog vfl;
         int index = -1;
         for (int i = 0; i < stat.visitFriendLogList.size(); i++)
@@ -461,7 +360,7 @@ public class Statistics {
 
     public static List<String> stallP2PUserIdList(String uid) {
         List<String> p2pUserIdList = new ArrayList<>();
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         for (int i = 0; i < stat.stallShareIdLogList.size(); i++)
             if (!stat.stallShareIdLogList.get(i).userId.equals(uid)) {
                 p2pUserIdList.add(stat.stallShareIdLogList.get(i).userId);
@@ -470,7 +369,7 @@ public class Statistics {
     }
 
     public static void stallShareIdToday(String uid, String sid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         StallShareIdLog ssil;
         int index = -1;
         for (int i = 0; i < stat.stallShareIdLogList.size(); i++)
@@ -489,7 +388,7 @@ public class Statistics {
     }
 
     public static String getStallShareId(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.stallShareIdLogList.size(); i++)
             if (stat.stallShareIdLogList.get(i).userId.equals(uid)) {
@@ -504,7 +403,7 @@ public class Statistics {
     }
 
     public static boolean canStallHelpToday(String id) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.stallHelpedCountLogList.size(); i++)
             if (stat.stallHelpedCountLogList.get(i).userId.equals(id)) {
@@ -518,7 +417,7 @@ public class Statistics {
     }
 
     public static void stallHelpToday(String id, boolean limited) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         StallHelpedCountLog shcl;
         int index = -1;
         for (int i = 0; i < stat.stallHelpedCountLogList.size(); i++)
@@ -541,7 +440,7 @@ public class Statistics {
     }
 
     public static boolean canStallBeHelpToday(String id) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.stallHelpedCountLogList.size(); i++)
             if (stat.stallHelpedCountLogList.get(i).userId.equals(id)) {
@@ -555,7 +454,7 @@ public class Statistics {
     }
 
     public static void stallBeHelpToday(String id, boolean limited) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         StallHelpedCountLog shcl;
         int index = -1;
         for (int i = 0; i < stat.stallHelpedCountLogList.size(); i++)
@@ -578,12 +477,11 @@ public class Statistics {
     }
 
     public static boolean canMemberSignInToday(String uid) {
-        Statistics stat = getStatistics();
-        return !stat.memberSignInList.contains(uid);
+        return !INSTANCE.memberSignInList.contains(uid);
     }
 
     public static void memberSignInToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.memberSignInList.contains(uid)) {
             stat.memberSignInList.add(uid);
             save();
@@ -591,12 +489,11 @@ public class Statistics {
     }
 
     public static boolean canDonationEgg(String uid) {
-        Statistics stat = getStatistics();
-        return !stat.donationEggList.contains(uid);
+        return !INSTANCE.donationEggList.contains(uid);
     }
 
     public static void donationEgg(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.donationEggList.contains(uid)) {
             stat.donationEggList.add(uid);
             save();
@@ -604,12 +501,11 @@ public class Statistics {
     }
 
     public static boolean canSpreadManureToday(String uid) {
-        Statistics stat = getStatistics();
-        return !stat.spreadManureList.contains(uid);
+        return !INSTANCE.spreadManureList.contains(uid);
     }
 
     public static void spreadManureToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.spreadManureList.contains(uid)) {
             stat.spreadManureList.add(uid);
             save();
@@ -618,13 +514,12 @@ public class Statistics {
 
     public static boolean canStallP2PHelpToday(String uid) {
         uid = FriendIdMap.getCurrentUid() + "-" + uid;
-        Statistics stat = getStatistics();
-        return !stat.stallP2PHelpedList.contains(uid);
+        return !INSTANCE.stallP2PHelpedList.contains(uid);
     }
 
     public static void stallP2PHelpeToday(String uid) {
         uid = FriendIdMap.getCurrentUid() + "-" + uid;
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.stallP2PHelpedList.contains(uid)) {
             stat.stallP2PHelpedList.add(uid);
             save();
@@ -632,12 +527,11 @@ public class Statistics {
     }
 
     public static boolean canExchangeToday(String uid) {
-        Statistics stat = getStatistics();
-        return !stat.exchangeList.contains(uid);
+        return !INSTANCE.exchangeList.contains(uid);
     }
 
     public static void exchangeToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.exchangeList.contains(uid)) {
             stat.exchangeList.add(uid);
             save();
@@ -645,12 +539,11 @@ public class Statistics {
     }
 
     public static boolean canProtectBubbleToday(String uid) {
-        Statistics stat = getStatistics();
-        return !stat.protectBubbleList.contains(uid);
+        return !INSTANCE.protectBubbleList.contains(uid);
     }
 
     public static void protectBubbleToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.protectBubbleList.contains(uid)) {
             stat.protectBubbleList.add(uid);
             save();
@@ -658,48 +551,45 @@ public class Statistics {
     }
 
     public static boolean canExchangeDoubleCardToday() {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (stat.exchangeDoubleCard < stat.day.time) {
             return true;
-        } else return stat.exchangeTimes < Config.getExchangeEnergyDoubleClickCount();
+        } else return stat.exchangeTimes < Config.INSTANCE.getExchangeEnergyDoubleClickCount();
     }
 
     public static void exchangeDoubleCardToday(boolean isSuccess) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (stat.exchangeDoubleCard != stat.day.time) {
             stat.exchangeDoubleCard = stat.day.time;
         }
         if (isSuccess) {
             stat.exchangeTimes += 1;
         } else {
-            stat.exchangeTimes = Config.getExchangeEnergyDoubleClickCount();
+            stat.exchangeTimes = Config.INSTANCE.getExchangeEnergyDoubleClickCount();
         }
         save();
     }
 
     public static int getExchangeTimes() {
-        Statistics stat = getStatistics();
-        return stat.exchangeTimes;
+        return INSTANCE.exchangeTimes;
     }
 
     public static boolean canDoubleToday() {
-        Statistics stat = getStatistics();
-        return stat.doubleTimes < Config.getDoubleCountLimit();
+        return INSTANCE.doubleTimes < Config.INSTANCE.getDoubleCountLimit();
     }
 
     public static void DoubleToday() {
-        Statistics stat = getStatistics();
-        stat.doubleTimes += 1;
+        INSTANCE.doubleTimes += 1;
         save();
     }
 
     public static boolean canKbSignInToday() {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         return stat.kbSignIn < stat.day.time;
     }
 
     public static void KbSignInToday() {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (stat.kbSignIn != stat.day.time) {
             stat.kbSignIn = stat.day.time;
             save();
@@ -707,23 +597,22 @@ public class Statistics {
     }
 
     public static Set<String> getDadaDailySet() {
-        Statistics stat = getStatistics();
-        return stat.dailyAnswerList;
+        return INSTANCE.dailyAnswerList;
     }
 
     public static void setDadaDailySet(Set<String> dailyAnswerList) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         stat.dailyAnswerList = dailyAnswerList;
         save();
     }
 
     public static boolean canSyncStepToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         return !stat.syncStepList.contains(uid);
     }
 
     public static void SyncStepToday(String uid) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.syncStepList.contains(uid)) {
             stat.syncStepList.add(uid);
             save();
@@ -731,30 +620,20 @@ public class Statistics {
     }
 
     public static boolean canBeachToday(String cultivationCode) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         return !stat.beachTodayList.contains(cultivationCode);
     }
 
     public static void beachToday(String cultivationCode) {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         if (!stat.beachTodayList.contains(cultivationCode)) {
             stat.beachTodayList.add(cultivationCode);
             save();
         }
     }
 
-    private static Statistics getStatistics() {
-        if (statistics == null) {
-            String statJson = null;
-            if (FileUtils.getStatisticsFile().exists())
-                statJson = FileUtils.readFromFile(FileUtils.getStatisticsFile());
-            statistics = json2Statistics(statJson);
-        }
-        return statistics;
-    }
-
     public static void resetToday() {
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         String formatDate = Log.getFormatDate();
         String[] dateStr = formatDate.split("-");
         int ye = Integer.parseInt(dateStr[0]);
@@ -779,7 +658,7 @@ public class Statistics {
 
     private static void dayClear() {
         Log.infoChanged(TAG,"重置 statistics.json");
-        Statistics stat = getStatistics();
+        Statistics stat = INSTANCE;
         stat.waterFriendLogList.clear();
         stat.cooperateWaterList.clear();
         stat.syncStepList.clear();
@@ -851,464 +730,156 @@ public class Statistics {
         return stat;
     }
 
-    private static Statistics json2Statistics(String json) {
-        Statistics stat;
+    public static synchronized Statistics load() {
+        String json = null;
+        if (FileUtils.getStatisticsFile().exists()) {
+            json = FileUtils.readFromFile(FileUtils.getStatisticsFile());
+        }
         try {
-            JSONObject jo = new JSONObject(json);
-            JSONObject joo;
-            stat = new Statistics();
-
-            joo = jo.getJSONObject(jn_year);
-            stat.year = new TimeStatistics(joo.getInt(jn_year));
-
-            stat.year.collected = joo.getInt(jn_collected);
-
-            stat.year.helped = joo.getInt(jn_helped);
-
-            stat.year.watered = joo.getInt(jn_watered);
-
-            joo = jo.getJSONObject(jn_month);
-            stat.month = new TimeStatistics(joo.getInt(jn_month));
-
-            stat.month.collected = joo.getInt(jn_collected);
-
-            stat.month.helped = joo.getInt(jn_helped);
-
-            stat.month.watered = joo.getInt(jn_watered);
-
-            joo = jo.getJSONObject(jn_day);
-            stat.day = new TimeStatistics(joo.getInt(jn_day));
-
-            stat.day.collected = joo.getInt(jn_collected);
-
-            stat.day.helped = joo.getInt(jn_helped);
-
-            stat.day.watered = joo.getInt(jn_watered);
-
-            stat.waterFriendLogList = new ArrayList<>();
-
-            if (jo.has(Config.jn_waterFriendList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_waterFriendList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    WaterFriendLog wfl = new WaterFriendLog(jaa.getString(0));
-                    wfl.waterCount = jaa.getInt(1);
-                    stat.waterFriendLogList.add(wfl);
-
-                }
-            }
-
-            stat.cooperateWaterList = new ArrayList<>();
-
-            if (jo.has(Config.jn_cooperateWaterList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_cooperateWaterList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.cooperateWaterList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.ancientTreeCityCodeList = new ArrayList<>();
-
-            if (jo.has(Config.jn_ancientTreeCityCodeList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_ancientTreeCityCodeList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.ancientTreeCityCodeList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.syncStepList = new ArrayList<>();
-
-            if (jo.has(jn_syncStepList)) {
-                JSONArray ja = jo.getJSONArray(jn_syncStepList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.syncStepList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.beachTodayList = new ArrayList<>();
-
-            if (jo.has(jn_beachTodayList)) {
-                JSONArray ja = jo.getJSONArray(jn_beachTodayList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.beachTodayList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.exchangeList = new ArrayList<>();
-
-            if (jo.has(jn_exchangeList)) {
-                JSONArray ja = jo.getJSONArray(jn_exchangeList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.exchangeList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.protectBubbleList = new ArrayList<>();
-
-            if (jo.has(jn_protectBubbleList)) {
-                JSONArray ja = jo.getJSONArray(jn_protectBubbleList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.protectBubbleList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.reserveLogList = new ArrayList<>();
-
-            if (jo.has(Config.jn_reserveList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_reserveList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    ReserveLog rl = new ReserveLog(jaa.getString(0));
-                    rl.applyCount = jaa.getInt(1);
-                    stat.reserveLogList.add(rl);
-                }
-            }
-
-            stat.beachLogList = new ArrayList<>();
-
-            if (jo.has(Config.jn_beachList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_beachList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    BeachLog bl = new BeachLog(jaa.getString(0));
-                    bl.applyCount = jaa.getInt(1);
-                    stat.beachLogList.add(bl);
-                }
-            }
-
-            stat.answerQuestionList = new ArrayList<>();
-
-            if (jo.has(jn_answerQuestionList)) {
-                JSONArray ja = jo.getJSONArray(jn_answerQuestionList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.answerQuestionList.add(ja.getString(i));
-
-                }
-            }
-
-            if (jo.has(jn_questionHint))
-                stat.questionHint = jo.getString(jn_questionHint);
-
-            stat.feedFriendLogList = new ArrayList<>();
-
-            if (jo.has(Config.jn_feedFriendAnimalList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_feedFriendAnimalList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    FeedFriendLog ffl = new FeedFriendLog(jaa.getString(0));
-                    ffl.feedCount = jaa.getInt(1);
-                    stat.feedFriendLogList.add(ffl);
-
-                }
-            }
-
-            stat.visitFriendLogList = new ArrayList<>();
-            if (jo.has(Config.jn_visitFriendList)) {
-                JSONArray ja = jo.getJSONArray(Config.jn_visitFriendList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    VisitFriendLog vfl = new VisitFriendLog(jaa.getString(0));
-                    vfl.visitCount = jaa.getInt(1);
-                    stat.visitFriendLogList.add(vfl);
-
-                }
-            }
-
-            stat.stallShareIdLogList = new ArrayList<>();
-            if (jo.has(jn_stallShareIdList)) {
-                JSONArray ja = jo.getJSONArray(jn_stallShareIdList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    StallShareIdLog ssil = new StallShareIdLog(jaa.getString(0), jaa.getString(1));
-                    stat.stallShareIdLogList.add(ssil);
-                }
-            }
-
-            stat.stallHelpedCountLogList = new ArrayList<>();
-            if (jo.has(jn_stallHelpedCountList)) {
-                JSONArray ja = jo.getJSONArray(jn_stallHelpedCountList);
-                for (int i = 0; i < ja.length(); i++) {
-                    JSONArray jaa = ja.getJSONArray(i);
-                    StallHelpedCountLog shcl = new StallHelpedCountLog(jaa.getString(0));
-                    shcl.helpedCount = jaa.getInt(1);
-                    shcl.beHelpedCount = jaa.getInt(2);
-                    stat.stallHelpedCountLogList.add(shcl);
-
-                }
-            }
-
-            stat.donationEggList = new ArrayList<>();
-            if (jo.has(jn_donationEggList)) {
-                JSONArray ja = jo.getJSONArray(jn_donationEggList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.donationEggList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.spreadManureList = new ArrayList<>();
-            if (jo.has(jn_spreadManureList)) {
-                JSONArray ja = jo.getJSONArray(jn_spreadManureList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.spreadManureList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.stallP2PHelpedList = new ArrayList<>();
-            if (jo.has(jn_stallP2PHelpedList)) {
-                JSONArray ja = jo.getJSONArray(jn_stallP2PHelpedList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.stallP2PHelpedList.add(ja.getString(i));
-
-                }
-            }
-
-            stat.memberSignInList = new ArrayList<>();
-
-            if (jo.has(jn_memberSignInList)) {
-                JSONArray ja = jo.getJSONArray(jn_memberSignInList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.memberSignInList.add(ja.getString(i));
-
-                }
-            }
-
-            if (jo.has(jn_kbSignIn))
-                stat.kbSignIn = jo.getInt(jn_kbSignIn);
-
-            if (jo.has(jn_exchangeDoubleCard))
-                stat.exchangeDoubleCard = jo.getInt(jn_exchangeDoubleCard);
-
-            if (jo.has(jn_exchangeTimes))
-                stat.exchangeTimes = jo.getInt(jn_exchangeTimes);
-
-            if (jo.has(jn_doubleTimes))
-                stat.doubleTimes = jo.getInt(jn_doubleTimes);
-
-            stat.dailyAnswerList = new HashSet<>();
-            if (jo.has(jn_dailyAnswerList)) {
-                JSONArray ja = jo.getJSONArray(jn_dailyAnswerList);
-                for (int i = 0; i < ja.length(); i++) {
-                    stat.dailyAnswerList.add(ja.getString(i));
-                }
-            }
-
+            JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
-            if (json != null) {
-                Log.i(TAG, "统计文件格式有误，已重置统计文件并备份原文件");
-                Log.infoChanged(TAG, "统计文件格式有误，已重置统计文件并备份原文件");
-                FileUtils.write2File(json, FileUtils.getBackupFile(FileUtils.getStatisticsFile()));
+            Log.i(TAG, "统计文件格式有误，已重置统计文件");
+            Log.infoChanged(TAG, "统计文件格式有误，已重置统计文件");
+            try {
+                JsonUtil.MAPPER.updateValue(INSTANCE, defInit());
+            } catch (JsonMappingException e) {
+                Log.printStackTrace(TAG, t);
             }
-            stat = defInit();
         }
-        String formatted = statistics2Json(stat);
-        if (!formatted.equals(json)) {
+        String formatted = JsonUtil.toJsonString(INSTANCE);
+        if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 statistics.json");
             Log.infoChanged(TAG, "重新格式化 statistics.json");
             FileUtils.write2File(formatted, FileUtils.getStatisticsFile());
         }
-        return stat;
-    }
-
-    private static String statistics2Json(Statistics stat) {
-        JSONObject jo = new JSONObject();
-        JSONArray ja = null;
-        try {
-            if (stat == null)
-                stat = Statistics.defInit();
-            JSONObject joo = new JSONObject();
-            joo.put(jn_year, stat.year.time);
-            joo.put(jn_collected, stat.year.collected);
-            joo.put(jn_helped, stat.year.helped);
-            joo.put(jn_watered, stat.year.watered);
-            jo.put(jn_year, joo);
-
-            joo = new JSONObject();
-            joo.put(jn_month, stat.month.time);
-            joo.put(jn_collected, stat.month.collected);
-            joo.put(jn_helped, stat.month.helped);
-            joo.put(jn_watered, stat.month.watered);
-            jo.put(jn_month, joo);
-
-            joo = new JSONObject();
-            joo.put(jn_day, stat.day.time);
-            joo.put(jn_collected, stat.day.collected);
-            joo.put(jn_helped, stat.day.helped);
-            joo.put(jn_watered, stat.day.watered);
-            jo.put(jn_day, joo);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.waterFriendLogList.size(); i++) {
-                WaterFriendLog wfl = stat.waterFriendLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(wfl.userId);
-                jaa.put(wfl.waterCount);
-                ja.put(jaa);
-            }
-            jo.put(Config.jn_waterFriendList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.cooperateWaterList.size(); i++) {
-                ja.put(stat.cooperateWaterList.get(i));
-            }
-            jo.put(Config.jn_cooperateWaterList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.syncStepList.size(); i++) {
-                ja.put(stat.syncStepList.get(i));
-            }
-            jo.put(jn_syncStepList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.beachTodayList.size(); i++) {
-                ja.put(stat.beachTodayList.get(i));
-            }
-            jo.put(jn_beachTodayList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.exchangeList.size(); i++) {
-                ja.put(stat.exchangeList.get(i));
-            }
-            jo.put(jn_exchangeList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.protectBubbleList.size(); i++) {
-                ja.put(stat.protectBubbleList.get(i));
-            }
-            jo.put(jn_protectBubbleList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.ancientTreeCityCodeList.size(); i++) {
-                ja.put(stat.ancientTreeCityCodeList.get(i));
-            }
-            jo.put(Config.jn_ancientTreeCityCodeList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.reserveLogList.size(); i++) {
-                ReserveLog rl = stat.reserveLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(rl.projectId);
-                jaa.put(rl.applyCount);
-                ja.put(jaa);
-            }
-            jo.put(Config.jn_reserveList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.beachLogList.size(); i++) {
-                BeachLog bl = stat.beachLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(bl.cultivationCode);
-                jaa.put(bl.applyCount);
-                ja.put(jaa);
-            }
-            jo.put(Config.jn_beachList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.answerQuestionList.size(); i++) {
-                ja.put(stat.answerQuestionList.get(i));
-            }
-            jo.put(jn_answerQuestionList, ja);
-
-            if (stat.questionHint != null)
-                jo.put(jn_questionHint, stat.questionHint);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.feedFriendLogList.size(); i++) {
-                FeedFriendLog ffl = stat.feedFriendLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(ffl.userId);
-                jaa.put(ffl.feedCount);
-                ja.put(jaa);
-            }
-            jo.put(Config.jn_feedFriendAnimalList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.visitFriendLogList.size(); i++) {
-                VisitFriendLog vfl = stat.visitFriendLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(vfl.userId);
-                jaa.put(vfl.visitCount);
-                ja.put(jaa);
-            }
-            jo.put(Config.jn_visitFriendList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.stallShareIdLogList.size(); i++) {
-                StallShareIdLog ssil = stat.stallShareIdLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(ssil.userId);
-                jaa.put(ssil.shareId);
-                ja.put(jaa);
-            }
-            jo.put(jn_stallShareIdList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.stallHelpedCountLogList.size(); i++) {
-                StallHelpedCountLog shcl = stat.stallHelpedCountLogList.get(i);
-                JSONArray jaa = new JSONArray();
-                jaa.put(shcl.userId);
-                jaa.put(shcl.helpedCount);
-                jaa.put(shcl.beHelpedCount);
-                ja.put(jaa);
-            }
-            jo.put(jn_stallHelpedCountList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.donationEggList.size(); i++) {
-                ja.put(stat.donationEggList.get(i));
-            }
-            jo.put(jn_donationEggList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.spreadManureList.size(); i++) {
-                ja.put(stat.spreadManureList.get(i));
-            }
-            jo.put(jn_spreadManureList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.stallP2PHelpedList.size(); i++) {
-                ja.put(stat.stallP2PHelpedList.get(i));
-            }
-            jo.put(jn_stallP2PHelpedList, ja);
-
-            ja = new JSONArray();
-            for (int i = 0; i < stat.memberSignInList.size(); i++) {
-                ja.put(stat.memberSignInList.get(i));
-            }
-            jo.put(jn_memberSignInList, ja);
-
-            jo.put(jn_kbSignIn, stat.kbSignIn);
-
-            jo.put(jn_exchangeDoubleCard, stat.exchangeDoubleCard);
-
-            jo.put(jn_exchangeTimes, stat.exchangeTimes);
-
-            jo.put(jn_doubleTimes, stat.doubleTimes);
-
-            ja = new JSONArray();
-            for (String item : stat.dailyAnswerList) {
-                ja.put(item);
-            }
-            jo.put(jn_dailyAnswerList, ja);
-
-        } catch (Throwable t) {
-            Log.printStackTrace(TAG, t);
-        }
-        return Config.formatJson(jo, false);
+        return INSTANCE;
     }
 
     private static void save() {
-        String json = statistics2Json(getStatistics());
+        String json = JsonUtil.toJsonString(INSTANCE);
         Log.infoChanged(TAG,"保存 statistics.json");
         FileUtils.write2File(json, FileUtils.getStatisticsFile());
+    }
+    public enum TimeType {
+        YEAR, MONTH, DAY
+    }
+
+    public enum DataType {
+        TIME, COLLECTED, HELPED, WATERED
+    }
+
+    @Data
+    private static class TimeStatistics {
+        int time;
+        int collected, helped, watered;
+
+        public TimeStatistics() {
+        }
+
+        TimeStatistics(int i) {
+            reset(i);
+        }
+
+        public void reset(int i) {
+            time = i;
+            collected = 0;
+            helped = 0;
+            watered = 0;
+        }
+    }
+
+    @Data
+    private static class WaterFriendLog {
+        String userId;
+        int waterCount = 0;
+
+        public WaterFriendLog() {
+        }
+
+        public WaterFriendLog(String id) {
+            userId = id;
+        }
+    }
+
+    @Data
+    private static class ReserveLog {
+        String projectId;
+        int applyCount = 0;
+
+        public ReserveLog() {
+        }
+
+        public ReserveLog(String id) {
+            projectId = id;
+        }
+    }
+
+    @Data
+    private static class BeachLog {
+        String cultivationCode;
+        int applyCount = 0;
+
+        public BeachLog() {
+        }
+
+        public BeachLog(String id) {
+            cultivationCode = id;
+        }
+    }
+
+    @Data
+    private static class FeedFriendLog {
+        String userId;
+        int feedCount = 0;
+
+        public FeedFriendLog() {
+        }
+
+        public FeedFriendLog(String id) {
+            userId = id;
+        }
+    }
+
+    @Data
+    private static class VisitFriendLog {
+        String userId;
+        int visitCount = 0;
+
+        public VisitFriendLog() {
+        }
+
+        public VisitFriendLog(String id) {
+            userId = id;
+        }
+    }
+
+    @Data
+    private static class StallShareIdLog {
+        String userId;
+        String shareId;
+
+        public StallShareIdLog() {
+        }
+
+        public StallShareIdLog(String uid, String sid) {
+            userId = uid;
+            shareId = sid;
+        }
+    }
+
+    @Data
+    private static class StallHelpedCountLog {
+        String userId;
+        int helpedCount = 0;
+        int beHelpedCount = 0;
+
+        public StallHelpedCountLog() {
+        }
+
+        public StallHelpedCountLog(String id) {
+            userId = id;
+        }
     }
 
 }

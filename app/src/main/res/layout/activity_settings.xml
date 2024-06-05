@@ -172,16 +172,6 @@
 						android:paddingEnd="@dimen/setting_item_padding"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/backup_runtime_log"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_backupRuntime" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
 						android:text="@string/language_simplified_chinese"
 						android:onClick="onClick"
 						android:minHeight="50dp"

@@ -45,7 +45,7 @@ public class AntStall {
     }
 
     public static Boolean check() {
-        return Config.enableStall();
+        return Config.INSTANCE.isEnableStall();
     }
 
     public static Task init() {
@@ -67,7 +67,7 @@ public class AntStall {
                     settleReceivable();
                 }
 
-                if (Config.stallThrowManure()) {
+                if (Config.INSTANCE.isStallThrowManure()) {
                     throwManure();
                 }
 
@@ -78,18 +78,18 @@ public class AntStall {
 
                 sendBack(seatsMap);
 
-                if (Config.stallAutoClose()) {
+                if (Config.INSTANCE.isStallAutoClose()) {
                     closeShop();
                 }
 
-                if (Config.stallAutoOpen()) {
+                if (Config.INSTANCE.isStallAutoOpen()) {
                     openShop();
                 }
 
                 taskList();
                 achieveBeShareP2P();
 
-                if (Config.stallDonate()) {
+                if (Config.INSTANCE.isStallDonate()) {
                     roadmap();
                 }
 
@@ -137,7 +137,7 @@ public class AntStall {
                 for (int i = 0; i < friendRankList.length(); i++) {
                     JSONObject friend = friendRankList.getJSONObject(i);
                     String friendUserId = friend.getString("userId");
-                    if (!Config.stallInviteShopList().contains(friendUserId)) {
+                    if (!Config.INSTANCE.getStallInviteShopList().contains(friendUserId)) {
                         continue;
                     }
                     if (friend.getBoolean("canInviteOpenShop")) {
@@ -169,18 +169,18 @@ public class AntStall {
                 }
                 String rentLastUser = seat.getString("rentLastUser");
                 // 白名单直接跳过
-                if (Config.stallWhiteList().contains(rentLastUser)) {
+                if (Config.INSTANCE.getStallWhiteList().contains(rentLastUser)) {
                     continue;
                 }
                 String rentLastBill = seat.getString("rentLastBill");
                 String rentLastShop = seat.getString("rentLastShop");
                 // 黑名单直接赶走
-                if (Config.stallBlackList().contains(rentLastUser)) {
+                if (Config.INSTANCE.getStallBlackList().contains(rentLastUser)) {
                     sendBack(rentLastBill, seatId, rentLastShop, rentLastUser);
                     continue;
                 }
                 long bizStartTime = seat.getLong("bizStartTime");
-                if ((System.currentTimeMillis() - bizStartTime) / 1000 / 60 > Config.stallAllowOpenTime()) {
+                if ((System.currentTimeMillis() - bizStartTime) / 1000 / 60 > Config.INSTANCE.getStallAllowOpenTime()) {
                     sendBack(rentLastBill, seatId, rentLastShop, rentLastUser);
                 }
             }
@@ -227,7 +227,7 @@ public class AntStall {
                     if ("OPEN".equals(shop.getString("status"))) {
                         JSONObject rentLastEnv = shop.getJSONObject("rentLastEnv");
                         long gmtLastRent = rentLastEnv.getLong("gmtLastRent");
-                        if (System.currentTimeMillis() - gmtLastRent > (long) Config.stallSelfOpenTime() * 60 * 1000) {
+                        if (System.currentTimeMillis() - gmtLastRent > (long) Config.INSTANCE.getStallSelfOpenTime() * 60 * 1000) {
                             String shopId = shop.getString("shopId");
                             String rentLastBill = shop.getString("rentLastBill");
                             String rentLastUser = shop.getString("rentLastUser");
@@ -278,11 +278,11 @@ public class AntStall {
                     JSONObject friendRank = friendRankList.getJSONObject(i);
                     if (friendRank.getBoolean("canOpenShop")) {
                         String userId = friendRank.getString("userId");
-                        if (Config.stallOpenType()) {
-                            if (!Config.stallOpenList().contains(userId)) {
+                        if (Config.INSTANCE.isStallOpenType()) {
+                            if (!Config.INSTANCE.getStallOpenList().contains(userId)) {
                                 continue;
                             }
-                        } else if (Config.stallOpenList().contains(userId)) {
+                        } else if (Config.INSTANCE.getStallOpenList().contains(userId)) {
                             continue;
                         }
                         int hot = friendRank.getInt("hot");
@@ -434,7 +434,7 @@ public class AntStall {
     }
 
     private static void receiveTaskAward(String taskType) {
-        if (!Config.stallReceiveAward()) {
+        if (!Config.INSTANCE.isStallReceiveAward()) {
             return;
         }
         String s = AntStallRpcCall.receiveTaskAward(taskType);
@@ -470,7 +470,7 @@ public class AntStall {
     }
 
     private static boolean inviteRegister() {
-        if (!Config.stallInviteRegister()) {
+        if (!Config.INSTANCE.isStallInviteRegister()) {
             return false;
         }
         try {

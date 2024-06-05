@@ -95,7 +95,7 @@ public class Log {
 
     public static void recordLog(String str, String str2) {
         runtimeLogger.i(str + str2);
-        if (!Config.recordLog())
+        if (!Config.INSTANCE.isRecordLog())
             return;
         simpleLogger.i(str);
     }

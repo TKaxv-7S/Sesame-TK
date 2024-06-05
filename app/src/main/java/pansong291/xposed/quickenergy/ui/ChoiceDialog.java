@@ -13,8 +13,8 @@ public class ChoiceDialog {
     public static void showSendType(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
             .setTitle(title)
-            .setSingleChoiceItems(SendType.names, Config.sendType().ordinal(),
-                    (p1, p2) -> Config.setSendType(p2))
+            .setSingleChoiceItems(SendType.nickNames, Config.INSTANCE.getSendType(),
+                    (p1, p2) -> Config.INSTANCE.setSendType(p2))
             .setPositiveButton(c.getString(R.string.ok), null)
             .create().show();
     }
@@ -22,8 +22,8 @@ public class ChoiceDialog {
     public static void showRecallAnimalType(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
             .setTitle(title)
-            .setSingleChoiceItems(RecallAnimalType.names, Config.recallAnimalType().ordinal(),
-                    (p1, p2) -> Config.setRecallAnimalType(p2))
+            .setSingleChoiceItems(RecallAnimalType.nickNames, Config.INSTANCE.getRecallAnimalType(),
+                    (p1, p2) -> Config.INSTANCE.setRecallAnimalType(p2))
             .setPositiveButton(c.getString(R.string.ok), null)
             .create().show();
     }
@@ -31,8 +31,8 @@ public class ChoiceDialog {
     public static void showStayAwakeType(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
                 .setTitle(title)
-                .setSingleChoiceItems(XposedHook.StayAwakeType.nickNames, Config.stayAwakeType().ordinal(),
-                        (p1, p2) -> Config.setStayAwakeType(p2))
+                .setSingleChoiceItems(XposedHook.StayAwakeType.nickNames, Config.INSTANCE.getStayAwakeType(),
+                        (p1, p2) -> Config.INSTANCE.setStayAwakeType(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();
     }
@@ -40,8 +40,8 @@ public class ChoiceDialog {
     public static void showStayAwakeTarget(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
                 .setTitle(title)
-                .setSingleChoiceItems(XposedHook.StayAwakeTarget.nickNames, Config.stayAwakeTarget().ordinal(),
-                        (p1, p2) -> Config.setStayAwakeTarget(p2))
+                .setSingleChoiceItems(XposedHook.StayAwakeTarget.nickNames, Config.INSTANCE.getStayAwakeTarget(),
+                        (p1, p2) -> Config.INSTANCE.setStayAwakeTarget(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();
     }
@@ -49,8 +49,8 @@ public class ChoiceDialog {
     public static void showTimeoutRestartType(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
                 .setTitle(title)
-                .setSingleChoiceItems(XposedHook.StayAwakeType.nickNames, Config.timeoutType().ordinal(),
-                        (p1, p2) -> Config.setTimeoutType(p2))
+                .setSingleChoiceItems(XposedHook.StayAwakeType.nickNames, Config.INSTANCE.getTimeoutType(),
+                        (p1, p2) -> Config.INSTANCE.setTimeoutType(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();
     }

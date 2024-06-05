@@ -32,5 +32,9 @@ android {
 
 dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.32'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.32'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'
     implementation 'com.elvishew:xlog:1.11.0'
 }

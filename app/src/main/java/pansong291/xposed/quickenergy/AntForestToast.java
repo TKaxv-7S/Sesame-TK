@@ -17,7 +17,7 @@ public class AntForestToast {
 
     public static void show(CharSequence cs, boolean force) {
         Context context = XposedHook.getContext();
-        if (context != null && (force || Config.showToast())) {
+        if (context != null && (force || Config.INSTANCE.isShowToast())) {
             show(context, XposedHook.getMainHandler(), cs);
         }
     }
@@ -27,7 +27,7 @@ public class AntForestToast {
             handler.post(() -> {
                 try {
                     Toast toast = Toast.makeText(context, cs, Toast.LENGTH_SHORT);
-                    toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.toastOffsetY());
+                    toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.INSTANCE.getToastOffsetY());
                     toast.show();
                 } catch (Throwable t) {
                     Log.i(TAG, "show.run err:");

@@ -15,7 +15,7 @@ public class AntBookRead {
     private static final String TAG = AntBookRead.class.getSimpleName();
 
     public static Boolean check() {
-        if (!Config.antBookRead())
+        if (!Config.INSTANCE.isAntBookRead())
             return false;
         long executeTime = RuntimeInfo.getInstance().getLong("consumeGold", 0);
         return System.currentTimeMillis() - executeTime >= 21600000;

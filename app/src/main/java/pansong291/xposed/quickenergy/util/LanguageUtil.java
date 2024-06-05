@@ -9,7 +9,7 @@ import android.content.Context;
 
 public class LanguageUtil {
     public static void setLocale(Context context) {
-        if (Config.languageSimplifiedChinese()) {
+        if (Config.INSTANCE.isLanguageSimplifiedChinese()) {
             // 忽略系统语言，强制使用简体中文
             Locale locale = new Locale("zh", "CN"); // 简体中文的区域代码
             Locale.setDefault(locale);

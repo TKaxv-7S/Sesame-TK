@@ -13,7 +13,7 @@ public class ConsumeGold {
     private static final String TAG = ConsumeGold.class.getSimpleName();
 
     public static Boolean check() {
-        if (!Config.consumeGold())
+        if (!Config.INSTANCE.isConsumeGold())
             return false;
         long executeTime = RuntimeInfo.getInstance().getLong("consumeGold", 0);
         return System.currentTimeMillis() - executeTime >= 21600000;

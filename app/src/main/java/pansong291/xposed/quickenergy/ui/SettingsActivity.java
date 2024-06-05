@@ -2,7 +2,7 @@ package pansong291.xposed.quickenergy.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.res.Configuration;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -14,11 +14,19 @@ import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.Toast;
 
-import java.util.Locale;
-
 import pansong291.xposed.quickenergy.R;
-import pansong291.xposed.quickenergy.entity.*;
-import pansong291.xposed.quickenergy.util.*;
+import pansong291.xposed.quickenergy.entity.AlipayBeach;
+import pansong291.xposed.quickenergy.entity.AlipayReserve;
+import pansong291.xposed.quickenergy.entity.AlipayUser;
+import pansong291.xposed.quickenergy.entity.AreaCode;
+import pansong291.xposed.quickenergy.entity.CooperateUser;
+import pansong291.xposed.quickenergy.util.BeachIdMap;
+import pansong291.xposed.quickenergy.util.Config;
+import pansong291.xposed.quickenergy.util.CooperationIdMap;
+import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.LanguageUtil;
+import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.ReserveIdMap;
 
 public class SettingsActivity extends Activity {
 
@@ -43,7 +51,7 @@ public class SettingsActivity extends Activity {
             sw_ExchangeEnergyDoubleClick, sw_reserve, sw_ecoLifeTick, sw_tiyubiz, sw_insBlueBeanExchange,
             sw_ancientTree, sw_ancientTreeOnlyWeek, sw_receiveCoinAsset, sw_antdodoCollect, sw_recordFarmGame, sw_beach,
             sw_kitchen, sw_antOcean, sw_userPatrol, sw_animalConsumeProp, sw_antOrchard, sw_receiveOrchardTaskAward,
-            sw_enableOnGoing, sw_backupRuntime, sw_collectSesame, sw_zcjSignIn, sw_merchantKmdk, sw_acceptGift,
+            sw_enableOnGoing, sw_collectSesame, sw_zcjSignIn, sw_merchantKmdk, sw_acceptGift,
             sw_enableStall, sw_stallAutoClose, sw_stallAutoOpen, sw_stallAutoTask, sw_stallReceiveAward,
             sw_stallOpenType, sw_stallDonate, sw_chickenDiary, sw_collectGiftBox, sw_stallInviteRegister,
             sw_stallThrowManure, sw_greenFinance, sw_totalCertCount, sw_batchRobEnergy, sw_antBookRead, sw_consumeGold,
@@ -60,7 +68,7 @@ public class SettingsActivity extends Activity {
 
         initFlipper();
 
-        Config.shouldReload = true;
+        Config.load();
         FriendIdMap.shouldReload = true;
         CooperationIdMap.shouldReload = true;
         ReserveIdMap.shouldReload = true;
@@ -166,7 +174,6 @@ public class SettingsActivity extends Activity {
         sw_timeoutRestart = findViewById(R.id.sw_timeoutRestart);
         sw_startAt7 = findViewById(R.id.sw_startAt7);
         sw_enableOnGoing = findViewById(R.id.sw_enableOnGoing);
-        sw_backupRuntime = findViewById(R.id.sw_backupRuntime);
         sw_language_simplified_chinese = findViewById(R.id.sw_languageSimplifiedChinese);
 
         sw_collectEnergy = findViewById(R.id.sw_collectEnergy);
@@ -239,380 +246,377 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        sw_immediateEffect.setChecked(Config.immediateEffect());
-        sw_recordLog.setChecked(Config.recordLog());
-        sw_showToast.setChecked(Config.showToast());
-        sw_stayAwake.setChecked(Config.stayAwake());
-        sw_timeoutRestart.setChecked(Config.timeoutRestart());
-        sw_startAt7.setChecked(Config.startAt7());
-        sw_enableOnGoing.setChecked(Config.enableOnGoing());
-        sw_backupRuntime.setChecked(Config.backupRuntime());
-        sw_language_simplified_chinese.setChecked(Config.languageSimplifiedChinese());
+        Config config = Config.INSTANCE;
+        sw_immediateEffect.setChecked(config.isImmediateEffect());
+        sw_recordLog.setChecked(config.isRecordLog());
+        sw_showToast.setChecked(config.isShowToast());
+        sw_stayAwake.setChecked(config.isStayAwake());
+        sw_timeoutRestart.setChecked(config.isTimeoutRestart());
+        sw_startAt7.setChecked(config.isStartAt7());
+        sw_enableOnGoing.setChecked(config.isEnableOnGoing());
+        sw_language_simplified_chinese.setChecked(config.isLanguageSimplifiedChinese());
 
-        sw_collectEnergy.setChecked(Config.collectEnergy());
-        sw_collectWateringBubble.setChecked(Config.collectWateringBubble());
-        sw_batchRobEnergy.setChecked(Config.batchRobEnergy());
-        sw_collectProp.setChecked(Config.collectProp());
-        sw_helpFriendCollect.setChecked(Config.helpFriendCollect());
-        sw_receiveForestTaskAward.setChecked(Config.receiveForestTaskAward());
-        sw_cooperateWater.setChecked(Config.cooperateWater());
-        sw_ancientTree.setChecked(Config.ancientTree());
-        sw_energyRain.setChecked(Config.energyRain());
-        sw_reserve.setChecked(Config.reserve());
-        sw_beach.setChecked(Config.beach());
-        sw_enableFarm.setChecked(Config.enableFarm());
-        sw_rewardFriend.setChecked(Config.rewardFriend());
-        sw_sendBackAnimal.setChecked(Config.sendBackAnimal());
-        sw_receiveFarmToolReward.setChecked(Config.receiveFarmToolReward());
-        sw_recordFarmGame.setChecked(Config.recordFarmGame());
-        sw_kitchen.setChecked(Config.kitchen());
-        sw_special_food.setChecked(Config.useSpecialFood());
-        sw_useNewEggTool.setChecked(Config.useNewEggTool());
-        sw_harvestProduce.setChecked(Config.harvestProduce());
-        sw_donation.setChecked(Config.donation());
-        sw_answerQuestion.setChecked(Config.answerQuestion());
-        sw_receiveFarmTaskAward.setChecked(Config.receiveFarmTaskAward());
-        sw_feedAnimal.setChecked(Config.feedAnimal());
-        sw_useAccelerateTool.setChecked(Config.useAccelerateTool());
-        sw_notifyFriend.setChecked(Config.notifyFriend());
-        sw_acceptGift.setChecked(Config.acceptGift());
-        sw_chickenDiary.setChecked(Config.chickenDiary());
-        sw_antOrchard.setChecked(Config.antOrchard());
-        sw_receiveOrchardTaskAward.setChecked(Config.receiveOrchardTaskAward());
-        sw_receivePoint.setChecked(Config.receivePoint());
-        sw_openTreasureBox.setChecked(Config.openTreasureBox());
-        sw_receiveCoinAsset.setChecked(Config.receiveCoinAsset());
-        sw_donateCharityCoin.setChecked(Config.donateCharityCoin());
-        sw_kbSignIn.setChecked(Config.kbSginIn());
-        sw_limitCollect.setChecked(Config.isLimitCollect());
-        sw_doubleCard.setChecked(Config.doubleCard());
-        sw_ExchangeEnergyDoubleClick.setChecked(Config.ExchangeEnergyDoubleClick());
-        sw_ecoLifeTick.setChecked(Config.ecoLifeTick());
-        sw_tiyubiz.setChecked(Config.tiyubiz());
-        sw_insBlueBeanExchange.setChecked(Config.insBlueBeanExchange());
-        sw_collectSesame.setChecked(Config.collectSesame());
-        sw_zcjSignIn.setChecked(Config.zcjSignIn());
-        sw_merchantKmdk.setChecked(Config.merchantKmdk());
-        sw_ancientTreeOnlyWeek.setChecked(Config.ancientTreeOnlyWeek());
-        sw_antdodoCollect.setChecked(Config.antdodoCollect());
-        sw_antOcean.setChecked(Config.antOcean());
-        sw_userPatrol.setChecked(Config.userPatrol());
-        sw_animalConsumeProp.setChecked(Config.animalConsumeProp());
-        sw_collectGiftBox.setChecked(Config.collectGiftBox());
-        sw_totalCertCount.setChecked(Config.totalCertCount());
+        sw_collectEnergy.setChecked(config.isCollectEnergy());
+        sw_collectWateringBubble.setChecked(config.isCollectWateringBubble());
+        sw_batchRobEnergy.setChecked(config.isBatchRobEnergy());
+        sw_collectProp.setChecked(config.isCollectProp());
+        sw_helpFriendCollect.setChecked(config.isHelpFriendCollect());
+        sw_receiveForestTaskAward.setChecked(config.isReceiveForestTaskAward());
+        sw_cooperateWater.setChecked(config.isCooperateWater());
+        sw_ancientTree.setChecked(config.isAncientTree());
+        sw_energyRain.setChecked(config.isEnergyRain());
+        sw_reserve.setChecked(config.isReserve());
+        sw_beach.setChecked(config.isBeach());
+        sw_enableFarm.setChecked(config.isEnableFarm());
+        sw_rewardFriend.setChecked(config.isRewardFriend());
+        sw_sendBackAnimal.setChecked(config.isSendBackAnimal());
+        sw_receiveFarmToolReward.setChecked(config.isReceiveFarmToolReward());
+        sw_recordFarmGame.setChecked(config.isRecordFarmGame());
+        sw_kitchen.setChecked(config.isKitchen());
+        sw_special_food.setChecked(config.isUseSpecialFood());
+        sw_useNewEggTool.setChecked(config.isUseNewEggTool());
+        sw_harvestProduce.setChecked(config.isHarvestProduce());
+        sw_donation.setChecked(config.isDonation());
+        sw_answerQuestion.setChecked(config.isAnswerQuestion());
+        sw_receiveFarmTaskAward.setChecked(config.isReceiveFarmTaskAward());
+        sw_feedAnimal.setChecked(config.isFeedAnimal());
+        sw_useAccelerateTool.setChecked(config.isUseAccelerateTool());
+        sw_notifyFriend.setChecked(config.isNotifyFriend());
+        sw_acceptGift.setChecked(config.isAcceptGift());
+        sw_chickenDiary.setChecked(config.isChickenDiary());
+        sw_antOrchard.setChecked(config.isAntOrchard());
+        sw_receiveOrchardTaskAward.setChecked(config.isReceiveOrchardTaskAward());
+        sw_receivePoint.setChecked(config.isReceivePoint());
+        sw_openTreasureBox.setChecked(config.isOpenTreasureBox());
+        sw_receiveCoinAsset.setChecked(config.isReceiveCoinAsset());
+        sw_donateCharityCoin.setChecked(config.isDonateCharityCoin());
+        sw_kbSignIn.setChecked(config.isKbSignIn());
+        sw_limitCollect.setChecked(config.isLimitCollect());
+        sw_doubleCard.setChecked(config.isDoubleCard());
+        sw_ExchangeEnergyDoubleClick.setChecked(config.isExchangeEnergyDoubleClick());
+        sw_ecoLifeTick.setChecked(config.isEcoLifeTick());
+        sw_tiyubiz.setChecked(config.isTiyubiz());
+        sw_insBlueBeanExchange.setChecked(config.isInsBlueBeanExchange());
+        sw_collectSesame.setChecked(config.isCollectSesame());
+        sw_zcjSignIn.setChecked(config.isZcjSignIn());
+        sw_merchantKmdk.setChecked(config.isMerchantKmdk());
+        sw_ancientTreeOnlyWeek.setChecked(config.isAncientTreeOnlyWeek());
+        sw_antdodoCollect.setChecked(config.isAntdodoCollect());
+        sw_antOcean.setChecked(config.isAntOcean());
+        sw_userPatrol.setChecked(config.isUserPatrol());
+        sw_animalConsumeProp.setChecked(config.isAnimalConsumeProp());
+        sw_collectGiftBox.setChecked(config.isCollectGiftBox());
+        sw_totalCertCount.setChecked(config.isTotalCertCount());
 
-        sw_enableStall.setChecked(Config.enableStall());
-        sw_stallAutoClose.setChecked(Config.stallAutoClose());
-        sw_stallAutoOpen.setChecked(Config.stallAutoOpen());
-        sw_stallAutoTask.setChecked(Config.stallAutoTask());
-        sw_stallReceiveAward.setChecked(Config.stallReceiveAward());
-        sw_stallOpenType.setChecked(Config.stallOpenType());
-        sw_stallDonate.setChecked(Config.stallDonate());
-        sw_stallInviteRegister.setChecked(Config.stallInviteRegister());
-        sw_stallThrowManure.setChecked(Config.stallThrowManure());
-        sw_greenFinance.setChecked(Config.greenFinance());
-        sw_antBookRead.setChecked(Config.antBookRead());
-        sw_consumeGold.setChecked(Config.consumeGold());
-        sw_omegakoiTown.setChecked(Config.omegakoiTown());
+        sw_enableStall.setChecked(config.isEnableStall());
+        sw_stallAutoClose.setChecked(config.isStallAutoClose());
+        sw_stallAutoOpen.setChecked(config.isStallAutoOpen());
+        sw_stallAutoTask.setChecked(config.isStallAutoTask());
+        sw_stallReceiveAward.setChecked(config.isStallReceiveAward());
+        sw_stallOpenType.setChecked(config.isStallOpenType());
+        sw_stallDonate.setChecked(config.isStallDonate());
+        sw_stallInviteRegister.setChecked(config.isStallInviteRegister());
+        sw_stallThrowManure.setChecked(config.isStallThrowManure());
+        sw_greenFinance.setChecked(config.isGreenFinance());
+        sw_antBookRead.setChecked(config.isAntBookRead());
+        sw_consumeGold.setChecked(config.isConsumeGold());
+        sw_omegakoiTown.setChecked(config.isOmegakoiTown());
     }
 
     @SuppressLint("NonConstantResourceId")
     public void onClick(View v) {
+        Config config = Config.INSTANCE;
         if (v instanceof Switch) {
             Switch sw = (Switch) v;
             switch (v.getId()) {
                 case R.id.sw_immediateEffect:
-                    Config.setImmediateEffect(sw.isChecked());
+                    config.setImmediateEffect(sw.isChecked());
                     break;
 
                 case R.id.sw_recordLog:
-                    Config.setRecordLog(sw.isChecked());
+                    config.setRecordLog(sw.isChecked());
                     break;
 
                 case R.id.sw_showToast:
-                    Config.setShowToast(sw.isChecked());
+                    config.setShowToast(sw.isChecked());
                     break;
 
                 case R.id.sw_stayAwake:
-                    Config.setStayAwake(sw.isChecked());
+                    config.setStayAwake(sw.isChecked());
                     break;
 
                 case R.id.sw_timeoutRestart:
-                    Config.setTimeoutRestart(sw.isChecked());
+                    config.setTimeoutRestart(sw.isChecked());
                     break;
 
                 case R.id.sw_startAt7:
-                    Config.setStartAt7(this.getApplicationContext(), sw.isChecked());
+                    config.setStartAt7(sw.isChecked());
                     break;
 
                 case R.id.sw_enableOnGoing:
-                    Config.setEnableOnGoing(sw.isChecked());
-                    break;
-
-                case R.id.sw_backupRuntime:
-                    Config.setBackupRuntime(sw.isChecked());
+                    config.setEnableOnGoing(sw.isChecked());
                     break;
 
                 case R.id.sw_languageSimplifiedChinese:
-                    Config.setLanguageSimplifiedChinese(sw.isChecked());
+                    config.setLanguageSimplifiedChinese(sw.isChecked());
                     // 提示需要重启 language_simplified_chinese_need_restart
                     Toast.makeText(this, R.string.language_simplified_chinese_need_restart, Toast.LENGTH_SHORT).show();
                     break;
 
                 case R.id.sw_collectEnergy:
-                    Config.setCollectEnergy(sw.isChecked());
+                    config.setCollectEnergy(sw.isChecked());
                     break;
 
                 case R.id.sw_collectWateringBubble:
-                    Config.setCollectWateringBubble(sw.isChecked());
+                    config.setCollectWateringBubble(sw.isChecked());
                     break;
 
                 case R.id.sw_batchRobEnergy:
-                    Config.setBatchRobEnergy(sw.isChecked());
+                    config.setBatchRobEnergy(sw.isChecked());
                     break;
 
                 case R.id.sw_collectProp:
-                    Config.setCollectProp(sw.isChecked());
+                    config.setCollectProp(sw.isChecked());
                     break;
 
                 case R.id.sw_limitCollect:
-                    Config.setLimitCollect(sw.isChecked());
+                    config.setLimitCollect(sw.isChecked());
                     break;
 
                 case R.id.sw_doubleCard:
-                    Config.setDoubleCard(sw.isChecked());
+                    config.setDoubleCard(sw.isChecked());
                     break;
 
                 case R.id.sw_helpFriendCollect:
-                    Config.setHelpFriendCollect(sw.isChecked());
+                    config.setHelpFriendCollect(sw.isChecked());
                     break;
 
                 case R.id.sw_receiveForestTaskAward:
-                    Config.setReceiveForestTaskAward(sw.isChecked());
+                    config.setReceiveForestTaskAward(sw.isChecked());
                     break;
 
                 case R.id.sw_cooperateWater:
-                    Config.setCooperateWater(sw.isChecked());
+                    config.setCooperateWater(sw.isChecked());
                     break;
 
                 case R.id.sw_ancientTree:
-                    Config.setAncientTree(sw.isChecked());
+                    config.setAncientTree(sw.isChecked());
                     break;
 
                 case R.id.sw_energyRain:
-                    Config.setEnergyRain(sw.isChecked());
+                    config.setEnergyRain(sw.isChecked());
                     break;
 
                 case R.id.sw_ExchangeEnergyDoubleClick:
-                    Config.setExchangeEnergyDoubleClick(sw.isChecked());
+                    config.setExchangeEnergyDoubleClick(sw.isChecked());
                     break;
 
                 case R.id.sw_reserve:
-                    Config.setReserve(sw.isChecked());
+                    config.setReserve(sw.isChecked());
                     break;
 
                 case R.id.sw_beach:
-                    Config.setBeach(sw.isChecked());
+                    config.setBeach(sw.isChecked());
                     break;
 
                 case R.id.sw_enableFarm:
-                    Config.setEnableFarm(sw.isChecked());
+                    config.setEnableFarm(sw.isChecked());
                     break;
 
                 case R.id.sw_rewardFriend:
-                    Config.setRewardFriend(sw.isChecked());
+                    config.setRewardFriend(sw.isChecked());
                     break;
 
                 case R.id.sw_sendBackAnimal:
-                    Config.setSendBackAnimal(sw.isChecked());
+                    config.setSendBackAnimal(sw.isChecked());
                     break;
 
                 case R.id.sw_receiveFarmToolReward:
-                    Config.setReceiveFarmToolReward(sw.isChecked());
+                    config.setReceiveFarmToolReward(sw.isChecked());
                     break;
 
                 case R.id.sw_recordFarmGame:
-                    Config.setRecordFarmGame(sw.isChecked());
+                    config.setRecordFarmGame(sw.isChecked());
                     break;
 
                 case R.id.sw_kitchen:
-                    Config.setKitchen(sw.isChecked());
+                    config.setKitchen(sw.isChecked());
                     break;
 
                 case R.id.sw_special_food:
-                    Config.setUseSpecialFood(sw.isChecked());
+                    config.setUseSpecialFood(sw.isChecked());
                     break;
 
                 case R.id.sw_useNewEggTool:
-                    Config.setUseNewEggTool(sw.isChecked());
+                    config.setUseNewEggTool(sw.isChecked());
                     break;
 
                 case R.id.sw_harvestProduce:
-                    Config.setHarvestProduce(sw.isChecked());
+                    config.setHarvestProduce(sw.isChecked());
                     break;
 
                 case R.id.sw_donation:
-                    Config.setDonation(sw.isChecked());
+                    config.setDonation(sw.isChecked());
                     break;
 
                 case R.id.sw_answerQuestion:
-                    Config.setAnswerQuestion(sw.isChecked());
+                    config.setAnswerQuestion(sw.isChecked());
                     break;
 
                 case R.id.sw_receiveFarmTaskAward:
-                    Config.setReceiveFarmTaskAward(sw.isChecked());
+                    config.setReceiveFarmTaskAward(sw.isChecked());
                     break;
 
                 case R.id.sw_feedAnimal:
-                    Config.setFeedAnimal(sw.isChecked());
+                    config.setFeedAnimal(sw.isChecked());
                     break;
 
                 case R.id.sw_useAccelerateTool:
-                    Config.setUseAccelerateTool(sw.isChecked());
+                    config.setUseAccelerateTool(sw.isChecked());
                     break;
 
                 case R.id.sw_notifyFriend:
-                    Config.setNotifyFriend(sw.isChecked());
+                    config.setNotifyFriend(sw.isChecked());
                     break;
 
                 case R.id.sw_acceptGift:
-                    Config.setAcceptGift(sw.isChecked());
+                    config.setAcceptGift(sw.isChecked());
                     break;
 
                 case R.id.sw_chickenDiary:
-                    Config.setChickenDiary(sw.isChecked());
+                    config.setChickenDiary(sw.isChecked());
                     break;
 
                 case R.id.sw_antOrchard:
-                    Config.setAntOrchard(sw.isChecked());
+                    config.setAntOrchard(sw.isChecked());
                     break;
 
                 case R.id.sw_receiveOrchardTaskAward:
-                    Config.setReceiveOrchardTaskAward(sw.isChecked());
+                    config.setReceiveOrchardTaskAward(sw.isChecked());
                     break;
 
                 case R.id.sw_receivePoint:
-                    Config.setReceivePoint(sw.isChecked());
+                    config.setReceivePoint(sw.isChecked());
                     break;
 
                 case R.id.sw_openTreasureBox:
-                    Config.setOpenTreasureBox(sw.isChecked());
+                    config.setOpenTreasureBox(sw.isChecked());
                     break;
 
                 case R.id.sw_receiveCoinAsset:
-                    Config.setReceiveCoinAsset(sw.isChecked());
+                    config.setReceiveCoinAsset(sw.isChecked());
                     break;
 
                 case R.id.sw_donateCharityCoin:
-                    Config.setDonateCharityCoin(sw.isChecked());
+                    config.setDonateCharityCoin(sw.isChecked());
                     break;
 
                 case R.id.sw_kbSignIn:
-                    Config.setKbSginIn(sw.isChecked());
+                    config.setKbSignIn(sw.isChecked());
                     break;
 
                 case R.id.sw_ecoLifeTick:
-                    Config.setEcoLifeTick(sw.isChecked());
+                    config.setEcoLifeTick(sw.isChecked());
                     break;
 
                 case R.id.sw_tiyubiz:
-                    Config.setTiyubiz(sw.isChecked());
+                    config.setTiyubiz(sw.isChecked());
                     break;
 
                 case R.id.sw_insBlueBeanExchange:
-                    Config.setInsBlueBeanExchange(sw.isChecked());
+                    config.setInsBlueBeanExchange(sw.isChecked());
                     break;
 
                 case R.id.sw_collectSesame:
-                    Config.setCollectSesame(sw.isChecked());
+                    config.setCollectSesame(sw.isChecked());
                     break;
 
                 case R.id.sw_zcjSignIn:
-                    Config.setZcjSignIn(sw.isChecked());
+                    config.setZcjSignIn(sw.isChecked());
                     break;
 
                 case R.id.sw_merchantKmdk:
-                    Config.setMerchantKmdk(sw.isChecked());
+                    config.setMerchantKmdk(sw.isChecked());
                     break;
 
                 case R.id.sw_ancientTreeOnlyWeek:
-                    Config.setAncientTreeOnlyWeek(sw.isChecked());
+                    config.setAncientTreeOnlyWeek(sw.isChecked());
                     break;
 
                 case R.id.sw_antdodoCollect:
-                    Config.setAntdodoCollect(sw.isChecked());
+                    config.setAntdodoCollect(sw.isChecked());
                     break;
 
                 case R.id.sw_antOcean:
-                    Config.setAntOcean(sw.isChecked());
+                    config.setAntOcean(sw.isChecked());
                     break;
 
                 case R.id.sw_userPatrol:
-                    Config.setUserPatrol(sw.isChecked());
+                    config.setUserPatrol(sw.isChecked());
                     break;
 
                 case R.id.sw_animalConsumeProp:
-                    Config.setAnimalConsumeProp(sw.isChecked());
+                    config.setAnimalConsumeProp(sw.isChecked());
                     break;
 
                 case R.id.sw_collectGiftBox:
-                    Config.setCollectGiftBox(sw.isChecked());
+                    config.setCollectGiftBox(sw.isChecked());
                     break;
 
                 case R.id.sw_totalCertCount:
-                    Config.setTotalCertCount(sw.isChecked());
+                    config.setTotalCertCount(sw.isChecked());
                     break;
 
                 case R.id.sw_enableStall:
-                    Config.setEnableStall(sw.isChecked());
+                    config.setEnableStall(sw.isChecked());
                     break;
 
                 case R.id.sw_stallAutoClose:
-                    Config.setStallAutoClose(sw.isChecked());
+                    config.setStallAutoClose(sw.isChecked());
                     break;
 
                 case R.id.sw_stallAutoOpen:
-                    Config.setStallAutoOpen(sw.isChecked());
+                    config.setStallAutoOpen(sw.isChecked());
                     break;
 
                 case R.id.sw_stallAutoTask:
-                    Config.setStallAutoTask(sw.isChecked());
+                    config.setStallAutoTask(sw.isChecked());
                     break;
 
                 case R.id.sw_stallReceiveAward:
-                    Config.setStallReceiveAward(sw.isChecked());
+                    config.setStallReceiveAward(sw.isChecked());
                     break;
 
                 case R.id.sw_stallOpenType:
-                    Config.setStallOpenType(sw.isChecked());
+                    config.setStallOpenType(sw.isChecked());
                     break;
 
                 case R.id.sw_stallDonate:
-                    Config.setStallDonate(sw.isChecked());
+                    config.setStallDonate(sw.isChecked());
                     break;
 
                 case R.id.sw_stallInviteRegister:
-                    Config.setStallInviteRegister(sw.isChecked());
+                    config.setStallInviteRegister(sw.isChecked());
                     break;
 
                 case R.id.sw_stallThrowManure:
-                    Config.setStallThrowManure(sw.isChecked());
+                    config.setStallThrowManure(sw.isChecked());
                     break;
 
                 case R.id.sw_greenFinance:
-                    Config.setGreenFinance(sw.isChecked());
+                    config.setGreenFinance(sw.isChecked());
                     break;
 
                 case R.id.sw_antBookRead:
-                    Config.setAntBookRead(sw.isChecked());
+                    config.setAntBookRead(sw.isChecked());
                     break;
 
                 case R.id.sw_consumeGold:
-                    Config.setConsumeGold(sw.isChecked());
+                    config.setConsumeGold(sw.isChecked());
                     break;
 
                 case R.id.sw_omegakoiTown:
-                    Config.setOmegakoiTown(sw.isChecked());
+                    config.setOmegakoiTown(sw.isChecked());
                     break;
             }
         } else if (v instanceof Button) {
@@ -679,16 +683,16 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_dontCollectList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getDontCollectList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getDontCollectList(), null);
                     break;
 
                 case R.id.btn_dontHelpCollectList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getDontHelpCollectList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getDontHelpCollectList(), null);
                     break;
 
                 case R.id.btn_waterFriendList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getWaterFriendList(),
-                            Config.getWaterCountList());
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getWaterFriendList(),
+                            config.getWaterCountList());
                     break;
 
                 case R.id.btn_waterFriendCount:
@@ -696,26 +700,26 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_cooperateWaterList:
-                    ListDialog.show(this, btn.getText(), CooperateUser.getList(), Config.getCooperateWaterList(),
-                            Config.getcooperateWaterNumList());
+                    ListDialog.show(this, btn.getText(), CooperateUser.getList(), config.getCooperateWaterList(),
+                            config.getCooperateWaterNumList());
                     break;
 
                 case R.id.btn_ancientTreeAreaCodeList:
-                    ListDialog.show(this, btn.getText(), AreaCode.getList(), Config.getAncientTreeCityCodeList(), null);
+                    ListDialog.show(this, btn.getText(), AreaCode.getList(), config.getAncientTreeCityCodeList(), null);
                     break;
 
                 case R.id.btn_giveEnergyRainList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getGiveEnergyRainList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getGiveEnergyRainList(), null);
                     break;
 
                 case R.id.btn_reserveList:
-                    ListDialog.show(this, btn.getText(), AlipayReserve.getList(), Config.getReserveList(),
-                            Config.getReserveCountList());
+                    ListDialog.show(this, btn.getText(), AlipayReserve.getList(), config.getReserveList(),
+                            config.getReserveCountList());
                     break;
 
                 case R.id.btn_beachList:
-                    ListDialog.show(this, btn.getText(), AlipayBeach.getList(), Config.getBeachList(),
-                            Config.getBeachCountList());
+                    ListDialog.show(this, btn.getText(), AlipayBeach.getList(), config.getBeachList(),
+                            config.getBeachCountList());
                     break;
 
                 case R.id.btn_sendType:
@@ -723,7 +727,7 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_dontSendFriendList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getDontSendFriendList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getDontSendFriendList(), null);
                     break;
 
                 case R.id.btn_recallAnimalType:
@@ -735,17 +739,17 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_feedFriendAnimalList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getFeedFriendAnimalList(),
-                            Config.getFeedFriendCountList());
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getFeedFriendAnimalList(),
+                            config.getFeedFriendCountList());
                     break;
 
                 case R.id.btn_dontNotifyFriendList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getDontNotifyFriendList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getDontNotifyFriendList(), null);
                     break;
 
                 case R.id.btn_visitFriendList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.getVisitFriendList(),
-                            Config.getVisitFriendCountList());
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getVisitFriendList(),
+                            config.getVisitFriendCountList());
                     break;
 
                 case R.id.btn_animalSleepTime:
@@ -770,12 +774,12 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_WhoYouWantToGiveTo:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.whoYouWantGiveTo(), null,
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getWhoYouWantGiveTo(), null,
                             ListDialog.ListType.RADIO);
                     break;
 
                 case R.id.btn_sendFriendCard:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.sendFriendCard(), null,
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getSendFriendCard(), null,
                             ListDialog.ListType.RADIO);
                     break;
 
@@ -785,15 +789,15 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_stallOpenList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.stallOpenList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getStallOpenList(), null);
                     break;
 
                 case R.id.btn_stallWhiteList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.stallWhiteList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getStallWhiteList(), null);
                     break;
 
                 case R.id.btn_stallBlackList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.stallBlackList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getStallBlackList(), null);
                     break;
 
                 case R.id.btn_stallAllowOpenTime:
@@ -805,7 +809,7 @@ public class SettingsActivity extends Activity {
                     break;
 
                 case R.id.btn_stallInviteShopList:
-                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), Config.stallInviteShopList(), null);
+                    ListDialog.show(this, btn.getText(), AlipayUser.getList(), config.getStallInviteShopList(), null);
                     break;
             }
         }
@@ -814,9 +818,13 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (Config.hasChanged) {
-            Config.hasChanged = !Config.saveConfigFile();
+        if (Config.save()) {
             Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            try {
+                this.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reload"));
+            } catch (Throwable th) {
+                Log.printStackTrace("reload config error: ", th);
+            }
         }
         FriendIdMap.saveIdMap();
         CooperationIdMap.saveIdMap();

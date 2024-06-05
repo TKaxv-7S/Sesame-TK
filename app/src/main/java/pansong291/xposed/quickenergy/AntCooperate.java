@@ -16,7 +16,7 @@ public class AntCooperate {
     private static final String TAG = AntCooperate.class.getSimpleName();
 
     public static Boolean check() {
-        return Config.cooperateWater();
+        return Config.INSTANCE.isCooperateWater();
     }
 
     public static Task init() {
@@ -44,14 +44,14 @@ public class AntCooperate {
                         if (!Statistics.canCooperateWaterToday(FriendIdMap.getCurrentUid(), cooperationId))
                             continue;
                         int index = -1;
-                        for (int j = 0; j < Config.getCooperateWaterList().size(); j++) {
-                            if (Config.getCooperateWaterList().get(j).equals(cooperationId)) {
+                        for (int j = 0; j < Config.INSTANCE.getCooperateWaterList().size(); j++) {
+                            if (Config.INSTANCE.getCooperateWaterList().get(j).equals(cooperationId)) {
                                 index = j;
                                 break;
                             }
                         }
                         if (index >= 0) {
-                            int num = Config.getcooperateWaterNumList().get(index);
+                            int num = Config.INSTANCE.getCooperateWaterNumList().get(index);
                             if (num > waterDayLimit)
                                 num = waterDayLimit;
                             if (num > userCurrentEnergy)

@@ -20,7 +20,7 @@ public class AntOcean {
     private static final String TAG = AntOcean.class.getSimpleName();
 
     public static Boolean check() {
-        return Config.antOcean();
+        return Config.INSTANCE.isAntOcean();
     }
 
     public static Task init() {
@@ -32,7 +32,7 @@ public class AntOcean {
                     if (jo.getBoolean("opened")) {
                         queryHomePage();
                     } else {
-                        Config.setAntOcean(false);
+                        Config.INSTANCE.setAntOcean(false);
                         Log.recordLog("请先开启神奇海洋，并完成引导教程");
                     }
                 } else {
@@ -376,7 +376,7 @@ public class AntOcean {
         }
         try {
             String userId = fillFlag.getString("userId");
-            if (Config.getDontCollectList().contains(userId)) {
+            if (Config.INSTANCE.getDontCollectList().contains(userId)) {
                 return;
             }
             String s = AntOceanRpcCall.queryFriendPage(userId);

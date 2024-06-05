@@ -22,15 +22,13 @@ import pansong291.xposed.quickenergy.util.TimeUtil;
 public class AntFarm {
     private static final String TAG = AntFarm.class.getSimpleName();
 
-    public enum SendType {
-        HIT, NORMAL;
+    public interface SendType {
 
-        public static final CharSequence[] nickNames = { "攻击", "常规" };
-        public static final CharSequence[] names = { HIT.nickName(), NORMAL.nickName() };
+        int HIT = 0;
+        int NORMAL = 1;
 
-        public CharSequence nickName() {
-            return nickNames[ordinal()];
-        }
+        String[] nickNames = { "攻击", "常规" };
+
     }
 
     public enum AnimalBuff {
@@ -123,7 +121,7 @@ public class AntFarm {
     }
 
     public static Boolean check() {
-        return Config.enableFarm();
+        return Config.INSTANCE.isEnableFarm();
     }
 
     public static Task init() {
@@ -143,7 +141,7 @@ public class AntFarm {
                     parseSyncAnimalStatusResponse(joFarmVO.toString());
                     userId = joFarmVO.getJSONObject("masterUserInfoVO").getString("userId");
 
-                    if (Config.useSpecialFood()) {
+                    if (Config.INSTANCE.isUseSpecialFood()) {
                         JSONArray cuisineList = jo.getJSONArray("cuisineList");
                         if (!AnimalFeedStatus.SLEEPY.name().equals(ownerAnimal.animalFeedStatus))
                             useFarmFood(cuisineList);
@@ -152,7 +150,7 @@ public class AntFarm {
                     if (jo.has("lotteryPlusInfo")) {
                         drawLotteryPlus(jo.getJSONObject("lotteryPlusInfo"));
                     }
-                    if (Config.acceptGift() && joFarmVO.getJSONObject("subFarmVO").has("giftRecord")
+                    if (Config.INSTANCE.isAcceptGift() && joFarmVO.getJSONObject("subFarmVO").has("giftRecord")
                             && foodStockLimit - foodStock >= 10) {
                         acceptGift();
                     }
@@ -162,10 +160,10 @@ public class AntFarm {
 
                 listFarmTool();
 
-                if (Config.rewardFriend())
+                if (Config.INSTANCE.isRewardFriend())
                     rewardFriend();
 
-                if (Config.sendBackAnimal())
+                if (Config.INSTANCE.isSendBackAnimal())
                     sendBackAnimal();
 
                 if (!AnimalInteractStatus.HOME.name().equals(ownerAnimal.animalInteractStatus)) {
@@ -213,14 +211,14 @@ public class AntFarm {
                         }
 
                         boolean recall = false;
-                        switch (Config.recallAnimalType()) {
-                            case ALWAYS:
+                        switch (Config.INSTANCE.getRecallAnimalType()) {
+                            case Config.RecallAnimalType.ALWAYS:
                                 recall = true;
                                 break;
-                            case WHEN_THIEF:
+                            case Config.RecallAnimalType.WHEN_THIEF:
                                 recall = !guest;
                                 break;
-                            case WHEN_HUNGRY:
+                            case Config.RecallAnimalType.WHEN_HUNGRY:
                                 recall = hungry;
                                 break;
                         }
@@ -232,52 +230,52 @@ public class AntFarm {
 
                 }
 
-                if (Config.receiveFarmToolReward()) {
+                if (Config.INSTANCE.isReceiveFarmToolReward()) {
                     receiveToolTaskReward();
                 }
 
-                if (Config.recordFarmGame() && Config.isFarmGameTime()) {
+                if (Config.INSTANCE.isRecordFarmGame() && Config.INSTANCE.hasFarmGameTime()) {
                     recordFarmGame(GameType.starGame);
                     recordFarmGame(GameType.jumpGame);
                     recordFarmGame(GameType.flyGame);
                     recordFarmGame(GameType.hitGame);
                 }
 
-                if (Config.kitchen()) {
+                if (Config.INSTANCE.isKitchen()) {
                     collectDailyFoodMaterial(userId);
                     collectDailyLimitedFoodMaterial();
                     cook(userId);
                 }
 
-                if (Config.chickenDiary()) {
+                if (Config.INSTANCE.isChickenDiary()) {
                     queryChickenDiaryList();
                 }
 
-                if (Config.useNewEggTool()) {
+                if (Config.INSTANCE.isUseNewEggTool()) {
                     useFarmTool(ownerFarmId, ToolType.NEWEGGTOOL);
                     syncAnimalStatus(ownerFarmId);
                 }
 
-                if (Config.harvestProduce() && benevolenceScore >= 1) {
+                if (Config.INSTANCE.isHarvestProduce() && benevolenceScore >= 1) {
                     Log.recordLog("有可收取的爱心鸡蛋", "");
                     harvestProduce(ownerFarmId);
                 }
 
-                if (Config.donation() && Statistics.canDonationEgg(userId) && harvestBenevolenceScore >= 1) {
+                if (Config.INSTANCE.isDonation() && Statistics.canDonationEgg(userId) && harvestBenevolenceScore >= 1) {
                     donation();
                 }
 
-                if (Config.answerQuestion() && Statistics.canAnswerQuestionToday(FriendIdMap.getCurrentUid())) {
+                if (Config.INSTANCE.isAnswerQuestion() && Statistics.canAnswerQuestionToday(FriendIdMap.getCurrentUid())) {
                     answerQuestion();
                 }
 
-                if (Config.receiveFarmTaskAward()) {
+                if (Config.INSTANCE.isReceiveFarmTaskAward()) {
                     doFarmDailyTask();
                     receiveFarmTaskAward();
                 }
 
                 if (AnimalInteractStatus.HOME.name().equals(ownerAnimal.animalInteractStatus)) {
-                    if (Config.feedAnimal()
+                    if (Config.INSTANCE.isFeedAnimal()
                             && AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
                         Log.recordLog("小鸡在挨饿", "");
                         feedAnimal(ownerFarmId);
@@ -286,7 +284,7 @@ public class AntFarm {
 
                     if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
                         Log.recordLog("小鸡正双手并用着加速吃饲料", "");
-                    } else if (Config.useAccelerateTool()
+                    } else if (Config.INSTANCE.isUseAccelerateTool()
                             && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
                         // 加速卡
                         useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL);
@@ -308,11 +306,11 @@ public class AntFarm {
                 feedFriend();
 
                 // 通知好友赶鸡
-                if (Config.notifyFriend())
+                if (Config.INSTANCE.isNotifyFriend())
                     notifyFriend();
 
-                if (!StringUtil.isEmpty(Config.animalSleepTime())) {
-                    if (Config.isAnimalSleepTime()) {
+                if (!StringUtil.isEmpty(Config.INSTANCE.getAnimalSleepTime())) {
+                    if (Config.INSTANCE.hasAnimalSleepTime()) {
                         animalSleep();
                     }
                 }
@@ -442,12 +440,12 @@ public class AntFarm {
                         && !SubAnimalType.WORK.name().equals(animal.subAnimalType)) {
                     // 赶鸡
                     String user = AntFarmRpcCall.farmId2UserId(animal.masterFarmId);
-                    if (Config.getDontSendFriendList().contains(user))
+                    if (Config.INSTANCE.getDontSendFriendList().contains(user))
                         continue;
-                    SendType sendType = Config.sendType();
+                    int sendType = Config.INSTANCE.getSendType();
                     user = FriendIdMap.getNameById(user);
                     String s = AntFarmRpcCall.sendBackAnimal(
-                            sendType.name(), animal.animalId,
+                            SendType.nickNames[sendType], animal.animalId,
                             animal.currentFarmId, animal.masterFarmId);
                     JSONObject jo = new JSONObject(s);
                     String memo = jo.getString("memo");
@@ -944,11 +942,11 @@ public class AntFarm {
         try {
             String s, memo;
             JSONObject jo;
-            for (int i = 0; i < Config.getFeedFriendAnimalList().size(); i++) {
-                String userId = Config.getFeedFriendAnimalList().get(i);
+            for (int i = 0; i < Config.INSTANCE.getFeedFriendAnimalList().size(); i++) {
+                String userId = Config.INSTANCE.getFeedFriendAnimalList().get(i);
                 if (userId.equals(FriendIdMap.getCurrentUid()))
                     continue;
-                if (!Statistics.canFeedFriendToday(userId, Config.getFeedFriendCountList().get(i)))
+                if (!Statistics.canFeedFriendToday(userId, Config.INSTANCE.getFeedFriendCountList().get(i)))
                     continue;
                 s = AntFarmRpcCall.enterFarm("", userId);
                 jo = new JSONObject(s);
@@ -1030,7 +1028,7 @@ public class AntFarm {
                         jo = jaRankingList.getJSONObject(i);
                         String userId = jo.getString("userId");
                         String userName = FriendIdMap.getNameById(userId);
-                        if (Config.getDontNotifyFriendList().contains(userId)
+                        if (Config.INSTANCE.getDontNotifyFriendList().contains(userId)
                                 || userId.equals(FriendIdMap.getCurrentUid()))
                             continue;
                         boolean starve = jo.has("actionType") && "starve_action".equals(jo.getString("actionType"));
@@ -1042,7 +1040,7 @@ public class AntFarm {
                                 jo = jo.getJSONObject("farmVO").getJSONObject("subFarmVO");
                                 String friendFarmId = jo.getString("farmId");
                                 JSONArray jaAnimals = jo.getJSONArray("animals");
-                                boolean notified = !Config.notifyFriend();
+                                boolean notified = !Config.INSTANCE.isNotifyFriend();
                                 for (int j = 0; j < jaAnimals.length(); j++) {
                                     jo = jaAnimals.getJSONObject(j);
                                     String animalId = jo.getString("animalId");
@@ -1329,11 +1327,11 @@ public class AntFarm {
 
     private static void visit() {
         try {
-            for (int i = 0; i < Config.getVisitFriendList().size(); i++) {
-                String userId = Config.getVisitFriendList().get(i);
+            for (int i = 0; i < Config.INSTANCE.getVisitFriendList().size(); i++) {
+                String userId = Config.INSTANCE.getVisitFriendList().get(i);
                 if (userId.equals(FriendIdMap.getCurrentUid()))
                     continue;
-                int visitCount = Config.getVisitFriendCountList().get(i);
+                int visitCount = Config.INSTANCE.getVisitFriendCountList().get(i);
                 if (visitCount <= 0)
                     continue;
                 if (visitCount > 3)

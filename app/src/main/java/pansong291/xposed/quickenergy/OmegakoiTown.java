@@ -48,7 +48,7 @@ public class OmegakoiTown {
     }
 
     public static Boolean check() {
-        if (!Config.omegakoiTown())
+        if (!Config.INSTANCE.isOmegakoiTown())
             return false;
         long executeTime = RuntimeInfo.getInstance().getLong("omegakoiTown", 0);
         return System.currentTimeMillis() - executeTime >= 21600000;

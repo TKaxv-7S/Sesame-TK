@@ -18,7 +18,7 @@ public class Reserve {
     private static boolean isProtecting = false;
 
     public static Boolean check() {
-        if (!Config.reserve() && !Config.beach())
+        if (!Config.INSTANCE.isReserve() && !Config.INSTANCE.isBeach())
             return false;
 
         if (isProtecting) {
@@ -34,11 +34,11 @@ public class Reserve {
                 Log.recordLog("开始检测保护地", "");
                 isProtecting = true;
 
-                if (Config.reserve()) {
+                if (Config.INSTANCE.isReserve()) {
                     animalReserve();
                 }
 
-                if (Config.beach()) {
+                if (Config.INSTANCE.isBeach()) {
                     protectBeach();
                 }
                 isProtecting = false;
@@ -72,15 +72,15 @@ public class Reserve {
                     int energy = jo.getInt("energy");
                     ReserveIdMap.putIdMap(projectId, itemName + "(" + energy + "g)");
                     int index = -1;
-                    for (int j = 0; j < Config.getReserveList().size(); j++) {
-                        if (Config.getReserveList().get(j).equals(projectId)) {
+                    for (int j = 0; j < Config.INSTANCE.getReserveList().size(); j++) {
+                        if (Config.INSTANCE.getReserveList().get(j).equals(projectId)) {
                             index = j;
                             break;
                         }
                     }
                     if (index < 0)
                         continue;
-                    int reserveCount = Config.getReserveCountList().get(index);
+                    int reserveCount = Config.INSTANCE.getReserveCountList().get(index);
                     if (reserveCount <= 0)
                         continue;
                     if (!Statistics.canReserveToday(projectId, reserveCount))
@@ -195,15 +195,15 @@ public class Reserve {
                     String projectCode = projectConfig.getString("code");
                     BeachIdMap.putIdMap(templateCode, cultivationName + "(" + energy + "g)");
                     int index = -1;
-                    for (int j = 0; j < Config.getBeachList().size(); j++) {
-                        if (Config.getBeachList().get(j).equals(templateCode)) {
+                    for (int j = 0; j < Config.INSTANCE.getBeachList().size(); j++) {
+                        if (Config.INSTANCE.getBeachList().get(j).equals(templateCode)) {
                             index = j;
                             break;
                         }
                     }
                     if (index < 0)
                         continue;
-                    int BeachCount = Config.getBeachCountList().get(index);
+                    int BeachCount = Config.INSTANCE.getBeachCountList().get(index);
                     if (BeachCount <= 0)
                         continue;
                     oceanExchangeTree(templateCode, projectCode, cultivationName, BeachCount);

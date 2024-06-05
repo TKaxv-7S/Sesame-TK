@@ -15,14 +15,14 @@ public class AncientTree {
     private static final String TAG = AncientTree.class.getSimpleName();
 
     public static Boolean check() {
-        return Config.ancientTree() && Config.isAncientTreeWeek();
+        return Config.INSTANCE.isAncientTree() && Config.hasAncientTreeWeek();
     }
 
     public static Task init() {
         return new Task("AncientTree", () -> {
             try {
                 Log.recordLog("开始检测古树保护", "");
-                ancientTree(Config.getAncientTreeCityCodeList()); // 二次检查 有时会返回繁忙漏保护
+                ancientTree(Config.INSTANCE.getAncientTreeCityCodeList()); // 二次检查 有时会返回繁忙漏保护
             } catch (Throwable t) {
                 Log.i(TAG, "start.run err:");
                 Log.printStackTrace(TAG, t);
