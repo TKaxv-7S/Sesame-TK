@@ -5,27 +5,23 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
 import pansong291.xposed.quickenergy.AntFarm.SendType;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.hook.XposedHook;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 public class Config {
-    public enum RecallAnimalType {
-        ALWAYS, WHEN_THIEF, WHEN_HUNGRY, NEVER;
-
-        public static final CharSequence[] nickNames = { "始终召回", "偷吃时召回", "饥饿时召回", "不召回" };
-        public static final CharSequence[] names = { ALWAYS.nickName(), WHEN_THIEF.nickName(), WHEN_HUNGRY.nickName(),
-                NEVER.nickName() };
-
-        public CharSequence nickName() {
-            return nickNames[ordinal()];
-        }
-    }
 
     private static final String TAG = Config.class.getSimpleName();
 
@@ -1372,8 +1368,9 @@ public class Config {
             shouldReload = false;
             Log.i(TAG, "get config from " + RuntimeInfo.process);
             String confJson = null;
-            if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists())
+            if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
                 confJson = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
+            }
             config = json2Config(confJson);
         }
         return config;
@@ -2474,6 +2471,18 @@ public class Config {
             }
         } catch (Throwable th) {
             Log.printStackTrace("alarm7", th);
+        }
+    }
+
+    public enum RecallAnimalType {
+        ALWAYS, WHEN_THIEF, WHEN_HUNGRY, NEVER;
+
+        public static final CharSequence[] nickNames = { "始终召回", "偷吃时召回", "饥饿时召回", "不召回" };
+        public static final CharSequence[] names = { ALWAYS.nickName(), WHEN_THIEF.nickName(), WHEN_HUNGRY.nickName(),
+                NEVER.nickName() };
+
+        public CharSequence nickName() {
+            return nickNames[ordinal()];
         }
     }
 

@@ -4,7 +4,6 @@ import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.Logger;
 import com.elvishew.xlog.XLog;
 import com.elvishew.xlog.flattener.ClassicFlattener;
-import com.elvishew.xlog.printer.AndroidPrinter;
 import com.elvishew.xlog.printer.file.FilePrinter;
 import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy;
 import com.elvishew.xlog.printer.file.clean.FileLastModifiedCleanStrategy;
@@ -20,7 +19,7 @@ import java.util.TimeZone;
 public class Log {
 
     static {
-        XLog.init(LogLevel.ALL, new AndroidPrinter(true));
+        XLog.init(LogLevel.ALL);
     }
 
     private static final File mainDirectoryFile = FileUtils.getMainDirectoryFile();

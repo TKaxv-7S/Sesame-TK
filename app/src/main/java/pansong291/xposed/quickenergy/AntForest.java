@@ -1221,6 +1221,7 @@ public class AntForest {
             }
             Log.recordLog(sb.toString(), "");
             AntForestNotification.setContentText(Log.getFormatTime() + sb);
+            XposedHook.getMainHandler().postDelayed(AntForestNotification::setContentTextIdle, 60_000);
         }
         laterTime = -1;
     }
@@ -1961,8 +1962,9 @@ public class AntForest {
             }
             String s = "  收：" + totalCollected + "，帮：" + totalHelpCollected;
             Log.recordLog(s, "");
-            AntForestNotification.setContentText(Log.getFormatTime() + s);
             antForestTask.removeChildThread(getTid());
+            AntForestNotification.setContentText(Log.getFormatTime() + s);
+            XposedHook.getMainHandler().postDelayed(AntForestNotification::setContentTextIdle, 60_000);
         }
 
         public static String getTid(String ui, String bn, long bi) {

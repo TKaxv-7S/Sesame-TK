@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,6 +47,7 @@ import pansong291.xposed.quickenergy.ui.MainActivity;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
@@ -59,14 +61,16 @@ public class XposedHook implements IXposedHookLoadPackage {
 
     public static final String CURRENT_USING_ACTIVITY = "com.eg.android.AlipayGphone.AlipayLogin";
 
-    private static volatile boolean isInit = false;
+    private static final Map<Object, Boolean> rpcHookMap = new ConcurrentHashMap<>();
 
     private static volatile boolean isHooked = false;
+
+    private static volatile boolean isInit = false;
 
     private static volatile boolean isOffline = true;
 
     @SuppressLint("StaticFieldLeak")
-    private static volatile Context context;
+    private static volatile Context context = null;
 
     @SuppressLint("StaticFieldLeak")
     private static volatile Service service;
@@ -106,6 +110,10 @@ public class XposedHook implements IXposedHookLoadPackage {
     private static Task omegakoiTownTask;
 
     private static Task consumeGoldTask;
+
+    public static boolean isIsHooked() {
+        return isHooked;
+    }
 
     public static Boolean getIsOffline() {
         return isOffline;
@@ -155,28 +163,24 @@ public class XposedHook implements IXposedHookLoadPackage {
         }
     }
 
-    private static void restartHandler() {
-        mainHandler.removeCallbacks(mainRunner);
-        AntForestNotification.stop(service, false);
-        Task.stopAllTask();
-
-        AntForestNotification.start(service);
-        mainHandler.post(mainRunner);
-    }
-
     private static void initHandler() {
         try {
             if (context != null) {
+                stopHandler();
                 if (!isInit) {
                     Log.recordLog("尝试初始化");
+                    Task.removeAllTask();
+                    if (!PermissionUtil.checkAlarmPermissions()) {
+                        mainHandler.postDelayed(() -> {
+                            if (!PermissionUtil.checkOrRequestAlarmPermissions(context)) {
+                                Toast.makeText(context, "请授予支付宝使用闹钟权限", Toast.LENGTH_SHORT).show();
+                            }
+                        }, 2000);
+                        return;
+                    }
                     if (Config.startAt7()) {
                         Config.setAlarm7(context);
                     }
-                    if (mainHandler != null && mainRunner != null) {
-                        mainHandler.removeCallbacks(mainRunner);
-                        AntForestNotification.stop(service, false);
-                    }
-                    Task.removeAllTask();
                     Task.putTask(antForestTask = AntForest.init());
                     Task.putTask(antCooperateTask = AntCooperate.init());
                     Task.putTask(antFarmTask = AntFarm.init());
@@ -191,7 +195,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                     Task.putTask(greenFinanceTask = GreenFinance.init());
                     Task.putTask(omegakoiTownTask = OmegakoiTown.init());
                     Task.putTask(consumeGoldTask = ConsumeGold.init());
-                    mainHandler = new Handler();
                     mainRunner = new Runnable() {
                         @Override
                         public void run() {
@@ -201,6 +204,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                             String targetUid = RpcUtil.getUserId();
                             if (targetUid != null) {
                                 FriendIdMap.setCurrentUid(targetUid);
+                                AntForestNotification.setContentTextExec();
                                 Config.shouldReload = true;
                                 Statistics.resetToday();
 
@@ -238,25 +242,39 @@ public class XposedHook implements IXposedHookLoadPackage {
                                     consumeGoldTask.startTask();
                                 }
                             }
-                            if (Config.collectEnergy() || Config.enableFarm()) {
-                                AntForestNotification.setNextScanTime(System.currentTimeMillis() + Config.checkInterval());
-                                mainHandler.postDelayed(this, Config.checkInterval());
-                            } else {
-                                AntForestNotification.stop(service, false);
-                            }
-
+                            AntForestNotification.setNextScanTime(System.currentTimeMillis() + Config.checkInterval());
+                            AntForestNotification.setContentTextIdle();
+                            mainHandler.postDelayed(this, Config.checkInterval());
                         }
                     };
                     isInit = true;
                 }
                 isOffline = false;
-                restartHandler();
+                startHandler();
                 AntForestToast.show("芝麻粒加载成功");
             }
         } catch (Throwable th) {
             Log.i(TAG, "initHandler err:");
             Log.printStackTrace(TAG, th);
         }
+    }
+
+    private static void startHandler() {
+        AntForestNotification.start(service);
+        mainHandler.post(mainRunner);
+    }
+
+    private static void stopHandler() {
+        if (mainHandler != null && mainRunner != null) {
+            mainHandler.removeCallbacks(mainRunner);
+            AntForestNotification.stop(service, false);
+        }
+        Task.stopAllTask();
+    }
+
+    private static void restartHandler() {
+        stopHandler();
+        startHandler();
     }
 
     private void hookService() {
@@ -285,7 +303,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                         }
                     });
         } catch (Throwable t) {
-            Log.i(TAG, "hookStep err:");
+            Log.i(TAG, "hook readDailyStep err:");
             Log.printStackTrace(TAG, t);
         }
         try {
@@ -294,8 +312,11 @@ public class XposedHook implements IXposedHookLoadPackage {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
                             Log.i(TAG, "Activity onResume");
-                            //PermissionUtil.requestPermissions((Activity) param.thisObject);
-                            AntForestNotification.setContentText("运行中...");
+                            if (!isInit) {
+                                initHandler();
+                                Log.i(TAG, "Activity initHandler");
+                                return;
+                            }
                             String targetUid = RpcUtil.getUserId();
                             if (targetUid == null) {
                                 return;
@@ -335,10 +356,10 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 return;
                             }
                             Log.i(TAG, "Service onCreate");
-                            AntForestNotification.setContentText("运行中...");
                             registerBroadcastReceiver(appService);
                             service = appService;
                             context = appService.getApplicationContext();
+                            mainHandler = new Handler();
                             RpcUtil.initMethod();
                             if (Config.stayAwake()) {
                                 PowerManager pm = (PowerManager) appService.getSystemService(Context.POWER_SERVICE);
@@ -349,9 +370,9 @@ public class XposedHook implements IXposedHookLoadPackage {
                             initHandler();
                         }
                     });
-            Log.i(TAG, "hook onCreate successfully");
+            Log.i(TAG, "hook service onCreate successfully");
         } catch (Throwable t) {
-            Log.i(TAG, "hook onCreate err:");
+            Log.i(TAG, "hook service onCreate err:");
             Log.printStackTrace(TAG, t);
         }
         try {
@@ -367,15 +388,15 @@ public class XposedHook implements IXposedHookLoadPackage {
                         wakeLock = null;
                     }
                     Task.stopAllTask();
-                    AntForestNotification.stop(service, false);
                     AntForestNotification.setContentText("支付宝前台服务被销毁");
+                    AntForestNotification.stop(service, false);
                     Log.recordLog("支付宝前台服务被销毁", "");
                     alarmHook(3000, false);
                 }
             });
-            Log.i(TAG, "hook onDestroy successfully");
+            Log.i(TAG, "hook service onDestroy successfully");
         } catch (Throwable t) {
-            Log.i(TAG, "hook onDestroy err:");
+            Log.i(TAG, "hook service onDestroy err:");
             Log.printStackTrace(TAG, t);
         }
 
@@ -390,17 +411,49 @@ public class XposedHook implements IXposedHookLoadPackage {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             Object[] args = param.args;
-                            Log.debug("rpc: " + Arrays.toString(args));
+                            rpcHookMap.put(args[15], true);
+                            Log.debug("record new rpc request: " + Arrays.toString(args));
+                        }
+
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            if (rpcHookMap.containsKey(param.args[15])) {
+                                rpcHookMap.remove(param.args[15]);
+                                Log.debug("record new rpc request removed");
+                            }
                         }
 
                     });
-            Log.i(TAG, "hook rpc successfully");
+            Log.i(TAG, "hook rpc request successfully");
         } catch (Throwable t) {
-            Log.i(TAG, "hook rpc err:");
+            Log.i(TAG, "hook rpc request err:");
             Log.printStackTrace(TAG, t);
         }
 
-        Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
+        try {
+            XposedHelpers.findAndHookMethod(
+                    "com.alibaba.ariver.engine.common.bridge.internal.DefaultBridgeCallback", classLoader
+                    , "sendJSONResponse"
+                    , RpcUtil.getJsonObjectClazz()
+                    , new XC_MethodHook() {
+
+                        @SuppressLint("WakelockTimeout")
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            if (Boolean.TRUE.equals(rpcHookMap.remove(param.thisObject))) {
+                                Log.debug("record new rpc response: " + Arrays.toString(param.args));
+                            }
+                        }
+
+                    });
+            Log.i(TAG, "hook rpc response successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook rpc response err:");
+            Log.printStackTrace(TAG, t);
+        }
+
+        /*Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
         try {
             XposedHelpers.findAndHookMethod(
                     "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
@@ -424,7 +477,7 @@ public class XposedHook implements IXposedHookLoadPackage {
         } catch (Throwable t) {
             Log.i(TAG, "hook callJavaBridgeExtensionWithJson err:");
             Log.printStackTrace(TAG, t);
-        }
+        }*/
 
         /*try {
             XposedHelpers.findAndHookMethod(
@@ -447,7 +500,7 @@ public class XposedHook implements IXposedHookLoadPackage {
             Log.printStackTrace(TAG, t);
         }*/
 
-        try {
+        /*try {
             XposedHelpers.findAndHookMethod(
                     "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
                     , "nativeInvokeCallback"
@@ -469,7 +522,7 @@ public class XposedHook implements IXposedHookLoadPackage {
         } catch (Throwable t) {
             Log.i(TAG, "hook nativeInvokeCallback err:");
             Log.printStackTrace(TAG, t);
-        }
+        }*/
 
     }
 

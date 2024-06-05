@@ -38,7 +38,7 @@ public class AntForestNotification {
                 getNotificationManager(context).notify(NOTIFICATION_ID, mNotification);
             isStart = true;
         }
-        setContentText("运行中...");
+        setContentTextIdle();
     }
 
     public static void stop(Context context, boolean remove) {
@@ -120,6 +120,14 @@ public class AntForestNotification {
             contentText = cs;
             innerSetContentText();
         }
+    }
+
+    public static void setContentTextIdle() {
+        setContentText("空闲");
+    }
+
+    public static void setContentTextExec() {
+        setContentText("执行中");
     }
 
 }

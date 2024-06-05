@@ -1,6 +1,7 @@
 package pansong291.xposed.quickenergy.util;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Environment;
 import android.provider.Settings;
 
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
+import pansong291.xposed.quickenergy.hook.XposedHook;
 
 public class PermissionUtil {
     private static final String TAG = AntForestRpcCall.class.getSimpleName();
@@ -22,7 +24,11 @@ public class PermissionUtil {
             "android.permission.WRITE_EXTERNAL_STORAGE",
     };
 
-    public static boolean checkPermissions(Context context) {
+    public static Boolean checkOrRequestAllPermissions(Activity activity) {
+        return checkOrRequestFilePermissions(activity) && checkOrRequestAlarmPermissions(activity);
+    }
+
+    public static boolean checkFilePermissions(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             //判断是否有管理外部存储的权限
             return Environment.isExternalStorageManager();
@@ -38,9 +44,9 @@ public class PermissionUtil {
         }
     }
 
-    public static Boolean checkOrRequestPermissions(Activity activity) {
+    public static Boolean checkOrRequestFilePermissions(Activity activity) {
         try {
-            if (checkPermissions(activity)) {
+            if (checkFilePermissions(activity)) {
                 return true;
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -52,12 +58,59 @@ public class PermissionUtil {
                 try {
                     activity.startActivity(appIntent);
                 } catch (ActivityNotFoundException ex) {
-                    Intent allFileIntent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                    allFileIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    activity.startActivity(allFileIntent);
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    activity.startActivity(intent);
                 }
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 activity.requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
+            }
+        } catch (Exception e) {
+            Log.printStackTrace(TAG, e);
+        }
+        return false;
+    }
+
+    public static boolean checkAlarmPermissions() {
+        Context context;
+        try {
+            if (!XposedHook.isIsHooked()) {
+                return false;
+            }
+            context = XposedHook.getContext();
+            if (context == null) {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            //判断是否有使用闹钟的权限
+            return ((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).canScheduleExactAlarms();
+        }
+        return true;
+    }
+
+    public static Boolean checkOrRequestAlarmPermissions(Context context) {
+        try {
+            if (checkAlarmPermissions()) {
+                return true;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                //跳转到权限页，请求权限
+                Intent appIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                appIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                appIntent.setData(Uri.parse("package:" + XposedHook.PACKAGE_NAME));
+                //appIntent.setData(Uri.fromParts("package", XposedHook.PACKAGE_NAME, null));
+                try {
+                    context.startActivity(appIntent);
+                } catch (ActivityNotFoundException ex) {
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
+                }
             }
         } catch (Exception e) {
             Log.printStackTrace(TAG, e);
