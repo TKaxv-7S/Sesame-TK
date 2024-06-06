@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -65,7 +65,7 @@ public class ConsumeGold {
                 if (doubleCheck)
                     taskV2Index(taskSceneCode);
             } else {
-                Log.recordLog(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskV2Index err:");

@@ -2,9 +2,9 @@ package pansong291.xposed.quickenergy.ui;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import pansong291.xposed.quickenergy.AntFarm.SendType;
+import pansong291.xposed.quickenergy.model.AntFarm.SendType;
 import pansong291.xposed.quickenergy.R;
-import pansong291.xposed.quickenergy.hook.XposedHook;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Config.RecallAnimalType;
 
@@ -31,7 +31,7 @@ public class ChoiceDialog {
     public static void showStayAwakeType(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
                 .setTitle(title)
-                .setSingleChoiceItems(XposedHook.StayAwakeType.nickNames, Config.INSTANCE.getStayAwakeType(),
+                .setSingleChoiceItems(ApplicationHook.StayAwakeType.nickNames, Config.INSTANCE.getStayAwakeType(),
                         (p1, p2) -> Config.INSTANCE.setStayAwakeType(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();
@@ -40,7 +40,7 @@ public class ChoiceDialog {
     public static void showStayAwakeTarget(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
                 .setTitle(title)
-                .setSingleChoiceItems(XposedHook.StayAwakeTarget.nickNames, Config.INSTANCE.getStayAwakeTarget(),
+                .setSingleChoiceItems(ApplicationHook.StayAwakeTarget.nickNames, Config.INSTANCE.getStayAwakeTarget(),
                         (p1, p2) -> Config.INSTANCE.setStayAwakeTarget(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();
@@ -49,7 +49,7 @@ public class ChoiceDialog {
     public static void showTimeoutRestartType(Context c, CharSequence title) {
         new AlertDialog.Builder(c)
                 .setTitle(title)
-                .setSingleChoiceItems(XposedHook.StayAwakeType.nickNames, Config.INSTANCE.getTimeoutType(),
+                .setSingleChoiceItems(ApplicationHook.StayAwakeType.nickNames, Config.INSTANCE.getTimeoutType(),
                         (p1, p2) -> Config.INSTANCE.setTimeoutType(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();

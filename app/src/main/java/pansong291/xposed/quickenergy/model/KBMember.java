@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONObject;
 import pansong291.xposed.quickenergy.hook.KBMemberRpcCall;

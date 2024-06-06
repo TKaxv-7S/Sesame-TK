@@ -11,14 +11,14 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import pansong291.xposed.quickenergy.AntForestToast;
-import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.XposedHook;
+import pansong291.xposed.quickenergy.model.AntForestToast;
 
 public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
-    private static File mainDirectory;
-    private static File configDirectory;
+
+    public static final File MAIN_DIRECTORY_FILE = getMainDirectoryFile();
+    public static final File CONFIG_DIRECTORY_FILE = getConfigDirectoryFile();
+    public static final File LOG_DIRECTORY_FILE = getLogDirectoryFile();
     private static final Map<String, File> configFileMap = new HashMap<>();
     private static File runtimeInfoFile;
     private static File friendIdMapFile;
@@ -27,11 +27,11 @@ public class FileUtils {
     private static File beachIdMapFile;
     private static File statisticsFile;
     private static File exportedStatisticsFile;
-    private static File infoChangedFile;
+    private static File systemLogFile;
     private static File forestLogFile;
     private static File farmLogFile;
     private static File otherLogFile;
-    private static File simpleLogFile;
+    private static File recordLogFile;
     private static File debugLogFile;
     private static File runtimeLogFile;
     private static File cityCodeFile;
@@ -40,104 +40,63 @@ public class FileUtils {
     private static File certCountDirectory;
     private static File certCountFile;
 
-    private static void copyFile(File srcDir, File dstDir, String filename) {
-        File file = new File(srcDir, filename);
-        if (!file.exists()) {
-            return;
-        }
-        String content = readFromFile(file);
-        file = new File(dstDir, filename);
-        write2File(content, file);
-    }
-
     @SuppressWarnings("deprecation")
-    public static File getMainDirectoryFile() {
-        if (mainDirectory == null) {
-            File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            if (!storageDir.exists()) {
-                storageDir.mkdirs();
+    private static File getMainDirectoryFile() {
+        String storageDirStr = Environment.getExternalStorageDirectory() + File.separator + "Android" +
+                File.separator + "media" + File.separator + ClassUtil.PACKAGE_NAME;
+        File storageDir = new File(storageDirStr);
+        File mainDir = new File(storageDir, "xqe");
+        if (mainDir.exists()) {
+            if (mainDir.isFile()) {
+                mainDir.delete();
+                mainDir.mkdirs();
             }
-            String storageDirStr = Environment.getExternalStorageDirectory() + File.separator + "Android" +
-                    File.separator + "media" + File.separator + XposedHook.PACKAGE_NAME;
-            storageDir = new File(storageDirStr);
-
-            mainDirectory = new File(storageDir, "xqe");
-            if (!mainDirectory.exists()) {
-                mainDirectory.mkdirs();
-//                File oldDirectory = new File(Environment.getExternalStorageDirectory(), "xqe");
-//                if (oldDirectory.exists()) {
-//                    File deprecatedFile = new File(oldDirectory, "deprecated");
-//                    if (!deprecatedFile.exists()) {
-//                        copyFile(oldDirectory, mainDirectory, "config.json");
-//                        copyFile(oldDirectory, mainDirectory, "friendId.list");
-//                        copyFile(oldDirectory, mainDirectory, "cooperationId.list");
-//                        copyFile(oldDirectory, mainDirectory, "reserveId.list");
-//                        copyFile(oldDirectory, mainDirectory, "statistics.json");
-//                        copyFile(oldDirectory, mainDirectory, "cityCode.json");
-//                        try {
-//                            deprecatedFile.createNewFile();
-//                        } catch (Throwable ignored) {
-//                        }
-//                    }
-//                }
-            }
-        }
-        return mainDirectory;
-    }
-
-    public static File getConfigDirectoryFile() {
-        if (configDirectory == null) {
-            configDirectory = new File(getMainDirectoryFile(), "config");
-            if (configDirectory.exists()) {
-                if (configDirectory.isFile()) {
-                    configDirectory.delete();
-                    configDirectory.mkdirs();
+        } else {
+            mainDir.mkdirs();
+            /*File oldDirectory = new File(Environment.getExternalStorageDirectory(), "xqe");
+            if (oldDirectory.exists()) {
+                File deprecatedFile = new File(oldDirectory, "deprecated");
+                if (!deprecatedFile.exists()) {
+                    copyFile(oldDirectory, mainDirectory, "config.json");
+                    copyFile(oldDirectory, mainDirectory, "friendId.list");
+                    copyFile(oldDirectory, mainDirectory, "cooperationId.list");
+                    copyFile(oldDirectory, mainDirectory, "reserveId.list");
+                    copyFile(oldDirectory, mainDirectory, "statistics.json");
+                    copyFile(oldDirectory, mainDirectory, "cityCode.json");
+                    try {
+                        deprecatedFile.createNewFile();
+                    } catch (Throwable ignored) {
+                    }
                 }
-            } else {
-                configDirectory.mkdirs();
+            }*/
+        }
+        return mainDir;
+    }
+
+    private static File getConfigDirectoryFile() {
+        File configDir = new File(MAIN_DIRECTORY_FILE, "config");
+        if (configDir.exists()) {
+            if (configDir.isFile()) {
+                configDir.delete();
+                configDir.mkdirs();
             }
+        } else {
+            configDir.mkdirs();
         }
-        return configDirectory;
+        return configDir;
     }
 
-    public static File getCityCodeFile() {
-        if (cityCodeFile == null) {
-            cityCodeFile = new File(getMainDirectoryFile(), "cityCode.json");
-            if(cityCodeFile.exists() && cityCodeFile.isDirectory())
-                cityCodeFile.delete();
-        }
-        return cityCodeFile;
-    }
-
-    public static File getCertCountDirectoryFile() {
-        if (certCountDirectory == null) {
-            certCountDirectory = new File(getMainDirectoryFile(), "certCount");
-            if (certCountDirectory.exists()) {
-                if (certCountDirectory.isFile()) {
-                    certCountDirectory.delete();
-                    certCountDirectory.mkdirs();
-                }
-            } else {
-                certCountDirectory.mkdirs();
+    private static File getLogDirectoryFile() {
+        File logDir = new File(MAIN_DIRECTORY_FILE, "log");
+        if (logDir.exists()) {
+            if (logDir.isFile()) {
+                logDir.delete();
+                logDir.mkdirs();
             }
+        } else {
+            logDir.mkdirs();
         }
-        return certCountDirectory;
-    }
-
-    public static File getFriendWatchFile() {
-        if (friendWatchFile == null) {
-            friendWatchFile = new File(getMainDirectoryFile(), "friendWatch.json");
-            if (friendWatchFile.exists() && friendWatchFile.isDirectory())
-                friendWatchFile.delete();
-        }
-        return friendWatchFile;
-    }
-
-    public static File getWuaFile() {
-        if (wuaFile == null) {
-            wuaFile = new File(getMainDirectoryFile(), "wua.list");
-        }
-        return wuaFile;
+        return logDir;
     }
 
     public static File getConfigFile() {
@@ -146,9 +105,9 @@ public class FileUtils {
 
     public static File getConfigFile(String userId) {
         if (!configFileMap.containsKey("Default")) {
-            File configFile = new File(getMainDirectoryFile(), "config.json");
+            File configFile = new File(MAIN_DIRECTORY_FILE, "config.json");
             if (configFile.exists()) {
-                Log.i(TAG, "[" + RuntimeInfo.process + "][config]读:" + configFile.canRead() + ";写:" + configFile.canWrite());
+                Log.i(TAG, "[config]读:" + configFile.canRead() + ";写:" + configFile.canWrite());
             } else {
                 Log.i(TAG, "config.json文件不存在");
             }
@@ -156,7 +115,7 @@ public class FileUtils {
         }
         if (!StringUtil.isEmpty(userId)) {
             if (!configFileMap.containsKey(userId)) {
-                File configFile = new File(getConfigDirectoryFile(), "config-" + userId + ".json");
+                File configFile = new File(CONFIG_DIRECTORY_FILE, "config-" + userId + ".json");
                 if (configFile.exists()) {
                     configFileMap.put(userId, configFile);
                     return configFile;
@@ -168,9 +127,25 @@ public class FileUtils {
         return configFileMap.get("Default");
     }
 
+    public static File getFriendWatchFile() {
+        if (friendWatchFile == null) {
+            friendWatchFile = new File(MAIN_DIRECTORY_FILE, "friendWatch.json");
+            if (friendWatchFile.exists() && friendWatchFile.isDirectory())
+                friendWatchFile.delete();
+        }
+        return friendWatchFile;
+    }
+
+    public static File getWuaFile() {
+        if (wuaFile == null) {
+            wuaFile = new File(MAIN_DIRECTORY_FILE, "wua.list");
+        }
+        return wuaFile;
+    }
+
     public static File getFriendIdMapFile() {
         if (friendIdMapFile == null) {
-            friendIdMapFile = new File(getMainDirectoryFile(), "friendId.list");
+            friendIdMapFile = new File(MAIN_DIRECTORY_FILE, "friendId.list");
             if (friendIdMapFile.exists() && friendIdMapFile.isDirectory())
                 friendIdMapFile.delete();
         }
@@ -179,7 +154,7 @@ public class FileUtils {
 
     public static File runtimeInfoFile() {
         if (runtimeInfoFile == null) {
-            runtimeInfoFile = new File(getMainDirectoryFile(), "runtimeInfo.json");
+            runtimeInfoFile = new File(MAIN_DIRECTORY_FILE, "runtimeInfo.json");
             if (!runtimeInfoFile.exists()) {
                 try {
                     runtimeInfoFile.createNewFile();
@@ -192,7 +167,7 @@ public class FileUtils {
 
     public static File getCooperationIdMapFile() {
         if (cooperationIdMapFile == null) {
-            cooperationIdMapFile = new File(getMainDirectoryFile(), "cooperationId.list");
+            cooperationIdMapFile = new File(MAIN_DIRECTORY_FILE, "cooperationId.list");
             if (cooperationIdMapFile.exists() && cooperationIdMapFile.isDirectory())
                 cooperationIdMapFile.delete();
         }
@@ -201,7 +176,7 @@ public class FileUtils {
 
     public static File getReserveIdMapFile() {
         if (reserveIdMapFile == null) {
-            reserveIdMapFile = new File(getMainDirectoryFile(), "reserveId.list");
+            reserveIdMapFile = new File(MAIN_DIRECTORY_FILE, "reserveId.list");
             if (reserveIdMapFile.exists() && reserveIdMapFile.isDirectory())
                 reserveIdMapFile.delete();
         }
@@ -210,7 +185,7 @@ public class FileUtils {
 
     public static File getBeachIdMapFile() {
         if (beachIdMapFile == null) {
-            beachIdMapFile = new File(getMainDirectoryFile(), "beachId.list");
+            beachIdMapFile = new File(MAIN_DIRECTORY_FILE, "beachId.list");
             if (beachIdMapFile.exists() && beachIdMapFile.isDirectory())
                 beachIdMapFile.delete();
         }
@@ -219,12 +194,12 @@ public class FileUtils {
 
     public static File getStatisticsFile() {
         if (statisticsFile == null) {
-            statisticsFile = new File(getMainDirectoryFile(), "statistics.json");
-            if (statisticsFile.exists() && statisticsFile.isDirectory())
+            statisticsFile = new File(MAIN_DIRECTORY_FILE, "statistics.json");
+            if (statisticsFile.exists() && statisticsFile.isDirectory()) {
                 statisticsFile.delete();
-
+            }
             if (statisticsFile.exists()) {
-                Log.i(TAG, "[" + RuntimeInfo.process + "][statistics]读:" + statisticsFile.canRead() + ";写:" + statisticsFile.canWrite());
+                Log.i(TAG, "[statistics]读:" + statisticsFile.canRead() + ";写:" + statisticsFile.canWrite());
             } else {
                 Log.i(TAG, "statisticsFile.json文件不存在");
             }
@@ -234,98 +209,169 @@ public class FileUtils {
 
     public static File getExportedStatisticsFile() {
         if (exportedStatisticsFile == null) {
-            exportedStatisticsFile = new File(getMainDirectoryFile(), "statistics.json");
-            if (exportedStatisticsFile.exists() && exportedStatisticsFile.isDirectory())
+            String storageDirStr = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + "xqe";
+            File storageDir = new File(storageDirStr);
+            if (!storageDir.exists()) {
+                storageDir.mkdirs();
+            }
+            exportedStatisticsFile = new File(storageDir, "statistics.json");
+            if (exportedStatisticsFile.exists() && exportedStatisticsFile.isDirectory()) {
                 exportedStatisticsFile.delete();
+            }
         }
         return exportedStatisticsFile;
     }
 
-    public static File getInfoChangedFile() {
-        if (infoChangedFile == null) {
-            infoChangedFile = new File(getMainDirectoryFile(), "infoChangedFile.log");
-            if (infoChangedFile.exists() && infoChangedFile.isDirectory())
-                infoChangedFile.delete();
+    public static File exportFile(File file) {
+        String exportDirStr = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + "xqe";
+        File exportDir = new File(exportDirStr);
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
         }
-        return infoChangedFile;
+        File exportFile = new File(exportDir, file.getName());
+        if (exportFile.exists() && exportFile.isDirectory()) {
+            exportFile.delete();
+        }
+        if (FileUtils.copyTo(file, exportFile)) {
+            return exportFile;
+        }
+        return null;
+    }
+
+    public static File getCityCodeFile() {
+        if (cityCodeFile == null) {
+            cityCodeFile = new File(MAIN_DIRECTORY_FILE, "cityCode.json");
+            if(cityCodeFile.exists() && cityCodeFile.isDirectory())
+                cityCodeFile.delete();
+        }
+        return cityCodeFile;
+    }
+
+    public static File getRuntimeLogFile() {
+        if (runtimeLogFile == null) {
+            runtimeLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("runtime"));
+            if (runtimeLogFile.exists() && runtimeLogFile.isDirectory()) {
+                runtimeLogFile.delete();
+            }
+            if (!runtimeLogFile.exists()) {
+                try {
+                    runtimeLogFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return runtimeLogFile;
+    }
+
+    public static File getRecordLogFile() {
+        if (recordLogFile == null) {
+            recordLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("record"));
+            if (recordLogFile.exists() && recordLogFile.isDirectory()) {
+                recordLogFile.delete();
+            }
+            if (!recordLogFile.exists()) {
+                try {
+                    recordLogFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return recordLogFile;
+    }
+
+    public static File getSystemLogFile() {
+        if (systemLogFile == null) {
+            systemLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("system"));
+            if (systemLogFile.exists() && systemLogFile.isDirectory()) {
+                systemLogFile.delete();
+            }
+            if (!systemLogFile.exists()) {
+                try {
+                    systemLogFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return systemLogFile;
+    }
+
+    public static File getDebugLogFile() {
+        if (debugLogFile == null) {
+            debugLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("debug"));
+            if (debugLogFile.exists() && debugLogFile.isDirectory()) {
+                debugLogFile.delete();
+            }
+            if (!debugLogFile.exists()) {
+                try {
+                    debugLogFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return debugLogFile;
     }
 
     public static File getForestLogFile() {
         if (forestLogFile == null) {
-            forestLogFile = new File(getMainDirectoryFile(), "forest.log");
-            if (forestLogFile.exists() && forestLogFile.isDirectory())
+            forestLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("forest"));
+            if (forestLogFile.exists() && forestLogFile.isDirectory()) {
                 forestLogFile.delete();
-            if (!forestLogFile.exists())
+            }
+            if (!forestLogFile.exists()) {
                 try {
                     forestLogFile.createNewFile();
                 } catch (Throwable ignored) {
                 }
+            }
         }
         return forestLogFile;
     }
 
     public static File getFarmLogFile() {
         if (farmLogFile == null) {
-            farmLogFile = new File(getMainDirectoryFile(), "farm.log");
-            if (farmLogFile.exists() && farmLogFile.isDirectory())
+            farmLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("farm"));
+            if (farmLogFile.exists() && farmLogFile.isDirectory()) {
                 farmLogFile.delete();
-            if (!farmLogFile.exists())
+            }
+            if (!farmLogFile.exists()) {
                 try {
                     farmLogFile.createNewFile();
                 } catch (Throwable ignored) {
                 }
+            }
         }
         return farmLogFile;
     }
 
     public static File getOtherLogFile() {
         if (otherLogFile == null) {
-            otherLogFile = new File(getMainDirectoryFile(), "other.log");
-            if (otherLogFile.exists() && otherLogFile.isDirectory())
+            otherLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("other"));
+            if (otherLogFile.exists() && otherLogFile.isDirectory()) {
                 otherLogFile.delete();
-            if (!otherLogFile.exists())
+            }
+            if (!otherLogFile.exists()) {
                 try {
                     otherLogFile.createNewFile();
                 } catch (Throwable ignored) {
                 }
+            }
         }
         return otherLogFile;
     }
 
-    public static File getSimpleLogFile() {
-        if (simpleLogFile == null) {
-            simpleLogFile = new File(getMainDirectoryFile(), "simple.log");
-            if (simpleLogFile.exists() && simpleLogFile.isDirectory())
-                simpleLogFile.delete();
+    public static void clearLog(int day) {
+        File[] files = LOG_DIRECTORY_FILE.listFiles();
+        if (files == null) {
+            return;
         }
-        return simpleLogFile;
-    }
-
-    public static File getDebugLogFile() {
-        if (debugLogFile == null) {
-            debugLogFile = new File(getMainDirectoryFile(), "debug.log");
-            if (debugLogFile.exists() && debugLogFile.isDirectory())
-                debugLogFile.delete();
-            if (!debugLogFile.exists())
-                try {
-                    debugLogFile.createNewFile();
-                } catch (Throwable ignored) {
+        long currentTimeMillis = System.currentTimeMillis();
+        for (File file : files) {
+            if (file.getName().endsWith(".log")) {
+                if (currentTimeMillis - file.lastModified() > day * 86_400_000L) {
+                    file.delete();
                 }
+            }
         }
-        return debugLogFile;
-    }
-
-    public static File getRuntimeLogFileBak() {
-        return new File(getMainDirectoryFile(), "runtime.log." + System.currentTimeMillis());
-    }
-
-    public static File getRuntimeLogFile() {
-        if (runtimeLogFile == null) {
-            runtimeLogFile = new File(getMainDirectoryFile(), "runtime.log");
-            if (runtimeLogFile.exists() && runtimeLogFile.isDirectory())
-                runtimeLogFile.delete();
-        }
-        return runtimeLogFile;
     }
 
     public static File getCertCountFile(String userId) {
@@ -335,6 +381,31 @@ public class FileUtils {
             write2File(jo_certCount.toString(), certCountFile);
         }
         return certCountFile;
+    }
+
+    public static File getCertCountDirectoryFile() {
+        if (certCountDirectory == null) {
+            certCountDirectory = new File(MAIN_DIRECTORY_FILE, "certCount");
+            if (certCountDirectory.exists()) {
+                if (certCountDirectory.isFile()) {
+                    certCountDirectory.delete();
+                    certCountDirectory.mkdirs();
+                }
+            } else {
+                certCountDirectory.mkdirs();
+            }
+        }
+        return certCountDirectory;
+    }
+
+    private static void copyFile(File srcDir, File dstDir, String filename) {
+        File file = new File(srcDir, filename);
+        if (!file.exists()) {
+            return;
+        }
+        String content = readFromFile(file);
+        file = new File(dstDir, filename);
+        write2File(content, file);
     }
 
     public static void setCertCount(String userId, String dateString, int certCount) {

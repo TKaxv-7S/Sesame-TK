@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -155,7 +155,7 @@ public class AntFarm {
                         acceptGift();
                     }
                 } else {
-                    Log.recordLog("", s);
+                    Log.record("", s);
                 }
 
                 listFarmTool();
@@ -170,30 +170,30 @@ public class AntFarm {
                     syncAnimalStatusAtOtherFarm(ownerAnimal.currentFarmId);
 
                     if ("ORCHARD".equals(ownerAnimal.locationType)) {
-                        Log.recordLog("小鸡到好友家除草了", "");
+                        Log.record("小鸡到好友家除草了", "");
                         JSONObject joRecallAnimal = new JSONObject(AntFarmRpcCall
                                 .orchardRecallAnimal(ownerAnimal.animalId, ownerAnimal.currentFarmMasterUserId));
 
                         int manureCount = joRecallAnimal.getInt("manureCount");
-                        Log.recordLog("", "召回小鸡，收获肥料" + manureCount + "g");
+                        Log.record("", "召回小鸡，收获肥料" + manureCount + "g");
                     } else {
                         boolean guest = false;
                         switch (SubAnimalType.valueOf(ownerAnimal.subAnimalType)) {
                             case GUEST:
                                 guest = true;
-                                Log.recordLog("小鸡到好友家去做客了", "");
+                                Log.record("小鸡到好友家去做客了", "");
                                 break;
                             case NORMAL:
-                                Log.recordLog("小鸡太饿，离家出走了", "");
+                                Log.record("小鸡太饿，离家出走了", "");
                                 break;
                             case PIRATE:
-                                Log.recordLog("小鸡外出探险了", "");
+                                Log.record("小鸡外出探险了", "");
                                 break;
                             case WORK:
-                                Log.recordLog("小鸡出去工作啦", "");
+                                Log.record("小鸡出去工作啦", "");
                                 break;
                             default:
-                                Log.recordLog("小鸡不在庄园", ownerAnimal.subAnimalType);
+                                Log.record("小鸡不在庄园", ownerAnimal.subAnimalType);
                         }
 
                         boolean hungry = false;
@@ -202,11 +202,11 @@ public class AntFarm {
                         switch (AnimalFeedStatus.valueOf(ownerAnimal.animalFeedStatus)) {
                             case HUNGRY:
                                 hungry = true;
-                                Log.recordLog("小鸡在[" + userName + "]的庄园里挨饿", "");
+                                Log.record("小鸡在[" + userName + "]的庄园里挨饿", "");
                                 break;
 
                             case EATING:
-                                Log.recordLog("小鸡在[" + userName + "]的庄园里吃得津津有味", "");
+                                Log.record("小鸡在[" + userName + "]的庄园里吃得津津有味", "");
                                 break;
                         }
 
@@ -257,7 +257,7 @@ public class AntFarm {
                 }
 
                 if (Config.INSTANCE.isHarvestProduce() && benevolenceScore >= 1) {
-                    Log.recordLog("有可收取的爱心鸡蛋", "");
+                    Log.record("有可收取的爱心鸡蛋", "");
                     harvestProduce(ownerFarmId);
                 }
 
@@ -277,13 +277,13 @@ public class AntFarm {
                 if (AnimalInteractStatus.HOME.name().equals(ownerAnimal.animalInteractStatus)) {
                     if (Config.INSTANCE.isFeedAnimal()
                             && AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
-                        Log.recordLog("小鸡在挨饿", "");
+                        Log.record("小鸡在挨饿", "");
                         feedAnimal(ownerFarmId);
                         // syncAnimalStatus(loader,ownerFarmId);
                     }
 
                     if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
-                        Log.recordLog("小鸡正双手并用着加速吃饲料", "");
+                        Log.record("小鸡正双手并用着加速吃饲料", "");
                     } else if (Config.INSTANCE.isUseAccelerateTool()
                             && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
                         // 加速卡
@@ -291,7 +291,7 @@ public class AntFarm {
                     }
 
                     if (unreceiveTaskAward > 0) {
-                        Log.recordLog("还有待领取的饲料", "");
+                        Log.record("还有待领取的饲料", "");
                         receiveFarmTaskAward();
                     }
 
@@ -399,7 +399,7 @@ public class AntFarm {
                         Log.farm("打赏好友💰[" + FriendIdMap.getNameById(rewardFriend.friendId) + "]#得" + rewardCount
                                 + "颗爱心鸡蛋");
                     } else {
-                        Log.recordLog(memo, s);
+                        Log.record(memo, s);
                     }
                 }
                 rewardList = null;
@@ -421,7 +421,7 @@ public class AntFarm {
                 // 这里不需要加
                 // add2FoodStock((int)foodHaveStolen);
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "recallAnimal err:");
@@ -462,7 +462,7 @@ public class AntFarm {
                         }
                         Log.farm(s);
                     } else {
-                        Log.recordLog(memo, s);
+                        Log.record(memo, s);
                     }
                 }
             }
@@ -496,7 +496,7 @@ public class AntFarm {
                             }
                         }
                         if (isFull) {
-                            Log.recordLog("领取道具🎖️[" + toolType.nickName() + "]#已满，暂不领取");
+                            Log.record("领取道具🎖️[" + toolType.nickName() + "]#已满，暂不领取");
                             continue;
                         }
                         int awardCount = bizInfo.getInt("awardCount");
@@ -509,12 +509,12 @@ public class AntFarm {
                             Log.farm("领取道具🎖️[" + taskTitle + "-" + toolType.nickName() + "]#" + awardCount + "张");
                         } else {
                             memo = memo.replace("道具", toolType.nickName());
-                            Log.recordLog(memo, s);
+                            Log.record(memo, s);
                         }
                     }
                 }
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveToolTaskReward err:");
@@ -532,7 +532,7 @@ public class AntFarm {
                 harvestBenevolenceScore = jo.getDouble("finalBenevolenceScore");
                 Log.farm("收取鸡蛋🥚[" + harvest + "颗]#剩余" + harvestBenevolenceScore + "颗");
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "harvestProduce err:");
@@ -557,7 +557,7 @@ public class AntFarm {
                     }
                 }
                 if (activityId == null) {
-                    Log.recordLog("今日已无可捐赠的活动", "");
+                    Log.record("今日已无可捐赠的活动", "");
                 } else {
                     s = AntFarmRpcCall.donation(activityId, 1);
                     jo = new JSONObject(s);
@@ -568,11 +568,11 @@ public class AntFarm {
                         Log.farm("捐赠活动❤️[" + activityName + "]#累计捐赠" + jo.getInt("donationTimesStat") + "次");
                         Statistics.donationEgg(userId);
                     } else {
-                        Log.recordLog(memo, s);
+                        Log.record(memo, s);
                     }
                 }
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "donation err:");
@@ -619,7 +619,7 @@ public class AntFarm {
                                     s = DadaDailyRpcCall.submit("100", answer, questionId);
                                     JSONObject joDailySubmit = new JSONObject(s);
                                     if (joDailySubmit.getBoolean("success")) {
-                                        Log.recordLog("提交结果", s);
+                                        Log.record("提交结果", s);
                                         dadaDailySet = new HashSet<>();
                                         JSONObject extInfo = joDailySubmit.getJSONObject("extInfo");
                                         boolean correct = joDailySubmit.getBoolean("correct");
@@ -628,7 +628,7 @@ public class AntFarm {
                                         } else {
                                             dadaDailySet.add(TimeUtil.getDateStr() + answer);
                                         }
-                                        Log.recordLog("答题" + (correct ? "正确" : "错误") + "可领取［"
+                                        Log.record("答题" + (correct ? "正确" : "错误") + "可领取［"
                                                 + extInfo.getString("award") + "克］");
                                         Statistics.answerQuestionToday(FriendIdMap.getCurrentUid());
 
@@ -650,23 +650,23 @@ public class AntFarm {
                                         }
                                         Statistics.setDadaDailySet(dadaDailySet);
                                     } else {
-                                        Log.recordLog(TAG, s);
+                                        Log.record(TAG, s);
                                     }
                                     return;
                                 } else {
-                                    Log.recordLog(TAG, s);
+                                    Log.record(TAG, s);
                                 }
                                 break;
 
                             case RECEIVED:
                                 Statistics.setQuestionHint(null);
-                                Log.recordLog("今日答题已完成", "");
+                                Log.record("今日答题已完成", "");
                                 Statistics.answerQuestionToday(FriendIdMap.getCurrentUid());
                                 break;
 
                             case FINISHED:
                                 Statistics.setQuestionHint(null);
-                                Log.recordLog("已经答过题了，饲料待领取", "");
+                                Log.record("已经答过题了，饲料待领取", "");
                                 Statistics.answerQuestionToday(FriendIdMap.getCurrentUid());
                                 break;
                         }
@@ -674,7 +674,7 @@ public class AntFarm {
                     }
                 }
             } else {
-                Log.recordLog(TAG, s);
+                Log.record(TAG, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "answerQuestion err:");
@@ -738,7 +738,7 @@ public class AntFarm {
                             if ("SUCCESS".equals(jo.getString("memo"))) {
                                 Log.farm("庄园任务🧾[" + title + "]#获得饲料" + awardCount + "g");
                             } else {
-                                Log.recordLog(jo.getString("memo"), jo.toString());
+                                Log.record(jo.getString("memo"), jo.toString());
                             }
                         } else if ("庄园小视频".equals(title)) {
                             jo = new JSONObject(AntFarmRpcCall.queryTabVideoUrl());
@@ -753,19 +753,19 @@ public class AntFarm {
                                     if (jo.getBoolean("success")) {
                                         Log.farm("庄园任务🧾[" + title + "]#获得饲料" + awardCount + "g");
                                     } else {
-                                        Log.recordLog(jo.getString("resultMsg"), jo.toString());
+                                        Log.record(jo.getString("resultMsg"), jo.toString());
                                     }
                                 } else {
-                                    Log.recordLog(jo.getString("resultMsg"), jo.toString());
+                                    Log.record(jo.getString("resultMsg"), jo.toString());
                                 }
                             } else {
-                                Log.recordLog(jo.getString("memo"), jo.toString());
+                                Log.record(jo.getString("memo"), jo.toString());
                             }
                         }
                     }
                 }
             } else {
-                Log.recordLog(jo.getString("memo"), s);
+                Log.record(jo.getString("memo"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "doFarmDailyTask err:");
@@ -794,7 +794,7 @@ public class AntFarm {
                             int awardCount = jo.getInt("awardCount");
                             if (awardCount + foodStock > foodStockLimit) {
                                 unreceiveTaskAward++;
-                                Log.recordLog("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，已终止领取", "");
+                                Log.record("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，已终止领取", "");
                                 break;
                             }
                             s = AntFarmRpcCall.receiveFarmTaskAward(jo.getString("taskId"));
@@ -808,7 +808,7 @@ public class AntFarm {
                                 if (unreceiveTaskAward > 0)
                                     unreceiveTaskAward--;
                             } else {
-                                Log.recordLog(memo, s);
+                                Log.record(memo, s);
                             }
                             break;
                         case RECEIVED:
@@ -819,7 +819,7 @@ public class AntFarm {
                     }
                 }
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveFarmTaskAward err:");
@@ -848,7 +848,7 @@ public class AntFarm {
                     Log.i(TAG, joSign.toString());
                 }
             } else {
-                Log.recordLog("庄园今日已签到", "");
+                Log.record("庄园今日已签到", "");
             }
         } catch (Throwable t) {
             Log.i(TAG, "Farmsign err:");
@@ -859,7 +859,7 @@ public class AntFarm {
     private static void feedAnimal(String farmId) {
         try {
             if (foodStock < 180) {
-                Log.recordLog("喂鸡饲料不足", "");
+                Log.record("喂鸡饲料不足", "");
             } else {
                 String s = AntFarmRpcCall.feedAnimal(farmId);
                 JSONObject jo = new JSONObject(s);
@@ -869,7 +869,7 @@ public class AntFarm {
                     add2FoodStock(-feedFood);
                     Log.farm("投喂小鸡🥣[" + feedFood + "g]#剩余" + foodStock + "g");
                 } else {
-                    Log.recordLog(memo, s);
+                    Log.record(memo, s);
                 }
             }
         } catch (Throwable t) {
@@ -895,7 +895,7 @@ public class AntFarm {
                     farmTools[i].toolHoldLimit = jo.optInt("toolHoldLimit", 20);
                 }
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "listFarmTool err:");
@@ -924,13 +924,13 @@ public class AntFarm {
                             if ("SUCCESS".equals(memo))
                                 Log.farm("使用道具🎭[" + toolType.nickName() + "]#剩余" + (toolCount - 1) + "张");
                             else
-                                Log.recordLog(memo, s);
+                                Log.record(memo, s);
                         }
                         break;
                     }
                 }
             } else {
-                Log.recordLog(memo, s);
+                Log.record(memo, s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "useFarmTool err:");
@@ -968,7 +968,7 @@ public class AntFarm {
                         }
                     }
                 } else {
-                    Log.recordLog(memo, s);
+                    Log.record(memo, s);
                 }
             }
         } catch (Throwable t) {
@@ -979,11 +979,11 @@ public class AntFarm {
 
     private static void feedFriendAnimal(String friendFarmId, String user) {
         try {
-            Log.recordLog("[" + user + "]的小鸡在挨饿", "");
+            Log.record("[" + user + "]的小鸡在挨饿", "");
             if (foodStock < 180) {
-                Log.recordLog("喂鸡饲料不足", "");
+                Log.record("喂鸡饲料不足", "");
                 if (unreceiveTaskAward > 0) {
-                    Log.recordLog("还有待领取的饲料", "");
+                    Log.record("还有待领取的饲料", "");
                     receiveFarmTaskAward();
                 }
             }
@@ -999,7 +999,7 @@ public class AntFarm {
                         Statistics.feedFriendToday(AntFarmRpcCall.farmId2UserId(friendFarmId));
                     }
                 } else {
-                    Log.recordLog(memo, s);
+                    Log.record(memo, s);
                 }
             }
         } catch (Throwable t) {
@@ -1053,15 +1053,15 @@ public class AntFarm {
                                     }
                                 }
                             } else {
-                                Log.recordLog(memo, s);
+                                Log.record(memo, s);
                             }
                         }
                     }
                 } else {
-                    Log.recordLog(memo, s);
+                    Log.record(memo, s);
                 }
             } while (hasNext);
-            Log.recordLog("饲料剩余[" + foodStock + "g]", "");
+            Log.record("饲料剩余[" + foodStock + "g]", "");
         } catch (Throwable t) {
             Log.i(TAG, "notifyFriend err:");
             Log.printStackTrace(TAG, t);
@@ -1085,7 +1085,7 @@ public class AntFarm {
                     Log.farm("通知好友📧[" + user + "]被偷吃#奖励" + rewardCount + "g");
                     return true;
                 } else {
-                    Log.recordLog(memo, s);
+                    Log.record(memo, s);
                 }
             }
         } catch (Throwable t) {
@@ -1193,7 +1193,7 @@ public class AntFarm {
                         Log.i(TAG, jo.toString());
                     }
                 } else {
-                    Log.recordLog("明日可领食材", "");
+                    Log.record("明日可领食材", "");
                 }
                 if (garbageAmount > 0) {
                     jo = new JSONObject(AntFarmRpcCall.collectKitchenGarbage());
@@ -1226,7 +1226,7 @@ public class AntFarm {
                         Log.i(TAG, jo.toString());
                     }
                 } else {
-                    Log.recordLog("已领取每日限量食材", "");
+                    Log.record("已领取每日限量食材", "");
                 }
             } else {
                 Log.i(TAG, jo.toString());
@@ -1304,7 +1304,7 @@ public class AntFarm {
                         String singleDesc = jo.getString("singleDesc");
                         int awardCount = jo.getInt("awardCount");
                         if (singleDesc.contains("饲料") && awardCount + foodStock > foodStockLimit) {
-                            Log.recordLog("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，已终止领取", "");
+                            Log.record("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，已终止领取", "");
                             break;
                         }
                         jo = new JSONObject(AntFarmRpcCall.drawLotteryPlus());
@@ -1314,7 +1314,7 @@ public class AntFarm {
                             Log.i(TAG, jo.getString("memo"));
                         }
                     } else {
-                        Log.recordLog("当日奖励已领取", "");
+                        Log.record("当日奖励已领取", "");
                     }
                     break;
                 }
@@ -1369,17 +1369,17 @@ public class AntFarm {
                         Log.farm("赠送麦子🌾[" + FriendIdMap.getNameById(userId) + "]#" + jo.getInt("giveFoodNum") + "g");
                         visitedTimes++;
                         if (jo.optBoolean("isReachLimit")) {
-                            Log.recordLog("今日给[" + FriendIdMap.getNameById(userId) + "]送麦子已达上限", "");
+                            Log.record("今日给[" + FriendIdMap.getNameById(userId) + "]送麦子已达上限", "");
                             visitedTimes = 3;
                             break;
                         }
                     } else {
-                        Log.recordLog(jo.getString("memo"), jo.toString());
+                        Log.record(jo.getString("memo"), jo.toString());
                     }
                     Thread.sleep(1000L);
                 }
             } else {
-                Log.recordLog(jo.getString("memo"), s);
+                Log.record(jo.getString("memo"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "visitFriend err:");

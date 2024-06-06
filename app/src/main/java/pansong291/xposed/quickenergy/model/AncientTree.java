@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,7 +21,7 @@ public class AncientTree {
     public static Task init() {
         return new Task("AncientTree", () -> {
             try {
-                Log.recordLog("开始检测古树保护", "");
+                Log.record("开始检测古树保护", "");
                 ancientTree(Config.INSTANCE.getAncientTreeCityCodeList()); // 二次检查 有时会返回繁忙漏保护
             } catch (Throwable t) {
                 Log.i(TAG, "start.run err:");
@@ -115,11 +115,11 @@ public class AncientTree {
                                 Log.forest("保护古树🎐[" + cityName + "-" + districtName
                                         + "]#" + age + "年" + name + ",消耗能量" + protectExpense + "g");
                             } else {
-                                Log.recordLog(jo.getString("resultDesc"), jo.toString());
+                                Log.record(jo.getString("resultDesc"), jo.toString());
                             }
                         }
                     } else {
-                        Log.recordLog(jo.getString("resultDesc"), ancientTreeDetail.toString());
+                        Log.record(jo.getString("resultDesc"), ancientTreeDetail.toString());
                     }
                     Thread.sleep(500L);
                 }

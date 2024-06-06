@@ -1,7 +1,7 @@
 package pansong291.xposed.quickenergy.util;
 
-import java.util.Calendar;
 import java.text.DateFormat;
+import java.util.Calendar;
 
 /**
  * @author Constanline
@@ -58,5 +58,14 @@ public class TimeUtil {
 
     public static int getHour() {
         return Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception e) {
+            Log.i("sleep error:");
+            Log.printStackTrace(e);
+        }
     }
 }

@@ -2,11 +2,12 @@ package pansong291.xposed.quickenergy.data;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Objects;
+
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-
-import java.util.Objects;
 
 /**
  * @author Constanline
@@ -16,8 +17,6 @@ public class RuntimeInfo {
     private static final String TAG = RuntimeInfo.class.getSimpleName();
 
     private static RuntimeInfo instance;
-
-    public static String process;
 
     private final String userId;
 

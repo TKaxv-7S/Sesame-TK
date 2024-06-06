@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONObject;
 import pansong291.xposed.quickenergy.hook.ReadingDadaRpcCall;
@@ -32,13 +32,13 @@ public class ReadingDada {
                 s = ReadingDadaRpcCall.submitAnswer(activityId, outBizId, jo.getString("questionId"), answer);
                 jo = new JSONObject(s);
                 if ("200".equals(jo.getString("resultCode"))) {
-                    Log.recordLog("答题完成");
+                    Log.record("答题完成");
                     return true;
                 } else {
-                    Log.recordLog("答题失败");
+                    Log.record("答题失败");
                 }
             } else {
-                Log.recordLog("获取问题失败");
+                Log.record("获取问题失败");
             }
         } catch (Throwable e) {
             Log.i(TAG, "answerQuestion err:");

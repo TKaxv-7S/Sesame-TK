@@ -6,7 +6,7 @@
     <string name="record_log">记录日志</string>
     <string name="show_toast">气泡提示</string>
     <string name="stay_awake">保持唤醒</string>
-    <string name="timeout_restart_activity">超时时重启Activity</string>
+    <string name="timeout_restart">超时重启</string>
     <string name="forest_configuration">森林</string>
     <string name="collect_energy">收集能量</string>
     <string name="check_interval_minutes">检测间隔(分钟)</string>
@@ -53,17 +53,16 @@
     <string name="latest_exchange_time_24_hour_system">最晚捐步时间(24小时制)</string>
     <string name="koubei_sign_in">口碑签到</string>
     <string name="more">更多</string>
-    <string name="support_developer">支持芝麻粒开发者</string>
     <string name="hello_user">你好，旅行者！</string>
-    <string name="support_xqe_developer">支持XQE原作者</string>
     <string name="forest_log">森林记录</string>
     <string name="farm_log">庄园记录</string>
-    <string name="other_log">其他记录</string>
+    <string name="all_log">全部记录</string>
     <string name="unactivated">未激活</string>
     <string name="tips">小贴士</string>
     <string name="hide_the_application_icon">隐藏图标</string>
     <string name="export_the_statistic_file">导出统计</string>
     <string name="import_the_statistic_file">导入统计</string>
+    <string name="view_debug">抓包记录</string>
     <string name="settings">设  置</string>
     <string name="limit_collect">限制收取</string>
     <string name="limit_count_per_minute">限制每分钟收取个数</string>
@@ -80,6 +79,7 @@
     <string name="next">下一个</string>
     <string name="ok">确认</string>
     <string name="open_with_other_browser">用浏览器打开</string>
+    <string name="export_file">导出文件</string>
     <string name="copy_the_url">复制链接</string>
     <string name="scroll_to_top">跳到顶部</string>
     <string name="scroll_to_bottom">跳到底部</string>
@@ -107,7 +107,7 @@
     <string name="beach_list">保护海洋列表(总数)</string>
     <string name="test">测试</string>
     <string name="timeout_restart_type">超时重启方式</string>
-    <string name="start_at_7_o_clock">7点时启动(实验性功能)</string>
+    <string name="start_at_7_o_clock">7点时启动</string>
     <string name="tiyubiz">文体中心</string>
     <string name="friend_watch">好友统计</string>
     <string name="user_patrol">巡护森林</string>
@@ -117,6 +117,8 @@
     <string name="double_count_limit">双击卡次数限制</string>
     <string name="ins_blue_bean_exchange">安心豆兑换时光加速器</string>
     <string name="enable_on_going">开启状态栏禁删</string>
+    <string name="new_rpc">使用新接口(最低支持v10.3.96.8100)</string>
+    <string name="debug_mode">开启抓包(基于新接口)</string>
     <string name="language_simplified_chinese">界面始终使用中文</string>
     <string name="language_simplified_chinese_need_restart">重启当前app生效</string>
     <string name="ant_orchard">开启农场</string>

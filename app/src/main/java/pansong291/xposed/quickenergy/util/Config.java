@@ -11,9 +11,8 @@ import java.util.Locale;
 
 import lombok.Data;
 import lombok.Getter;
-import pansong291.xposed.quickenergy.AntFarm.SendType;
-import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.XposedHook;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.model.AntFarm.SendType;
 
 @Data
 public class Config {
@@ -23,13 +22,14 @@ public class Config {
     public static final Config INSTANCE = defInit();
 
     @Getter
-    private static volatile boolean isInit;
+    private static volatile boolean init;
 
     /* application */
     private boolean immediateEffect;
     private boolean recordLog;
     private boolean showToast;
     private int toastOffsetY;
+    private int checkInterval;
     private boolean stayAwake;
     private int stayAwakeType;
     private int stayAwakeTarget;
@@ -37,12 +37,13 @@ public class Config {
     private int timeoutType;
     private boolean startAt7;
     private boolean enableOnGoing;
+    private boolean newRpc = true;
+    private boolean debugMode = false;
     private boolean languageSimplifiedChinese;
 
 
     /* forest */
     private boolean collectEnergy;
-    private int checkInterval;
 
     private boolean collectWateringBubble;
 
@@ -205,10 +206,10 @@ public class Config {
         c.showToast = true;
         c.toastOffsetY = 0;
         c.stayAwake = true;
-        c.stayAwakeType = XposedHook.StayAwakeType.BROADCAST;
-        c.stayAwakeTarget = XposedHook.StayAwakeTarget.SERVICE;
+        c.stayAwakeType = ApplicationHook.StayAwakeType.ALARM;
+        c.stayAwakeTarget = ApplicationHook.StayAwakeTarget.SERVICE;
         c.timeoutRestart = true;
-        c.timeoutType = XposedHook.StayAwakeType.ALARM;
+        c.timeoutType = ApplicationHook.StayAwakeType.ALARM;
         c.startAt7 = false;
         c.enableOnGoing = false;
         c.languageSimplifiedChinese = false;
@@ -217,7 +218,7 @@ public class Config {
         c.collectWateringBubble = true;
         c.batchRobEnergy = false;
         c.collectProp = true;
-        c.checkInterval = 720_000;
+        c.checkInterval = 1800_000;
         c.waitWhenException = 60 * 60 * 1000;
         c.limitCollect = true;
         c.limitCount = 50;
@@ -247,7 +248,7 @@ public class Config {
             c.cooperateWaterList = new ArrayList<>();
         if (c.cooperateWaterNumList == null)
             c.cooperateWaterNumList = new ArrayList<>();
-        c.ancientTree = true;
+        c.ancientTree = false;
         c.reserve = true;
         if (c.reserveList == null)
             c.reserveList = new ArrayList<>();
@@ -350,14 +351,13 @@ public class Config {
 
     public static Boolean save() {
         String json = JsonUtil.toJsonString(INSTANCE);
-        Log.infoChanged("保存 config.json", json);
+        Log.system("保存 config.json", json);
         return FileUtils.write2File(json, FileUtils.getConfigFile());
     }
 
     /* base */
     public static synchronized Config load() {
-        isInit = true;
-        Log.i(TAG, "get config from " + RuntimeInfo.process);
+        Log.i(TAG, "load config");
         String json = null;
         if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
             json = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
@@ -367,7 +367,7 @@ public class Config {
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
             Log.i(TAG, "配置文件格式有误，已重置配置文件");
-            Log.infoChanged(TAG, "配置文件格式有误，已重置配置文件");
+            Log.system(TAG, "配置文件格式有误，已重置配置文件");
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, defInit());
             } catch (JsonMappingException e) {
@@ -377,9 +377,10 @@ public class Config {
         String formatted = JsonUtil.toJsonString(INSTANCE);
         if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 config.json");
-            Log.infoChanged(TAG, "重新格式化 config.json");
+            Log.system(TAG, "重新格式化 config.json");
             FileUtils.write2File(formatted, FileUtils.getConfigFile());
         }
+        init = true;
         return INSTANCE;
     }
 

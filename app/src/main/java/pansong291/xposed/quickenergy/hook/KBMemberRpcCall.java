@@ -5,7 +5,7 @@ public class KBMemberRpcCall {
 
     public static String rpcCall_signIn() {
         String args1 = "[{\"sceneCode\":\"KOUBEI_INTEGRAL\",\"source\":\"ALIPAY_TAB\",\"version\":\"" + version + "\"}]";
-        return RpcUtil.request("alipay.kbmemberprod.action.signIn", args1);
+        return ApplicationHook.request("alipay.kbmemberprod.action.signIn", args1);
     }
 
 }

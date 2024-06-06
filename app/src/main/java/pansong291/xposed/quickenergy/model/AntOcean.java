@@ -1,9 +1,9 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.AntFarm.TaskStatus;
+import pansong291.xposed.quickenergy.model.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
 import pansong291.xposed.quickenergy.hook.AntOceanRpcCall;
@@ -33,7 +33,7 @@ public class AntOcean {
                         queryHomePage();
                     } else {
                         Config.INSTANCE.setAntOcean(false);
-                        Log.recordLog("请先开启神奇海洋，并完成引导教程");
+                        Log.record("请先开启神奇海洋，并完成引导教程");
                     }
                 } else {
                     Log.i(TAG, jo.getString("resultDesc"));
@@ -439,12 +439,12 @@ public class AntOcean {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[" + taskTitle + "]");
                         } else {
-                            Log.recordLog(jo.getString("desc"), jo.toString());
+                            Log.record(jo.getString("desc"), jo.toString());
                         }
                     }
                 }
             } else {
-                Log.recordLog(jo.getString("resultCode"), s);
+                Log.record(jo.getString("resultCode"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "doOceanDailyTask err:");
@@ -471,11 +471,11 @@ public class AntOcean {
                         String taskDesc = bizInfo.optString("taskDesc", taskType);
                         Log.forest("领取奖励🎖️[" + taskTitle + "]#" + taskDesc);
                     } else {
-                        Log.recordLog(jo.getString("desc"), jo.toString());
+                        Log.record(jo.getString("desc"), jo.toString());
                     }
                 }
             } else {
-                Log.recordLog(jo.getString("resultCode"), s);
+                Log.record(jo.getString("resultCode"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveTaskAward err:");

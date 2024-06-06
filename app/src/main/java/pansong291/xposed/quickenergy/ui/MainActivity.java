@@ -19,10 +19,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import pansong291.xposed.quickenergy.R;
-import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.FriendWatch;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
@@ -89,7 +89,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        RuntimeInfo.process = "app";
 
         tvStatistics = findViewById(R.id.tv_statistics);
 //        Button btnGithub = findViewById(R.id.btn_github);
@@ -168,8 +167,8 @@ public class MainActivity extends Activity {
                 data += FileUtils.getFarmLogFile().getAbsolutePath();
                 break;
 
-            case R.id.btn_other_log:
-                data += FileUtils.getOtherLogFile().getAbsolutePath();
+            case R.id.btn_all_log:
+                data += FileUtils.getRecordLogFile().getAbsolutePath();
                 break;
 
             case R.id.btn_github:
@@ -192,13 +191,23 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         int state = getPackageManager()
                 .getComponentEnabledSetting(new ComponentName(this, getClass().getCanonicalName() + "Alias"));
-        menu.add(0, 1, 0, R.string.hide_the_application_icon)
+        menu.add(0, 1, 1, R.string.hide_the_application_icon)
                 .setCheckable(true)
                 .setChecked(state > PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
-        menu.add(0, 2, 0, R.string.export_the_statistic_file);
-        menu.add(0, 3, 0, R.string.import_the_statistic_file);
-        menu.add(0, 4, 0, R.string.settings);
+        menu.add(0, 2, 2, R.string.export_the_statistic_file);
+        menu.add(0, 3, 3, R.string.import_the_statistic_file);
+        menu.add(0, 5, 5, R.string.settings);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (Config.INSTANCE.isDebugMode()) {
+            menu.add(0, 4, 4, R.string.view_debug);
+        } else {
+            menu.removeItem(4);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -212,8 +221,10 @@ public class MainActivity extends Activity {
                 break;
 
             case 2:
-                if (FileUtils.copyTo(FileUtils.getStatisticsFile(), FileUtils.getExportedStatisticsFile()))
-                    Toast.makeText(this, "导出成功！", Toast.LENGTH_SHORT).show();
+                File exportFile = FileUtils.exportFile(FileUtils.getStatisticsFile());
+                if (exportFile != null) {
+                    Toast.makeText(this, "文件已导出到: " + exportFile.getPath(), Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case 3:
@@ -224,6 +235,14 @@ public class MainActivity extends Activity {
                 break;
 
             case 4:
+                String data = "file://";
+                data += FileUtils.getDebugLogFile().getAbsolutePath();
+                Intent it = new Intent(this, HtmlViewerActivity.class);
+                it.setData(Uri.parse(data));
+                startActivity(it);
+                break;
+
+            case 5:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }

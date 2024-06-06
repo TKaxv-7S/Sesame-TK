@@ -1,10 +1,10 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import android.content.Context;
 import android.os.Handler;
 import android.widget.Toast;
 
-import pansong291.xposed.quickenergy.hook.XposedHook;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
@@ -16,9 +16,9 @@ public class AntForestToast {
     }
 
     public static void show(CharSequence cs, boolean force) {
-        Context context = XposedHook.getContext();
+        Context context = ApplicationHook.getContext();
         if (context != null && (force || Config.INSTANCE.isShowToast())) {
-            show(context, XposedHook.getMainHandler(), cs);
+            show(context, ApplicationHook.getMainHandler(), cs);
         }
     }
 

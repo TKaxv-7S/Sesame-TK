@@ -640,7 +640,7 @@ public class Statistics {
         int mo = Integer.parseInt(dateStr[1]);
         int da = Integer.parseInt(dateStr[2]);
 
-        Log.recordLog("原：" + stat.year.time + "-" + stat.month.time + "-" + stat.day.time + "；新：" + formatDate);
+        Log.record("原：" + stat.year.time + "-" + stat.month.time + "-" + stat.day.time + "；新：" + formatDate);
         if (ye > stat.year.time) {
             stat.year.reset(ye);
             stat.month.reset(mo);
@@ -657,7 +657,7 @@ public class Statistics {
     }
 
     private static void dayClear() {
-        Log.infoChanged(TAG,"重置 statistics.json");
+        Log.system(TAG,"重置 statistics.json");
         Statistics stat = INSTANCE;
         stat.waterFriendLogList.clear();
         stat.cooperateWaterList.clear();
@@ -695,6 +695,8 @@ public class Statistics {
             stat.month = new TimeStatistics(Integer.parseInt(date[1]));
         if (stat.day == null)
             stat.day = new TimeStatistics(Integer.parseInt(date[2]));
+        if (stat.waterFriendLogList == null)
+            stat.waterFriendLogList = new ArrayList<>();
         if (stat.cooperateWaterList == null)
             stat.cooperateWaterList = new ArrayList<>();
         if (stat.answerQuestionList == null)
@@ -740,7 +742,7 @@ public class Statistics {
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
             Log.i(TAG, "统计文件格式有误，已重置统计文件");
-            Log.infoChanged(TAG, "统计文件格式有误，已重置统计文件");
+            Log.system(TAG, "统计文件格式有误，已重置统计文件");
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, defInit());
             } catch (JsonMappingException e) {
@@ -750,7 +752,7 @@ public class Statistics {
         String formatted = JsonUtil.toJsonString(INSTANCE);
         if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 statistics.json");
-            Log.infoChanged(TAG, "重新格式化 statistics.json");
+            Log.system(TAG, "重新格式化 statistics.json");
             FileUtils.write2File(formatted, FileUtils.getStatisticsFile());
         }
         return INSTANCE;
@@ -758,7 +760,7 @@ public class Statistics {
 
     private static void save() {
         String json = JsonUtil.toJsonString(INSTANCE);
-        Log.infoChanged(TAG,"保存 statistics.json");
+        Log.system(TAG,"保存 statistics.json");
         FileUtils.write2File(json, FileUtils.getStatisticsFile());
     }
     public enum TimeType {

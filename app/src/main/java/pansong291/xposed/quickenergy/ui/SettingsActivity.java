@@ -55,7 +55,7 @@ public class SettingsActivity extends Activity {
             sw_enableStall, sw_stallAutoClose, sw_stallAutoOpen, sw_stallAutoTask, sw_stallReceiveAward,
             sw_stallOpenType, sw_stallDonate, sw_chickenDiary, sw_collectGiftBox, sw_stallInviteRegister,
             sw_stallThrowManure, sw_greenFinance, sw_totalCertCount, sw_batchRobEnergy, sw_antBookRead, sw_consumeGold,
-            sw_omegakoiTown, sw_language_simplified_chinese, sw_special_food;
+            sw_omegakoiTown, sw_newRpc, sw_debugMode, sw_language_simplified_chinese, sw_special_food;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +174,8 @@ public class SettingsActivity extends Activity {
         sw_timeoutRestart = findViewById(R.id.sw_timeoutRestart);
         sw_startAt7 = findViewById(R.id.sw_startAt7);
         sw_enableOnGoing = findViewById(R.id.sw_enableOnGoing);
+        sw_newRpc = findViewById(R.id.sw_newRpc);
+        sw_debugMode = findViewById(R.id.sw_debugMode);
         sw_language_simplified_chinese = findViewById(R.id.sw_languageSimplifiedChinese);
 
         sw_collectEnergy = findViewById(R.id.sw_collectEnergy);
@@ -254,6 +256,8 @@ public class SettingsActivity extends Activity {
         sw_timeoutRestart.setChecked(config.isTimeoutRestart());
         sw_startAt7.setChecked(config.isStartAt7());
         sw_enableOnGoing.setChecked(config.isEnableOnGoing());
+        sw_newRpc.setChecked(config.isNewRpc());
+        sw_debugMode.setChecked(config.isDebugMode());
         sw_language_simplified_chinese.setChecked(config.isLanguageSimplifiedChinese());
 
         sw_collectEnergy.setChecked(config.isCollectEnergy());
@@ -355,6 +359,14 @@ public class SettingsActivity extends Activity {
 
                 case R.id.sw_enableOnGoing:
                     config.setEnableOnGoing(sw.isChecked());
+                    break;
+
+                case R.id.sw_newRpc:
+                    config.setNewRpc(sw.isChecked());
+                    break;
+
+                case R.id.sw_debugMode:
+                    config.setDebugMode(sw.isChecked());
                     break;
 
                 case R.id.sw_languageSimplifiedChinese:

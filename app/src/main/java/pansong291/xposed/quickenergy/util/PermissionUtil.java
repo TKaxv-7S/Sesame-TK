@@ -12,7 +12,7 @@ import android.os.Environment;
 import android.provider.Settings;
 
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
-import pansong291.xposed.quickenergy.hook.XposedHook;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
 
 public class PermissionUtil {
     private static final String TAG = AntForestRpcCall.class.getSimpleName();
@@ -74,10 +74,10 @@ public class PermissionUtil {
     public static boolean checkAlarmPermissions() {
         Context context;
         try {
-            if (!XposedHook.isIsHooked()) {
+            if (!ApplicationHook.isHooked()) {
                 return false;
             }
-            context = XposedHook.getContext();
+            context = ApplicationHook.getContext();
             if (context == null) {
                 return false;
             }
@@ -101,8 +101,8 @@ public class PermissionUtil {
                 Intent appIntent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
                 appIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 appIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                appIntent.setData(Uri.parse("package:" + XposedHook.PACKAGE_NAME));
-                //appIntent.setData(Uri.fromParts("package", XposedHook.PACKAGE_NAME, null));
+                appIntent.setData(Uri.parse("package:" + ClassUtil.PACKAGE_NAME));
+                //appIntent.setData(Uri.fromParts("package", ClassUtil.PACKAGE_NAME, null));
                 try {
                     context.startActivity(appIntent);
                 } catch (ActivityNotFoundException ex) {

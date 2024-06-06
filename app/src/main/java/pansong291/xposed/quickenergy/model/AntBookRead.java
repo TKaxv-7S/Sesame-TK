@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -79,7 +79,7 @@ public class AntBookRead {
                     }
                 }
             } else {
-                Log.recordLog(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTaskCenterPage err:");
@@ -139,7 +139,7 @@ public class AntBookRead {
                 if (doubleCheck)
                     queryTask();
             } else {
-                Log.recordLog(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTask err:");

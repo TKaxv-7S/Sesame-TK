@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -94,7 +94,7 @@ public class AntStall {
                 }
 
             } else {
-                Log.recordLog("home err:", s);
+                Log.record("home err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "home err:");
@@ -116,11 +116,11 @@ public class AntStall {
                     Log.farm("蚂蚁新村⛪请走[" + FriendIdMap.getNameById(shopUserId) + "]的小摊"
                             + (amount > 0 ? "获得金币" + amount : ""));
                 } else {
-                    Log.recordLog("sendBack err:", s);
+                    Log.record("sendBack err:", s);
                 }
                 inviteOpen(seatId);
             } else {
-                Log.recordLog("sendBackPre err:", s);
+                Log.record("sendBackPre err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "sendBack err:");
@@ -150,7 +150,7 @@ public class AntStall {
                     }
                 }
             } else {
-                Log.recordLog("inviteOpen err:", s);
+                Log.record("inviteOpen err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "inviteOpen err:");
@@ -205,7 +205,7 @@ public class AntStall {
                     if (jo.getString("resultCode").equals("SUCCESS")) {
                         Log.farm("蚂蚁新村⛪[收取金币]#" + settleCoin);
                     } else {
-                        Log.recordLog("settle err:", s);
+                        Log.record("settle err:", s);
                     }
                 }
             }
@@ -236,7 +236,7 @@ public class AntStall {
                     }
                 }
             } else {
-                Log.recordLog("closeShop err:", s);
+                Log.record("closeShop err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "closeShop err:");
@@ -259,7 +259,7 @@ public class AntStall {
                 }
                 rankCoinDonate(shopIds);
             } else {
-                Log.recordLog("closeShop err:", s);
+                Log.record("closeShop err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "closeShop err:");
@@ -291,7 +291,7 @@ public class AntStall {
                 }
                 friendHomeOpen(seats, shopIds);
             } else {
-                Log.recordLog("rankCoinDonate err:", s);
+                Log.record("rankCoinDonate err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "rankCoinDonate err:");
@@ -335,7 +335,7 @@ public class AntStall {
                         }
                     }
                 } else {
-                    Log.recordLog("friendHomeOpen err:", s);
+                    Log.record("friendHomeOpen err:", s);
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "friendHomeOpen err:");
@@ -356,10 +356,10 @@ public class AntStall {
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     Log.farm("蚂蚁新村⛪收取在[" + FriendIdMap.getNameById(userId) + "]的摊位获得" + income.getString("amount"));
                 } else {
-                    Log.recordLog("shopClose err:", s);
+                    Log.record("shopClose err:", s);
                 }
             } else {
-                Log.recordLog("shopClose  err:", s);
+                Log.record("shopClose  err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "shopClose  err:");
@@ -410,7 +410,7 @@ public class AntStall {
                     Thread.sleep(200L);
                 }
             } else {
-                Log.recordLog("taskList err:", s);
+                Log.record("taskList err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskList err:");
@@ -425,7 +425,7 @@ public class AntStall {
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.farm("蚂蚁新村⛪[签到成功]");
             } else {
-                Log.recordLog("signToday err:", s);
+                Log.record("signToday err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "signToday err:");
@@ -443,7 +443,7 @@ public class AntStall {
             if (jo.getBoolean("success")) {
                 Log.farm("蚂蚁新村⛪[领取奖励]");
             } else {
-                Log.recordLog("receiveTaskAward err:", s);
+                Log.record("receiveTaskAward err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveTaskAward err:");
@@ -460,7 +460,7 @@ public class AntStall {
             if (jo.getBoolean("success")) {
                 return true;
             } else {
-                Log.recordLog("finishTask err:", s);
+                Log.record("finishTask err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "finishTask err:");
@@ -489,13 +489,13 @@ public class AntStall {
                                 Log.farm("邀请好友[" + FriendIdMap.getNameById(userId) + "]#开通新村");
                                 return true;
                             } else {
-                                Log.recordLog("friendInviteRegister err:", jo.toString());
+                                Log.record("friendInviteRegister err:", jo.toString());
                             }
                         }
                     }
                 }
             } else {
-                Log.recordLog("rankInviteRegister err:", s);
+                Log.record("rankInviteRegister err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "InviteRegister err:");
@@ -512,9 +512,9 @@ public class AntStall {
                 String shareId = jo.getString("shareId");
                 /* 保存shareId到Statistics */
                 Statistics.stallShareIdToday(FriendIdMap.getCurrentUid(), shareId);
-                Log.recordLog("蚂蚁新村⛪[分享助力]");
+                Log.record("蚂蚁新村⛪[分享助力]");
             } else {
-                Log.recordLog("shareP2P err:", s);
+                Log.record("shareP2P err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "shareP2P err:");
@@ -540,12 +540,12 @@ public class AntStall {
                             Statistics.stallP2PHelpeToday(uid);
                         } else if ("600000028".equals(jo.getString("code"))) {
                             Statistics.stallBeHelpToday(uid, true);
-                            Log.recordLog("被助力次数上限:", uid);
+                            Log.record("被助力次数上限:", uid);
                         } else if ("600000027".equals(jo.getString("code"))) {
                             Statistics.stallHelpToday(FriendIdMap.getCurrentUid(), true);
-                            Log.recordLog("助力他人次数上限:", FriendIdMap.getCurrentUid());
+                            Log.record("助力他人次数上限:", FriendIdMap.getCurrentUid());
                         } else {
-                            Log.recordLog("achieveBeShareP2P err:", s);
+                            Log.record("achieveBeShareP2P err:", s);
                         }
                         Thread.sleep(3500L);
                     }
@@ -625,7 +625,7 @@ public class AntStall {
                     }
                 }
             } else {
-                Log.recordLog("roadmap err:", s);
+                Log.record("roadmap err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "roadmap err:");
@@ -648,7 +648,7 @@ public class AntStall {
                     }
                 }
             } else {
-                Log.recordLog("collectManure err:", s);
+                Log.record("collectManure err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "collectManure err:");
@@ -694,7 +694,7 @@ public class AntStall {
                     throwManure(dynamicList);
                 }
             } else {
-                Log.recordLog("throwManure err:", s);
+                Log.record("throwManure err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "throwManure err:");

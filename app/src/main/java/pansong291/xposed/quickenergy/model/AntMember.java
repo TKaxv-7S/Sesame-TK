@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy;
+package pansong291.xposed.quickenergy.model;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,7 +29,7 @@ public class AntMember {
                                 + "天");
                         Statistics.memberSignInToday(FriendIdMap.getCurrentUid());
                     } else {
-                        Log.recordLog(jo.getString("resultDesc"), s);
+                        Log.record(jo.getString("resultDesc"), s);
                     }
                 }
 
@@ -58,7 +58,7 @@ public class AntMember {
                             }
                             taskListQuery();
                         } else {
-                            Log.recordLog("商家服务未开通！");
+                            Log.record("商家服务未开通！");
                         }
                     }
                 }
@@ -86,13 +86,13 @@ public class AntMember {
                     if ("SUCCESS".equals(jo.getString("resultCode"))) {
                         Log.other("领取奖励🎖️[" + bizTitle + "]#" + pointAmount + "积分");
                     } else {
-                        Log.recordLog(jo.getString("resultDesc"), s);
+                        Log.record(jo.getString("resultDesc"), s);
                     }
                 }
                 if (hasNextPage)
                     queryPointCert(page + 1, pageSize);
             } else {
-                Log.recordLog(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc"), s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryPointCert err:");
@@ -121,7 +121,7 @@ public class AntMember {
                     }
                 }
             } else {
-                Log.recordLog("pageRender", s);
+                Log.record("pageRender", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "anXinDou err:");
@@ -143,7 +143,7 @@ public class AntMember {
                     }
                 }
             } else {
-                Log.recordLog("taskProcess", s);
+                Log.record("taskProcess", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "insBlueBeanSign err:");
@@ -171,16 +171,16 @@ public class AntMember {
                                 if (jo.getBoolean("success")) {
                                     Log.other("安心豆🥔[兑换" + exchangeDetail.getString("itemName") + "]");
                                 } else {
-                                    Log.recordLog("exchange", jo.toString());
+                                    Log.record("exchange", jo.toString());
                                 }
                             }
                         }
                     } else {
-                        Log.recordLog("exchangeDetail", jo.toString());
+                        Log.record("exchangeDetail", jo.toString());
                     }
                 }
             } else {
-                Log.recordLog("queryUserAccountInfo", s);
+                Log.record("queryUserAccountInfo", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "insBlueBeanExchange err:");
@@ -208,18 +208,18 @@ public class AntMember {
                                 if (jo.getBoolean("success")) {
                                     Log.other("收芝麻粒🙇🏻‍♂️[" + title + "]#" + potentialSize + "粒");
                                 } else {
-                                    Log.recordLog(jo.getString("resultView"), jo.toString());
+                                    Log.record(jo.getString("resultView"), jo.toString());
                                 }
                             }
                         }
                     } else {
-                        Log.recordLog(jo.getString("resultView"), jo.toString());
+                        Log.record(jo.getString("resultView"), jo.toString());
                     }
                 } else {
-                    Log.recordLog("芝麻信用未开通！");
+                    Log.record("芝麻信用未开通！");
                 }
             } else {
-                Log.recordLog("zmxy", s);
+                Log.record("zmxy", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "zmxy err:");
@@ -238,11 +238,11 @@ public class AntMember {
                     if (joSignIn.getBoolean("success")) {
                         Log.other("商家服务🕴🏻[开门打卡签到成功]");
                     } else {
-                        Log.recordLog(joSignIn.getString("errorMsg"), joSignIn.toString());
+                        Log.record(joSignIn.getString("errorMsg"), joSignIn.toString());
                     }
                 }
             } else {
-                Log.recordLog("queryActivity", s);
+                Log.record("queryActivity", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "kmdkSignIn err:");
@@ -259,7 +259,7 @@ public class AntMember {
                     if (!Log.getFormatDate().replace("-", "").equals(activityNo.split("_")[2]))
                         break;
                     if ("SIGN_UP".equals(jo.getString("signUpStatus"))) {
-                        Log.recordLog("开门打卡今日已报名！");
+                        Log.record("开门打卡今日已报名！");
                         break;
                     }
                     if ("UN_SIGN_UP".equals(jo.getString("signUpStatus"))) {
@@ -269,11 +269,11 @@ public class AntMember {
                             Log.other("商家服务🕴🏻[" + activityPeriodName + "开门打卡报名]");
                             return;
                         } else {
-                            Log.recordLog(joSignUp.getString("errorMsg"), joSignUp.toString());
+                            Log.record(joSignUp.getString("errorMsg"), joSignUp.toString());
                         }
                     }
                 } else {
-                    Log.recordLog("queryActivity", jo.toString());
+                    Log.record("queryActivity", jo.toString());
                 }
                 Thread.sleep(500);
             }
@@ -299,7 +299,7 @@ public class AntMember {
                     }
                 }
             } else {
-                Log.recordLog("zcjSignInQuery", s);
+                Log.record("zcjSignInQuery", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "zcjSignIn err:");
@@ -371,7 +371,7 @@ public class AntMember {
                 if (doubleCheck)
                     taskListQuery();
             } else {
-                Log.recordLog("taskListQuery err:", s);
+                Log.record("taskListQuery err:", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskListQuery err:");
@@ -392,7 +392,7 @@ public class AntMember {
                     }
                 }
             } else {
-                Log.recordLog("taskReceive", s);
+                Log.record("taskReceive", s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskReceive err:");
@@ -463,7 +463,7 @@ public class AntMember {
                 if (doubleCheck)
                     signPageTaskList();
             } else {
-                Log.recordLog(jo.getString("resultCode"), s);
+                Log.record(jo.getString("resultCode"), s);
             }
 
         } catch (Throwable t) {

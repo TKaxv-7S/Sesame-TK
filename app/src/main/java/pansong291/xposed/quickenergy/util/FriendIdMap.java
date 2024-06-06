@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import pansong291.xposed.quickenergy.hook.FriendManager;
-import pansong291.xposed.quickenergy.hook.XposedHook;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
 
 public class FriendIdMap {
     private static final String TAG = FriendIdMap.class.getSimpleName();
@@ -22,7 +22,7 @@ public class FriendIdMap {
     public static void setCurrentUid(String uid) {
         if (currentUid == null || !currentUid.equals(uid)) {
             currentUid = uid;
-            FriendManager.fillUser(XposedHook.getClassLoader());
+            FriendManager.fillUser(ApplicationHook.getClassLoader());
         }
     }
 
