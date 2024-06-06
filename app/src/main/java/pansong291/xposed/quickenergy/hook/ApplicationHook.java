@@ -237,7 +237,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             return;
                         }
                         AntForestNotification.setContentText("支付宝前台服务被销毁");
-                        stopHandler();
+                        stopHandler(true);
                         Log.record("支付宝前台服务被销毁", "");
                         alarmHook(3000, false);
                     }
@@ -256,7 +256,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         if (context == null) {
             return;
         }
-        stopHandler();
+        stopHandler(force);
         try {
             if (!init || force) {
                 if (!PermissionUtil.checkAlarmPermissions()) {
@@ -535,32 +535,34 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private static void stopHandler() {
+    private static void stopHandler(Boolean force) {
         try {
             if (mainHandler != null && mainRunner != null) {
                 mainHandler.removeCallbacks(mainRunner);
                 AntForestNotification.stop(service, false);
             }
-            if (rpcResponseUnhook != null) {
-                rpcResponseUnhook.unhook();
-            }
-            if (rpcRequestUnhook != null) {
-                rpcRequestUnhook.unhook();
-            }
-            if (wakeLock != null) {
-                wakeLock.release();
-                wakeLock = null;
-            }
-            try {
-                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                PendingIntent pi = getAlarm7Pi();
-                alarmManager.cancel(pi);
-            } catch (Throwable th) {
-                Log.printStackTrace("alarm7", th);
-            }
-            if (rpcBridge != null) {
-                rpcBridge.unload();
-                rpcBridge = null;
+            if (force) {
+                if (rpcResponseUnhook != null) {
+                    rpcResponseUnhook.unhook();
+                }
+                if (rpcRequestUnhook != null) {
+                    rpcRequestUnhook.unhook();
+                }
+                if (wakeLock != null) {
+                    wakeLock.release();
+                    wakeLock = null;
+                }
+                try {
+                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    PendingIntent pi = getAlarm7Pi();
+                    alarmManager.cancel(pi);
+                } catch (Throwable th) {
+                    Log.printStackTrace("alarm7", th);
+                }
+                if (rpcBridge != null) {
+                    rpcBridge.unload();
+                    rpcBridge = null;
+                }
             }
             Task.stopAllTask();
         } catch (Throwable th) {
