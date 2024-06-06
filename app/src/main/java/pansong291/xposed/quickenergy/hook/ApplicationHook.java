@@ -448,66 +448,81 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         if (!init) {
                             return;
                         }
-                        Config config = Config.INSTANCE;
-                        String targetUid = getUserId();
-                        if (targetUid != null) {
-                            FriendIdMap.setCurrentUid(targetUid);
-                            AntForestNotification.setContentTextExec();
-                            Statistics.resetToday();
+                        Log.record("开始执行");
+                        try {
+                            Config config = Config.INSTANCE;
+                            String targetUid = getUserId();
+                            if (targetUid != null) {
+                                FriendIdMap.setCurrentUid(targetUid);
+                                AntForestNotification.setContentTextExec();
+                                try {
+                                    Statistics.resetToday();
+                                } catch (Exception e) {
+                                    Log.i(TAG, "statistics err:");
+                                    Log.printStackTrace(TAG, e);
+                                }
 
-                            try {
-                                FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
-                                Thread checkThread = new Thread(checkTask);
-                                checkThread.start();
-                                if (!checkTask.get()) {
+                                try {
+                                    FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
+                                    Thread checkThread = new Thread(checkTask);
+                                    checkThread.start();
+                                    if (!checkTask.get()) {
+                                        mainHandler.postDelayed(this, config.getCheckInterval());
+                                        return;
+                                    }
+                                } catch (Exception e) {
+                                    Log.i(TAG, "check err:");
+                                    Log.printStackTrace(TAG, e);
                                     mainHandler.postDelayed(this, config.getCheckInterval());
                                     return;
                                 }
-                            } catch (Exception e) {
-                                Log.i(TAG, "check err:");
-                                Log.printStackTrace(TAG, e);
-                                mainHandler.postDelayed(this, config.getCheckInterval());
-                                return;
-                            }
-                            antForestTask.startTask();
-                            if (TimeUtil.getTimeStr().compareTo("0700") < 0
-                                    || TimeUtil.getTimeStr().compareTo("0730") > 0) {
-                                TimeUtil.sleep(50);
-                                antCooperateTask.startTask();
-                                TimeUtil.sleep(50);
-                                antFarmTask.startTask();
-                                TimeUtil.sleep(50);
-                                reserveTask.startTask();
-                                if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
+                                antForestTask.startTask();
+                                if (TimeUtil.getTimeStr().compareTo("0700") < 0
+                                        || TimeUtil.getTimeStr().compareTo("0730") > 0) {
+                                    TimeUtil.sleep(50);
+                                    antCooperateTask.startTask();
+                                    TimeUtil.sleep(50);
+                                    antFarmTask.startTask();
+                                    TimeUtil.sleep(50);
+                                    reserveTask.startTask();
+                                    if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
+                                        TimeUtil.sleep(60);
+                                        ancientTreeTask.startTask();
+                                        TimeUtil.sleep(60);
+                                        antBookReadTask.startTask();
+                                    }
                                     TimeUtil.sleep(60);
-                                    ancientTreeTask.startTask();
+                                    antSportsTask.startTask();
                                     TimeUtil.sleep(60);
-                                    antBookReadTask.startTask();
+                                    antMemberTask.startTask();
+                                    TimeUtil.sleep(60);
+                                    antOceanTask.startTask();
+                                    TimeUtil.sleep(60);
+                                    antOrchardTask.startTask();
+                                    TimeUtil.sleep(60);
+                                    antStallTask.startTask();
+                                    TimeUtil.sleep(60);
+                                    greenFinanceTask.startTask();
+                                    TimeUtil.sleep(60);
+                                    omegakoiTownTask.startTask();
+                                    TimeUtil.sleep(60);
+                                    consumeGoldTask.startTask();
                                 }
-                                TimeUtil.sleep(60);
-                                antSportsTask.startTask();
-                                TimeUtil.sleep(60);
-                                antMemberTask.startTask();
-                                TimeUtil.sleep(60);
-                                antOceanTask.startTask();
-                                TimeUtil.sleep(60);
-                                antOrchardTask.startTask();
-                                TimeUtil.sleep(60);
-                                antStallTask.startTask();
-                                TimeUtil.sleep(60);
-                                greenFinanceTask.startTask();
-                                TimeUtil.sleep(60);
-                                omegakoiTownTask.startTask();
-                                TimeUtil.sleep(60);
-                                consumeGoldTask.startTask();
                             }
+                            int checkInterval = config.getCheckInterval();
+                            AntForestNotification.setNextScanTime(System.currentTimeMillis() + checkInterval);
+                            AntForestNotification.setContentTextIdle();
+                            mainHandler.postDelayed(this, checkInterval);
+                            FileUtils.clearLog(2);
+                        } catch (Exception e){
+                            Log.record("执行异常:");
+                            Log.record(android.util.Log.getStackTraceString(e));
+                        } finally {
+                            Log.record("执行完成");
                         }
-                        AntForestNotification.setNextScanTime(System.currentTimeMillis() + config.getCheckInterval());
-                        AntForestNotification.setContentTextIdle();
-                        mainHandler.postDelayed(this, config.getCheckInterval());
-                        FileUtils.clearLog(2);
                     }
                 };
+                Log.record("加载完成");
                 AntForestToast.show("芝麻粒加载成功");
                 init = true;
             }

@@ -21,34 +21,47 @@ public class Statistics {
     private TimeStatistics day;
 
     // forest
-    private ArrayList<WaterFriendLog> waterFriendLogList;
-    private ArrayList<String> cooperateWaterList;
-    private ArrayList<String> syncStepList;
-    private ArrayList<ReserveLog> reserveLogList;
-    private ArrayList<BeachLog> beachLogList;
-    private ArrayList<String> beachTodayList;
-    private ArrayList<String> ancientTreeCityCodeList;
-    private ArrayList<String> exchangeList;
-    private ArrayList<String> protectBubbleList;
+    private ArrayList<WaterFriendLog> waterFriendLogList = new ArrayList<>();
+    private ArrayList<String> cooperateWaterList = new ArrayList<>();
+    private ArrayList<String> syncStepList = new ArrayList<>();
+    private ArrayList<ReserveLog> reserveLogList = new ArrayList<>();
+    private ArrayList<BeachLog> beachLogList = new ArrayList<>();
+    private ArrayList<String> beachTodayList = new ArrayList<>();
+    private ArrayList<String> ancientTreeCityCodeList = new ArrayList<>();
+    private ArrayList<String> exchangeList = new ArrayList<>();
+    private ArrayList<String> protectBubbleList = new ArrayList<>();
     private int exchangeDoubleCard = 0;
     private int exchangeTimes = 0;
     private int doubleTimes = 0;
 
     // farm
-    private ArrayList<String> answerQuestionList;
+    private ArrayList<String> answerQuestionList = new ArrayList<>();
     private String questionHint;
-    private ArrayList<FeedFriendLog> feedFriendLogList;
-    private ArrayList<VisitFriendLog> visitFriendLogList;
-    private ArrayList<StallShareIdLog> stallShareIdLogList;
-    private ArrayList<StallHelpedCountLog> stallHelpedCountLogList;
-    private Set<String> dailyAnswerList;
-    private ArrayList<String> donationEggList;
-    private ArrayList<String> spreadManureList;
-    private ArrayList<String> stallP2PHelpedList;
+    private ArrayList<FeedFriendLog> feedFriendLogList = new ArrayList<>();
+    private ArrayList<VisitFriendLog> visitFriendLogList = new ArrayList<>();
+    private ArrayList<StallShareIdLog> stallShareIdLogList = new ArrayList<>();
+    private ArrayList<StallHelpedCountLog> stallHelpedCountLogList = new ArrayList<>();
+    private Set<String> dailyAnswerList = new HashSet<>();
+    private ArrayList<String> donationEggList = new ArrayList<>();
+    private ArrayList<String> spreadManureList = new ArrayList<>();
+    private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
 
     // other
-    private ArrayList<String> memberSignInList;
+    private ArrayList<String> memberSignInList = new ArrayList<>();
     private int kbSignIn = 0;
+
+    public Statistics() {
+        String[] date = Log.getFormatDate().split("-");
+        if (year == null) {
+            year = new TimeStatistics(Integer.parseInt(date[0]));
+        }
+        if (month == null) {
+            month = new TimeStatistics(Integer.parseInt(date[1]));
+        }
+        if (day == null) {
+            day = new TimeStatistics(Integer.parseInt(date[2]));
+        }
+    }
 
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
@@ -721,6 +734,8 @@ public class Statistics {
             stat.ancientTreeCityCodeList = new ArrayList<>();
         if (stat.syncStepList == null)
             stat.syncStepList = new ArrayList<>();
+        if (stat.reserveLogList == null)
+            stat.reserveLogList = new ArrayList<>();
         if (stat.beachTodayList == null)
             stat.beachTodayList = new ArrayList<>();
         if (stat.exchangeList == null)
