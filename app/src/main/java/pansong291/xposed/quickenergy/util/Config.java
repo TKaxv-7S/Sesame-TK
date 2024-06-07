@@ -248,6 +248,8 @@ public class Config {
             c.cooperateWaterList = new ArrayList<>();
         if (c.cooperateWaterNumList == null)
             c.cooperateWaterNumList = new ArrayList<>();
+        if (c.ancientTreeCityCodeList == null)
+            c.ancientTreeCityCodeList = new ArrayList<>();
         c.ancientTree = false;
         c.reserve = true;
         if (c.reserveList == null)

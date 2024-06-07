@@ -1820,7 +1820,6 @@ public class AntForest {
         BubbleTimerTask btt = new BubbleTimerTask(userId, bizNo, bubbleId, produceTime + offsetTime - System.currentTimeMillis() - Config.INSTANCE.getAdvanceTime());
         antForestTask.addChildThread(btt.getTid(), btt);
         long delay = btt.getSleep();
-        btt.start();
         Log.record(delay / 1000 + "秒后尝试收取能量", "");
     }
 

@@ -71,7 +71,7 @@ public class Task {
             shutdownAndWait(thread, 5, TimeUnit.SECONDS);
         }
         for (Thread childThread : childThreadMap.values()) {
-            if (childThread != null && childThread.isAlive()) {
+            if (childThread != null) {
                 shutdownAndWait(childThread, -1, TimeUnit.SECONDS);
             }
         }
@@ -82,14 +82,14 @@ public class Task {
     public synchronized Boolean hasChildThread(String childName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childThreadMap.compute(childName, (key, value) -> {
-                if (value != null && !value.isAlive()) {
-                    value = null;
+                if (value == null || !value.isAlive()) {
+                    return null;
                 }
                 return value;
             });
         } else {
             Thread oldThread = childThreadMap.get(childName);
-            if (oldThread != null && !oldThread.isAlive()) {
+            if (oldThread == null || !oldThread.isAlive()) {
                 childThreadMap.remove(childName);
             }
         }
@@ -102,6 +102,7 @@ public class Task {
                 if (value != null) {
                     shutdownAndWait(value, -1, TimeUnit.SECONDS);
                 }
+                childThread.start();
                 return childThread;
             });
         } else {
@@ -109,6 +110,7 @@ public class Task {
             if (oldThread != null) {
                 shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
             }
+            childThread.start();
             childThreadMap.put(childName, childThread);
         }
     }

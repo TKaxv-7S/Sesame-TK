@@ -252,6 +252,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
+    @SuppressLint("WakelockTimeout")
     private static void startHandler(Boolean force) {
         if (context == null) {
             return;
@@ -279,7 +280,15 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 if (config.isStartAt7()) {
                     try {
                         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        PendingIntent pi = getAlarm7Pi();
+                        Intent it = new Intent();
+                        it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
+                        int piFlag;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            piFlag = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
+                        } else {
+                            piFlag = PendingIntent.FLAG_UPDATE_CURRENT;
+                        }
+                        alarm7Pi = PendingIntent.getActivity(context, 999, it, piFlag);
                         Calendar calendar = Calendar.getInstance();
                         //calendar.add(Calendar.SECOND, 10);
                         if (calendar.get(Calendar.HOUR_OF_DAY) >= 7) {
@@ -294,7 +303,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         } else {
                             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pi);
                         }*/
-                        alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), null), pi);
+                        alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), null), alarm7Pi);
                     } catch (Throwable th) {
                         Log.printStackTrace("alarm7", th);
                     }
@@ -302,7 +311,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 if (config.isStayAwake()) {
                     PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
                     wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
-                    wakeLock.acquire(30_000);
+                    wakeLock.acquire();
                     restartHook(Config.INSTANCE.getStayAwakeType(), 30 * 60 * 1000, false);
                 }
                 if (config.isNewRpc() && config.isDebugMode()) {
@@ -553,11 +562,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     wakeLock = null;
                 }
                 try {
-                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                    PendingIntent pi = getAlarm7Pi();
-                    alarmManager.cancel(pi);
+                    if (alarm7Pi != null) {
+                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                        alarmManager.cancel(alarm7Pi);
+                    }
                 } catch (Throwable th) {
                     Log.printStackTrace("alarm7", th);
+                } finally {
+                    alarm7Pi = null;
                 }
                 if (rpcBridge != null) {
                     rpcBridge.unload();
@@ -649,15 +661,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static PendingIntent getAlarm7Pi() {
         if (alarm7Pi == null) {
-            Intent it = new Intent();
-            it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
-            int piFlag;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                piFlag = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
-            } else {
-                piFlag = PendingIntent.FLAG_UPDATE_CURRENT;
-            }
-            alarm7Pi = PendingIntent.getActivity(context, 999, it, piFlag);
         }
         return alarm7Pi;
     }
