@@ -1,13 +1,14 @@
 package pansong291.xposed.quickenergy.entity;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Constanline
@@ -67,6 +68,11 @@ public class FriendWatch extends IdAndName {
         } catch (Throwable t) {
             Log.i(TAG, "FriendWatch getList: ");
             Log.printStackTrace(TAG, t);
+            try {
+                FileUtils.write2File(new JSONObject().toString(), FileUtils.getFriendWatchFile());
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
 
         return list;
