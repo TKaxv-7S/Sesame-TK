@@ -22,7 +22,7 @@ public class Reserve {
             return false;
 
         if (isProtecting) {
-            Log.record("之前的兑换保护地未结束，本次暂停", "");
+            Log.record("之前的兑换保护地未结束，本次暂停");
             return false;
         }
         return true;
@@ -31,7 +31,7 @@ public class Reserve {
     public static Task init() {
         return new Task("Reserve", () -> {
             try {
-                Log.record("开始检测保护地", "");
+                Log.record("开始检测保护地");
                 isProtecting = true;
 
                 if (Config.INSTANCE.isReserve()) {
@@ -117,7 +117,7 @@ public class Reserve {
                     return false;
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTreeForExchange err:");
@@ -145,7 +145,7 @@ public class Reserve {
                     Log.forest(str);
                     Statistics.reserveToday(projectId, 1);
                 } else {
-                    Log.record(jo.getString("resultDesc"), jo.toString());
+                    Log.record(jo.getString("resultDesc") +" "+ jo.toString());
                     Log.forest("领保护地🏕️[" + itemName + "]#发生未知错误，停止申请");
                     // Statistics.reserveToday(projectId, count);
                     break;
@@ -241,7 +241,7 @@ public class Reserve {
                     Log.forest("保护海洋🏖️[" + jo.getString("cultivationName") + "]#似乎没有了");
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryCultivationDetail err:");
@@ -271,7 +271,7 @@ public class Reserve {
                             + "-获得奖励" + award;
                     Log.forest(str);
                 } else {
-                    Log.record(jo.getString("resultDesc"), jo.toString());
+                    Log.record(jo.getString("resultDesc") + " " + jo.toString());
                     Log.forest("保护海洋🏖️[" + itemName + "]#发生未知错误，停止申请");
                     break;
                 }

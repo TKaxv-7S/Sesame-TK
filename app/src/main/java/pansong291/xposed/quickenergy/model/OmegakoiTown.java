@@ -99,7 +99,7 @@ public class OmegakoiTown {
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "getUserTasks err:");
@@ -159,7 +159,7 @@ public class OmegakoiTown {
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "getUserTasks err:");

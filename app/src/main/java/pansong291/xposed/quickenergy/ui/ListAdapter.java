@@ -65,8 +65,8 @@ public class ListAdapter extends BaseAdapter {
                 return selects.contains(o1.id) ? -1 : 1;
             });
         } catch (Throwable t) {
-            Log.i("ListAdapter err", "");
-            Log.printStackTrace("setSelectedList", t);
+            Log.i("ListAdapter err");
+            Log.printStackTrace(t);
         }
     }
 

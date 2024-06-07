@@ -65,7 +65,7 @@ public class AntSports {
                     if (jo.getBoolean("success")) {
                         Log.other("收集金币💰[" + coinAmount + "个]");
                     } else {
-                        Log.record("首页收集金币", jo.toString());
+                        Log.record("首页收集金币" +" "+ jo.toString());
                     }
                 }
             } else {
@@ -175,7 +175,7 @@ public class AntSports {
                     Log.i(TAG, jo.getString("resultDesc"));
                 }
             } else {
-                Log.record("好像没有可走的线路了！", "");
+                Log.record("好像没有可走的线路了！");
             }
         } catch (Throwable t) {
             Log.i(TAG, "join err:");
@@ -219,7 +219,7 @@ public class AntSports {
                 long cot = Long.parseLong(canOpenTime);
                 long now = Long.parseLong(rankCacheKey);
                 long delay = cot - now;
-                Log.record("还有 " + delay + "ms 才能开宝箱", "");
+                Log.record("还有 " + delay + "ms 才能开宝箱");
                 if (delay < Config.INSTANCE.getCheckInterval()) {
                     if (waitOpenBoxNos.contains(boxNo)) {
                         return;
@@ -244,7 +244,7 @@ public class AntSports {
                             try {
                                 if (delay > 0)
                                     sleep(delay);
-                                Log.record("蹲点开箱开始", "");
+                                Log.record("蹲点开箱开始");
                                 long startTime = System.currentTimeMillis();
                                 while (System.currentTimeMillis() - startTime < 5_000) {
                                     if (openTreasureBox(loader, boxNo, userId) > 0)
@@ -281,10 +281,10 @@ public class AntSports {
                 }
                 return num;
             } else if ("TREASUREBOX_NOT_EXIST".equals(jo.getString("resultCode"))) {
-                Log.record(jo.getString("resultDesc"), "");
+                Log.record(jo.getString("resultDesc"));
                 return 1;
             } else {
-                Log.record(jo.getString("resultDesc"), "");
+                Log.record(jo.getString("resultDesc"));
             }
         } catch (Throwable t) {
             Log.i(TAG, "openTreasureBox err:");
@@ -311,7 +311,7 @@ public class AntSports {
                     }
                 }
             } else {
-                Log.record(TAG, jo.getString("resultDesc"));
+                Log.record(TAG + " " + jo.getString("resultDesc"));
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryProjectList err:");
@@ -403,11 +403,11 @@ public class AntSports {
                         String taskName = taskInfo.optString("taskName", taskId);
                         Log.other("完成任务🧾[" + taskName + "]");
                     } else {
-                        Log.record("文体每日任务", jo.toString());
+                        Log.record("文体每日任务" +" "+ jo.toString());
                     }
                 }
             } else {
-                Log.record("文体每日任务", s);
+                Log.record("文体每日任务" +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "userTaskGroupQuery err:");
@@ -452,11 +452,11 @@ public class AntSports {
                             int targetStepCount = jo.getInt("targetStepCount");
                             Log.other("走路挑战🚶🏻‍♂️[" + roundDescription + "]#" + targetStepCount);
                         } else {
-                            Log.record("走路挑战赛", jo.toString());
+                            Log.record("走路挑战赛" +" "+ jo.toString());
                         }
                     }
                 } else {
-                    Log.record("queryRoundList", jo.toString());
+                    Log.record("queryRoundList" + " " + jo.toString());
                 }
             }
         } catch (Throwable t) {
@@ -490,11 +490,11 @@ public class AntSports {
                         }
                         Log.other("领取奖励🎖️[" + taskName + "]#" + award);
                     } else {
-                        Log.record("文体中心领取奖励", jo.toString());
+                        Log.record("文体中心领取奖励" + " " + jo.toString());
                     }
                 }
             } else {
-                Log.record("文体中心领取奖励", s);
+                Log.record("文体中心领取奖励" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "userTaskRightsReceive err:");
@@ -566,11 +566,11 @@ public class AntSports {
                         }
                         Log.other("文体宝箱🎁[" + award + "]");
                     } else {
-                        Log.record("文体中心开宝箱", jo.toString());
+                        Log.record("文体中心开宝箱" + " " + jo.toString());
                     }
                 }
             } else {
-                Log.record("文体中心开宝箱", s);
+                Log.record("文体中心开宝箱" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "pathMapHomepage err:");

@@ -60,7 +60,7 @@ public class AntOrchard {
                             }
 
                         } else {
-                            Log.record(jo.getString("resultDesc"), jo.toString());
+                            Log.record(jo.getString("resultDesc") +" "+ jo.toString());
                         }
                     } else {
                         Config.INSTANCE.setAntOrchard(false);
@@ -117,7 +117,7 @@ public class AntOrchard {
                         if (joo.getBoolean("success")) {
                             Log.farm("丰收礼包🎁[肥料*" + awardCount + "]");
                         } else {
-                            Log.record(joo.getString("desc"), joo.toString());
+                            Log.record(joo.getString("desc") +" "+ joo.toString());
                         }
                     }
                 }
@@ -151,7 +151,7 @@ public class AntOrchard {
                         Thread.sleep(500);
                         orchardSpreadManure();
                     } else {
-                        Log.record(jo.getString("resultDesc"), jo.toString());
+                        Log.record(jo.getString("resultDesc") +" "+ jo.toString());
                     }
                 }
             } else {
@@ -215,7 +215,7 @@ public class AntOrchard {
                             Log.i(jo.getString("resultDesc"), jo.toString());
                         }
                     } else {
-                        Log.record("七日礼包已领取", "");
+                        Log.record("七日礼包已领取");
                     }
                     break;
                 }
@@ -249,12 +249,12 @@ public class AntOrchard {
                         if (jo.getBoolean("success")) {
                             Log.farm("农场任务🧾[" + title + "]");
                         } else {
-                            Log.record(jo.getString("desc"), jo.toString());
+                            Log.record(jo.getString("desc") +" "+ jo.toString());
                         }
                     }
                 }
             } else {
-                Log.record(jo.getString("resultCode"), s);
+                Log.record(jo.getString("resultCode") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "doOrchardDailyTask err:");
@@ -275,7 +275,7 @@ public class AntOrchard {
                     Log.i(joSign.getString("resultDesc"), joSign.toString());
                 }
             } else {
-                Log.record("农场今日已签到", "");
+                Log.record("农场今日已签到");
             }
         } catch (Throwable t) {
             Log.i(TAG, "orchardSign err:");
@@ -301,11 +301,11 @@ public class AntOrchard {
                     if ("100".equals(jo.getString("resultCode"))) {
                         Log.farm("领取奖励🎖️[" + title + "]#" + awardCount + "g肥料");
                     } else {
-                        Log.record(jo.getString("resultDesc"), jo.toString());
+                        Log.record(jo.getString("resultDesc") + " " + jo.toString());
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc") + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "triggerTbTask err:");
@@ -342,7 +342,7 @@ public class AntOrchard {
                             if ("100".equals(jo.getString("resultCode"))) {
                                 Log.farm("农场许愿✨[每日施肥" + taskRequire + "次]");
                             } else {
-                                Log.record(jo.getString("resultDesc"), jo.toString());
+                                Log.record(jo.getString("resultDesc") + " " + jo.toString());
                             }
                         }
                     } else if ("FINISHED".equals(jo.getString("status"))) {
@@ -352,12 +352,12 @@ public class AntOrchard {
                             querySubplotsActivity(taskRequire);
                             return;
                         } else {
-                            Log.record(jo.getString("resultDesc"), jo.toString());
+                            Log.record(jo.getString("resultDesc") + " " + jo.toString());
                         }
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), s);
+                Log.record(jo.getString("resultDesc") + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "triggerTbTask err:");
@@ -390,7 +390,7 @@ public class AntOrchard {
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc"), jo.toString());
+                Log.record(jo.getString("resultDesc") + " " + jo.toString());
             }
         } catch (Throwable t) {
             Log.i(TAG, "batchHireAnimalRecommend err:");

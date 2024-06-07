@@ -34,6 +34,7 @@ public class FileUtils {
     private static File recordLogFile;
     private static File debugLogFile;
     private static File runtimeLogFile;
+    private static File errorLogFile;
     private static File cityCodeFile;
     private static File friendWatchFile;
     private static File wuaFile;
@@ -357,6 +358,22 @@ public class FileUtils {
             }
         }
         return otherLogFile;
+    }
+
+    public static File getErrorLogFile() {
+        if (errorLogFile == null) {
+            errorLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("error"));
+            if (errorLogFile.exists() && errorLogFile.isDirectory()) {
+                errorLogFile.delete();
+            }
+            if (!errorLogFile.exists()) {
+                try {
+                    errorLogFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return errorLogFile;
     }
 
     public static void clearLog(int day) {

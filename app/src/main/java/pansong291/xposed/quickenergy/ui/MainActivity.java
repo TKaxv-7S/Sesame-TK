@@ -195,22 +195,24 @@ public class MainActivity extends Activity {
         menu.add(0, 1, 1, R.string.hide_the_application_icon)
                 .setCheckable(true)
                 .setChecked(state > PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
-        menu.add(0, 2, 2, R.string.export_the_log_file);
-        menu.add(0, 3, 3, R.string.export_the_statistic_file);
-        menu.add(0, 4, 4, R.string.import_the_statistic_file);
-        menu.add(0, 6, 6, R.string.settings);
+        menu.add(0, 2, 2, R.string.view_error_log_file);
+        menu.add(0, 3, 3, R.string.export_error_log_file);
+        menu.add(0, 4, 4, R.string.export_all_log_file);
+        menu.add(0, 5, 5, R.string.export_the_statistic_file);
+        menu.add(0, 6, 6, R.string.import_the_statistic_file);
+        menu.add(0, 8, 8, R.string.settings);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (Config.INSTANCE.isDebugMode()) {
-            MenuItem item = menu.findItem(5);
+            MenuItem item = menu.findItem(7);
             if (item == null) {
-                menu.add(0, 5, 5, R.string.view_debug);
+                menu.add(0, 7, 7, R.string.view_debug);
             }
         } else {
-            menu.removeItem(5);
+            menu.removeItem(7);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -226,35 +228,50 @@ public class MainActivity extends Activity {
                 break;
 
             case 2:
-                File logFile = FileUtils.exportFile(FileUtils.getRuntimeLogFile());
-                if (logFile != null) {
-                    Toast.makeText(this, "文件已导出到: " + logFile.getPath(), Toast.LENGTH_SHORT).show();
-                }
+                String errorData = "file://";
+                errorData += FileUtils.getErrorLogFile().getAbsolutePath();
+                Intent errorIt = new Intent(this, HtmlViewerActivity.class);
+                errorIt.setData(Uri.parse(errorData));
+                startActivity(errorIt);
                 break;
 
             case 3:
+                File errorLogFile = FileUtils.exportFile(FileUtils.getErrorLogFile());
+                if (errorLogFile != null) {
+                    Toast.makeText(this, "文件已导出到: " + errorLogFile.getPath(), Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case 4:
+                File allLogFile = FileUtils.exportFile(FileUtils.getRuntimeLogFile());
+                if (allLogFile != null) {
+                    Toast.makeText(this, "文件已导出到: " + allLogFile.getPath(), Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case 5:
                 File statisticsFile = FileUtils.exportFile(FileUtils.getStatisticsFile());
                 if (statisticsFile != null) {
                     Toast.makeText(this, "文件已导出到: " + statisticsFile.getPath(), Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case 4:
+            case 6:
                 if (FileUtils.copyTo(FileUtils.getExportedStatisticsFile(), FileUtils.getStatisticsFile())) {
                     tvStatistics.setText(Statistics.getText());
                     Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case 5:
-                String data = "file://";
-                data += FileUtils.getDebugLogFile().getAbsolutePath();
-                Intent it = new Intent(this, HtmlViewerActivity.class);
-                it.setData(Uri.parse(data));
-                startActivity(it);
+            case 7:
+                String debugData = "file://";
+                debugData += FileUtils.getDebugLogFile().getAbsolutePath();
+                Intent debugIt = new Intent(this, HtmlViewerActivity.class);
+                debugIt.setData(Uri.parse(debugData));
+                startActivity(debugIt);
                 break;
 
-            case 6:
+            case 8:
                 startActivity(new Intent(this, SettingsActivity.class));
                 break;
         }

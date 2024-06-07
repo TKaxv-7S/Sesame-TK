@@ -235,7 +235,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         }
                         AntForestNotification.setContentText("支付宝前台服务被销毁");
                         stopHandler(true);
-                        Log.record("支付宝前台服务被销毁", "");
+                        Log.record("支付宝前台服务被销毁");
                         alarmHook(3000, false);
                     }
                 });
@@ -530,7 +530,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             FileUtils.clearLog(2);
                         } catch (Exception e){
                             Log.record("执行异常:");
-                            Log.record(android.util.Log.getStackTraceString(e));
+                            Log.printStackTrace(e);
                         } finally {
                             Log.record("执行完成");
                         }
@@ -711,7 +711,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.test");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.reload");
             context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter);
-            Log.record("注册广播接收器成功", context.toString());
+            Log.record("注册广播接收器成功 " + context);
         } catch (Throwable th) {
             Log.i(TAG, "hook registerBroadcastReceiver err:");
             Log.printStackTrace(TAG, th);

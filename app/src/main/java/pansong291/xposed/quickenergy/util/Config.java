@@ -370,7 +370,7 @@ public class Config {
             }
         }
         String json = JsonUtil.toJsonString(INSTANCE);
-        Log.system("保存 config.json", json);
+        Log.system(TAG, "保存 config.json: " + json);
         return FileUtils.write2File(json, FileUtils.getConfigFile());
     }
 

@@ -439,12 +439,12 @@ public class AntOcean {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[" + taskTitle + "]");
                         } else {
-                            Log.record(jo.getString("desc"), jo.toString());
+                            Log.record(jo.getString("desc") +" "+ jo.toString());
                         }
                     }
                 }
             } else {
-                Log.record(jo.getString("resultCode"), s);
+                Log.record(jo.getString("resultCode") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "doOceanDailyTask err:");
@@ -471,11 +471,11 @@ public class AntOcean {
                         String taskDesc = bizInfo.optString("taskDesc", taskType);
                         Log.forest("领取奖励🎖️[" + taskTitle + "]#" + taskDesc);
                     } else {
-                        Log.record(jo.getString("desc"), jo.toString());
+                        Log.record(jo.getString("desc") +" "+ jo.toString());
                     }
                 }
             } else {
-                Log.record(jo.getString("resultCode"), s);
+                Log.record(jo.getString("resultCode") +" "+ s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveTaskAward err:");

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import lombok.Getter;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class Task {
@@ -16,27 +17,18 @@ public class Task {
 
     private static final Map<String, Task> taskMap = new ConcurrentHashMap<>();
 
+    @Getter
     private final String name;
 
+    @Getter
     private final Runnable runnable;
 
     private final Supplier<Boolean> check;
 
+    @Getter
     private volatile Thread thread;
 
     private final Map<String, Thread> childThreadMap = new ConcurrentHashMap<>();
-
-    public String getName() {
-        return name;
-    }
-
-    public Runnable getRunnable() {
-        return runnable;
-    }
-
-    public Thread getThread() {
-        return thread;
-    }
 
     public Task(String name, Runnable runnable, Supplier<Boolean> check) {
         this.name = name;

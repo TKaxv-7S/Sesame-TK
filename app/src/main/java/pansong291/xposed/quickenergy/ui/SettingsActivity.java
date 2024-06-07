@@ -835,7 +835,7 @@ public class SettingsActivity extends Activity {
             try {
                 this.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reload"));
             } catch (Throwable th) {
-                Log.printStackTrace("reload config error: ", th);
+                Log.printStackTrace(th);
             }
         }
         FriendIdMap.saveIdMap();

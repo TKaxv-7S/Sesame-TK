@@ -47,7 +47,7 @@ public class Log {
 
     };
 
-    private static final Logger runtimeLogger = XLog.printers(
+    private static final Logger runtimeLogger = XLog.tag("RUNTIME").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("runtime"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -55,7 +55,7 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS} {l}/{t}: {m}"))
                     .build()).build();
 
-    private static final Logger recordLogger = XLog.printers(
+    private static final Logger recordLogger = XLog.tag("RECORD").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("record"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -63,7 +63,7 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS}: {m}"))
                     .build()).build();
 
-    private static final Logger systemLogger = XLog.printers(
+    private static final Logger systemLogger = XLog.tag("SYSTEM").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("system"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -71,7 +71,7 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS} {l}/{t}: {m}"))
                     .build()).build();
 
-    private static final Logger debugLogger = XLog.printers(
+    private static final Logger debugLogger = XLog.tag("DEBUG").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("debug"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -79,7 +79,7 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS} {l}/{t}: {m}"))
                     .build()).build();
 
-    private static final Logger forestLogger = XLog.printers(
+    private static final Logger forestLogger = XLog.tag("FOREST").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("forest"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -87,7 +87,7 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS}: {m}"))
                     .build()).build();
 
-    private static final Logger farmLogger = XLog.printers(
+    private static final Logger farmLogger = XLog.tag("FARM").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("farm"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -95,12 +95,20 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS}: {m}"))
                     .build()).build();
 
-    private static final Logger otherLogger = XLog.printers(
+    private static final Logger otherLogger = XLog.tag("OTHER").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("other"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS}: {m}"))
+                    .build()).build();
+
+    private static final Logger errorLogger = XLog.tag("ERROR") .printers(
+            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+                    .fileNameGenerator(new CustomDateFileNameGenerator("error"))
+                    .backupStrategy(new NeverBackupStrategy())
+                    .cleanStrategy(new NeverCleanStrategy())
+                    .flattener(new PatternFlattener("{d HH:mm:ss.SSS} {l}/{t}: {m}"))
                     .build()).build();
 
     public static void i(String s) {
@@ -112,11 +120,7 @@ public class Log {
     }
 
     public static void record(String str) {
-        record(str, "");
-    }
-
-    public static void record(String str, String str2) {
-        runtimeLogger.i(str + str2);
+        runtimeLogger.i(str);
         if (!Config.INSTANCE.isRecordLog()) {
             return;
         }
@@ -132,26 +136,30 @@ public class Log {
     }
 
     public static void forest(String s) {
-        record(s, "");
+        record(s);
         forestLogger.i(s);
     }
 
     public static void farm(String s) {
-        record(s, "");
+        record(s);
         farmLogger.i(s);
     }
 
     public static void other(String s) {
-        record(s, "");
+        record(s);
         otherLogger.i(s);
     }
 
     public static void printStackTrace(Throwable t) {
-        i(android.util.Log.getStackTraceString(t));
+        String str = android.util.Log.getStackTraceString(t);
+        errorLogger.i(str);
+        i(str);
     }
 
     public static void printStackTrace(String tag, Throwable t) {
-        i(tag, android.util.Log.getStackTraceString(t));
+        String str = tag + ", " + android.util.Log.getStackTraceString(t);
+        errorLogger.i(str);
+        i(str);
     }
 
     public static String getLogFileName(String logName) {

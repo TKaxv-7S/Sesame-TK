@@ -60,7 +60,9 @@
     <string name="unactivated">未激活</string>
     <string name="tips">小贴士</string>
     <string name="hide_the_application_icon">隐藏图标</string>
-    <string name="export_the_log_file">导出日志</string>
+    <string name="view_error_log_file">查看异常日志</string>
+    <string name="export_error_log_file">导出异常日志</string>
+    <string name="export_all_log_file">导出所有日志</string>
     <string name="export_the_statistic_file">导出统计</string>
     <string name="import_the_statistic_file">导入统计</string>
     <string name="view_debug">抓包记录</string>

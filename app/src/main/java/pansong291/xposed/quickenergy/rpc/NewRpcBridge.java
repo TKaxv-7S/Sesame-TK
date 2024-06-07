@@ -86,7 +86,7 @@ public class NewRpcBridge implements RpcBridge {
             Log.i(TAG, "get newRpcCallMethod successfully");
         } catch (Exception e) {
             Log.i(TAG, "get newRpcCallMethod err:");
-            Log.i(TAG, android.util.Log.getStackTraceString(e));
+            Log.printStackTrace(TAG, e);
         }
     }
 
