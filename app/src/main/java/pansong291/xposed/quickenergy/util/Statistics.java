@@ -583,10 +583,6 @@ public class Statistics {
         save();
     }
 
-    public static int getExchangeTimes() {
-        return INSTANCE.exchangeTimes;
-    }
-
     public static boolean canDoubleToday() {
         return INSTANCE.doubleTimes < Config.INSTANCE.getDoubleCountLimit();
     }
@@ -614,8 +610,7 @@ public class Statistics {
     }
 
     public static void setDadaDailySet(Set<String> dailyAnswerList) {
-        Statistics stat = INSTANCE;
-        stat.dailyAnswerList = dailyAnswerList;
+        INSTANCE.dailyAnswerList = dailyAnswerList;
         save();
     }
 

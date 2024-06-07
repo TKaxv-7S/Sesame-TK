@@ -962,7 +962,7 @@ public class AntForest {
                                     jo = new JSONObject(AntForestRpcCall.exchangeBenefit(spuId, skuId));
                                     if ("SUCCESS".equals(jo.getString("resultCode"))) {
                                         Statistics.exchangeDoubleCardToday(true);
-                                        exchangedTimes = Statistics.getExchangeTimes();
+                                        exchangedTimes = Statistics.INSTANCE.getExchangeTimes();
                                         Log.forest("活力兑换🎐[限时双击卡]#第" + exchangedTimes + "次");
                                     } else {
                                         Log.record(jo.getString("resultDesc"), jo.toString());
