@@ -266,14 +266,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return;
                 }
-                /*if (!init && !PermissionUtil.checkBatteryPermissions()) {
+                if (!init && !PermissionUtil.checkBatteryPermissions()) {
                     Log.record("支付宝无始终在后台运行权限");
                     mainHandler.postDelayed(() -> {
                         if (!PermissionUtil.checkOrRequestBatteryPermissions(context)) {
                             Toast.makeText(context, "请授予支付宝终在后台运行权限", Toast.LENGTH_SHORT).show();
                         }
                     }, 2000);
-                }*/
+                }
                 Log.record("开始加载");
                 Config config = Config.load();
                 if (config.isNewRpc()) {
