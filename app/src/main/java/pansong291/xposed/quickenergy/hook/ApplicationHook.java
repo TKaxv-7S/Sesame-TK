@@ -28,7 +28,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.model.AncientTree;
-import pansong291.xposed.quickenergy.model.AntBookRead;
 import pansong291.xposed.quickenergy.model.AntCooperate;
 import pansong291.xposed.quickenergy.model.AntFarm;
 import pansong291.xposed.quickenergy.model.AntForest;
@@ -39,9 +38,7 @@ import pansong291.xposed.quickenergy.model.AntOcean;
 import pansong291.xposed.quickenergy.model.AntOrchard;
 import pansong291.xposed.quickenergy.model.AntSports;
 import pansong291.xposed.quickenergy.model.AntStall;
-import pansong291.xposed.quickenergy.model.ConsumeGold;
 import pansong291.xposed.quickenergy.model.GreenFinance;
-import pansong291.xposed.quickenergy.model.OmegakoiTown;
 import pansong291.xposed.quickenergy.model.Reserve;
 import pansong291.xposed.quickenergy.rpc.NewRpcBridge;
 import pansong291.xposed.quickenergy.rpc.OldRpcBridge;
@@ -98,7 +95,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static Task ancientTreeTask;
 
-    private static Task antBookReadTask;
+    //private static Task antBookReadTask;
 
     private static Task antSportsTask;
 
@@ -112,9 +109,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static Task greenFinanceTask;
 
-    private static Task omegakoiTownTask;
+    //private static Task omegakoiTownTask;
 
-    private static Task consumeGoldTask;
+    //private static Task consumeGoldTask;
 
     private static PendingIntent alarm7Pi;
 
@@ -269,6 +266,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return;
                 }
+                /*if (!init && !PermissionUtil.checkBatteryPermissions()) {
+                    Log.record("支付宝无始终在后台运行权限");
+                    mainHandler.postDelayed(() -> {
+                        if (!PermissionUtil.checkOrRequestBatteryPermissions(context)) {
+                            Toast.makeText(context, "请授予支付宝终在后台运行权限", Toast.LENGTH_SHORT).show();
+                        }
+                    }, 2000);
+                }*/
                 Log.record("开始加载");
                 Config config = Config.load();
                 if (config.isNewRpc()) {
@@ -442,15 +447,15 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Task.putTask(antFarmTask = AntFarm.init());
                 Task.putTask(reserveTask = Reserve.init());
                 Task.putTask(ancientTreeTask = AncientTree.init());
-                Task.putTask(antBookReadTask = AntBookRead.init());
+                //Task.putTask(antBookReadTask = AntBookRead.init());
                 Task.putTask(antSportsTask = AntSports.init());
                 Task.putTask(antMemberTask = AntMember.init());
                 Task.putTask(antOceanTask = AntOcean.init());
                 Task.putTask(antOrchardTask = AntOrchard.init());
                 Task.putTask(antStallTask = AntStall.init());
                 Task.putTask(greenFinanceTask = GreenFinance.init());
-                Task.putTask(omegakoiTownTask = OmegakoiTown.init());
-                Task.putTask(consumeGoldTask = ConsumeGold.init());
+                //Task.putTask(omegakoiTownTask = OmegakoiTown.init());
+                //Task.putTask(consumeGoldTask = ConsumeGold.init());
                 mainRunner = new Runnable() {
                     @Override
                     public void run() {
@@ -497,8 +502,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
                                         TimeUtil.sleep(60);
                                         ancientTreeTask.startTask();
-                                        TimeUtil.sleep(60);
-                                        antBookReadTask.startTask();
+                                        //TimeUtil.sleep(60);
+                                        //antBookReadTask.startTask();
                                     }
                                     TimeUtil.sleep(60);
                                     antSportsTask.startTask();
@@ -512,10 +517,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     antStallTask.startTask();
                                     TimeUtil.sleep(60);
                                     greenFinanceTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    omegakoiTownTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    consumeGoldTask.startTask();
+                                    //TimeUtil.sleep(60);
+                                    //omegakoiTownTask.startTask();
+                                    //TimeUtil.sleep(60);
+                                    //consumeGoldTask.startTask();
                                 }
                             }
                             int checkInterval = config.getCheckInterval();

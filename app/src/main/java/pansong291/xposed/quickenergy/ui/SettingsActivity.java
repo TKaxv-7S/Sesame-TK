@@ -240,9 +240,9 @@ public class SettingsActivity extends Activity {
         sw_stallInviteRegister = findViewById(R.id.sw_stallInviteRegister);
         sw_stallThrowManure = findViewById(R.id.sw_stallThrowManure);
         sw_greenFinance = findViewById(R.id.sw_greenFinance);
-        sw_antBookRead = findViewById(R.id.sw_antBookRead);
-        sw_consumeGold = findViewById(R.id.sw_consumeGold);
-        sw_omegakoiTown = findViewById(R.id.sw_omegakoiTown);
+        //sw_antBookRead = findViewById(R.id.sw_antBookRead);
+        //sw_consumeGold = findViewById(R.id.sw_consumeGold);
+        //sw_omegakoiTown = findViewById(R.id.sw_omegakoiTown);
     }
 
     @Override
@@ -322,9 +322,9 @@ public class SettingsActivity extends Activity {
         sw_stallInviteRegister.setChecked(config.isStallInviteRegister());
         sw_stallThrowManure.setChecked(config.isStallThrowManure());
         sw_greenFinance.setChecked(config.isGreenFinance());
-        sw_antBookRead.setChecked(config.isAntBookRead());
-        sw_consumeGold.setChecked(config.isConsumeGold());
-        sw_omegakoiTown.setChecked(config.isOmegakoiTown());
+        //sw_antBookRead.setChecked(config.isAntBookRead());
+        //sw_consumeGold.setChecked(config.isConsumeGold());
+        //sw_omegakoiTown.setChecked(config.isOmegakoiTown());
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -619,17 +619,17 @@ public class SettingsActivity extends Activity {
                     config.setGreenFinance(sw.isChecked());
                     break;
 
-                case R.id.sw_antBookRead:
+                /*case R.id.sw_antBookRead:
                     config.setAntBookRead(sw.isChecked());
-                    break;
+                    break;*/
 
-                case R.id.sw_consumeGold:
+                /*case R.id.sw_consumeGold:
                     config.setConsumeGold(sw.isChecked());
-                    break;
+                    break;*/
 
-                case R.id.sw_omegakoiTown:
+                /*case R.id.sw_omegakoiTown:
                     config.setOmegakoiTown(sw.isChecked());
-                    break;
+                    break;*/
             }
         } else if (v instanceof Button) {
             Button btn = (Button) v;
@@ -830,7 +830,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (Config.save()) {
+        if (Config.isModify() && Config.save(false)) {
             Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
             try {
                 this.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reload"));

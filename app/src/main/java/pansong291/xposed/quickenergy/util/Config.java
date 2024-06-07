@@ -351,7 +351,24 @@ public class Config {
         return c;
     }
 
-    public static Boolean save() {
+    public static Boolean isModify() {
+        String json = null;
+        if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
+            json = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
+        }
+        if (json != null) {
+            String formatted = JsonUtil.toJsonString(INSTANCE);
+            return formatted == null || !formatted.equals(json);
+        }
+        return true;
+    }
+
+    public static Boolean save(Boolean force) {
+        if (!force) {
+            if (!isModify()) {
+                return true;
+            }
+        }
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system("保存 config.json", json);
         return FileUtils.write2File(json, FileUtils.getConfigFile());

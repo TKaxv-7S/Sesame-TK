@@ -1392,7 +1392,7 @@
 						android:minHeight="50dp"
 						android:id="@+id/sw_greenFinance" />
 
-					<Switch
+					<!--<Switch
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
 						android:layout_width="match_parent"
@@ -1400,9 +1400,9 @@
 						android:text="@string/ant_book_read"
 						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_antBookRead" />
+						android:id="@+id/sw_antBookRead" />-->
 
-					<Switch
+					<!--<Switch
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
 						android:layout_width="match_parent"
@@ -1410,9 +1410,9 @@
 						android:text="@string/consume_gold"
 						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_consumeGold" />
+						android:id="@+id/sw_consumeGold" />-->
 
-					<Switch
+					<!--<Switch
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
 						android:layout_width="match_parent"
@@ -1420,7 +1420,7 @@
 						android:text="@string/omegakoi_town"
 						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_omegakoiTown" />
+						android:id="@+id/sw_omegakoiTown" />-->
 
 				</LinearLayout>
 
