@@ -150,6 +150,11 @@ public class Log {
         otherLogger.i(s);
     }
 
+    public static void error(String s) {
+        errorLogger.i(s);
+        i(s);
+    }
+
     public static void printStackTrace(Throwable t) {
         String str = android.util.Log.getStackTraceString(t);
         errorLogger.i(str);

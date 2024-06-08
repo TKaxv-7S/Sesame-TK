@@ -655,15 +655,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     public static Boolean reLogin() {
         Object authService = getExtServiceByInterface("com.alipay.mobile.framework.service.ext.security.AuthService");
-        Class<?> bundleClazz = XposedHelpers.findClass("android.os.Bundle", classLoader);
-        try {
-            Object bundle = bundleClazz.newInstance();
-            XposedHelpers.callMethod(bundle, "putBoolean", "allowBack", true);
-            XposedHelpers.callMethod(bundle, "putString", "shouldShowPwdLogin", "false");
-            return (Boolean) XposedHelpers.callMethod(authService, "auth", bundle);
-        } catch (IllegalAccessException | InstantiationException e) {
-            Log.printStackTrace(e);
+        if ((Boolean) XposedHelpers.callMethod(authService, "rpcAuth")) {
+            return true;
         }
+        Log.record("重新登录失败");
         return false;
     }
 
@@ -690,7 +685,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.reLogin");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.test");
             context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter);
-            Log.record("注册广播接收器成功 " + context);
+            Log.i(TAG, "hook registerBroadcastReceiver successfully");
         } catch (Throwable th) {
             Log.i(TAG, "hook registerBroadcastReceiver err:");
             Log.printStackTrace(TAG, th);

@@ -172,6 +172,7 @@ public class NewRpcBridge implements RpcBridge {
                         }
                         return null;
                     }
+                    return rpcEntity.getResultStr();
                 } catch (Exception e) {
                     Log.i(TAG, "new rpc response get err:");
                     Log.printStackTrace(TAG, e);
