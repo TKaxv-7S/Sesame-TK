@@ -34,6 +34,7 @@ public class Config {
     private boolean timeoutRestart;
     private boolean startAt7;
     private boolean enableOnGoing;
+    private boolean batteryPerm = true;
     private boolean newRpc = true;
     private boolean debugMode = false;
     private boolean languageSimplifiedChinese;

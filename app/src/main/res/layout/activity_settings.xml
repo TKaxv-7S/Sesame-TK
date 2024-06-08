@@ -4,1353 +4,1369 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:id="@+id/tab_settings">
+
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical">
+
 		<TabWidget
+			android:id="@android:id/tabs"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@android:id/tabs" />
+			android:layout_height="wrap_content" />
 
 		<ScrollView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
+
 			<FrameLayout
+				android:id="@android:id/tabcontent"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:id="@android:id/tabcontent"
 				android:padding="12dp">
 				<!--基础设置-->
 				<LinearLayout
+					android:id="@+id/tab_base"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:id="@+id/tab_base"
 					android:gravity="center_horizontal"
 					android:orientation="vertical">
+
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_immediateEffect"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/immediate_effect"
-						android:onClick="onClick"
 						android:checked="true"
 						android:minHeight="50dp"
-						android:id="@+id/sw_immediateEffect" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/record_log"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_recordLog" />
+						android:text="@string/immediate_effect" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/check_interval_minutes"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_checkInterval"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/show_toast"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_showToast" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/check_interval_minutes"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_stayAwake"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stay_awake" />
+
+					<Switch
+						android:id="@+id/sw_startAt7"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/start_at_7_o_clock" />
+
+					<Switch
+						android:id="@+id/sw_timeoutRestart"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/timeout_restart" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/toast_vertical_offset"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
-						android:id="@+id/btn_toastOffsetY"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/stay_awake"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_stayAwake" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/timeout_restart"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_timeoutRestart" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/start_at_7_o_clock"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_startAt7" />
-
-					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/wait_when_exception"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_waitWhenException"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/enable_on_going"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_enableOnGoing" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/language_simplified_chinese"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_languageSimplifiedChinese" />
+						android:text="@string/wait_when_exception"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_batteryPerm"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/new_rpc"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_newRpc" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/battery_perm" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_newRpc"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/debug_mode"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_debugMode" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/new_rpc" />
+
+					<Switch
+						android:id="@+id/sw_debugMode"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/debug_mode" />
+
+					<Switch
+						android:id="@+id/sw_recordLog"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/record_log" />
+
+					<Switch
+						android:id="@+id/sw_enableOnGoing"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/enable_on_going" />
+
+					<Switch
+						android:id="@+id/sw_languageSimplifiedChinese"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/language_simplified_chinese" />
+
+					<Switch
+						android:id="@+id/sw_showToast"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/show_toast" />
+
+					<Button
+						android:id="@+id/btn_toastOffsetY"
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/toast_vertical_offset"
+						android:textAllCaps="false" />
 				</LinearLayout>
 				<!--森林设置-->
 				<LinearLayout
+					android:id="@+id/tab_forest"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:id="@+id/tab_forest"
 					android:gravity="center_horizontal"
 					android:orientation="vertical">
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/collect_energy"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_collectEnergy" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_collectEnergy"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/collect_watering_bubble"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_collectWateringBubble" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_energy" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_collectWateringBubble"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/batch_rob_energy"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_batchRobEnergy" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_watering_bubble" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_batchRobEnergy"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/collect_prop"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_collectProp" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/batch_rob_energy" />
+
+					<Switch
+						android:id="@+id/sw_collectProp"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_prop" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/advance_time_milliseconds"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_advanceTime"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/collect_interval_milliseconds"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/advance_time_milliseconds"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_collectInterval"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/collect_timeout_seconds"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_interval_milliseconds"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_collectTimeout"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_timeout_seconds"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_limitCollect"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/limit_collect"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_limitCollect" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/limit_collect" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/limit_count_per_minute"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_limitCount"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/limit_count_per_minute"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_doubleCard"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/use_double_card"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_doubleCard" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/use_double_card" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/use_double_card_time"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_doubleCardTime"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/double_count_limit"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/use_double_card_time"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_doubleCountLimit"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/double_count_limit"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_helpFriendCollect"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/help_friend_collect"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_helpFriendCollect"/>
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/help_friend_collect" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/don_t_collect_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_dontCollectList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"/>
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/don_t_help_collect_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/don_t_collect_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_dontHelpCollectList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"/>
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/return_water_33"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/don_t_help_collect_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_returnWater30"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/return_water_18"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/return_water_33"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_returnWater20"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"/>
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/return_water_10"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/return_water_18"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_returnWater10"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/return_water_10"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_receiveForestTaskAward"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/receive_forest_task_award"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_receiveForestTaskAward" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/receive_forest_task_award" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/water_friend_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_waterFriendList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/water_friend_count"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/water_friend_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_waterFriendCount"
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/water_friend_count"
+						android:textAllCaps="false" />
 
 
 					<Switch
+						android:id="@+id/sw_cooperateWater"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/cooperate_water"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_cooperateWater" />
+						android:text="@string/cooperate_water" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/cooperate_water_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_cooperateWaterList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/cooperate_water_list"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_energyRain"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/energy_rain"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_energyRain" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/energy_rain" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/give_energy_rain_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_giveEnergyRainList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/give_energy_rain_list"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_ExchangeEnergyDoubleClick"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/exchange_energy_double_click"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_ExchangeEnergyDoubleClick" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/exchange_energy_double_click" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/exchange_energy_double_click_count"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_ExchangeEnergyDoubleClickCount"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/who_you_want_to_give_to"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/exchange_energy_double_click_count"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_WhoYouWantToGiveTo"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/who_you_want_to_give_to"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_reserve"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/reserve"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_reserve" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/reserve" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/reserve_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_reserveList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/reserve_list"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_ancientTree"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/ancient_tree"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_ancientTree" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/ancient_tree" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/ancient_tree_area_code_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_ancientTreeAreaCodeList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/ancient_tree_only_week"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_ancientTreeOnlyWeek" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/ancient_tree_area_code_list"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_ancientTreeOnlyWeek"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/antdodo_collect"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_antdodoCollect" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/ancient_tree_only_week" />
+
+					<Switch
+						android:id="@+id/sw_antdodoCollect"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/antdodo_collect" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/send_friend_card"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_sendFriendCard"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/ant_ocean"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_antOcean" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/send_friend_card"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_antOcean"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/beach"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_beach" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/ant_ocean" />
+
+					<Switch
+						android:id="@+id/sw_beach"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/beach" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/beach_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_beachList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/user_patrol"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_userPatrol" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/animal_consume_prop"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_animalConsumeProp" />
+						android:text="@string/beach_list"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_userPatrol"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/collect_gift_box"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_collectGiftBox" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/user_patrol" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_animalConsumeProp"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/total_cert_count"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_totalCertCount" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/animal_consume_prop" />
+
+					<Switch
+						android:id="@+id/sw_collectGiftBox"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_gift_box" />
+
+					<Switch
+						android:id="@+id/sw_totalCertCount"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/total_cert_count" />
 				</LinearLayout>
 				<!--庄园设置-->
 				<LinearLayout
+					android:id="@+id/tab_farm"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:id="@+id/tab_farm"
 					android:gravity="center_horizontal"
 					android:orientation="vertical">
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_enableFarm"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/enable_farm"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_enableFarm" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/enable_farm" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_rewardFriend"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/reward_friend"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_rewardFriend" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/reward_friend" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_sendBackAnimal"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/send_back_animal"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_sendBackAnimal" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/send_back_animal" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/send_type"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_sendType"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/don_t_send_friend_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/send_type"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_dontSendFriendList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/recall_animal_type"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/don_t_send_friend_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_recallAnimalType"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/receive_farm_tool_reward"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_receiveFarmToolReward" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/recall_animal_type"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_receiveFarmToolReward"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/record_farm_game"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_recordFarmGame" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/receive_farm_tool_reward" />
+
+					<Switch
+						android:id="@+id/sw_recordFarmGame"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/record_farm_game" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/animal_game_time"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_farmGameTime"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/kitchen"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_kitchen" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/use_special_food"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_special_food" />
+						android:text="@string/animal_game_time"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_kitchen"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/use_new_egg_tool"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_useNewEggTool" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/kitchen" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_special_food"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/harvest_produce"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_harvestProduce" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/use_special_food" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_useNewEggTool"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/donation"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_donation" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/use_new_egg_tool" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_harvestProduce"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/answer_question"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_answerQuestion" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/harvest_produce" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_donation"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/receive_farm_task_award"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_receiveFarmTaskAward" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/donation" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_answerQuestion"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/feed_animal"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_feedAnimal" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/answer_question" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_receiveFarmTaskAward"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/use_accelerate_tool"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_useAccelerateTool" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/receive_farm_task_award" />
+
+					<Switch
+						android:id="@+id/sw_feedAnimal"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/feed_animal" />
+
+					<Switch
+						android:id="@+id/sw_useAccelerateTool"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/use_accelerate_tool" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/feed_friend_animal_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_feedFriendAnimalList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/animal_sleep_time"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/feed_friend_animal_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_animalSleepTime"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/animal_sleep_time"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_notifyFriend"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/notify_friend"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_notifyFriend" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/notify_friend" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/don_t_notify_friend_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_dontNotifyFriendList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/don_t_notify_friend_list"
+						android:textAllCaps="false" />
+
+					<Switch
+						android:id="@+id/sw_acceptGift"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/accept_gift"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_acceptGift" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/accept_gift" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/visit_friend_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_visitFriendList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/chicken_diary"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_chickenDiary" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/ant_orchard"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_antOrchard" />
+						android:text="@string/visit_friend_list"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_chickenDiary"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/receive_orchard_task_award"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_receiveOrchardTaskAward" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/chicken_diary" />
+
+					<Switch
+						android:id="@+id/sw_antOrchard"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/ant_orchard" />
+
+					<Switch
+						android:id="@+id/sw_receiveOrchardTaskAward"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/receive_orchard_task_award" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/orchard_spread_manure_count"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_orchardSpreadManureCount"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/enable_stall"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_enableStall" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/stall_auto_close"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_stallAutoClose" />
+						android:text="@string/orchard_spread_manure_count"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_enableStall"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/stall_auto_open"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_stallAutoOpen" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/enable_stall" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_stallAutoClose"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/stall_auto_task"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_stallAutoTask" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_auto_close" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_stallAutoOpen"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/stall_receive_award"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_stallReceiveAward" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_auto_open" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_stallAutoTask"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/stall_open_type"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_stallOpenType" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_auto_task" />
+
+					<Switch
+						android:id="@+id/sw_stallReceiveAward"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_receive_award" />
+
+					<Switch
+						android:id="@+id/sw_stallOpenType"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_open_type" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/stall_open_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_stallOpenList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/stall_white_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_open_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_stallWhiteList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/stall_black_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_white_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_stallBlackList"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/stall_allow_open_time"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_black_list"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_stallAllowOpenTime"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/stall_self_open_time"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_allow_open_time"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_stallSelfOpenTime"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/stall_donate"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_stallDonate" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/stall_invite_register"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_stallInviteRegister" />
+						android:text="@string/stall_self_open_time"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_stallDonate"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/stall_throw_manure"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_stallThrowManure" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_donate" />
+
+					<Switch
+						android:id="@+id/sw_stallInviteRegister"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_invite_register" />
+
+					<Switch
+						android:id="@+id/sw_stallThrowManure"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_throw_manure" />
 
 					<Button
+						android:id="@+id/btn_stallInviteShopList"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/stall_invite_shop_list"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
-						android:id="@+id/btn_stallInviteShopList"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/stall_invite_shop_list"
+						android:textAllCaps="false" />
 
 				</LinearLayout>
 				<!--其他-->
 				<LinearLayout
+					android:id="@+id/tab_other"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:id="@+id/tab_other"
 					android:gravity="center_horizontal"
 					android:orientation="vertical">
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/receive_point"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_receivePoint" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_receivePoint"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/open_treasure_box"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_openTreasureBox" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/receive_point" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_openTreasureBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/receive_coin_asset"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_receiveCoinAsset" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/open_treasure_box" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_receiveCoinAsset"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/donate_charity_coin"
-						android:onClick="onClick"
 						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/receive_coin_asset" />
+
+					<Switch
 						android:id="@+id/sw_donateCharityCoin"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/donate_charity_coin"
 						tools:ignore="TooManyViews" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/min_exchange_count"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_minExchangeCount"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Button
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/latest_exchange_time_24_hour_system"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
 						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/min_exchange_count"
+						android:textAllCaps="false" />
+
+					<Button
 						android:id="@+id/btn_latestExchangeTime"
+						style="?android:attr/buttonBarButtonStyle"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
+						android:minHeight="50dp"
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/latest_exchange_time_24_hour_system"
+						android:textAllCaps="false" />
 
 					<Button
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						style="?android:attr/buttonBarButtonStyle"
-						android:text="@string/sync_step_count"
-						android:textAllCaps="false"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:gravity="start|center_vertical"
-						android:background="@drawable/button"
 						android:id="@+id/btn_syncStepCount"
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding" />
-
-					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						style="?android:attr/buttonBarButtonStyle"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/koubei_sign_in"
-						android:onClick="onClick"
+						android:background="@drawable/button"
+						android:gravity="start|center_vertical"
 						android:minHeight="50dp"
-						android:id="@+id/sw_kbSignIn" />
-
-					<Switch
+						android:onClick="onClick"
 						android:paddingStart="@dimen/setting_item_padding"
 						android:paddingEnd="@dimen/setting_item_padding"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:text="@string/eco_life_tick"
-						android:onClick="onClick"
-						android:minHeight="50dp"
-						android:id="@+id/sw_ecoLifeTick" />
+						android:text="@string/sync_step_count"
+						android:textAllCaps="false" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_kbSignIn"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/tiyubiz"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_tiyubiz" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/koubei_sign_in" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_ecoLifeTick"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/ins_blue_bean_exchange"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_insBlueBeanExchange" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/eco_life_tick" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_tiyubiz"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/collect_sesame"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_collectSesame" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/tiyubiz" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_insBlueBeanExchange"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/zcj_sign_in"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_zcjSignIn" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/ins_blue_bean_exchange" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_collectSesame"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/merchant_kmdk"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_merchantKmdk" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/collect_sesame" />
 
 					<Switch
-						android:paddingStart="@dimen/setting_item_padding"
-						android:paddingEnd="@dimen/setting_item_padding"
+						android:id="@+id/sw_zcjSignIn"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:text="@string/green_finance"
-						android:onClick="onClick"
 						android:minHeight="50dp"
-						android:id="@+id/sw_greenFinance" />
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/zcj_sign_in" />
+
+					<Switch
+						android:id="@+id/sw_merchantKmdk"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/merchant_kmdk" />
+
+					<Switch
+						android:id="@+id/sw_greenFinance"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:minHeight="50dp"
+						android:onClick="onClick"
+						android:paddingStart="@dimen/setting_item_padding"
+						android:paddingEnd="@dimen/setting_item_padding"
+						android:text="@string/green_finance" />
 
 					<!--<Switch
 						android:paddingStart="@dimen/setting_item_padding"

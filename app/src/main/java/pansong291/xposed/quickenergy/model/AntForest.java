@@ -12,13 +12,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import de.robv.android.xposed.XposedHelpers;
-import pansong291.xposed.quickenergy.model.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.hook.EcoLifeRpcCall;
 import pansong291.xposed.quickenergy.hook.FriendManager;
+import pansong291.xposed.quickenergy.model.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
@@ -749,7 +749,7 @@ public class AntForest {
                     collected += batchRobEnergy(userId, bubbleId, "双击卡");
                 }
             } else {
-                Log.record("[" + FriendIdMap.getNameById(userId) + "]" + jo.getString("resultDesc") + " " + s);
+                Log.record("[" + FriendIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
             }
         } catch (Throwable t) {
             Log.i(TAG, "collectEnergy err:");
@@ -1306,7 +1306,7 @@ public class AntForest {
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONObject data = jo.getJSONObject("data");
                 if (!data.has("dayPoint")) {
-                    Log.record("绿色打卡失败, dayPoint不存在: " + jo.toString());
+                    Log.record("绿色打卡失败, dayPoint不存在");
                     return;
                 }
                 String dayPoint = data.getString("dayPoint");

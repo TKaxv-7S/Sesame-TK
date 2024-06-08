@@ -295,7 +295,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return;
                 }
-                if (!init && !PermissionUtil.checkBatteryPermissions()) {
+                Log.record("开始加载");
+                Config config = Config.load();
+                if (config.isBatteryPerm() && !init && !PermissionUtil.checkBatteryPermissions()) {
                     Log.record("支付宝无始终在后台运行权限");
                     mainHandler.postDelayed(() -> {
                         if (!PermissionUtil.checkOrRequestBatteryPermissions(context)) {
@@ -303,8 +305,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         }
                     }, 2000);
                 }
-                Log.record("开始加载");
-                Config config = Config.load();
                 if (config.isNewRpc()) {
                     rpcBridge = new NewRpcBridge();
                 } else {

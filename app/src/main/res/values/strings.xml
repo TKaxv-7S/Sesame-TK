@@ -14,7 +14,7 @@
     <string name="timeout_restart">Restart when timeout</string>
     <string name="forest_configuration">FOREST CONFIGURATION</string>
     <string name="collect_energy">Collect energy</string>
-    <string name="check_interval_minutes">Check interval (minutes)</string>
+    <string name="check_interval_minutes">Execute interval (minutes)</string>
     <string name="thread_count">Thread count</string>
     <string name="advance_time_milliseconds">Advance time (milliseconds)</string>
     <string name="collect_interval_milliseconds">Collect interval (milliseconds)</string>
@@ -122,6 +122,7 @@
     <string name="double_count_limit">Double count limit</string>
     <string name="ins_blue_bean_exchange">Ins blue bean exchange</string>
     <string name="enable_on_going">Enable on going</string>
+    <string name="battery_perm">Request Battery Permission for Alipay</string>
     <string name="new_rpc">Use New Api(minimum required v10.3.96.8100)</string>
     <string name="debug_mode">Capture packets(base on New Api)</string>
     <string name="language_simplified_chinese">Chinese Language</string>

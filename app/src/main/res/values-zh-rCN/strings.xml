@@ -9,7 +9,7 @@
     <string name="timeout_restart">超时重启</string>
     <string name="forest_configuration">森林</string>
     <string name="collect_energy">收集能量</string>
-    <string name="check_interval_minutes">检测间隔(分钟)</string>
+    <string name="check_interval_minutes">执行间隔(分钟)</string>
     <string name="thread_count">线程数</string>
     <string name="advance_time_milliseconds">提前时间(毫秒)</string>
     <string name="collect_interval_milliseconds">收取间隔(毫秒)</string>
@@ -117,6 +117,7 @@
     <string name="double_count_limit">双击卡次数限制</string>
     <string name="ins_blue_bean_exchange">安心豆兑换时光加速器</string>
     <string name="enable_on_going">开启状态栏禁删</string>
+    <string name="battery_perm">为支付宝申请后台运行权限</string>
     <string name="new_rpc">使用新接口(最低支持v10.3.96.8100)</string>
     <string name="debug_mode">开启抓包(基于新接口)</string>
     <string name="language_simplified_chinese">界面始终使用中文</string>
