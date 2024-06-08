@@ -8,8 +8,16 @@ public interface RpcBridge {
 
     void unload();
 
-    String requestJson(String method, String data);
+    default String requestJson(String method, String data) {
+        return requestJson(method, data, 3);
+    }
 
-    <T> T requestObj(String method, String data, Function<Object, T> callback);
+    String requestJson(String method, String data, int retryCount);
+
+    default <T> T requestObj(String method, String data, Function<Object, T> callback) {
+        return requestObj(method, data, callback, 3);
+    }
+
+    <T> T requestObj(String method, String data, Function<Object, T> callback, int retryCount);
 
 }

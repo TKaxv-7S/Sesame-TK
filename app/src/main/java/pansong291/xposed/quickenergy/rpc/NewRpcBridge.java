@@ -3,10 +3,12 @@ package pansong291.xposed.quickenergy.rpc;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.text.DateFormat;
 import java.util.Map;
 import java.util.function.Function;
 
 import de.robv.android.xposed.XposedHelpers;
+import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.model.AntForestNotification;
@@ -100,12 +102,7 @@ public class NewRpcBridge implements RpcBridge {
     }
 
     @Override
-    public String requestJson(String method, String data) {
-        return requestJson(method, data, 3);
-    }
-
-    @Override
-    public <T> T requestObj(String method, String data, Function<Object, T> callback) {
+    public <T> T requestObj(String method, String data, Function<Object, T> callback, int retryCount) {
         return null;
     }
 
@@ -155,9 +152,23 @@ public class NewRpcBridge implements RpcBridge {
                             ApplicationHook.setOffline(true);
                             AntForestNotification.setContentText("登录超时");
                             if (Config.INSTANCE.isTimeoutRestart()) {
-                                Log.record("尝试重启！");
-                                ApplicationHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
+                                Log.record("尝试重新登录");
+                                ApplicationHook.reLoginByBroadcast();
                             }
+                        }
+                        return null;
+                    }
+                    if ("1004".equals(errorCode)) {
+                        if (Config.INSTANCE.getWaitWhenException() > 0) {
+                            long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
+                            RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                            AntForestNotification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                            Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                        }
+                        try {
+                            Thread.sleep(600 + RandomUtils.delay());
+                        } catch (InterruptedException e) {
+                            Log.printStackTrace(e);
                         }
                         return null;
                     }
@@ -168,7 +179,7 @@ public class NewRpcBridge implements RpcBridge {
                 try {
                     Thread.sleep(600 + RandomUtils.delay());
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Log.printStackTrace(e);
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "new rpc request [" + method + "] err:");
@@ -176,7 +187,7 @@ public class NewRpcBridge implements RpcBridge {
                 try {
                     Thread.sleep(600 + RandomUtils.delay());
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Log.printStackTrace(e);
                 }
             }
         } while (count < retryCount);
@@ -245,8 +256,8 @@ public class NewRpcBridge implements RpcBridge {
                             ApplicationHook.setOffline(true);
                             AntForestNotification.setContentText("登录超时");
                             if (Config.INSTANCE.isTimeoutRestart()) {
-                                Log.record("尝试重启！");
-                                ApplicationHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
+                                Log.record("尝试重新登录");
+                                ApplicationHook.reLoginByBroadcast();
                             }
                         }
                         return null;

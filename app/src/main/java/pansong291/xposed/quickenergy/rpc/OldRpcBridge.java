@@ -69,12 +69,7 @@ public class OldRpcBridge implements RpcBridge{
     }
 
     @Override
-    public String requestJson(String method, String data) {
-        return requestJson(method, data, 3);
-    }
-
-    @Override
-    public <T> T requestObj(String method, String data, Function<Object, T> callback) {
+    public <T> T requestObj(String method, String data, Function<Object, T> callback, int retryCount) {
         return null;
     }
 
@@ -111,8 +106,8 @@ public class OldRpcBridge implements RpcBridge{
                                 ApplicationHook.setOffline(true);
                                 AntForestNotification.setContentText("登录超时");
                                 if (Config.INSTANCE.isTimeoutRestart()) {
-                                    Log.record("尝试重启！");
-                                    ApplicationHook.restartHook(Config.INSTANCE.getTimeoutType(), 500, true);
+                                    Log.record("尝试重新登录");
+                                    ApplicationHook.reLoginByBroadcast();
                                 }
                             }
                         } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(method)) {

@@ -47,7 +47,7 @@ public class AntForestRpcCall {
             args1 = "[{\"bizType\":\"" + bizType + "\",\"bubbleIds\":[" + bubbleId
                     + "],\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\"" + userId + "\"}]";
         }
-        return ApplicationHook.request("alipay.antmember.forest.h5.collectEnergy", args1);
+        return ApplicationHook.request("alipay.antmember.forest.h5.collectEnergy", args1, 0);
     }
 
     public static String batchRobEnergy(String userId, List<String> bubbleId) {

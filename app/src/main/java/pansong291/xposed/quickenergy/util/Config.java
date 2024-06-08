@@ -31,10 +31,7 @@ public class Config {
     private int toastOffsetY;
     private int checkInterval;
     private boolean stayAwake;
-    private int stayAwakeType;
-    private int stayAwakeTarget;
     private boolean timeoutRestart;
-    private int timeoutType;
     private boolean startAt7;
     private boolean enableOnGoing;
     private boolean newRpc = true;
@@ -206,10 +203,7 @@ public class Config {
         c.showToast = true;
         c.toastOffsetY = 0;
         c.stayAwake = true;
-        c.stayAwakeType = ApplicationHook.StayAwakeType.ALARM;
-        c.stayAwakeTarget = ApplicationHook.StayAwakeTarget.SERVICE;
         c.timeoutRestart = true;
-        c.timeoutType = ApplicationHook.StayAwakeType.ALARM;
         c.startAt7 = false;
         c.enableOnGoing = false;
         c.languageSimplifiedChinese = false;

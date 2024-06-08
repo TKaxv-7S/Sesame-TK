@@ -76,10 +76,8 @@
     <string name="energy_rain">Energy Rain</string>
     <string name="give_energy_rain_list">Give energy rain list</string>
     <string name="sync_step_count">Sync Step Count</string>
-    <string name="stay_awake_type">Stay awake type</string>
     <string name="use_double_card">Use double card</string>
     <string name="wait_when_exception">Wait when exception(Min)</string>
-    <string name="stay_awake_target">Stay awake target</string>
     <string name="search">Search</string>
     <string name="last">Last</string>
     <string name="next">Next</string>
@@ -114,8 +112,7 @@
     <string name="beach">Beach</string>
     <string name="beach_list">Beach list</string>
     <string name="test">Test</string>
-    <string name="timeout_restart_type">Timeout restart type</string>
-    <string name="start_at_7_o_clock">Start at 7 o\'clock</string>
+    <string name="start_at_7_o_clock">Start before 7 o\'clock</string>
     <string name="tiyubiz">Tiyubiz</string>
     <string name="friend_watch">Friend watch</string>
     <string name="user_patrol">User patrol</string>

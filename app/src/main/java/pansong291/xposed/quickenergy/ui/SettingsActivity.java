@@ -637,17 +637,6 @@ public class SettingsActivity extends Activity {
                 case R.id.btn_toastOffsetY:
                     EditDialog.showEditDialog(this, btn.getText(), EditDialog.EditMode.TOAST_OFFSET_Y);
                     break;
-                case R.id.btn_stayAwakeType:
-                    ChoiceDialog.showStayAwakeType(this, btn.getText());
-                    break;
-
-                case R.id.btn_stayAwakeTarget:
-                    ChoiceDialog.showStayAwakeTarget(this, btn.getText());
-                    break;
-
-                case R.id.btn_timeoutRestartType:
-                    ChoiceDialog.showTimeoutRestartType(this, btn.getText());
-                    break;
 
                 case R.id.btn_waitWhenException:
                     EditDialog.showEditDialog(this, btn.getText(), EditDialog.EditMode.WAIT_WHEN_EXCEPTION);
@@ -833,7 +822,7 @@ public class SettingsActivity extends Activity {
         if (Config.isModify() && Config.save(false)) {
             Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
             try {
-                this.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reload"));
+                this.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.restart"));
             } catch (Throwable th) {
                 Log.printStackTrace(th);
             }

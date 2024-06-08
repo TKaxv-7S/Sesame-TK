@@ -236,7 +236,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         AntForestNotification.setContentText("支付宝前台服务被销毁");
                         stopHandler(true);
                         Log.record("支付宝前台服务被销毁");
-                        alarmHook(3000, false);
+                        restartByBroadcast();
                     }
                 });
                 Log.i(TAG, "hook service onDestroy successfully");
@@ -285,22 +285,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 if (config.isStartAt7()) {
                     try {
                         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        Intent it = new Intent();
-                        it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
-                        int piFlag;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            piFlag = PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT;
-                        } else {
-                            piFlag = PendingIntent.FLAG_UPDATE_CURRENT;
-                        }
-                        alarm7Pi = PendingIntent.getActivity(context, 999, it, piFlag);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
-                        //calendar.add(Calendar.SECOND, 10);
                         if (calendar.get(Calendar.HOUR_OF_DAY) >= 7) {
                             calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
-                        calendar.set(Calendar.HOUR_OF_DAY, 7);
-                        calendar.set(Calendar.MINUTE, 0);
+                        calendar.set(Calendar.HOUR_OF_DAY, 6);
+                        calendar.set(Calendar.MINUTE, 55);
                         calendar.set(Calendar.SECOND, 0);
                         calendar.set(Calendar.MILLISECOND, 0);
                         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -308,7 +299,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         } else {
                             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pi);
                         }*/
-                        alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), null), alarm7Pi);
+                        alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), null), pendingIntent);
+                        alarm7Pi = pendingIntent;
                     } catch (Throwable th) {
                         Log.printStackTrace("alarm7", th);
                     }
@@ -317,7 +309,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
                     wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
                     wakeLock.acquire();
-                    restartHook(Config.INSTANCE.getStayAwakeType(), 30 * 60 * 1000, false);
+                    holdByAlarm(30 * 60 * 1000, false);
                 }
                 if (config.isNewRpc() && config.isDebugMode()) {
                     try {
@@ -481,8 +473,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     Thread checkThread = new Thread(checkTask);
                                     checkThread.start();
                                     if (!checkTask.get()) {
-                                        mainHandler.postDelayed(this, config.getCheckInterval());
-                                        return;
+                                        if (!reLogin()) {
+                                            mainHandler.postDelayed(this, config.getCheckInterval());
+                                            return;
+                                        }
                                     }
                                 } catch (Exception e) {
                                     Log.i(TAG, "check err:");
@@ -592,66 +586,40 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return rpcBridge.requestJson(method, data);
     }
 
-    public static void restartHook(int stayAwakeType, long delayTime, boolean force) {
-        if (stayAwakeType == StayAwakeType.ALARM) {
-            alarmHook(delayTime, force);
-        } else {
-            alarmBroadcast(delayTime, force);
-        }
+    public static String request(String method, String data, int retryCount) {
+        return rpcBridge.requestJson(method, data, retryCount);
     }
 
-    public static void restartHook(Context context, boolean force) {
-        try {
-            Intent intent;
-            if (force || Config.INSTANCE.getStayAwakeTarget() == StayAwakeTarget.ACTIVITY) {
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (force) {
-                    offline = true;
-                }
-                context.startActivity(intent);
-            } else {
-                intent = new Intent();
-                intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
-                context.startService(intent);
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "restartHook err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    public static void alarmBroadcast(long delayTime, boolean force) {
+    public static void holdByAlarm(long delayTime, boolean force) {
         try {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent("com.eg.android.AlipayGphone.xqe.broadcast");
-            intent.putExtra("force", force);
-            PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, getPendingIntentFlag());
+            Intent it = new Intent();
+            it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
+            PendingIntent pi = PendingIntent.getService(context, 2, it, getPendingIntentFlag());
+            if (force) {
+                offline = true;
+            }
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayTime, pi);
         } catch (Throwable th) {
+            Log.i(TAG, "holdByAlarm err:");
             Log.printStackTrace(TAG, th);
         }
     }
 
-    public static void alarmHook(long delayTime, boolean force) {
+    public static void reLoginByBroadcast() {
         try {
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            PendingIntent pi;
-            if (force || Config.INSTANCE.getStayAwakeTarget() == StayAwakeTarget.ACTIVITY) {
-                Intent it = new Intent();
-                it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
-                pi = PendingIntent.getActivity(context, 1, it, getPendingIntentFlag());
-                if (force) {
-                    offline = true;
-                }
-            } else {
-                Intent it = new Intent();
-                it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
-                pi = PendingIntent.getService(context, 2, it, getPendingIntentFlag());
-            }
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayTime, pi);
+            context.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reLogin"));
         } catch (Throwable th) {
+            Log.i(TAG, "reLoginByBroadcast err:");
+            Log.printStackTrace(TAG, th);
+        }
+    }
+
+    public static void restartByBroadcast() {
+        try {
+            context.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.restart"));
+        } catch (Throwable th) {
+            Log.i(TAG, "restartByBroadcast err:");
             Log.printStackTrace(TAG, th);
         }
     }
@@ -664,14 +632,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private static PendingIntent getAlarm7Pi() {
-        if (alarm7Pi == null) {
-        }
-        return alarm7Pi;
-    }
-
     public static Object getMicroApplicationContext() {
         return XposedHelpers.callMethod(XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.alipay.mobile.framework.AlipayApplication", classLoader), "getInstance"), "getMicroApplicationContext");
+    }
+
+    public static Object getExtServiceByInterface(String interfaceName) {
+        return XposedHelpers.callMethod(getMicroApplicationContext(), interfaceName);
     }
 
     public static String getUserId() {
@@ -687,18 +653,31 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return null;
     }
 
+    public static Boolean reLogin() {
+        Object authService = getExtServiceByInterface("com.alipay.mobile.framework.service.ext.security.AuthService");
+        Class<?> bundleClazz = XposedHelpers.findClass("android.os.Bundle", classLoader);
+        try {
+            Object bundle = bundleClazz.newInstance();
+            XposedHelpers.callMethod(bundle, "putBoolean", "allowBack", true);
+            XposedHelpers.callMethod(bundle, "putString", "shouldShowPwdLogin", "false");
+            return (Boolean) XposedHelpers.callMethod(authService, "auth", bundle);
+        } catch (IllegalAccessException | InstantiationException e) {
+            Log.printStackTrace(e);
+        }
+        return false;
+    }
+
     private static class AlipayBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if ("com.eg.android.AlipayGphone.xqe.broadcast".equals(action)) {
-                boolean force = intent.getBooleanExtra("force", false);
-                restartHook(context, force);
+            if ("com.eg.android.AlipayGphone.xqe.restart".equals(action)) {
+                startHandler(true);
+            } else if ("com.eg.android.AlipayGphone.xqe.reLogin".equals(action)) {
+                reLogin();
+                startHandler(false);
             } else if ("com.eg.android.AlipayGphone.xqe.test".equals(action)) {
                 Log.record("收到测试消息");
-//                alarmHook(context, 3000, true);
-            } else if ("com.eg.android.AlipayGphone.xqe.reload".equals(action)) {
-                startHandler(true);
             }
         }
     }
@@ -707,9 +686,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private void registerBroadcastReceiver(Context context) {
         try {
             IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.broadcast");
+            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.restart");
+            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.reLogin");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.test");
-            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.reload");
             context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter);
             Log.record("注册广播接收器成功 " + context);
         } catch (Throwable th) {
