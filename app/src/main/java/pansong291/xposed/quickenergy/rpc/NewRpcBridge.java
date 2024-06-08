@@ -3,12 +3,9 @@ package pansong291.xposed.quickenergy.rpc;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.text.DateFormat;
 import java.util.Map;
-import java.util.function.Function;
 
 import de.robv.android.xposed.XposedHelpers;
-import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.model.AntForestNotification;
@@ -101,12 +98,16 @@ public class NewRpcBridge implements RpcBridge {
         loader = null;
     }
 
-    @Override
-    public <T> T requestObj(String method, String data, Function<Object, T> callback, int retryCount) {
+    public String requestString(String method, String data, int retryCount) {
+        RpcEntity rpcEntity = requestObject(method, data, retryCount);
+        if (rpcEntity != null) {
+            return rpcEntity.getResultStr();
+        }
         return null;
     }
 
-    public String requestJson(String method, String data, int retryCount) {
+    @Override
+    public RpcEntity requestObject(String method, String data, int retryCount) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -131,7 +132,7 @@ public class NewRpcBridge implements RpcBridge {
                                         Log.i(TAG, "new rpc response: " + result);
                                     } catch (Exception e) {
                                         rpcEntity.setError();
-                                        Log.i(TAG, "new rpc response err:");
+                                        Log.i(TAG, "new rpc response [" + method + "] err:");
                                         Log.printStackTrace(TAG, e);
                                     }
                                 }
@@ -143,7 +144,7 @@ public class NewRpcBridge implements RpcBridge {
                     return null;
                 }
                 if (!rpcEntity.getHasError()) {
-                    return rpcEntity.getResultStr();
+                    return rpcEntity;
                 }
                 try {
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResult(), "getString", "error");
@@ -158,23 +159,9 @@ public class NewRpcBridge implements RpcBridge {
                         }
                         return null;
                     }
-                    if ("1004".equals(errorCode)) {
-                        if (Config.INSTANCE.getWaitWhenException() > 0) {
-                            long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
-                            RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                            AntForestNotification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                            Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                        }
-                        try {
-                            Thread.sleep(600 + RandomUtils.delay());
-                        } catch (InterruptedException e) {
-                            Log.printStackTrace(e);
-                        }
-                        return null;
-                    }
-                    return rpcEntity.getResultStr();
+                    return rpcEntity;
                 } catch (Exception e) {
-                    Log.i(TAG, "new rpc response get err:");
+                    Log.i(TAG, "new rpc response [" + method + "] get err:");
                     Log.printStackTrace(TAG, e);
                 }
                 try {
@@ -195,7 +182,7 @@ public class NewRpcBridge implements RpcBridge {
         return null;
     }
 
-    public String newAsyncRequest(String args0, String args1, int retryCount) {
+    public RpcEntity newAsyncRequest(String method, String data, int retryCount) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -206,9 +193,9 @@ public class NewRpcBridge implements RpcBridge {
             Long id = rpcEntity.getId();
             try {
                 synchronized (id) {
-                    Log.i(TAG, "new rpc request: " + args0 + ", " + args1);
+                    Log.i(TAG, "new rpc request: " + method + ", " + data);
                     newRpcCallMethod.invoke(
-                            newRpcInstance, args0, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + args0 + "\",\"requestData\":" + args1 + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
+                            newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                                 @Override
                                 public Object invoke(Object proxy, Method method, Object[] args) {
                                     if(args.length == 1 && "sendJSONResponse".equals(method.getName())) {
@@ -228,7 +215,7 @@ public class NewRpcBridge implements RpcBridge {
                                             }
                                         } catch (Exception e) {
                                             rpcEntity.setError();
-                                            Log.i(TAG, "new rpc response err:");
+                                            Log.i(TAG, "new rpc response [" + method + "] err:");
                                             Log.printStackTrace(TAG, e);
                                             synchronized (id) {
                                                 Thread thread = rpcEntity.getThread();
@@ -248,7 +235,7 @@ public class NewRpcBridge implements RpcBridge {
                     return null;
                 }
                 if (!rpcEntity.getHasError()) {
-                    return rpcEntity.getResultStr();
+                    return rpcEntity;
                 }
                 try {
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResult(), "getString", "error");
@@ -263,22 +250,23 @@ public class NewRpcBridge implements RpcBridge {
                         }
                         return null;
                     }
+                    return rpcEntity;
                 } catch (Exception e) {
-                    Log.i(TAG, "new rpc response get err:");
+                    Log.i(TAG, "new rpc response [" + method + "] get err:");
                     Log.printStackTrace(TAG, e);
                 }
                 try {
                     Thread.sleep(600 + RandomUtils.delay());
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Log.printStackTrace(e);
                 }
             } catch (Throwable t) {
-                Log.i(TAG, "new rpc request [" + args0 + "] err:");
+                Log.i(TAG, "new rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
                 try {
                     Thread.sleep(600 + RandomUtils.delay());
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Log.printStackTrace(e);
                 }
             } finally {
                 rpcEntity.delThread();

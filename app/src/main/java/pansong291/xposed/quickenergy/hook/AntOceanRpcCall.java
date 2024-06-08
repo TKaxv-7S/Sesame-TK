@@ -13,121 +13,121 @@ public class AntOceanRpcCall {
     }
 
     public static String queryOceanStatus() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryOceanStatus",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanStatus",
                 "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
     }
 
     public static String queryHomePage() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryHomePage",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryHomePage",
                 "[{\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\",\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String cleanOcean(String userId) {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.cleanOcean",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.cleanOcean",
                 "[{\"cleanedUserId\":\"" + userId + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String ipOpenSurprise() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.ipOpenSurprise",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.ipOpenSurprise",
                 "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String collectReplicaAsset() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.collectReplicaAsset",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.collectReplicaAsset",
                 "[{\"replicaCode\":\"avatar\",\"source\":\"senlinzuoshangjiao\",\"uniqueId\":\"" + getUniqueId() +
                         "\",\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String receiveTaskAward(String sceneCode, String taskType) {
-        return ApplicationHook.request("com.alipay.antiep.receiveTaskAward",
+        return ApplicationHook.requestString("com.alipay.antiep.receiveTaskAward",
                 "[{\"ignoreLimit\":false,\"requestType\":\"RPC\",\"sceneCode\":\"" + sceneCode + "\",\"source\":\"ANT_FOREST\",\"taskType\":\"" +
                         taskType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String finishTask(String sceneCode, String taskType) {
         String outBizNo = taskType + "_" + RandomUtils.nextDouble();
-        return ApplicationHook.request("com.alipay.antiep.finishTask",
+        return ApplicationHook.requestString("com.alipay.antiep.finishTask",
                 "[{\"outBizNo\":\"" + outBizNo + "\",\"requestType\":\"RPC\",\"sceneCode\":\"" +
                         sceneCode + "\",\"source\":\"ANTFOCEAN\",\"taskType\":\"" + taskType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String queryTaskList() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryTaskList",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryTaskList",
                 "[{\"extend\":{},\"fromAct\":\"dynamic_task\",\"sceneCode\":\"ANTOCEAN_TASK\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" +
                         getUniqueId() + "\",\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String unLockReplicaPhase(String replicaCode, String replicaPhaseCode) {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.unLockReplicaPhase",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.unLockReplicaPhase",
                 "[{\"replicaCode\":\"" + replicaCode + "\",\"replicaPhaseCode\":\"" + replicaPhaseCode +
                         "\",\"source\":\"senlinzuoshangjiao\",\"uniqueId\":\"" + getUniqueId() + "\",\"version\":\"20220707\"}]");
     }
 
     public static String queryReplicaHome() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryReplicaHome",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryReplicaHome",
                 "[{\"replicaCode\":\"avatar\",\"source\":\"senlinzuoshangjiao\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String repairSeaArea() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.repairSeaArea",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.repairSeaArea",
                 "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String queryOceanPropList() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryOceanPropList",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanPropList",
                 "[{\"propTypeList\":\"UNIVERSAL_PIECE\",\"skipPropId\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" +
                         getUniqueId() + "\"}]");
     }
 
     public static String querySeaAreaDetailList() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.querySeaAreaDetailList",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.querySeaAreaDetailList",
                 "[{\"seaAreaCode\":\"\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"targetUserId\":\"\",\"uniqueId\":\"" +
                         getUniqueId() + "\"}]");
     }
 
     public static String queryOceanChapterList() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryOceanChapterList",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryOceanChapterList",
                 "[{\"source\":\"chInfo_ch_url-https://2021003115672468.h5app.alipay.com/www/atlasOcean.html\",\"uniqueId\":\""
                         + getUniqueId() + "\"}]");
     }
 
     public static String switchOceanChapter(String chapterCode) {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.switchOceanChapter",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.switchOceanChapter",
                 "[{\"chapterCode\":\"" + chapterCode
                         + "\",\"source\":\"chInfo_ch_url-https://2021003115672468.h5app.alipay.com/www/atlasOcean.html\",\"uniqueId\":\""
                         + getUniqueId() + "\"}]");
     }
 
     public static String queryMiscInfo() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryMiscInfo",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryMiscInfo",
                 "[{\"queryBizTypes\":[\"HOME_TIPS_REFRESH\"],\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" +
                         getUniqueId() + "\"}]");
     }
 
     public static String combineFish(String fishId) {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.combineFish", "[{\"fishId\":\"" + fishId +
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.combineFish", "[{\"fishId\":\"" + fishId +
                 "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String querySeaAreaDetailList(String bubbleId, String userId) {
-        return ApplicationHook.request("alipay.antmember.forest.h5.collectEnergy",
+        return ApplicationHook.requestString("alipay.antmember.forest.h5.collectEnergy",
                 "[{\"bubbleIds\":[" + bubbleId + "],\"channel\":\"ocean\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" +
                         getUniqueId() + "\",\"userId\":\"" + userId + "\",\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String cleanFriendOcean(String userId) {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.cleanFriendOcean",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.cleanFriendOcean",
                 "[{\"cleanedUserId\":\"" + userId + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
     public static String queryFriendPage(String userId) {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryFriendPage",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryFriendPage",
                 "[{\"friendUserId\":\"" + userId + "\",\"interactFlags\":\"T\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" +
                         getUniqueId() + "\",\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String queryUserRanking() {
-        return ApplicationHook.request("alipay.antocean.ocean.h5.queryUserRanking",
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryUserRanking",
                 "[{\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 }

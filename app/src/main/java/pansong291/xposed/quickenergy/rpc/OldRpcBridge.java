@@ -1,13 +1,14 @@
 package pansong291.xposed.quickenergy.rpc;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
-import java.util.function.Function;
 
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.model.AntForestNotification;
 import pansong291.xposed.quickenergy.util.ClassUtil;
@@ -52,9 +53,9 @@ public class OldRpcBridge implements RpcBridge{
                         boolean.class, loader.loadClass(ClassUtil.JSON_OBJECT_NAME), String.class, boolean.class, h5PageClazz,
                         int.class, String.class, boolean.class, int.class, String.class);
                 getResponseMethod = loader.loadClass("com.alipay.mobile.nebulaappproxy.api.rpc.H5Response").getMethod("getResponse");
-                Log.i(TAG, "get rpcCallMethod successfully");
+                Log.i(TAG, "get oldRpcCallMethod successfully");
             } catch (Throwable t) {
-                Log.i(TAG, "get rpcCallMethod err:");
+                Log.i(TAG, "get oldRpcCallMethod err:");
                 Log.printStackTrace(TAG, t);
             }
         }
@@ -68,34 +69,35 @@ public class OldRpcBridge implements RpcBridge{
         loader = null;
     }
 
-    @Override
-    public <T> T requestObj(String method, String data, Function<Object, T> callback, int retryCount) {
+    public String requestString(String method, String data, int retryCount) {
+        RpcEntity rpcEntity = requestObject(method, data, retryCount);
+        if (rpcEntity != null) {
+            return rpcEntity.getResultStr();
+        }
         return null;
     }
 
-    public String requestJson(String method, String data, int retryCount) {
+    @Override
+    public RpcEntity requestObject(String method, String data, int retryCount) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
-        String result;
+        RpcEntity result;
         int count = 0;
         do {
             count++;
+            Object resp;
             try {
-                String str = getResponse(doRequest(method, data));
-                try {
-                    JSONObject jo = new JSONObject(str);
-                    if (jo.optString("memo", "").contains("系统繁忙")) {
-                        ApplicationHook.setOffline(true);
-                        AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
-                        Log.record("系统繁忙，可能需要滑动验证");
-                        return null;
-                    }
-                } catch (Throwable ignored) {
+                if (rpcCallMethod.getParameterTypes().length == 12) {
+                    resp = rpcCallMethod.invoke(
+                            null, method, data, "", true, null, null, false, curH5PageImpl, 0, "", false, -1);
+                } else {
+                    resp = rpcCallMethod.invoke(
+                            null, method, data, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
                 }
-                return str;
+                Log.i(TAG, "old rpc argument: " + method + ", " + data);
             } catch (Throwable t) {
-                Log.i(TAG, "rpc call err:");
+                Log.i(TAG, "old rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
                 result = null;
                 if (t instanceof InvocationTargetException) {
@@ -120,15 +122,22 @@ public class OldRpcBridge implements RpcBridge{
                             try {
                                 Thread.sleep(600 + RandomUtils.delay());
                             } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
+                                Log.printStackTrace(e);
                             }
-                            continue;
                         } else if (msg.contains("MMTPException")) {
-                            result = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
+                            try {
+                                RpcEntity tempResult = new RpcEntity();
+                                String jsonString = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
+                                tempResult.setResult(new JSONObject(jsonString), jsonString);
+                                tempResult.setError();
+                                result = tempResult;
+                            } catch (JSONException e) {
+                                Log.printStackTrace(e);
+                            }
                             try {
                                 Thread.sleep(600 + RandomUtils.delay());
                             } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
+                                Log.printStackTrace(e);
                             }
                             continue;
                         }
@@ -136,32 +145,25 @@ public class OldRpcBridge implements RpcBridge{
                 }
                 return result;
             }
+            try {
+                String resultStr = (String) getResponseMethod.invoke(resp);
+                Log.i(TAG, "old rpc response: " + resultStr);
+                JSONObject resultObject = new JSONObject(resultStr);
+                if (resultObject.optString("memo", "").contains("系统繁忙")) {
+                    ApplicationHook.setOffline(true);
+                    AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
+                    Log.record("系统繁忙，可能需要滑动验证");
+                    return null;
+                }
+                result = new RpcEntity();
+                result.setResult(resultObject, resultStr);
+                return result;
+            } catch (Throwable t) {
+                Log.i(TAG, "old rpc response [" + method + "] get err:");
+            }
+            return null;
         } while (count < retryCount);
         return result;
-    }
-
-    public Object doRequest(String args0, String args1) throws Throwable {
-        try {
-            Object o;
-            if (rpcCallMethod.getParameterTypes().length == 12) {
-                o = rpcCallMethod.invoke(
-                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1);
-            } else {
-                o = rpcCallMethod.invoke(
-                        null, args0, args1, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
-            }
-            Log.i(TAG, "rpc argument: " + args0 + ", " + args1);
-            return o;
-        } catch (Throwable t) {
-            Log.i(TAG, "rpc request [" + args0 + "] err:");
-            throw t;
-        }
-    }
-
-    public String getResponse(Object resp) throws Throwable {
-        String str = (String) getResponseMethod.invoke(resp);
-        Log.i(TAG, "rpc response: " + str);
-        return str;
     }
 
 }

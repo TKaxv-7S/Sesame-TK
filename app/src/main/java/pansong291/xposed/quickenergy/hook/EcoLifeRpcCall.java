@@ -3,7 +3,7 @@ package pansong291.xposed.quickenergy.hook;
 public class EcoLifeRpcCall {
 
     public static String queryHomePage() {
-        return ApplicationHook.request("alipay.ecolife.rpc.h5.queryHomePage",
+        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.queryHomePage",
                 "[{\"channel\":\"ALIPAY\",\"source\":\"search_brandbox\"}]");
     }
 
@@ -17,11 +17,11 @@ public class EcoLifeRpcCall {
                     + channel + "\",\"dayPoint\":\"" + dayPoint
                     + "\",\"generateEnergy\":false,\"source\":\"search_brandbox\"}]";
         }
-        return ApplicationHook.request("alipay.ecolife.rpc.h5.tick", args1);
+        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.tick", args1);
     }
 
     public static String queryDish(String channel, String dayPoint) {
-        return ApplicationHook.request("alipay.ecolife.rpc.h5.queryDish",
+        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.queryDish",
                 "[{\"channel\":\"" + channel + "\",\"dayPoint\":\"" + dayPoint
                         + "\",\"source\":\"photo-comparison\"}]");
     }

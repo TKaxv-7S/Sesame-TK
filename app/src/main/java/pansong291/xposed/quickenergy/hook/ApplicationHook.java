@@ -26,6 +26,7 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
+import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.entity.Task;
 import pansong291.xposed.quickenergy.model.AncientTree;
 import pansong291.xposed.quickenergy.model.AntCooperate;
@@ -242,6 +243,34 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Log.i(TAG, "hook service onDestroy successfully");
             } catch (Throwable t) {
                 Log.i(TAG, "hook service onDestroy err:");
+                Log.printStackTrace(TAG, t);
+            }
+            try {
+                XposedHelpers.findAndHookMethod("com.alipay.mobile.common.fgbg.FgBgMonitorImpl", classLoader, "isInBackground", XC_MethodReplacement.returnConstant(false));
+                Log.i(TAG, "hook FgBgMonitorImpl method 1 successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook FgBgMonitorImpl method 1 err:");
+                Log.printStackTrace(TAG, t);
+            }
+            try {
+                XposedHelpers.findAndHookMethod("com.alipay.mobile.common.fgbg.FgBgMonitorImpl", classLoader, "isInBackground", boolean.class, XC_MethodReplacement.returnConstant(false));
+                Log.i(TAG, "hook FgBgMonitorImpl method 2 successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook FgBgMonitorImpl method 2 err:");
+                Log.printStackTrace(TAG, t);
+            }
+            try {
+                XposedHelpers.findAndHookMethod("com.alipay.mobile.common.fgbg.FgBgMonitorImpl", classLoader, "isInBackgroundV2", XC_MethodReplacement.returnConstant(false));
+                Log.i(TAG, "hook FgBgMonitorImpl method 3 successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook FgBgMonitorImpl method 3 err:");
+                Log.printStackTrace(TAG, t);
+            }
+            try {
+                XposedHelpers.findAndHookMethod("com.alipay.mobile.common.transport.utils.MiscUtils", classLoader, "isAtFrontDesk", classLoader.loadClass("android.content.Context"), XC_MethodReplacement.returnConstant(true));
+                Log.i(TAG, "hook MiscUtils successfully");
+            } catch (Throwable t) {
+                Log.i(TAG, "hook MiscUtils err:");
                 Log.printStackTrace(TAG, t);
             }
             hooked = true;
@@ -582,12 +611,20 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    public static String request(String method, String data) {
-        return rpcBridge.requestJson(method, data);
+    public static String requestString(String method, String data) {
+        return rpcBridge.requestString(method, data);
     }
 
-    public static String request(String method, String data, int retryCount) {
-        return rpcBridge.requestJson(method, data, retryCount);
+    public static String requestString(String method, String data, int retryCount) {
+        return rpcBridge.requestString(method, data, retryCount);
+    }
+
+    public static RpcEntity requestObject(String method, String data) {
+        return rpcBridge.requestObject(method, data);
+    }
+
+    public static RpcEntity requestObject(String method, String data, int retryCount) {
+        return rpcBridge.requestObject(method, data, retryCount);
     }
 
     public static void holdByAlarm(long delayTime, boolean force) {
@@ -654,12 +691,18 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     }
 
     public static Boolean reLogin() {
-        Object authService = getExtServiceByInterface("com.alipay.mobile.framework.service.ext.security.AuthService");
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        offline = true;
+        context.startActivity(intent);
+        return true;
+        /*Object authService = getExtServiceByInterface("com.alipay.mobile.framework.service.ext.security.AuthService");
         if ((Boolean) XposedHelpers.callMethod(authService, "rpcAuth")) {
             return true;
         }
         Log.record("重新登录失败");
-        return false;
+        return false;*/
     }
 
     private static class AlipayBroadcastReceiver extends BroadcastReceiver {
