@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pansong291.xposed.quickenergy.task.model.dadaDailyRpcCall.DadaDailyRpcCall;
 import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
+import pansong291.xposed.quickenergy.task.model.dadaDailyRpcCall.DadaDailyRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
@@ -1008,7 +1008,7 @@ public class AntFarm extends Task {
     }
 
     private static boolean notifyFriend(JSONObject joAnimalStatusVO, String friendFarmId, String animalId,
-            String user) {
+                                        String user) {
         try {
             if (AnimalInteractStatus.STEALING.name().equals(joAnimalStatusVO.getString("animalInteractStatus"))
                     && AnimalFeedStatus.EATING.name().equals(joAnimalStatusVO.getString("animalFeedStatus"))) {
@@ -1478,7 +1478,7 @@ public class AntFarm extends Task {
                 if (doubleCheck)
                     chouchoule();
             } else {
-                //Log.record(jo.getString("memo"), s); //原来这样的，但打包时会报错，我不会弄
+                Log.record(jo.getString("memo") + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "chouchoule err:");
