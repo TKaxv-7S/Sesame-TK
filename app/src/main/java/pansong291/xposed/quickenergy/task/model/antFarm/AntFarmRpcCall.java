@@ -391,4 +391,31 @@ public class AntFarmRpcCall {
                 "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"token\":\"" + token +
                         "\",\"version\":\"" + VERSION + "\"}]");
     }
+
+    /* 抽抽乐 */
+    public static String enterDrawMachine() {
+        return ApplicationHook.requestString("com.alipay.antfarm.enterDrawMachine",
+                "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"siliaorenwu\"}]");
+    }
+
+    public static String chouchouleListFarmTask() {
+        return ApplicationHook.requestString("com.alipay.antfarm.listFarmTask",
+                "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"signSceneCode\":\"\",\"source\":\"H5\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\",\"topTask\":\"\"}]");
+    }
+
+    public static String chouchouleDoFarmTask(String bizKey) {
+        return ApplicationHook.requestString("com.alipay.antfarm.doFarmTask",
+                "[{\"bizKey\":\"" + bizKey + "\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
+    }
+
+    public static String chouchouleReceiveFarmTaskAward(String taskId) {
+        return ApplicationHook.requestString("com.alipay.antfarm.receiveFarmTaskAward",
+                "[{\"awardType\":\"DRAW_TIMES\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskId\":\""
+                        + taskId + "\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
+    }
+
+    public static String DrawPrize() {
+        return ApplicationHook.requestString("com.alipay.antfarm.DrawPrize",
+                "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\"}]");
+    }
 }

@@ -230,6 +230,12 @@ public class AntFarm extends Task {
 
                 }
 
+                // 抽抽乐
+                chouchoule();
+
+                DrawPrize();
+
+                // 到访小鸡送礼
                 visitAnimal();
 
                 // 送麦子
@@ -1439,6 +1445,97 @@ public class AntFarm extends Task {
             }
         } catch (Throwable t) {
             Log.i(TAG, "visitAnimal err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    /* 抽抽乐 */
+    private static void chouchoule() {
+        boolean doubleCheck = false;
+        try {
+            String s = AntFarmRpcCall.chouchouleListFarmTask();
+            JSONObject jo = new JSONObject(s);
+            if (jo.getBoolean("success")) {
+                JSONArray farmTaskList = jo.getJSONArray("farmTaskList");
+                for (int i = 0; i < farmTaskList.length(); i++) {
+                    jo = farmTaskList.getJSONObject(i);
+                    String taskStatus = jo.getString("taskStatus");
+                    String title = jo.getString("title");
+                    String taskId = jo.getString("bizKey");
+                    int rightsTimes = jo.optInt("rightsTimes", 0);
+                    int rightsTimesLimit = jo.optInt("rightsTimesLimit", 0);
+                    if ("FINISHED".equals(taskStatus)) {
+                        if (rightsTimes < rightsTimesLimit) {
+                            chouchouleDoFarmTask(taskId, title, rightsTimesLimit - rightsTimes);
+                        }
+                        chouchouleReceiveFarmTaskAward(taskId);
+                        doubleCheck = true;
+                    } else if ("TODO".equals(taskStatus)) {
+                        chouchouleDoFarmTask(taskId, title, rightsTimesLimit - rightsTimes);
+                        doubleCheck = true;
+                    }
+                }
+                if (doubleCheck)
+                    chouchoule();
+            } else {
+                //Log.record(jo.getString("memo"), s); //原来这样的，但打包时会报错，我不会弄
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "chouchoule err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private static void chouchouleDoFarmTask(String bizKey, String name, int times) {
+        try {
+            for (int i = 0; i < times; i++) {
+                String s = AntFarmRpcCall.chouchouleDoFarmTask(bizKey);
+                JSONObject jo = new JSONObject(s);
+                if (jo.getBoolean("success")) {
+                    Log.farm("庄园小鸡🧾️[完成:抽抽乐" + name + "]");
+                }
+            }
+
+        } catch (Throwable t) {
+            Log.i(TAG, "chouchouleDoFarmTask err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private static void chouchouleReceiveFarmTaskAward(String taskId) {
+        try {
+            String s = AntFarmRpcCall.chouchouleReceiveFarmTaskAward(taskId);
+            JSONObject jo = new JSONObject(s);
+            if (jo.getBoolean("success")) {
+                // Log.other("庄园小鸡🧾️[完成:心愿金" + name + "]" + amount);
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "chouchouleReceiveFarmTaskAward err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private static void DrawPrize() {
+        try {
+            String s = AntFarmRpcCall.enterDrawMachine();
+            JSONObject jo = new JSONObject(s);
+            if (jo.getBoolean("success")) {
+                JSONObject userInfo = jo.getJSONObject("userInfo");
+                int leftDrawTimes = userInfo.optInt("leftDrawTimes", 0);
+                if (leftDrawTimes > 0) {
+                    for (int i = 0; i < leftDrawTimes; i++) {
+                        jo = new JSONObject(AntFarmRpcCall.DrawPrize());
+                        if (jo.getBoolean("success")) {
+                            String title = jo.getString("title");
+                            int prizeNum = jo.optInt("prizeNum", 0);
+                            Log.farm("庄园小鸡🎁[领取:抽抽乐" + title + "*" + prizeNum + "]");
+                        }
+                        Thread.sleep(3000L);
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "DrawPrize err:");
             Log.printStackTrace(TAG, t);
         }
     }
