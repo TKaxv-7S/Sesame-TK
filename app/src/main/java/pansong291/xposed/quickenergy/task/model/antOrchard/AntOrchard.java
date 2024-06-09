@@ -375,6 +375,9 @@ public class AntOrchard extends Task {
                     for (int i = 0; i < recommendGroupList.length(); i++) {
                         jo = recommendGroupList.getJSONObject(i);
                         String animalUserId = jo.getString("animalUserId");
+                        if (Config.INSTANCE.getDontNotifyFriendList().contains(animalUserId)) {
+                            continue;
+                        }
                         int earnManureCount = jo.getInt("earnManureCount");
                         String groupId = jo.getString("groupId");
                         String orchardUserId = jo.getString("orchardUserId");

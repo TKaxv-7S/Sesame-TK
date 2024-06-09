@@ -53,7 +53,7 @@ public class AntFarmRpcCall {
 
     public static String orchardRecallAnimal(String animalId, String userId) {
         String args1 = "[{\"animalId\":\"" + animalId + "\",\"orchardUserId\":\"" + userId +
-                "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ORCHARD\",\"source\":\"zhuangyuan_zhaohuixiaoji\",\"version\":\"\"0.1.2307042001.2\"\"}]";
+                "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ORCHARD\",\"source\":\"zhuangyuan_zhaohuixiaoji\",\"version\":\"0.1.2403061630.6\"}]";
         return ApplicationHook.requestString("com.alipay.antorchard.recallAnimal", args1);
     }
 
@@ -195,13 +195,13 @@ public class AntFarmRpcCall {
 
     public static int RandomScore(String str) {
         if ("starGame".equals(str)) {
-            return RandomUtils.nextInt(200, 300);
+            return RandomUtils.nextInt(300, 400);
         } else if ("jumpGame".equals(str)) {
-            return RandomUtils.nextInt(150, 170) * 10;
+            return RandomUtils.nextInt(250, 270) * 10;
         } else if ("flyGame".equals(str)) {
-            return RandomUtils.nextInt(5000, 8000);
+            return RandomUtils.nextInt(4000, 8000);
         } else if ("hitGame".equals(str)) {
-            return RandomUtils.nextInt(60, 100);
+            return RandomUtils.nextInt(80, 120);
         } else {
             return 210;
         }
