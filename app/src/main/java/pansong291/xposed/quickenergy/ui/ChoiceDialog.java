@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 
 import pansong291.xposed.quickenergy.R;
-import pansong291.xposed.quickenergy.model.AntFarm.SendType;
+import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.SendType;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Config.RecallAnimalType;
 

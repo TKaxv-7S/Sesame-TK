@@ -11,8 +11,7 @@ import java.util.Locale;
 
 import lombok.Data;
 import lombok.Getter;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.model.AntFarm.SendType;
+import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.SendType;
 
 @Data
 public class Config {

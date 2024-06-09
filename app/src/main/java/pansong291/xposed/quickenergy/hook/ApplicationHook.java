@@ -12,7 +12,6 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
-import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -27,23 +26,12 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
-import pansong291.xposed.quickenergy.entity.Task;
-import pansong291.xposed.quickenergy.model.AncientTree;
-import pansong291.xposed.quickenergy.model.AntCooperate;
-import pansong291.xposed.quickenergy.model.AntFarm;
-import pansong291.xposed.quickenergy.model.AntForest;
-import pansong291.xposed.quickenergy.model.AntForestNotification;
-import pansong291.xposed.quickenergy.model.AntForestToast;
-import pansong291.xposed.quickenergy.model.AntMember;
-import pansong291.xposed.quickenergy.model.AntOcean;
-import pansong291.xposed.quickenergy.model.AntOrchard;
-import pansong291.xposed.quickenergy.model.AntSports;
-import pansong291.xposed.quickenergy.model.AntStall;
-import pansong291.xposed.quickenergy.model.GreenFinance;
-import pansong291.xposed.quickenergy.model.Reserve;
 import pansong291.xposed.quickenergy.rpc.NewRpcBridge;
 import pansong291.xposed.quickenergy.rpc.OldRpcBridge;
 import pansong291.xposed.quickenergy.rpc.RpcBridge;
+import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.task.common.TaskCommon;
+import pansong291.xposed.quickenergy.task.model.antMember.AntMemberRpcCall;
 import pansong291.xposed.quickenergy.ui.MainActivity;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Config;
@@ -84,35 +72,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private static Runnable mainRunner;
 
     private static RpcBridge rpcBridge;
-
-    @Getter
-    private static Task antForestTask;
-
-    private static Task antCooperateTask;
-
-    private static Task antFarmTask;
-
-    private static Task reserveTask;
-
-    private static Task ancientTreeTask;
-
-    //private static Task antBookReadTask;
-
-    private static Task antSportsTask;
-
-    private static Task antMemberTask;
-
-    private static Task antOceanTask;
-
-    private static Task antOrchardTask;
-
-    private static Task antStallTask;
-
-    private static Task greenFinanceTask;
-
-    //private static Task omegakoiTownTask;
-
-    //private static Task consumeGoldTask;
 
     private static PendingIntent alarm7Pi;
 
@@ -234,7 +193,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         if (!ClassUtil.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
                             return;
                         }
-                        AntForestNotification.setContentText("支付宝前台服务被销毁");
+                        Notification.setContentText("支付宝前台服务被销毁");
                         stopHandler(true);
                         Log.record("支付宝前台服务被销毁");
                         restartByBroadcast();
@@ -290,7 +249,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     Log.record("支付宝无闹钟权限");
                     mainHandler.postDelayed(() -> {
                         if (!PermissionUtil.checkOrRequestAlarmPermissions(context)) {
-                            Toast.makeText(context, "请授予支付宝使用闹钟权限", Toast.LENGTH_SHORT).show();
+                            android.widget.Toast.makeText(context, "请授予支付宝使用闹钟权限", android.widget.Toast.LENGTH_SHORT).show();
                         }
                     }, 2000);
                     return;
@@ -301,7 +260,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     Log.record("支付宝无始终在后台运行权限");
                     mainHandler.postDelayed(() -> {
                         if (!PermissionUtil.checkOrRequestBatteryPermissions(context)) {
-                            Toast.makeText(context, "请授予支付宝终在后台运行权限", Toast.LENGTH_SHORT).show();
+                            android.widget.Toast.makeText(context, "请授予支付宝终在后台运行权限", android.widget.Toast.LENGTH_SHORT).show();
                         }
                     }, 2000);
                 }
@@ -392,91 +351,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.i(TAG, "hook record new rpc response err:");
                         Log.printStackTrace(TAG, t);
                     }
-                    /*Map<Long, Boolean> callMap = new ConcurrentHashMap<>();
-                    try {
-                        XposedHelpers.findAndHookMethod(
-                                "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
-                                , "callJavaBridgeExtensionWithJson"
-                                , classLoader.loadClass("com.alibaba.ariver.kernel.api.node.Node"), String.class, classLoader.loadClass(ClassUtil.JSON_OBJECT_NAME), long.class, String.class
-                                , new XC_MethodHook() {
-        
-                                    @SuppressLint("WakelockTimeout")
-                                    @Override
-                                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                        if ("rpc".equals(param.args[1])) {
-                                            Object[] args = param.args;
-                                            Long id = (Long) args[3];
-                                            Log.debug("CallBridge id[" + id + "]: " + Arrays.toString(args));
-                                            callMap.put(id, true);
-                                        }
-                                    }
-        
-                                });
-                        Log.i(TAG, "hook callJavaBridgeExtensionWithJson successfully");
-                    } catch (Throwable t) {
-                        Log.i(TAG, "hook callJavaBridgeExtensionWithJson err:");
-                        Log.printStackTrace(TAG, t);
-                    }*/
-                    /*try {
-                        XposedHelpers.findAndHookMethod(
-                                "com.alibaba.xriver.android.bridge.CRVNativeBridge", loader
-                                , "nativeCallBridge"
-                                , long.class, int.class, String.class, String.class, String.class, String.class
-                                , new XC_MethodHook() {
-        
-                                    @SuppressLint("WakelockTimeout")
-                                    @Override
-                                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                        Object[] args = param.args;
-                                        Log.debug("NativeCallBridge: " + Arrays.toString(args));
-                                    }
-        
-                                });
-                        Log.i(TAG, "hook nativeCallBridge successfully");
-                    } catch (Throwable t) {
-                        Log.i(TAG, "hook nativeCallBridge err:");
-                        Log.printStackTrace(TAG, t);
-                    }*/
-                    /*try {
-                        XposedHelpers.findAndHookMethod(
-                                "com.alibaba.xriver.android.bridge.CRVNativeBridge", classLoader
-                                , "nativeInvokeCallback"
-                                , long.class, Object.class, boolean.class
-                                , new XC_MethodHook() {
-        
-                                    @SuppressLint("WakelockTimeout")
-                                    @Override
-                                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                        Object[] args = param.args;
-                                        Long id = (Long) args[0];
-                                        if (Boolean.TRUE.equals(callMap.remove(id))) {
-                                            Log.debug("Callback id[" + id + "]: " + Arrays.toString(args));
-                                        }
-                                    }
-        
-                                });
-                        Log.i(TAG, "hook nativeInvokeCallback successfully");
-                    } catch (Throwable t) {
-                        Log.i(TAG, "hook nativeInvokeCallback err:");
-                        Log.printStackTrace(TAG, t);
-                    }*/
                 }
                 Statistics.load();
-                Task.removeAllTask();
-                Task.putTask(antForestTask = AntForest.init());
-                Task.putTask(antCooperateTask = AntCooperate.init());
-                Task.putTask(antFarmTask = AntFarm.init());
-                Task.putTask(reserveTask = Reserve.init());
-                Task.putTask(ancientTreeTask = AncientTree.init());
-                //Task.putTask(antBookReadTask = AntBookRead.init());
-                Task.putTask(antSportsTask = AntSports.init());
-                Task.putTask(antMemberTask = AntMember.init());
-                Task.putTask(antOceanTask = AntOcean.init());
-                Task.putTask(antOrchardTask = AntOrchard.init());
-                Task.putTask(antStallTask = AntStall.init());
-                Task.putTask(greenFinanceTask = GreenFinance.init());
-                //Task.putTask(omegakoiTownTask = OmegakoiTown.init());
-                //Task.putTask(consumeGoldTask = ConsumeGold.init());
+                Task.initAllTask();
                 mainRunner = new Runnable() {
                     @Override
                     public void run() {
@@ -489,7 +366,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             String targetUid = getUserId();
                             if (targetUid != null) {
                                 FriendIdMap.setCurrentUid(targetUid);
-                                AntForestNotification.setContentTextExec();
+                                Notification.setContentTextExec();
                                 try {
                                     Statistics.resetToday();
                                 } catch (Exception e) {
@@ -513,42 +390,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     mainHandler.postDelayed(this, config.getCheckInterval());
                                     return;
                                 }
-                                antForestTask.startTask();
-                                if (TimeUtil.getTimeStr().compareTo("0700") < 0
-                                        || TimeUtil.getTimeStr().compareTo("0730") > 0) {
-                                    TimeUtil.sleep(50);
-                                    antCooperateTask.startTask();
-                                    TimeUtil.sleep(50);
-                                    antFarmTask.startTask();
-                                    TimeUtil.sleep(50);
-                                    reserveTask.startTask();
-                                    if (TimeUtil.getTimeStr().compareTo("0800") >= 0) {
-                                        TimeUtil.sleep(60);
-                                        ancientTreeTask.startTask();
-                                        //TimeUtil.sleep(60);
-                                        //antBookReadTask.startTask();
-                                    }
-                                    TimeUtil.sleep(60);
-                                    antSportsTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    antMemberTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    antOceanTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    antOrchardTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    antStallTask.startTask();
-                                    TimeUtil.sleep(60);
-                                    greenFinanceTask.startTask();
-                                    //TimeUtil.sleep(60);
-                                    //omegakoiTownTask.startTask();
-                                    //TimeUtil.sleep(60);
-                                    //consumeGoldTask.startTask();
-                                }
+                                TaskCommon.IS_MORNING = TimeUtil.getTimeStr().compareTo("0700") >= 0 && TimeUtil.getTimeStr().compareTo("0730") <= 0;
+                                TaskCommon.IS_AFTER_8AM = TimeUtil.getTimeStr().compareTo("0800") >= 0;
+
+                                Task.startAllTask(false);
                             }
                             int checkInterval = config.getCheckInterval();
-                            AntForestNotification.setNextScanTime(System.currentTimeMillis() + checkInterval);
-                            AntForestNotification.setContentTextIdle();
+                            Notification.setNextScanTime(System.currentTimeMillis() + checkInterval);
+                            Notification.setContentTextIdle();
                             mainHandler.postDelayed(this, checkInterval);
                             FileUtils.clearLog(2);
                         } catch (Exception e){
@@ -560,11 +409,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }
                 };
                 Log.record("加载完成");
-                AntForestToast.show("芝麻粒加载成功");
+                Toast.show("芝麻粒加载成功");
                 init = true;
             }
             offline = false;
-            AntForestNotification.start(service);
+            Notification.start(service);
             mainHandler.post(mainRunner);
         } catch (Throwable th) {
             Log.i(TAG, "startHandler err:");
@@ -576,7 +425,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             if (mainHandler != null && mainRunner != null) {
                 mainHandler.removeCallbacks(mainRunner);
-                AntForestNotification.stop(service, false);
+                Notification.stop(service, false);
             }
             if (force) {
                 if (rpcResponseUnhook != null) {

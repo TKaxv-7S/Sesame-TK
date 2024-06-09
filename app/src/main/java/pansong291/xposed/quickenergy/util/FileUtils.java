@@ -11,7 +11,7 @@ import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import pansong291.xposed.quickenergy.model.AntForestToast;
+import pansong291.xposed.quickenergy.hook.Toast;
 
 public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
@@ -440,7 +440,7 @@ public class FileUtils {
             return "";
         }
         if (!f.canRead()) {
-            AntForestToast.show(f.getName() + "没有读取权限！", true);
+            Toast.show(f.getName() + "没有读取权限！", true);
             return "";
         }
         StringBuilder result = new StringBuilder();
@@ -462,7 +462,7 @@ public class FileUtils {
 
     public static boolean write2File(String s, File f) {
         if (f.exists() && !f.canWrite()) {
-            AntForestToast.show(f.getAbsoluteFile() + "没有写入权限！", true);
+            Toast.show(f.getAbsoluteFile() + "没有写入权限！", true);
             return false;
         }
         boolean success = false;
@@ -482,7 +482,7 @@ public class FileUtils {
 
     public static boolean append2File(String s, File f) {
         if (f.exists() && !f.canWrite()) {
-            AntForestToast.show(f.getAbsoluteFile() + "没有写入权限！", true);
+            Toast.show(f.getAbsoluteFile() + "没有写入权限！", true);
             return false;
         }
         boolean success = false;

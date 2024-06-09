@@ -12,7 +12,7 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.Settings;
 
-import pansong291.xposed.quickenergy.hook.AntForestRpcCall;
+import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 
 public class PermissionUtil {

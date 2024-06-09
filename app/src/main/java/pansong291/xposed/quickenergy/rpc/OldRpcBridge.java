@@ -10,7 +10,7 @@ import java.text.DateFormat;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.model.AntForestNotification;
+import pansong291.xposed.quickenergy.hook.Notification;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
@@ -106,7 +106,7 @@ public class OldRpcBridge implements RpcBridge{
                         if (msg.contains("登录超时")) {
                             if (!ApplicationHook.isOffline()) {
                                 ApplicationHook.setOffline(true);
-                                AntForestNotification.setContentText("登录超时");
+                                Notification.setContentText("登录超时");
                                 if (Config.INSTANCE.isTimeoutRestart()) {
                                     Log.record("尝试重新登录");
                                     ApplicationHook.reLoginByBroadcast();
@@ -116,7 +116,7 @@ public class OldRpcBridge implements RpcBridge{
                             if (Config.INSTANCE.getWaitWhenException() > 0) {
                                 long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
                                 RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                                AntForestNotification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                Notification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
                             try {
@@ -151,7 +151,7 @@ public class OldRpcBridge implements RpcBridge{
                 JSONObject resultObject = new JSONObject(resultStr);
                 if (resultObject.optString("memo", "").contains("系统繁忙")) {
                     ApplicationHook.setOffline(true);
-                    AntForestNotification.setContentText("系统繁忙，可能需要滑动验证");
+                    Notification.setContentText("系统繁忙，可能需要滑动验证");
                     Log.record("系统繁忙，可能需要滑动验证");
                     return null;
                 }
