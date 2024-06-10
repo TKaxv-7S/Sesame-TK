@@ -81,8 +81,15 @@ public class HtmlViewerActivity extends Activity {
 
             case 2:
                 if (uri != null) {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(intent);
+                    String scheme = uri.getScheme();
+                    if ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        startActivity(intent);
+                    } else if ("file".equalsIgnoreCase(scheme)) {
+                        Toast.makeText(this, "该文件不支持用浏览器打开", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "不支持用浏览器打开", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
 
