@@ -73,6 +73,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static RpcBridge rpcBridge;
 
+    private static PendingIntent alarm0Pi;
+
     private static PendingIntent alarm7Pi;
 
     private static PowerManager.WakeLock wakeLock;
@@ -270,9 +272,25 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     rpcBridge = new OldRpcBridge();
                 }
                 rpcBridge.load();
+                if (config.isStartAt0()) {
+                    try {
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
+                        Calendar calendar = Calendar.getInstance();
+                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7) {
+                            calendar.add(Calendar.DAY_OF_MONTH, 1);
+                        }
+                        calendar.set(Calendar.HOUR_OF_DAY, 0);
+                        calendar.set(Calendar.MINUTE, 0);
+                        calendar.set(Calendar.SECOND, 0);
+                        calendar.set(Calendar.MILLISECOND, 0);
+                        setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
+                        alarm0Pi = pendingIntent;
+                    } catch (Throwable th) {
+                        Log.printStackTrace("alarm0", th);
+                    }
+                }
                 if (config.isStartAt7()) {
                     try {
-                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
                         if (calendar.get(Calendar.HOUR_OF_DAY) >= 7) {
@@ -282,12 +300,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         calendar.set(Calendar.MINUTE, 55);
                         calendar.set(Calendar.SECOND, 0);
                         calendar.set(Calendar.MILLISECOND, 0);
-                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pi);
-                        } else {
-                            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pi);
-                        }*/
-                        alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), null), pendingIntent);
+                        setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
                         alarm7Pi = pendingIntent;
                     } catch (Throwable th) {
                         Log.printStackTrace("alarm7", th);
@@ -448,6 +461,16 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 } finally {
                     alarm7Pi = null;
                 }
+                try {
+                    if (alarm0Pi != null) {
+                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                        alarmManager.cancel(alarm0Pi);
+                    }
+                } catch (Throwable th) {
+                    Log.printStackTrace("alarm0", th);
+                } finally {
+                    alarm0Pi = null;
+                }
                 if (rpcBridge != null) {
                     rpcBridge.unload();
                     rpcBridge = null;
@@ -460,12 +483,42 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
+    private static void setAlarmTask(long triggerAtMillis, PendingIntent operation) {
+        try {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, operation);
+            } else {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, operation);
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "setAlarmTask err:");
+            Log.printStackTrace(TAG, th);
+        }
+    }
+
+    public static String requestString(RpcEntity rpcEntity) {
+        return rpcBridge.requestString(rpcEntity, 3);
+    }
+
+    public static String requestString(RpcEntity rpcEntity, int retryCount) {
+        return rpcBridge.requestString(rpcEntity, retryCount);
+    }
+
     public static String requestString(String method, String data) {
         return rpcBridge.requestString(method, data);
     }
 
     public static String requestString(String method, String data, int retryCount) {
         return rpcBridge.requestString(method, data, retryCount);
+    }
+
+    public static RpcEntity requestObject(RpcEntity rpcEntity) {
+        return rpcBridge.requestObject(rpcEntity, 3);
+    }
+
+    public static RpcEntity requestObject(RpcEntity rpcEntity, int retryCount) {
+        return rpcBridge.requestObject(rpcEntity, retryCount);
     }
 
     public static RpcEntity requestObject(String method, String data) {
@@ -478,14 +531,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     public static void holdByAlarm(long delayTime, boolean force) {
         try {
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent it = new Intent();
             it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
             PendingIntent pi = PendingIntent.getService(context, 2, it, getPendingIntentFlag());
             if (force) {
                 offline = true;
             }
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + delayTime, pi);
+            setAlarmTask(System.currentTimeMillis() + delayTime, pi);
         } catch (Throwable th) {
             Log.i(TAG, "holdByAlarm err:");
             Log.printStackTrace(TAG, th);
@@ -560,6 +612,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             String action = intent.getAction();
             if ("com.eg.android.AlipayGphone.xqe.restart".equals(action)) {
                 startHandler(true);
+            } else if ("com.eg.android.AlipayGphone.xqe.execute".equals(action)) {
+                startHandler(false);
             } else if ("com.eg.android.AlipayGphone.xqe.reLogin".equals(action)) {
                 reLogin();
                 startHandler(false);

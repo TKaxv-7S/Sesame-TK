@@ -141,9 +141,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (hasPermissions) {
-            tvStatistics.setText(Statistics.getText());
-        }
+        tvStatistics.setText(Statistics.getText());
     }
 
     @SuppressLint("NonConstantResourceId")

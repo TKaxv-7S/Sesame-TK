@@ -12,10 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
 import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.ThreadUtil;
 
 public abstract class Task {
-
-    private static final String TAG = Task.class.getSimpleName();
 
     private static final Map<Class<? extends Task>, Task> taskMap = new ConcurrentHashMap<>();
 
@@ -63,7 +62,7 @@ public abstract class Task {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childThreadMap.compute(childName, (key, value) -> {
                 if (value != null) {
-                    shutdownAndWait(value, -1, TimeUnit.SECONDS);
+                    ThreadUtil.shutdownAndWait(value, -1, TimeUnit.SECONDS);
                 }
                 childThread.start();
                 return childThread;
@@ -71,7 +70,7 @@ public abstract class Task {
         } else {
             Thread oldThread = childThreadMap.get(childName);
             if (oldThread != null) {
-                shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
+                ThreadUtil.shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
             }
             childThread.start();
             childThreadMap.put(childName, childThread);
@@ -82,14 +81,14 @@ public abstract class Task {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childThreadMap.compute(childName, (key, value) -> {
                 if (value != null) {
-                    shutdownAndWait(value, -1, TimeUnit.SECONDS);
+                    ThreadUtil.shutdownAndWait(value, -1, TimeUnit.SECONDS);
                 }
                 return null;
             });
         } else {
             Thread oldThread = childThreadMap.get(childName);
             if (oldThread != null) {
-                shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
+                ThreadUtil.shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
             }
             childThreadMap.remove(childName);
         }
@@ -120,11 +119,11 @@ public abstract class Task {
 
     public synchronized void stopTask() {
         if (thread != null && thread.isAlive()) {
-            shutdownAndWait(thread, 5, TimeUnit.SECONDS);
+            ThreadUtil.shutdownAndWait(thread, 5, TimeUnit.SECONDS);
         }
         for (Thread childThread : childThreadMap.values()) {
             if (childThread != null) {
-                shutdownAndWait(childThread, -1, TimeUnit.SECONDS);
+                ThreadUtil.shutdownAndWait(childThread, -1, TimeUnit.SECONDS);
             }
         }
         thread = null;
@@ -191,20 +190,6 @@ public abstract class Task {
                 task.stopTask();
                 taskArray[i] = null;
                 taskMap.remove(task.getClass());
-            }
-        }
-    }
-
-    public static void shutdownAndWait(Thread thread, long timeout, TimeUnit unit) {
-        if (thread != null) {
-            thread.interrupt();
-            if (timeout > -1L) {
-                try {
-                    thread.join(unit.toMillis(timeout));
-                } catch (InterruptedException e) {
-                    Log.i(TAG, "task shutdown err:");
-                    Log.printStackTrace(TAG, e);
-                }
             }
         }
     }

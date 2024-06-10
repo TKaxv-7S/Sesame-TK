@@ -42,7 +42,7 @@ public class SettingsActivity extends Activity {
     private Animation slideRightIn;
     private Animation slideRightOut;
 
-    Switch sw_immediateEffect, sw_recordLog, sw_showToast, sw_stayAwake, sw_timeoutRestart, sw_startAt7,
+    Switch sw_immediateEffect, sw_recordLog, sw_showToast, sw_stayAwake, sw_timeoutRestart, sw_startAt0, sw_startAt7,
             sw_collectWateringBubble, sw_collectProp, sw_collectEnergy, sw_helpFriendCollect, sw_receiveForestTaskAward,
             sw_cooperateWater, sw_energyRain, sw_enableFarm, sw_rewardFriend, sw_sendBackAnimal,
             sw_receiveFarmToolReward, sw_useNewEggTool, sw_harvestProduce, sw_donation, sw_answerQuestion,
@@ -172,6 +172,7 @@ public class SettingsActivity extends Activity {
         sw_showToast = findViewById(R.id.sw_showToast);
         sw_stayAwake = findViewById(R.id.sw_stayAwake);
         sw_timeoutRestart = findViewById(R.id.sw_timeoutRestart);
+        sw_startAt0 = findViewById(R.id.sw_startAt0);
         sw_startAt7 = findViewById(R.id.sw_startAt7);
         sw_enableOnGoing = findViewById(R.id.sw_enableOnGoing);
         sw_batteryPerm = findViewById(R.id.sw_batteryPerm);
@@ -255,6 +256,7 @@ public class SettingsActivity extends Activity {
         sw_showToast.setChecked(config.isShowToast());
         sw_stayAwake.setChecked(config.isStayAwake());
         sw_timeoutRestart.setChecked(config.isTimeoutRestart());
+        sw_startAt0.setChecked(config.isStartAt0());
         sw_startAt7.setChecked(config.isStartAt7());
         sw_enableOnGoing.setChecked(config.isEnableOnGoing());
         sw_batteryPerm.setChecked(config.isBatteryPerm());
@@ -353,6 +355,10 @@ public class SettingsActivity extends Activity {
 
                 case R.id.sw_timeoutRestart:
                     config.setTimeoutRestart(sw.isChecked());
+                    break;
+
+                case R.id.sw_startAt0:
+                    config.setStartAt0(sw.isChecked());
                     break;
 
                 case R.id.sw_startAt7:

@@ -69,20 +69,21 @@ public class OldRpcBridge implements RpcBridge{
         loader = null;
     }
 
-    public String requestString(String method, String data, int retryCount) {
-        RpcEntity rpcEntity = requestObject(method, data, retryCount);
-        if (rpcEntity != null) {
-            return rpcEntity.getResultStr();
+    public String requestString(RpcEntity rpcEntity, int retryCount) {
+        RpcEntity resRpcEntity = requestObject(rpcEntity, retryCount);
+        if (resRpcEntity != null) {
+            return resRpcEntity.getResponseString();
         }
         return null;
     }
 
     @Override
-    public RpcEntity requestObject(String method, String data, int retryCount) {
+    public RpcEntity requestObject(RpcEntity rpcEntity, int retryCount) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
-        RpcEntity result;
+        String method = rpcEntity.getRequestMethod();
+        String data = rpcEntity.getRequestData();
         int count = 0;
         do {
             count++;
@@ -99,7 +100,6 @@ public class OldRpcBridge implements RpcBridge{
             } catch (Throwable t) {
                 Log.i(TAG, "old rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
-                result = null;
                 if (t instanceof InvocationTargetException) {
                     String msg = t.getCause().getMessage();
                     if (!StringUtil.isEmpty(msg)) {
@@ -126,11 +126,10 @@ public class OldRpcBridge implements RpcBridge{
                             }
                         } else if (msg.contains("MMTPException")) {
                             try {
-                                RpcEntity tempResult = new RpcEntity();
                                 String jsonString = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
-                                tempResult.setResult(new JSONObject(jsonString), jsonString);
-                                tempResult.setError();
-                                result = tempResult;
+                                rpcEntity.setResponseObject(new JSONObject(jsonString), jsonString);
+                                rpcEntity.setError();
+                                return rpcEntity;
                             } catch (JSONException e) {
                                 Log.printStackTrace(e);
                             }
@@ -143,7 +142,7 @@ public class OldRpcBridge implements RpcBridge{
                         }
                     }
                 }
-                return result;
+                return null;
             }
             try {
                 String resultStr = (String) getResponseMethod.invoke(resp);
@@ -155,15 +154,14 @@ public class OldRpcBridge implements RpcBridge{
                     Log.record("系统繁忙，可能需要滑动验证");
                     return null;
                 }
-                result = new RpcEntity();
-                result.setResult(resultObject, resultStr);
-                return result;
+                rpcEntity.setResponseObject(resultObject, resultStr);
+                return rpcEntity;
             } catch (Throwable t) {
                 Log.i(TAG, "old rpc response [" + method + "] get err:");
             }
             return null;
         } while (count < retryCount);
-        return result;
+        return null;
     }
 
 }

@@ -1,63 +1,38 @@
 package pansong291.xposed.quickenergy.entity;
 
+import lombok.Getter;
+
+@Getter
 public class RpcEntity {
 
-    private final Long id;
+    private final Thread requestThread;
 
-    private volatile Thread thread;
+    private final String requestMethod;
+
+    private final String requestData;
 
     private volatile Boolean hasResult = false;
 
     private volatile Boolean hasError = false;
 
-    private volatile Object result;
+    private volatile Object responseObject;
 
-    private volatile String resultStr;
+    private volatile String responseString;
 
-    public Long getId() {
-        return id;
-    }
-
-    public Thread getThread() {
-        return thread;
-    }
-
-    public Boolean getHasResult() {
-        return hasResult;
-    }
-
-    public Object getResult() {
-        return result;
-    }
-
-    public String getResultStr() {
-        return resultStr;
-    }
-
-    public Boolean getHasError() {
-        return hasError;
-    }
-
-    public RpcEntity(Thread thread) {
-        this.id = thread.getId();
-        this.thread = thread;
-        this.result = null;
+    public RpcEntity(String requestMethod, String requestData) {
+        this.requestThread = Thread.currentThread();
+        this.requestMethod = requestMethod;
+        this.requestData = requestData;
     }
 
     public RpcEntity() {
-        this.id = null;
-        this.thread = null;
-        this.result = null;
+        this(null, null);
     }
 
-    public void delThread() {
-        this.thread = null;
-    }
-
-    public void setResult(Object result, String resultStr) {
+    public void setResponseObject(Object result, String resultStr) {
         this.hasResult = true;
-        this.result = result;
-        this.resultStr = resultStr;
+        this.responseObject = result;
+        this.responseString = resultStr;
     }
 
     public void setError() {

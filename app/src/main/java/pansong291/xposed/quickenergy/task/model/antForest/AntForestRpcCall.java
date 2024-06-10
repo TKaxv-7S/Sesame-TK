@@ -3,6 +3,10 @@ package pansong291.xposed.quickenergy.task.model.antForest;
 import java.text.DateFormat;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
@@ -17,6 +21,18 @@ import pansong291.xposed.quickenergy.util.StringUtil;
 public class AntForestRpcCall {
 
     private static final String VERSION = "20240403";
+
+    private static final Object collectEnergyLockObj = new Object();
+
+    private static final ThreadPoolExecutor collectEnergyThreadPoolExecutor = new ThreadPoolExecutor(
+            1,
+            3,
+            TimeUnit.SECONDS.toNanos(30)
+            , TimeUnit.NANOSECONDS,
+            new ArrayBlockingQueue<>(10000),
+            Executors.defaultThreadFactory(),
+            new ThreadPoolExecutor.AbortPolicy()
+    );
 
     private static String getUniqueId() {
         return String.valueOf(System.currentTimeMillis()) + RandomUtils.nextLong();
@@ -46,6 +62,7 @@ public class AntForestRpcCall {
     }
 
     public static String collectEnergy(String bizType, String userId, long bubbleId) {
+        Thread thread = Thread.currentThread();
         String args1;
         if (StringUtil.isEmpty(bizType)) {
             args1 = "[{\"bizType\":\"\",\"bubbleIds\":[" + bubbleId
@@ -55,55 +72,98 @@ public class AntForestRpcCall {
             args1 = "[{\"bizType\":\"" + bizType + "\",\"bubbleIds\":[" + bubbleId
                     + "],\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\"" + userId + "\"}]";
         }
-        RpcEntity rpcEntity = ApplicationHook.requestObject("alipay.antmember.forest.h5.collectEnergy", args1, 0);
-        if (rpcEntity != null) {
-            if (!rpcEntity.getHasError()) {
-                return rpcEntity.getResultStr();
-            }
-            String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResult(), "getString", "error");
-            if ("1004".equals(errorCode)) {
-                if (Config.INSTANCE.getWaitWhenException() > 0) {
-                    long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
-                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                    Notification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+        RpcEntity rpcEntity = new RpcEntity("alipay.antmember.forest.h5.collectEnergy", args1);
+        synchronized (thread) {
+            collectEnergyThreadPoolExecutor.execute(() -> {
+                synchronized (collectEnergyLockObj) {
+                    try {
+                        RpcEntity resRpcEntity = ApplicationHook.requestObject(rpcEntity, 0);
+                        if (resRpcEntity != null) {
+                            if (!resRpcEntity.getHasError()) {
+                                return;
+                            }
+                            String errorCode = (String) XposedHelpers.callMethod(resRpcEntity.getResponseObject(), "getString", "error");
+                            if ("1004".equals(errorCode)) {
+                                if (Config.INSTANCE.getWaitWhenException() > 0) {
+                                    long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
+                                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                    Notification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                }
+                                try {
+                                    Thread.sleep(600 + RandomUtils.delay());
+                                } catch (InterruptedException e) {
+                                    Log.printStackTrace(e);
+                                }
+                            }
+                        }
+                    } finally {
+                        synchronized (thread) {
+                            thread.notifyAll();
+                        }
+                        try {
+                            Thread.sleep(350);
+                        } catch (InterruptedException e) {
+                        }
+                    }
                 }
-                try {
-                    Thread.sleep(600 + RandomUtils.delay());
-                } catch (InterruptedException e) {
-                    Log.printStackTrace(e);
-                }
+            });
+            try {
+                thread.wait(30000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
-        return null;
+        return rpcEntity.getResponseString();
     }
 
     public static String batchRobEnergy(String userId, List<String> bubbleId) {
-        String args1;
-        args1 = "[{\"bizType\":\"\",\"bubbleIds\":[" + String.join(",", bubbleId)
+        Thread thread = Thread.currentThread();
+        RpcEntity rpcEntity = new RpcEntity("alipay.antmember.forest.h5.collectEnergy", "[{\"bizType\":\"\",\"bubbleIds\":[" + String.join(",", bubbleId)
                 + "],\"fromAct\":\"BATCH_ROB_ENERGY\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\"" + userId + "\",\"version\":\""
-                + VERSION + "\"}]";
-        RpcEntity rpcEntity = ApplicationHook.requestObject("alipay.antmember.forest.h5.collectEnergy", args1);
-        if (rpcEntity != null) {
-            if (!rpcEntity.getHasError()) {
-                return rpcEntity.getResultStr();
-            }
-            String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResult(), "getString", "error");
-            if ("1004".equals(errorCode)) {
-                if (Config.INSTANCE.getWaitWhenException() > 0) {
-                    long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
-                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                    Notification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                + VERSION + "\"}]");
+        synchronized (thread) {
+            collectEnergyThreadPoolExecutor.execute(() -> {
+                synchronized (collectEnergyLockObj) {
+                    try {
+                        RpcEntity resRpcEntity = ApplicationHook.requestObject(rpcEntity);
+                        if (resRpcEntity != null) {
+                            if (!resRpcEntity.getHasError()) {
+                                return;
+                            }
+                            String errorCode = (String) XposedHelpers.callMethod(resRpcEntity.getResponseObject(), "getString", "error");
+                            if ("1004".equals(errorCode)) {
+                                if (Config.INSTANCE.getWaitWhenException() > 0) {
+                                    long waitTime = System.currentTimeMillis() + Config.INSTANCE.getWaitWhenException();
+                                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                    Notification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                }
+                                try {
+                                    Thread.sleep(600 + RandomUtils.delay());
+                                } catch (InterruptedException e) {
+                                    Log.printStackTrace(e);
+                                }
+                            }
+                        }
+                    } finally {
+                        synchronized (thread) {
+                            thread.notifyAll();
+                        }
+                        try {
+                            Thread.sleep(350);
+                        } catch (InterruptedException e) {
+                        }
+                    }
                 }
-                try {
-                    Thread.sleep(600 + RandomUtils.delay());
-                } catch (InterruptedException e) {
-                    Log.printStackTrace(e);
-                }
+            });
+            try {
+                thread.wait(30000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
-        return null;
+        return rpcEntity.getResponseString();
     }
 
     public static String collectRebornEnergy() {

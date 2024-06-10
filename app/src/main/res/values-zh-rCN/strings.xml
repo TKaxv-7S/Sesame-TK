@@ -107,6 +107,7 @@
     <string name="beach">保护海洋</string>
     <string name="beach_list">保护海洋列表(总数)</string>
     <string name="test">测试</string>
+    <string name="start_at_0_o_clock">0点整执行</string>
     <string name="start_at_7_o_clock">7点前启动</string>
     <string name="tiyubiz">文体中心</string>
     <string name="friend_watch">好友统计</string>

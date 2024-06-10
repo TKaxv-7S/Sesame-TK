@@ -37,7 +37,6 @@ public class Notification {
                 getNotificationManager(context).notify(NOTIFICATION_ID, mNotification);
             isStart = true;
         }
-        setContentTextIdle();
     }
 
     public static void stop(Context context, boolean remove) {

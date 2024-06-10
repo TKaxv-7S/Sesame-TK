@@ -8,16 +8,32 @@ public interface RpcBridge {
 
     void unload();
 
+    String requestString(RpcEntity rpcEntity, int retryCount);
+
+    default String requestString(RpcEntity rpcEntity) {
+        return requestString(rpcEntity, 3);
+    }
+
     default String requestString(String method, String data) {
         return requestString(method, data, 3);
     }
 
-    String requestString(String method, String data, int retryCount);
+    default String requestString(String method, String data, int retryCount) {
+        return requestString(new RpcEntity(method, data), retryCount);
+    }
+
+    RpcEntity requestObject(RpcEntity rpcEntity, int retryCount);
+
+    default RpcEntity requestObject(RpcEntity rpcEntity) {
+        return requestObject(rpcEntity, 3);
+    }
 
     default RpcEntity requestObject(String method, String data) {
         return requestObject(method, data, 3);
     }
 
-    RpcEntity requestObject(String method, String data, int retryCount);
+    default RpcEntity requestObject(String method, String data, int retryCount) {
+        return requestObject(new RpcEntity(method, data), retryCount);
+    }
 
 }

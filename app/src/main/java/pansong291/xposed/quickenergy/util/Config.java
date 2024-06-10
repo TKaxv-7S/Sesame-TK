@@ -31,6 +31,7 @@ public class Config {
     private int checkInterval;
     private boolean stayAwake;
     private boolean timeoutRestart;
+    private boolean startAt0 = true;
     private boolean startAt7;
     private boolean enableOnGoing;
     private boolean batteryPerm = true;
