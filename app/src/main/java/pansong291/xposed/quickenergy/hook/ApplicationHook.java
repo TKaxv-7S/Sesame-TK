@@ -243,10 +243,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         if (context == null) {
             return;
         }
-        if (!Config.INSTANCE.isImmediateEffect()) {
-            stopHandler(true);
-            return;
-        }
         stopHandler(force);
         try {
             if (!init || force) {
@@ -261,6 +257,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 Log.record("开始加载");
                 Config config = Config.load();
+                if (!Config.INSTANCE.isImmediateEffect()) {
+                    Log.record("芝麻粒已禁用");
+                    Toast.show("芝麻粒已禁用");
+                    return;
+                }
                 if (config.isBatteryPerm() && !init && !PermissionUtil.checkBatteryPermissions()) {
                     Log.record("支付宝无始终在后台运行权限");
                     mainHandler.postDelayed(() -> {

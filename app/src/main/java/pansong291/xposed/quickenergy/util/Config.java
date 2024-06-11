@@ -24,7 +24,7 @@ public class Config {
     private static volatile boolean init;
 
     /* application */
-    private boolean immediateEffect;
+    private boolean immediateEffect = true;
     private boolean recordLog;
     private boolean showToast;
     private int toastOffsetY;
