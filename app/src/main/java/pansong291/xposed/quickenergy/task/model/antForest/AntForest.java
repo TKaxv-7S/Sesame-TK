@@ -400,7 +400,7 @@ public class AntForest extends Task {
                 serverTime = joHomePage.getLong("now");
                 offsetTime = (start + end) / 2 - serverTime;
                 Log.i(TAG, "服务器时间：" + serverTime + "，本地减服务器时间差：" + offsetTime);
-                String whackMoleStatus = joHomePage.getString("whackMoleStatus");
+                String whackMoleStatus = joHomePage.optString("whackMoleStatus");
                 if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
                     whackMole();
                 }
