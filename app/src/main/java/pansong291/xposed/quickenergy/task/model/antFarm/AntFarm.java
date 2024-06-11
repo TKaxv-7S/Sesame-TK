@@ -243,7 +243,9 @@ public class AntFarm extends Task {
                 }
 
                 // 抽抽乐
-                chouchoule();
+                if (Config.INSTANCE.isEnableChouchoule()) {
+                    chouchoule();
+                }
 
                 if (!StringUtil.isEmpty(Config.INSTANCE.getAnimalSleepTime())) {
                     if (Config.INSTANCE.hasAnimalSleepTime()) {

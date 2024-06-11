@@ -46,7 +46,7 @@ public class SettingsActivity extends Activity {
             sw_collectWateringBubble, sw_collectProp, sw_collectEnergy, sw_helpFriendCollect, sw_receiveForestTaskAward,
             sw_cooperateWater, sw_energyRain, sw_enableFarm, sw_rewardFriend, sw_sendBackAnimal,
             sw_receiveFarmToolReward, sw_useNewEggTool, sw_harvestProduce, sw_donation, sw_answerQuestion,
-            sw_receiveFarmTaskAward, sw_feedAnimal, sw_useAccelerateTool, sw_notifyFriend, sw_receivePoint,
+            sw_receiveFarmTaskAward, sw_feedAnimal, sw_useAccelerateTool, sw_enableChouchoule, sw_notifyFriend, sw_receivePoint,
             sw_openTreasureBox, sw_donateCharityCoin, sw_kbSignIn, sw_limitCollect, sw_doubleCard,
             sw_ExchangeEnergyDoubleClick, sw_reserve, sw_ecoLifeTick, sw_tiyubiz, sw_insBlueBeanExchange,
             sw_ancientTree, sw_ancientTreeOnlyWeek, sw_receiveCoinAsset, sw_antdodoCollect, sw_recordFarmGame, sw_beach,
@@ -205,6 +205,7 @@ public class SettingsActivity extends Activity {
         sw_receiveFarmTaskAward = findViewById(R.id.sw_receiveFarmTaskAward);
         sw_feedAnimal = findViewById(R.id.sw_feedAnimal);
         sw_useAccelerateTool = findViewById(R.id.sw_useAccelerateTool);
+        sw_enableChouchoule = findViewById(R.id.sw_enableChouchoule);
         sw_notifyFriend = findViewById(R.id.sw_notifyFriend);
         sw_acceptGift = findViewById(R.id.sw_acceptGift);
         sw_chickenDiary = findViewById(R.id.sw_chickenDiary);
@@ -290,6 +291,7 @@ public class SettingsActivity extends Activity {
         sw_feedAnimal.setChecked(config.isFeedAnimal());
         sw_useAccelerateTool.setChecked(config.isUseAccelerateTool());
         sw_notifyFriend.setChecked(config.isNotifyFriend());
+        sw_enableChouchoule.setChecked(config.isEnableChouchoule());
         sw_acceptGift.setChecked(config.isAcceptGift());
         sw_chickenDiary.setChecked(config.isChickenDiary());
         sw_antOrchard.setChecked(config.isAntOrchard());

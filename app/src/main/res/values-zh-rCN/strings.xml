@@ -125,6 +125,7 @@
     <string name="language_simplified_chinese_need_restart">重启当前app生效</string>
     <string name="ant_orchard">开启农场</string>
     <string name="receive_orchard_task_award">收取农场任务奖励</string>
+    <string name="enable_chouchoule">开启小鸡抽抽乐</string>
     <string name="orchard_spread_manure_count">农场每日施肥次数</string>
     <string name="collect_prop">收集道具</string>
     <string name="who_you_want_to_give_to">赠送道具给谁（赠送所有可送道具）</string>

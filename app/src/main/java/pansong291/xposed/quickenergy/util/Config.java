@@ -116,6 +116,7 @@ public class Config {
     private List<String> farmGameTime;
     private List<String> animalSleepTime;
     private boolean notifyFriend;
+    private boolean enableChouchoule = true;
     private List<String> dontNotifyFriendList;
     private List<String> whoYouWantGiveTo;
     private List<String> sendFriendCard;
