@@ -463,4 +463,15 @@ public class AntForestRpcCall {
                 "[{\"moleIdList\":[" + String.join(",", moleIdList)
                         + "],\"settlementScene\":\"NORMAL\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"token\":\"" + token + "\",\"version\":\"" + VERSION + "\"}]");
     }
+
+    /* 森林集市 */
+    public static String consultForSendEnergyByAction() {
+        return ApplicationHook.requestString("alipay.bizfmcg.greenlife.consultForSendEnergyByAction",
+                "[{\"sourceType\":\"GREEN_LIFE\"}]");
+    }
+
+    public static String sendEnergyByAction() {
+        return ApplicationHook.requestString("alipay.bizfmcg.greenlife.sendEnergyByAction",
+                "[{\"actionType\":\"GOODS_BROWSE\",\"requestId\":\"q01yychg\",\"sourceType\":\"GREEN_LIFE\"}]");
+    }
 }

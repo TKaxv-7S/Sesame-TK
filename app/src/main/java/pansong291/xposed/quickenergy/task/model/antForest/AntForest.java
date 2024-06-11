@@ -181,6 +181,9 @@ public class AntForest extends Task {
                         int exchangeCount = Config.INSTANCE.getExchangeEnergyDoubleClickCount();
                         exchangeEnergyDoubleClick(exchangeCount);
                     }
+
+                    /* 森林集市 */
+                    sendEnergyByAction();
                 }
 
             } catch (Throwable t) {
@@ -193,6 +196,7 @@ public class AntForest extends Task {
         };
     }
 
+    /* 6秒拼手速 打地鼠 */
     private static void whackMole() {
         try {
             JSONObject jo = new JSONObject(AntForestRpcCall.startWhackMole());
@@ -209,7 +213,7 @@ public class AntForest extends Task {
                     jo = new JSONObject(AntForestRpcCall.settlementWhackMole(token, whackMoleIdList));
                     if ("SUCCESS".equals(jo.getString("resultCode"))) {
                         int totalEnergy = jo.getInt("totalEnergy");
-                        Log.forest("6秒拼手速⚡[" + totalEnergy + "g]");
+                        Log.forest("森林能量⚡[获得:6秒拼手速能量" + totalEnergy + "g]");
                     }
                 }
             } else {
@@ -217,6 +221,31 @@ public class AntForest extends Task {
             }
         } catch (Throwable t) {
             Log.i(TAG, "whackMole err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    /* 森林集市 */
+    private static void sendEnergyByAction() {
+        try {
+            JSONObject jo = new JSONObject(AntForestRpcCall.consultForSendEnergyByAction());
+            if (jo.getBoolean("success")) {
+                JSONObject data = jo.getJSONObject("data");
+                if(data.optBoolean("canSendEnergy",false)){
+                    jo = new JSONObject(AntForestRpcCall.sendEnergyByAction());
+                    if (jo.getBoolean("success")) {
+                        data = jo.getJSONObject("data");
+                        if(data.optBoolean("canSendEnergy",false)){
+                            int receivedEnergyAmount = data.getInt("receivedEnergyAmount");
+                            Log.forest("森林集市👀[获得:能量" + receivedEnergyAmount + "g]");
+                        }
+                    }
+                }
+            } else {
+                Log.i(TAG, jo.getJSONObject("data").getString("resultCode"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "sendEnergyByAction err:");
             Log.printStackTrace(TAG, t);
         }
     }
