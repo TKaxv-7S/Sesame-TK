@@ -244,6 +244,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         if (context == null) {
             return;
         }
+        if (!Config.INSTANCE.isImmediateEffect()) {
+            stopHandler(true);
+            return;
+        }
         stopHandler(force);
         try {
             if (!init || force) {
@@ -364,9 +368,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.i(TAG, "hook record new rpc response err:");
                         Log.printStackTrace(TAG, t);
                     }
+                    Task.initAllTask();
                 }
                 Statistics.load();
-                Task.initAllTask();
                 mainRunner = new Runnable() {
                     @Override
                     public void run() {
