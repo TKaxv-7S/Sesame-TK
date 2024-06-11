@@ -451,4 +451,16 @@ public class AntForestRpcCall {
                 "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"targetId\":\"" + targetId
                         + "\",\"targetUserId\":\"" + targetUserId + "\"}]");
     }
+
+    /* 6秒拼手速 打地鼠 */
+    public static String startWhackMole() {
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.startWhackMole",
+                "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
+    }
+
+    public static String settlementWhackMole(String token, List < String > moleIdList) {
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.settlementWhackMole",
+                "[{\"moleIdList\":[" + String.join(",", moleIdList)
+                        + "],\"settlementScene\":\"NORMAL\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"token\":\"" + token + "\",\"version\":\"" + VERSION + "\"}]");
+    }
 }

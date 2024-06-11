@@ -24,7 +24,6 @@ import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -133,8 +132,7 @@ public class AntForest extends Task {
     public Runnable init() {
         return () -> {
             try {
-
-                Log.record("定时检测开始");
+                Log.record("开始-蚂蚁森林");
                 isScanning = true;
                 canCollectSelfEnergy();
                 queryEnergyRanking();
@@ -190,8 +188,37 @@ public class AntForest extends Task {
                 Log.printStackTrace(TAG, t);
             } finally {
                 isScanning = false;
+                Log.record("结束-蚂蚁森林");
             }
         };
+    }
+
+    private static void whackMole() {
+        try {
+            JSONObject jo = new JSONObject(AntForestRpcCall.startWhackMole());
+            if (jo.getBoolean("success")) {
+                JSONArray moleInfo = jo.optJSONArray("moleInfo");
+                List < String > whackMoleIdList = new ArrayList <> ();
+                for (int i = 0; i < moleInfo.length(); i++) {
+                    JSONObject mole = moleInfo.getJSONObject(i);
+                    long moleId = mole.getLong("id");
+                    whackMoleIdList.add(String.valueOf(moleId));
+                }
+                if (!whackMoleIdList.isEmpty()) {
+                    String token = jo.getString("token");
+                    jo = new JSONObject(AntForestRpcCall.settlementWhackMole(token, whackMoleIdList));
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                        int totalEnergy = jo.getInt("totalEnergy");
+                        Log.forest("6秒拼手速⚡[" + totalEnergy + "g]");
+                    }
+                }
+            } else {
+                Log.i(TAG, jo.getJSONObject("data").toString());
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "whackMole err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void fillUserRobFlag(List<String> idList) {
@@ -337,20 +364,17 @@ public class AntForest extends Task {
         try {
             boolean hasMore = false;
             long start = System.currentTimeMillis();
-            //TODO 修复 6秒拼手速活动导致数据错误，目前只能关闭该活动
             String s = AntForestRpcCall.queryHomePage();
             long end = System.currentTimeMillis();
-            if (s == null) {
-                Thread.sleep(RandomUtils.delay());
-                start = System.currentTimeMillis();
-                s = AntForestRpcCall.queryHomePage();
-                end = System.currentTimeMillis();
-            }
             JSONObject joHomePage = new JSONObject(s);
             if ("SUCCESS".equals(joHomePage.getString("resultCode"))) {
                 serverTime = joHomePage.getLong("now");
                 offsetTime = (start + end) / 2 - serverTime;
                 Log.i(TAG, "服务器时间：" + serverTime + "，本地减服务器时间差：" + offsetTime);
+                String whackMoleStatus = joHomePage.getString("whackMoleStatus");
+                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                    whackMole();
+                }
                 updateDoubleTime(joHomePage);
                 JSONArray jaBubbles = joHomePage.getJSONArray("bubbles");
                 JSONObject userEnergy = joHomePage.getJSONObject("userEnergy");

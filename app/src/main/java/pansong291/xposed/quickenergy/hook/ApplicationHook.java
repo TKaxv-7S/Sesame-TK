@@ -13,7 +13,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -329,7 +328,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         Object[] args = param.args;
                                         rpcHookMap.put(args[15], true);
-                                        Log.debug("record new rpc request: " + Arrays.toString(args));
+                                        Log.debug("record request | method: " + args[0] + " | args: " + args[4]);
                                     }
 
                                     @SuppressLint("WakelockTimeout")
@@ -337,14 +336,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                                         if (rpcHookMap.containsKey(param.args[15])) {
                                             rpcHookMap.remove(param.args[15]);
-                                            Log.debug("record new rpc request removed");
+                                            Log.debug("record request removed");
                                         }
                                     }
 
                                 });
-                        Log.i(TAG, "hook record new rpc request successfully");
+                        Log.i(TAG, "hook record request successfully");
                     } catch (Throwable t) {
-                        Log.i(TAG, "hook record new rpc request err:");
+                        Log.i(TAG, "hook record request err:");
                         Log.printStackTrace(TAG, t);
                     }
                     try {
@@ -358,14 +357,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     @Override
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         if (Boolean.TRUE.equals(rpcHookMap.remove(param.thisObject))) {
-                                            Log.debug("record new rpc response: " + Arrays.toString(param.args));
+                                            Log.debug("record response | data: " + param.args[0]);
                                         }
                                     }
 
                                 });
-                        Log.i(TAG, "hook record new rpc response successfully");
+                        Log.i(TAG, "hook record response successfully");
                     } catch (Throwable t) {
-                        Log.i(TAG, "hook record new rpc response err:");
+                        Log.i(TAG, "hook record response err:");
                         Log.printStackTrace(TAG, t);
                     }
                     Task.initAllTask();
@@ -381,47 +380,46 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         try {
                             Config config = Config.INSTANCE;
                             String targetUid = getUserId();
-                            if (targetUid != null) {
-                                FriendIdMap.setCurrentUid(targetUid);
-                                Notification.setContentTextExec();
-                                try {
-                                    Statistics.resetToday();
-                                } catch (Exception e) {
-                                    Log.i(TAG, "statistics err:");
-                                    Log.printStackTrace(TAG, e);
-                                }
-
-                                try {
-                                    FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
-                                    Thread checkThread = new Thread(checkTask);
-                                    checkThread.start();
-                                    if (!checkTask.get()) {
-                                        if (!reLogin()) {
-                                            mainHandler.postDelayed(this, config.getCheckInterval());
-                                            return;
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    Log.i(TAG, "check err:");
-                                    Log.printStackTrace(TAG, e);
-                                    mainHandler.postDelayed(this, config.getCheckInterval());
-                                    return;
-                                }
-                                TaskCommon.IS_MORNING = TimeUtil.getTimeStr().compareTo("0700") >= 0 && TimeUtil.getTimeStr().compareTo("0730") <= 0;
-                                TaskCommon.IS_AFTER_8AM = TimeUtil.getTimeStr().compareTo("0800") >= 0;
-
-                                Task.startAllTask(false);
+                            if (targetUid == null) {
+                                Log.record("用户为空，放弃执行");
+                                return;
                             }
+                            FriendIdMap.setCurrentUid(targetUid);
+                            Notification.setContentTextExec();
+                            try {
+                                Statistics.resetToday();
+                            } catch (Exception e) {
+                                Log.i(TAG, "statistics err:");
+                                Log.printStackTrace(TAG, e);
+                            }
+
+                            try {
+                                FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
+                                Thread checkThread = new Thread(checkTask);
+                                checkThread.start();
+                                if (!checkTask.get()) {
+                                    if (!reLogin()) {
+                                        mainHandler.postDelayed(this, config.getCheckInterval());
+                                        return;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.i(TAG, "check err:");
+                                Log.printStackTrace(TAG, e);
+                                mainHandler.postDelayed(this, config.getCheckInterval());
+                                return;
+                            }
+                            TaskCommon.IS_MORNING = TimeUtil.getTimeStr().compareTo("0700") >= 0 && TimeUtil.getTimeStr().compareTo("0730") <= 0;
+                            TaskCommon.IS_AFTER_8AM = TimeUtil.getTimeStr().compareTo("0800") >= 0;
+
+                            Task.startAllTask(false);
                             int checkInterval = config.getCheckInterval();
-                            Notification.setNextScanTime(System.currentTimeMillis() + checkInterval);
-                            Notification.setContentTextIdle();
                             mainHandler.postDelayed(this, checkInterval);
+                            Notification.setNextScanTime(System.currentTimeMillis() + checkInterval);
                             FileUtils.clearLog();
                         } catch (Exception e) {
                             Log.record("执行异常:");
                             Log.printStackTrace(e);
-                        } finally {
-                            Log.record("执行完成");
                         }
                     }
                 };
@@ -640,23 +638,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             Log.i(TAG, "hook registerBroadcastReceiver err:");
             Log.printStackTrace(TAG, th);
         }
-    }
-
-    public interface StayAwakeType {
-
-        int BROADCAST = 0;
-        int ALARM = 1;
-        int NONE = 2;
-
-        String[] nickNames = {"广播", "闹钟", "不重启"};
-    }
-
-    public interface StayAwakeTarget {
-
-        int SERVICE = 0;
-        int ACTIVITY = 1;
-
-        String[] nickNames = {"Service", "Activity"};
     }
 
 }
