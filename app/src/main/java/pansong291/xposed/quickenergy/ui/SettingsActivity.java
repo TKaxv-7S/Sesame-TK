@@ -505,6 +505,10 @@ public class SettingsActivity extends Activity {
                     config.setNotifyFriend(sw.isChecked());
                     break;
 
+                case R.id.sw_enableChouchoule:
+                    config.setEnableChouchoule(sw.isChecked());
+                    break;
+
                 case R.id.sw_acceptGift:
                     config.setAcceptGift(sw.isChecked());
                     break;
