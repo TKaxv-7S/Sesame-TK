@@ -257,7 +257,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 Log.record("开始加载");
                 Config config = Config.load();
-                if (!Config.INSTANCE.isImmediateEffect()) {
+                if (!config.isImmediateEffect()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");
                     return;
@@ -368,8 +368,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.i(TAG, "hook record response err:");
                         Log.printStackTrace(TAG, t);
                     }
-                    Task.initAllTask();
                 }
+                Task.initAllTask();
                 Statistics.load();
                 mainRunner = new Runnable() {
                     @Override
