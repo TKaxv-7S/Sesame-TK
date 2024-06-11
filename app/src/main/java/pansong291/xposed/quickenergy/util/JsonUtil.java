@@ -1,5 +1,7 @@
 package pansong291.xposed.quickenergy.util;
 
+import android.annotation.SuppressLint;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
+@SuppressLint("SimpleDateFormat")
 public class JsonUtil {
 
     public static final ObjectMapper MAPPER = new ObjectMapper();
@@ -38,7 +41,7 @@ public class JsonUtil {
 
     public static String toJsonString(Object object) {
         try {
-            return MAPPER.writeValueAsString(object);
+            return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
