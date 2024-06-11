@@ -3,10 +3,10 @@ package pansong291.xposed.quickenergy.task.model.antOcean;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.TaskStatus;
+import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
@@ -439,12 +439,14 @@ public class AntOcean extends Task {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[" + taskTitle + "]");
                         } else {
-                            Log.record(jo.getString("desc") +" "+ jo.toString());
+                            Log.record(jo.getString("desc"));
+                            Log.i(jo.toString());
                         }
                     }
                 }
             } else {
-                Log.record(jo.getString("resultCode") +" "+ s);
+                Log.record(jo.getString("resultCode"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "doOceanDailyTask err:");
@@ -471,11 +473,13 @@ public class AntOcean extends Task {
                         String taskDesc = bizInfo.optString("taskDesc", taskType);
                         Log.forest("领取奖励🎖️[" + taskTitle + "]#" + taskDesc);
                     } else {
-                        Log.record(jo.getString("desc") +" "+ jo.toString());
+                        Log.record(jo.getString("desc"));
+                        Log.i(jo.toString());
                     }
                 }
             } else {
-                Log.record(jo.getString("resultCode") +" "+ s);
+                Log.record(jo.getString("resultCode"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveTaskAward err:");

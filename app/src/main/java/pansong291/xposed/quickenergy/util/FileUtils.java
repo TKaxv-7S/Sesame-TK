@@ -8,7 +8,10 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import pansong291.xposed.quickenergy.hook.Toast;
@@ -242,7 +245,7 @@ public class FileUtils {
     public static File getCityCodeFile() {
         if (cityCodeFile == null) {
             cityCodeFile = new File(MAIN_DIRECTORY_FILE, "cityCode.json");
-            if(cityCodeFile.exists() && cityCodeFile.isDirectory())
+            if (cityCodeFile.exists() && cityCodeFile.isDirectory())
                 cityCodeFile.delete();
         }
         return cityCodeFile;
@@ -376,17 +379,27 @@ public class FileUtils {
         return errorLogFile;
     }
 
-    public static void clearLog(int day) {
+    public static void clearLog() {
         File[] files = LOG_DIRECTORY_FILE.listFiles();
         if (files == null) {
             return;
         }
-        long currentTimeMillis = System.currentTimeMillis();
+        SimpleDateFormat sdf = Log.DATE_FORMAT_THREAD_LOCAL.get();
+        if (sdf == null) {
+            sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        }
+        String today = sdf.format(new Date());
         for (File file : files) {
-            if (file.getName().endsWith(".log")) {
-                if (currentTimeMillis - file.lastModified() > day * 86_400_000L) {
-                    file.delete();
+            String name = file.getName();
+            if (name.endsWith(today + ".log")) {
+                if (file.length() < 209_715_200) {
+                    continue;
                 }
+            }
+            try {
+                file.delete();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
             }
         }
     }

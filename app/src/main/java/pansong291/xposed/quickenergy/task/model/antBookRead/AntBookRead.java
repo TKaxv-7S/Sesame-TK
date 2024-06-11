@@ -83,7 +83,8 @@ public class AntBookRead extends Task {
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTaskCenterPage err:");
@@ -143,7 +144,8 @@ public class AntBookRead extends Task {
                 if (doubleCheck)
                     queryTask();
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTask err:");

@@ -29,7 +29,8 @@ public class AntMember extends Task {
                                 + "天");
                         Statistics.memberSignInToday(FriendIdMap.getCurrentUid());
                     } else {
-                        Log.record(jo.getString("resultDesc") +" "+ s);
+                        Log.record(jo.getString("resultDesc"));
+                        Log.i(s);
                     }
                 }
 
@@ -86,13 +87,15 @@ public class AntMember extends Task {
                     if ("SUCCESS".equals(jo.getString("resultCode"))) {
                         Log.other("领取奖励🎖️[" + bizTitle + "]#" + pointAmount + "积分");
                     } else {
-                        Log.record(jo.getString("resultDesc") +" "+ s);
+                        Log.record(jo.getString("resultDesc"));
+                        Log.i(s);
                     }
                 }
                 if (hasNextPage)
                     queryPointCert(page + 1, pageSize);
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryPointCert err:");
@@ -121,7 +124,7 @@ public class AntMember extends Task {
                     }
                 }
             } else {
-                Log.record("pageRender" +" "+ s);
+                Log.record("pageRender" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "anXinDou err:");
@@ -143,7 +146,7 @@ public class AntMember extends Task {
                     }
                 }
             } else {
-                Log.record("taskProcess" +" "+ s);
+                Log.record("taskProcess" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "insBlueBeanSign err:");
@@ -171,16 +174,18 @@ public class AntMember extends Task {
                                 if (jo.getBoolean("success")) {
                                     Log.other("安心豆🥔[兑换" + exchangeDetail.getString("itemName") + "]");
                                 } else {
-                                    Log.record("exchange" +" "+ jo.toString());
+                                    Log.record("exchange");
+                                    Log.i(jo.toString());
                                 }
                             }
                         }
                     } else {
-                        Log.record("exchangeDetail" +" "+ jo.toString());
+                        Log.record("exchangeDetail");
+                        Log.i(jo.toString());
                     }
                 }
             } else {
-                Log.record("queryUserAccountInfo" +" "+ s);
+                Log.record("queryUserAccountInfo" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "insBlueBeanExchange err:");
@@ -208,12 +213,14 @@ public class AntMember extends Task {
                                 if (jo.getBoolean("success")) {
                                     Log.other("收芝麻粒🙇🏻‍♂️[" + title + "]#" + potentialSize + "粒");
                                 } else {
-                                    Log.record(jo.getString("resultView") +" "+ jo.toString());
+                                    Log.record(jo.getString("resultView"));
+                                    Log.i(jo.toString());
                                 }
                             }
                         }
                     } else {
-                        Log.record(jo.getString("resultView") +" "+ jo.toString());
+                        Log.record(jo.getString("resultView"));
+                        Log.i(jo.toString());
                     }
                 } else {
                     Log.record("芝麻信用未开通！");
@@ -238,7 +245,8 @@ public class AntMember extends Task {
                     if (joSignIn.getBoolean("success")) {
                         Log.other("商家服务🕴🏻[开门打卡签到成功]");
                     } else {
-                        Log.record(joSignIn.getString("errorMsg") + " " + joSignIn.toString());
+                        Log.record(joSignIn.getString("errorMsg"));
+                        Log.i(joSignIn.toString());
                     }
                 }
             } else {
@@ -269,11 +277,13 @@ public class AntMember extends Task {
                             Log.other("商家服务🕴🏻[" + activityPeriodName + "开门打卡报名]");
                             return;
                         } else {
-                            Log.record(joSignUp.getString("errorMsg") + " " + joSignUp.toString());
+                            Log.record(joSignUp.getString("errorMsg"));
+                            Log.i(joSignUp.toString());
                         }
                     }
                 } else {
-                    Log.record("queryActivity" + " " + jo.toString());
+                    Log.record("queryActivity");
+                    Log.i(jo.toString());
                 }
                 Thread.sleep(500);
             }
@@ -371,7 +381,7 @@ public class AntMember extends Task {
                 if (doubleCheck)
                     taskListQuery();
             } else {
-                Log.record("taskListQuery err:" + " " + s);
+                Log.i("taskListQuery err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskListQuery err:");
@@ -449,7 +459,7 @@ public class AntMember extends Task {
                                     if ("SUCCESS".equals(jo.getString("resultCode"))) {
                                         String ex = "";
                                         if (hybrid) {
-                                            ex = "(" + Integer.toString(PERIOD_CURRENT_COUNT + k + 1) + "/"
+                                            ex = "(" + (PERIOD_CURRENT_COUNT + k + 1) + "/"
                                                     + PERIOD_TARGET_COUNT + ")";
                                         }
                                         Log.other("会员任务🎖️[" + name + ex + "]#" + awardParamPoint + "积分");
@@ -463,7 +473,8 @@ public class AntMember extends Task {
                 if (doubleCheck)
                     signPageTaskList();
             } else {
-                Log.record(jo.getString("resultCode") + " " + s);
+                Log.record(jo.getString("resultCode"));
+                Log.i(s);
             }
 
         } catch (Throwable t) {

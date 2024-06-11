@@ -1,51 +1,56 @@
 package pansong291.xposed.quickenergy.hook;
 
-import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONException;
 import org.json.JSONObject;
-import pansong291.xposed.quickenergy.util.*;
 
 import java.util.Calendar;
 import java.util.List;
+
+import de.robv.android.xposed.XposedHelpers;
+import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.StringUtil;
+import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class FriendManager {
     private static final String TAG = FriendManager.class.getSimpleName();
 
     public static void fillUser(ClassLoader loader) {
-            new Thread() {
-                ClassLoader loader;
+        new Thread() {
+            ClassLoader loader;
 
-                public Thread setData(ClassLoader cl) {
-                    loader = cl;
-                    return this;
-                }
+            public Thread setData(ClassLoader cl) {
+                loader = cl;
+                return this;
+            }
 
-                @Override
-                public void run() {
-                    try {
-                        Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
-                        Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
-                        Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
-                        List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
-                        for (Object friend : allFriends) {
-                            String userId = (String) XposedHelpers.findField(friend.getClass(), "userId").get(friend);
-                            String account = (String) XposedHelpers.findField(friend.getClass(), "account").get(friend);
-                            String name = (String)XposedHelpers.findField(friend.getClass(), "name").get(friend);
-                            String nickName = (String)XposedHelpers.findField(friend.getClass(), "nickName").get(friend);
-                            String remarkName = (String)XposedHelpers.findField(friend.getClass(), "remarkName").get(friend);
-                            if (StringUtil.isEmpty(remarkName)) {
-                                remarkName = nickName;
-                            }
-                            remarkName += "|" + name;
-                            FriendIdMap.putIdMap(userId, remarkName + "(" + account + ")");
+            @Override
+            public void run() {
+                try {
+                    Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
+                    Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
+                    Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
+                    List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
+                    for (Object friend : allFriends) {
+                        String userId = (String) XposedHelpers.findField(friend.getClass(), "userId").get(friend);
+                        String account = (String) XposedHelpers.findField(friend.getClass(), "account").get(friend);
+                        String name = (String) XposedHelpers.findField(friend.getClass(), "name").get(friend);
+                        String nickName = (String) XposedHelpers.findField(friend.getClass(), "nickName").get(friend);
+                        String remarkName = (String) XposedHelpers.findField(friend.getClass(), "remarkName").get(friend);
+                        if (StringUtil.isEmpty(remarkName)) {
+                            remarkName = nickName;
                         }
-                        FriendIdMap.saveIdMap();
-                    } catch (Throwable t) {
-                        Log.i(TAG, "checkUnknownId.run err:");
-                        Log.printStackTrace(TAG, t);
+                        remarkName += "|" + name;
+                        FriendIdMap.putIdMap(userId, remarkName + "(" + account + ")");
                     }
+                    FriendIdMap.saveIdMap();
+                } catch (Throwable t) {
+                    Log.i(TAG, "checkUnknownId.run err:");
+                    Log.printStackTrace(TAG, t);
                 }
-            }.setData(loader).start();
+            }
+        }.setData(loader).start();
     }
 
     public static boolean needUpdateAll(long last) {

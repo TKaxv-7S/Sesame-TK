@@ -58,7 +58,7 @@ public class AntMemberRpcCall {
 
     public static String exchange(String itemId, int pointAmount) {
         return ApplicationHook.requestString("com.alipay.insmarketingbff.onestop.planTrigger",
-                "[{\"extParams\":{\"itemId\":\"" + itemId + "\",\"pointAmount\":\"" + Integer.toString(pointAmount)
+                "[{\"extParams\":{\"itemId\":\"" + itemId + "\",\"pointAmount\":\"" + pointAmount
                         + "\"},\"planCode\":\"bluebean_onestop\",\"planOperateCode\":\"exchange\"}]");
     }
 
@@ -159,7 +159,7 @@ public class AntMemberRpcCall {
 
     public static String executeTask(String bizParam, String bizSubType) {
         return ApplicationHook.requestString("alipay.antmember.biz.rpc.membertask.h5.executeTask",
-                "[{\"bizOutNo\":\"" + String.valueOf(System.currentTimeMillis() - 16000L) + "\",\"bizParam\":\""
+                "[{\"bizOutNo\":\"" + (System.currentTimeMillis() - 16000L) + "\",\"bizParam\":\""
                         + bizParam + "\",\"bizSubType\":\"" + bizSubType + "\",\"bizType\":\"BROWSE\"}]");
     }
 

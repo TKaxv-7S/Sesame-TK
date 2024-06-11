@@ -19,7 +19,7 @@ public class AlipayBeach extends IdAndName {
         if (list == null || BeachIdMap.shouldReload) {
             list = new ArrayList<>();
             Set<Map.Entry<String, String>> idSet = BeachIdMap.getIdMap().entrySet();
-            for (Map.Entry<String, String> entry: idSet) {
+            for (Map.Entry<String, String> entry : idSet) {
                 list.add(new AlipayBeach(entry.getKey(), entry.getValue()));
             }
         }
@@ -29,7 +29,7 @@ public class AlipayBeach extends IdAndName {
     public static void remove(String id) {
         getList();
         for (int i = 0; i < list.size(); i++) {
-            if(list.get(i).id.equals(id)) {
+            if (list.get(i).id.equals(id)) {
                 list.remove(i);
                 break;
             }

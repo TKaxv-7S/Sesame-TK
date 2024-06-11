@@ -1,10 +1,9 @@
 package pansong291.xposed.quickenergy.entity;
 
-import pansong291.xposed.quickenergy.util.HanziToPinyin;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+
+import pansong291.xposed.quickenergy.util.HanziToPinyin;
 
 public abstract class IdAndName implements Comparable<IdAndName> {
 

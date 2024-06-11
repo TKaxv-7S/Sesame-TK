@@ -1,85 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-	<RelativeLayout
-		android:id="@+id/layout_batch_process"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:visibility="visible">
+    <RelativeLayout
+        android:id="@+id/layout_batch_process"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible">
 
-		<Button
-			android:id="@+id/btn_select_invert"
-			style="?android:attr/buttonBarButtonStyle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentRight="true"
-			android:background="@drawable/button"
-			android:minHeight="50dp"
-			android:padding="12dp"
-			android:text="@string/select_invert"
-			android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_select_invert"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/button"
+            android:minHeight="50dp"
+            android:padding="12dp"
+            android:text="@string/select_invert"
+            android:textAllCaps="false" />
 
-		<Button
-			android:id="@+id/btn_select_all"
-			style="?android:attr/buttonBarButtonStyle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_toLeftOf="@+id/btn_select_invert"
-			android:background="@drawable/button"
-			android:minHeight="50dp"
-			android:padding="12dp"
-			android:text="@string/select_all"
-			android:textAllCaps="false" />
+        <Button
+            android:id="@+id/btn_select_all"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/btn_select_invert"
+            android:background="@drawable/button"
+            android:minHeight="50dp"
+            android:padding="12dp"
+            android:text="@string/select_all"
+            android:textAllCaps="false" />
 
-	</RelativeLayout>
+    </RelativeLayout>
 
-	<ListView
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:fastScrollEnabled="true"
-		android:id="@+id/lv_list"
-		android:layout_weight="1"/>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fastScrollEnabled="true"
+        android:id="@+id/lv_list"
+        android:layout_weight="1" />
 
-	<LinearLayout
-		android:orientation="horizontal"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:gravity="center">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
 
-		<EditText
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:id="@+id/edt_find"
-			android:hint="@string/search"/>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/edt_find"
+            android:hint="@string/search" />
 
-		<Button
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			style="?android:attr/buttonBarButtonStyle"
-			android:text="@string/last"
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/buttonBarButtonStyle"
+            android:text="@string/last"
             android:textAllCaps="false"
-			android:minHeight="50dp"
-			android:background="@drawable/button"
-			android:id="@+id/btn_find_last"
-			android:padding="12dp"/>
+            android:minHeight="50dp"
+            android:background="@drawable/button"
+            android:id="@+id/btn_find_last"
+            android:padding="12dp" />
 
-		<Button
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			style="?android:attr/buttonBarButtonStyle"
-			android:text="@string/next"
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/buttonBarButtonStyle"
+            android:text="@string/next"
             android:textAllCaps="false"
-			android:minHeight="50dp"
-			android:background="@drawable/button"
-			android:id="@+id/btn_find_next"
-			android:padding="12dp"/>
+            android:minHeight="50dp"
+            android:background="@drawable/button"
+            android:id="@+id/btn_find_next"
+            android:padding="12dp" />
 
-	</LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
 

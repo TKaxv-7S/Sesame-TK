@@ -12,8 +12,8 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.Settings;
 
-import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 
 public class PermissionUtil {
     private static final String TAG = AntForestRpcCall.class.getSimpleName();

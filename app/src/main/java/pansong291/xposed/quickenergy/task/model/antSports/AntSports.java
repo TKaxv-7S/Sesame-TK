@@ -5,8 +5,8 @@ import org.json.JSONObject;
 
 import java.util.HashSet;
 
-import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
@@ -70,7 +70,7 @@ public class AntSports extends Task {
                     if (jo.getBoolean("success")) {
                         Log.other("收集金币💰[" + coinAmount + "个]");
                     } else {
-                        Log.record("首页收集金币" +" "+ jo.toString());
+                        Log.record("首页收集金币" + " " + jo);
                     }
                 }
             } else {
@@ -137,7 +137,7 @@ public class AntSports extends Task {
     }
 
     private static void join(ClassLoader loader, JSONArray allPathBaseInfoList, JSONArray otherAllPathBaseInfoList,
-            String firstJoinPathTitle) {
+                             String firstJoinPathTitle) {
         try {
             int index = -1;
             String title = null;
@@ -316,7 +316,8 @@ public class AntSports extends Task {
                     }
                 }
             } else {
-                Log.record(TAG + " " + jo.getString("resultDesc"));
+                Log.record(TAG);
+                Log.i(jo.getString("resultDesc"));
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryProjectList err:");
@@ -408,11 +409,11 @@ public class AntSports extends Task {
                         String taskName = taskInfo.optString("taskName", taskId);
                         Log.other("完成任务🧾[" + taskName + "]");
                     } else {
-                        Log.record("文体每日任务" +" "+ jo.toString());
+                        Log.record("文体每日任务" + " " + jo);
                     }
                 }
             } else {
-                Log.record("文体每日任务" +" "+ s);
+                Log.record("文体每日任务" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "userTaskGroupQuery err:");
@@ -457,11 +458,11 @@ public class AntSports extends Task {
                             int targetStepCount = jo.getInt("targetStepCount");
                             Log.other("走路挑战🚶🏻‍♂️[" + roundDescription + "]#" + targetStepCount);
                         } else {
-                            Log.record("走路挑战赛" +" "+ jo.toString());
+                            Log.record("走路挑战赛" + " " + jo);
                         }
                     }
                 } else {
-                    Log.record("queryRoundList" + " " + jo.toString());
+                    Log.record("queryRoundList" + " " + jo);
                 }
             }
         } catch (Throwable t) {
@@ -495,11 +496,13 @@ public class AntSports extends Task {
                         }
                         Log.other("领取奖励🎖️[" + taskName + "]#" + award);
                     } else {
-                        Log.record("文体中心领取奖励" + " " + jo.toString());
+                        Log.record("文体中心领取奖励");
+                        Log.i(jo.toString());
                     }
                 }
             } else {
-                Log.record("文体中心领取奖励" + " " + s);
+                Log.record("文体中心领取奖励");
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "userTaskRightsReceive err:");
@@ -571,11 +574,13 @@ public class AntSports extends Task {
                         }
                         Log.other("文体宝箱🎁[" + award + "]");
                     } else {
-                        Log.record("文体中心开宝箱" + " " + jo.toString());
+                        Log.record("文体中心开宝箱");
+                        Log.i(jo.toString());
                     }
                 }
             } else {
-                Log.record("文体中心开宝箱" + " " + s);
+                Log.record("文体中心开宝箱");
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "pathMapHomepage err:");
@@ -599,7 +604,7 @@ public class AntSports extends Task {
     }
 
     private static void tiyubizGo(String countDate, String title, int goStepCount, String pathId,
-            String userPathRecordId) {
+                                  String userPathRecordId) {
         try {
             String s = AntSportsRpcCall.tiyubizGo(countDate, goStepCount, pathId, userPathRecordId);
             JSONObject jo = new JSONObject(s);

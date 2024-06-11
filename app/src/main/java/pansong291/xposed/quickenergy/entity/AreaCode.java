@@ -3,11 +3,12 @@ package pansong291.xposed.quickenergy.entity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.Log;
 
 public class AreaCode extends IdAndName {
     private static final String TAG = AreaCode.class.getSimpleName();

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.widget.EditText;
+
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.util.Config;
 
@@ -57,7 +58,8 @@ public class EditDialog {
                                     int i = 0;
                                     try {
                                         i = Integer.parseInt(edt.getText().toString());
-                                    } catch (Throwable ignored) { }
+                                    } catch (Throwable ignored) {
+                                    }
                                     switch (mode) {
                                         case TOAST_OFFSET_Y:
                                             config.setToastOffsetY(i);
@@ -176,7 +178,8 @@ public class EditDialog {
                                             break;
 
                                     }
-                                } catch(Throwable ignored) { }
+                                } catch (Throwable ignored) {
+                                }
                             }
                         }.setData(c))
                 .create();

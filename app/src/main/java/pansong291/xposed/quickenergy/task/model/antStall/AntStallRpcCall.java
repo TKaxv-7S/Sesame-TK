@@ -1,8 +1,8 @@
 package pansong291.xposed.quickenergy.task.model.antStall;
 
-import java.util.UUID;
-
 import org.json.JSONArray;
+
+import java.util.UUID;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 
@@ -66,10 +66,12 @@ public class AntStallRpcCall {
                 "[{\"friendSeatId\":\"" + friendSeatId + "\",\"friendUserId\":\"" + friendUserId + "\",\"shopId\":\"" +
                         shopId + "\",\"source\":\"ch_appcenter__chsub_9patch\",\"systemType\":\"android\",\"version\":\"" + VERSION + "\"}]");
     }
+
     public static String rankCoinDonate() {
         return ApplicationHook.requestString("com.alipay.antstall.rank.coin.donate",
                 "[{\"source\":\"ANTFARM\",\"systemType\":\"android\",\"version\":\"" + VERSION + "\"}]");
     }
+
     public static String friendHome(String userId) {
         return ApplicationHook.requestString("com.alipay.antstall.friend.home",
                 "[{\"arouseAppParams\":{},\"friendUserId\":\"" + userId +
@@ -230,7 +232,7 @@ public class AntStallRpcCall {
 
     public static String settleReceivable() {
         return ApplicationHook.requestString("com.alipay.antstall.self.settle.receivable",
-                "[{\"source\":\"ch_appcenter__chsub_9patch\",\"systemType\":\"android\",\"version\":\"" 
+                "[{\"source\":\"ch_appcenter__chsub_9patch\",\"systemType\":\"android\",\"version\":\""
                         + VERSION + "\"}]");
     }
 }

@@ -5,11 +5,11 @@ import org.json.JSONObject;
 
 import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.ReserveIdMap;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
+import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.ReserveIdMap;
 import pansong291.xposed.quickenergy.util.Statistics;
 
 public class Reserve extends Task {
@@ -121,7 +121,8 @@ public class Reserve extends Task {
                     return false;
                 }
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTreeForExchange err:");
@@ -149,7 +150,8 @@ public class Reserve extends Task {
                     Log.forest(str);
                     Statistics.reserveToday(projectId, 1);
                 } else {
-                    Log.record(jo.getString("resultDesc") +" "+ jo.toString());
+                    Log.record(jo.getString("resultDesc"));
+                    Log.i(jo.toString());
                     Log.forest("领保护地🏕️[" + itemName + "]#发生未知错误，停止申请");
                     // Statistics.reserveToday(projectId, count);
                     break;
@@ -188,7 +190,7 @@ public class Reserve extends Task {
                     if (!jo.has("templateSubType"))
                         continue;
                     if (!"BEACH".equals(jo.getString("templateSubType"))
-                            && !"COOPERATE_SEA_TREE".equals(jo.getString("templateSubType"))&& !"SEA_ANIMAL".equals(jo.getString("templateSubType")))
+                            && !"COOPERATE_SEA_TREE".equals(jo.getString("templateSubType")) && !"SEA_ANIMAL".equals(jo.getString("templateSubType")))
                         continue;
                     if (!"AVAILABLE".equals(jo.getString("applyAction")))
                         continue;
@@ -245,7 +247,8 @@ public class Reserve extends Task {
                     Log.forest("保护海洋🏖️[" + jo.getString("cultivationName") + "]#似乎没有了");
                 }
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryCultivationDetail err:");
@@ -275,7 +278,8 @@ public class Reserve extends Task {
                             + "-获得奖励" + award;
                     Log.forest(str);
                 } else {
-                    Log.record(jo.getString("resultDesc") + " " + jo.toString());
+                    Log.record(jo.getString("resultDesc"));
+                    Log.i(jo.toString());
                     Log.forest("保护海洋🏖️[" + itemName + "]#发生未知错误，停止申请");
                     break;
                 }

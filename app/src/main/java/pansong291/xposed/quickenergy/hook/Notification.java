@@ -8,11 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+
+import java.text.DateFormat;
+
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.TimeUtil;
-
-import java.text.DateFormat;
 
 public class Notification {
     public static final int NOTIFICATION_ID = 99;

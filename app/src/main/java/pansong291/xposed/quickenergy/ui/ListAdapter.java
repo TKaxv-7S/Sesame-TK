@@ -7,13 +7,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import pansong291.xposed.quickenergy.R;
-import pansong291.xposed.quickenergy.entity.IdAndName;
-import pansong291.xposed.quickenergy.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.entity.IdAndName;
+import pansong291.xposed.quickenergy.util.Log;
 
 public class ListAdapter extends BaseAdapter {
     private static ListAdapter adapter;
@@ -80,7 +81,7 @@ public class ListAdapter extends BaseAdapter {
         int i = findIndex;
         if (i < 0)
             i = list.size();
-        for (;;) {
+        for (; ; ) {
             i = (i + list.size() - 1) % list.size();
             IdAndName ai = list.get(i);
             if (ai.name.contains(cs)) {
@@ -101,7 +102,7 @@ public class ListAdapter extends BaseAdapter {
             findIndex = -1;
             findWord = cs;
         }
-        for (int i = findIndex;;) {
+        for (int i = findIndex; ; ) {
             i = (i + 1) % list.size();
             IdAndName ai = list.get(i);
             if (ai.name.contains(cs)) {
@@ -119,18 +120,18 @@ public class ListAdapter extends BaseAdapter {
         findIndex = -1;
     }
 
-    public void selectAll(){
+    public void selectAll() {
         selects.clear();
-        for(IdAndName ai:list){
+        for (IdAndName ai : list) {
             selects.add(ai.id);
         }
         notifyDataSetChanged();
     }
 
-    public void SelectInvert(){
+    public void SelectInvert() {
         List<String> newSelects = new ArrayList<>();
-        for(IdAndName ai:list){
-            if(!selects.contains(ai.id)){
+        for (IdAndName ai : list) {
+            if (!selects.contains(ai.id)) {
                 newSelects.add(ai.id);
             }
         }

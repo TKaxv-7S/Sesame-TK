@@ -665,7 +665,7 @@ public class Statistics {
     }
 
     private static void dayClear() {
-        Log.system(TAG,"重置 statistics.json");
+        Log.system(TAG, "重置 statistics.json");
         Statistics stat = INSTANCE;
         stat.waterFriendLogList.clear();
         stat.cooperateWaterList.clear();
@@ -770,9 +770,10 @@ public class Statistics {
 
     private static void save() {
         String json = JsonUtil.toJsonString(INSTANCE);
-        Log.system(TAG,"保存 statistics.json");
+        Log.system(TAG, "保存 statistics.json");
         FileUtils.write2File(json, FileUtils.getStatisticsFile());
     }
+
     public enum TimeType {
         YEAR, MONTH, DAY
     }

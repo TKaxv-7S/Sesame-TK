@@ -20,7 +20,7 @@ public class Log {
         XLog.init(LogLevel.ALL);
     }
 
-    private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
+    public static final ThreadLocal<SimpleDateFormat> DATE_FORMAT_THREAD_LOCAL = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
         protected SimpleDateFormat initialValue() {
@@ -29,7 +29,7 @@ public class Log {
 
     };
 
-    private static final ThreadLocal<SimpleDateFormat> dateTimeFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
+    public static final ThreadLocal<SimpleDateFormat> DATE_TIME_FORMAT_THREAD_LOCAL = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
         protected SimpleDateFormat initialValue() {
@@ -38,7 +38,7 @@ public class Log {
 
     };
 
-    private static final ThreadLocal<SimpleDateFormat> otherDateTimeFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
+    public static final ThreadLocal<SimpleDateFormat> OTHER_DATE_TIME_FORMAT_THREAD_LOCAL = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
         protected SimpleDateFormat initialValue() {
@@ -103,7 +103,7 @@ public class Log {
                     .flattener(new PatternFlattener("{d HH:mm:ss.SSS}: {m}"))
                     .build()).build();
 
-    private static final Logger errorLogger = XLog.tag("ERROR") .printers(
+    private static final Logger errorLogger = XLog.tag("ERROR").printers(
             new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("error"))
                     .backupStrategy(new NeverBackupStrategy())
@@ -168,7 +168,7 @@ public class Log {
     }
 
     public static String getLogFileName(String logName) {
-        SimpleDateFormat sdf = dateFormatThreadLocal.get();
+        SimpleDateFormat sdf = DATE_FORMAT_THREAD_LOCAL.get();
         if (sdf == null) {
             sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         }
@@ -176,7 +176,7 @@ public class Log {
     }
 
     public static String getFormatDateTime() {
-        SimpleDateFormat simpleDateFormat = dateTimeFormatThreadLocal.get();
+        SimpleDateFormat simpleDateFormat = DATE_TIME_FORMAT_THREAD_LOCAL.get();
         if (simpleDateFormat == null) {
             simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         }
@@ -196,7 +196,7 @@ public class Log {
         Date d = new Date();
         long timeStemp;
         try {
-            SimpleDateFormat simpleDateFormat = otherDateTimeFormatThreadLocal.get();
+            SimpleDateFormat simpleDateFormat = OTHER_DATE_TIME_FORMAT_THREAD_LOCAL.get();
             if (simpleDateFormat == null) {
                 simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", Locale.getDefault());
             }

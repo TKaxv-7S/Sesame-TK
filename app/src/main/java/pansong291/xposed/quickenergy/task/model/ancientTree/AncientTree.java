@@ -115,11 +115,13 @@ public class AncientTree extends Task {
                                 Log.forest("保护古树🎐[" + cityName + "-" + districtName
                                         + "]#" + age + "年" + name + ",消耗能量" + protectExpense + "g");
                             } else {
-                                Log.record(jo.getString("resultDesc") +" "+ jo.toString());
+                                Log.record(jo.getString("resultDesc"));
+                                Log.i(jo.toString());
                             }
                         }
                     } else {
-                        Log.record(jo.getString("resultDesc") +" "+ ancientTreeDetail.toString());
+                        Log.record(jo.getString("resultDesc"));
+                        Log.i(ancientTreeDetail.toString());
                     }
                     Thread.sleep(500L);
                 }

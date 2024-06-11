@@ -16,8 +16,8 @@ public class OmegakoiTown extends Task {
         gold, diamond, dyestuff, rubber, glass, certificate, shipping, tpuPhoneCaseCertificate,
         glassPhoneCaseCertificate, canvasBagCertificate, notebookCertificate, box, paper, cotton;
 
-        public static final CharSequence[] rewardNames = { "金币", "钻石", "颜料", "橡胶", "玻璃", "合格证", "包邮券", "TPU手机壳合格证",
-                "玻璃手机壳合格证", "帆布袋合格证", "记事本合格证", "快递包装盒", "纸张", "棉花" };
+        public static final CharSequence[] rewardNames = {"金币", "钻石", "颜料", "橡胶", "玻璃", "合格证", "包邮券", "TPU手机壳合格证",
+                "玻璃手机壳合格证", "帆布袋合格证", "记事本合格证", "快递包装盒", "纸张", "棉花"};
 
         public CharSequence rewardName() {
             return rewardNames[ordinal()];
@@ -36,11 +36,11 @@ public class OmegakoiTown extends Task {
         houseDormitory, houseCanteen, houseAdministrationBuilding, houseGourmetPalace, housePaperMill,
         houseAuctionHouse, houseCatHouse, houseStarPickingPavilion;
 
-        public static final CharSequence[] houseNames = { "火车站", "停车场", "公交站", "加油站", "学校", "服务大厅", "医院", "警察局", "银行",
+        public static final CharSequence[] houseNames = {"火车站", "停车场", "公交站", "加油站", "学校", "服务大厅", "医院", "警察局", "银行",
                 "回收站", "垃圾处理厂", "地铁站", "快餐店", "美甲店", "照相馆", "移动营业厅", "游戏厅", "运气屋", "打印店", "书店", "杂货店", "科普馆", "菜场",
                 "汉堡店", "咖啡厅", "餐馆", "水果店", "甜品店", "服装店", "支课堂", "花店", "药店", "宠物店", "庄园", "全家便利店", "平房", "公寓", "别墅",
                 "居民楼", "风力发电站", "自来水厂", "日化厂", "玩具厂", "污水处理厂", "体育馆", "电影院", "新疆棉花厂", "超市", "游泳馆", "酒店", "商场", "果园",
-                "公园", "家具厂", "芯片厂", "化工厂", "火电站", "快递驿站", "宿舍楼", "食堂", "行政楼", "美食城", "造纸厂", "拍卖行", "喵小馆", "神秘研究所" };
+                "公园", "家具厂", "芯片厂", "化工厂", "火电站", "快递驿站", "宿舍楼", "食堂", "行政楼", "美食城", "造纸厂", "拍卖行", "喵小馆", "神秘研究所"};
 
         public CharSequence houseName() {
             return houseNames[ordinal()];
@@ -103,7 +103,8 @@ public class OmegakoiTown extends Task {
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "getUserTasks err:");
@@ -163,7 +164,8 @@ public class OmegakoiTown extends Task {
                     }
                 }
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "getUserTasks err:");

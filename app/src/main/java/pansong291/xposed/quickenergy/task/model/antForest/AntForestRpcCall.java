@@ -365,10 +365,12 @@ public class AntForestRpcCall {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.queryUserPatrol",
                 "[{\"source\":\"ant_forest\",\"timezoneId\":\"Asia/Shanghai\"}]");
     }
+
     public static String queryMyPatrolRecord() {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.queryMyPatrolRecord",
                 "[{\"source\":\"ant_forest\",\"timezoneId\":\"Asia/Shanghai\"}]");
     }
+
     public static String switchUserPatrol(String targetPatrolId) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.switchUserPatrol",
                 "[{\"source\":\"ant_forest\",\"targetPatrolId\":" + targetPatrolId + ",\"timezoneId\":\"Asia/Shanghai\"}]");

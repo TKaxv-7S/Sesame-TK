@@ -17,7 +17,7 @@ import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
-public class OldRpcBridge implements RpcBridge{
+public class OldRpcBridge implements RpcBridge {
 
     private static final String TAG = OldRpcBridge.class.getSimpleName();
 

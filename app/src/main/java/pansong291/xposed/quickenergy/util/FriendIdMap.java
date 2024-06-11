@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import pansong291.xposed.quickenergy.hook.FriendManager;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.hook.FriendManager;
 
 public class FriendIdMap {
     private static final String TAG = FriendIdMap.class.getSimpleName();

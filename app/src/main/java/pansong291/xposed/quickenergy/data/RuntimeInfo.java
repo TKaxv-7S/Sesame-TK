@@ -34,6 +34,7 @@ public class RuntimeInfo {
         }
         return instance;
     }
+
     private RuntimeInfo() {
         userId = FriendIdMap.getCurrentUid();
         String content = FileUtils.readFromFile(FileUtils.runtimeInfoFile());
@@ -86,6 +87,7 @@ public class RuntimeInfo {
     public void put(RuntimeInfoKey key, Object value) {
         put(key.name(), value);
     }
+
     public void put(String key, Object value) {
         try {
             joCurrent.put(key, value);

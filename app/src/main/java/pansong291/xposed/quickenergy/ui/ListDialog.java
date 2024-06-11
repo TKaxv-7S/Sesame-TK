@@ -13,15 +13,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
+
 import java.util.List;
+
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.entity.AlipayUser;
 import pansong291.xposed.quickenergy.entity.AreaCode;
 import pansong291.xposed.quickenergy.entity.CooperateUser;
 import pansong291.xposed.quickenergy.entity.IdAndName;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
 import pansong291.xposed.quickenergy.util.FriendIdMap;
 
@@ -51,12 +52,12 @@ public class ListDialog {
     }
 
     public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, List<String> sl,
-            List<Integer> cl) {
+                            List<Integer> cl) {
         show(c, title, bl, sl, cl, ListType.CHECK);
     }
 
     public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, List<String> sl,
-            List<Integer> cl, ListType listType) {
+                            List<Integer> cl, ListType listType) {
         selectedList = sl;
         countList = cl;
         ListAdapter la = ListAdapter.get(c, listType);
@@ -96,7 +97,7 @@ public class ListDialog {
                     public void onShow(DialogInterface p1) {
                         AlertDialog d = (AlertDialog) p1;
                         layout_batch_process = d.findViewById(R.id.layout_batch_process);
-                        layout_batch_process.setVisibility(listType==ListType.CHECK&&countList==null?View.VISIBLE:View.GONE);
+                        layout_batch_process.setVisibility(listType == ListType.CHECK && countList == null ? View.VISIBLE : View.GONE);
                         ListAdapter.get(c).notifyDataSetChanged();
                     }
                 }.setContext(c));
@@ -171,7 +172,7 @@ public class ListDialog {
     /**
      * Show the EDT dialog and set the title, hint, and text based on the current context.
      *
-     * @param  c  the context in which the dialog is shown
+     * @param c the context in which the dialog is shown
      */
     private static void showEdtDialog(Context c) {
         try {

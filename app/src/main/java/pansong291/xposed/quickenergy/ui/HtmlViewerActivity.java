@@ -39,7 +39,7 @@ public class HtmlViewerActivity extends Activity {
                     @Override
                     public void onProgressChanged(WebView view, int progress) {
                         pgb.setProgress(progress);
-                        if(progress < 100) {
+                        if (progress < 100) {
                             setTitle("Loading...");
                             pgb.setVisibility(View.VISIBLE);
                         } else {
@@ -66,11 +66,11 @@ public class HtmlViewerActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case 1:
                 if (uri != null) {
                     String path = uri.getPath();
-                    if (path != null){
+                    if (path != null) {
                         File exportFile = FileUtils.exportFile(new File(path));
                         if (exportFile != null) {
                             Toast.makeText(this, "文件已导出到: " + exportFile.getPath(), Toast.LENGTH_SHORT).show();

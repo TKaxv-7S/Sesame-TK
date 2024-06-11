@@ -1,10 +1,9 @@
 package pansong291.xposed.quickenergy.util;
 
+import android.content.Context;
 import android.content.res.Configuration;
 
 import java.util.Locale;
-
-import android.content.Context;
 
 
 public class LanguageUtil {

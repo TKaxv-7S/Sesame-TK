@@ -4,17 +4,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import pansong291.xposed.quickenergy.task.model.antOrchard.AntOrchard;
-import pansong291.xposed.quickenergy.task.model.antStall.AntStall;
-import pansong291.xposed.quickenergy.task.model.greenFinance.GreenFinance;
-import pansong291.xposed.quickenergy.task.model.reserve.Reserve;
 import pansong291.xposed.quickenergy.task.model.ancientTree.AncientTree;
 import pansong291.xposed.quickenergy.task.model.antCooperate.AntCooperate;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm;
 import pansong291.xposed.quickenergy.task.model.antForest.AntForest;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMember;
 import pansong291.xposed.quickenergy.task.model.antOcean.AntOcean;
+import pansong291.xposed.quickenergy.task.model.antOrchard.AntOrchard;
 import pansong291.xposed.quickenergy.task.model.antSports.AntSports;
+import pansong291.xposed.quickenergy.task.model.antStall.AntStall;
+import pansong291.xposed.quickenergy.task.model.greenFinance.GreenFinance;
+import pansong291.xposed.quickenergy.task.model.reserve.Reserve;
 
 public class TaskOrder {
 

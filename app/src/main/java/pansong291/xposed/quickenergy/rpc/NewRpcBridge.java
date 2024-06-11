@@ -122,7 +122,7 @@ public class NewRpcBridge implements RpcBridge {
                         newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                             @Override
                             public Object invoke(Object proxy, Method method, Object[] args) {
-                                if(args.length == 1 && "sendJSONResponse".equals(method.getName())) {
+                                if (args.length == 1 && "sendJSONResponse".equals(method.getName())) {
                                     try {
                                         Object obj = args[0];
                                         if (!(Boolean) XposedHelpers.callMethod(obj, "containsKey", "success")) {
@@ -199,7 +199,7 @@ public class NewRpcBridge implements RpcBridge {
                             newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                                 @Override
                                 public Object invoke(Object proxy, Method method, Object[] args) {
-                                    if(args.length == 1 && "sendJSONResponse".equals(method.getName())) {
+                                    if (args.length == 1 && "sendJSONResponse".equals(method.getName())) {
                                         try {
                                             synchronized (rpcEntity) {
                                                 Object obj = args[0];

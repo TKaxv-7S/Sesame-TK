@@ -69,7 +69,8 @@ public class ConsumeGold extends Task {
                 if (doubleCheck)
                     taskV2Index(taskSceneCode);
             } else {
-                Log.record(jo.getString("resultDesc") +" "+ s);
+                Log.record(jo.getString("resultDesc"));
+Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskV2Index err:");

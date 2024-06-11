@@ -34,7 +34,7 @@ public class AntStall extends Task {
         }
     }
 
-    private static List<String> taskTypeList;
+    private static final List<String> taskTypeList;
 
     static {
         taskTypeList = new ArrayList<>();
@@ -95,7 +95,7 @@ public class AntStall extends Task {
                 }
 
             } else {
-                Log.record("home err:" +" "+ s);
+                Log.record("home err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "home err:");
@@ -117,11 +117,11 @@ public class AntStall extends Task {
                     Log.farm("蚂蚁新村⛪请走[" + FriendIdMap.getNameById(shopUserId) + "]的小摊"
                             + (amount > 0 ? "获得金币" + amount : ""));
                 } else {
-                    Log.record("sendBack err:" +" "+ s);
+                    Log.record("sendBack err:" + " " + s);
                 }
                 inviteOpen(seatId);
             } else {
-                Log.record("sendBackPre err:" +" "+ s);
+                Log.record("sendBackPre err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "sendBack err:");
@@ -151,7 +151,7 @@ public class AntStall extends Task {
                     }
                 }
             } else {
-                Log.record("inviteOpen err:" +" "+ s);
+                Log.record("inviteOpen err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "inviteOpen err:");
@@ -206,7 +206,7 @@ public class AntStall extends Task {
                     if (jo.getString("resultCode").equals("SUCCESS")) {
                         Log.farm("蚂蚁新村⛪[收取金币]#" + settleCoin);
                     } else {
-                        Log.record("settle err:" +" "+ s);
+                        Log.record("settle err:" + " " + s);
                     }
                 }
             }
@@ -237,7 +237,7 @@ public class AntStall extends Task {
                     }
                 }
             } else {
-                Log.record("closeShop err:" +" "+ s);
+                Log.record("closeShop err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "closeShop err:");
@@ -260,7 +260,7 @@ public class AntStall extends Task {
                 }
                 rankCoinDonate(shopIds);
             } else {
-                Log.record("closeShop err:" +" "+ s);
+                Log.record("closeShop err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "closeShop err:");
@@ -292,7 +292,7 @@ public class AntStall extends Task {
                 }
                 friendHomeOpen(seats, shopIds);
             } else {
-                Log.record("rankCoinDonate err:" +" "+ s);
+                Log.record("rankCoinDonate err:" + " " + s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "rankCoinDonate err:");
@@ -336,7 +336,7 @@ public class AntStall extends Task {
                         }
                     }
                 } else {
-                    Log.record("friendHomeOpen err:" +" "+ s);
+                    Log.record("friendHomeOpen err:" + " " + s);
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "friendHomeOpen err:");
@@ -490,7 +490,7 @@ public class AntStall extends Task {
                                 Log.farm("邀请好友[" + FriendIdMap.getNameById(userId) + "]#开通新村");
                                 return true;
                             } else {
-                                Log.record("friendInviteRegister err:" + " " + jo.toString());
+                                Log.record("friendInviteRegister err:" + " " + jo);
                             }
                         }
                     }

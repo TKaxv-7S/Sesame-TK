@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="AppTheme" parent="@android:style/Theme.Material.Light">
         <!--Appbar背景色-->
         <item name="android:colorPrimary">@color/colorPrimary</item>
@@ -7,5 +8,5 @@
         <item name="android:titleTextColor">@color/textColorPrimary</item>
         <item name="android:navigationBarColor">@color/colorPrimary</item>
         <item name="android:statusBarColor">@color/colorPrimary</item>
-	</style>
+    </style>
 </resources>

@@ -30,7 +30,7 @@ public abstract class Task {
     @Getter
     private volatile Thread thread;
 
-    private final Map<String, Thread> childThreadMap = new ConcurrentHashMap<>();
+    private final Map<String, Task> childTaskMap = new ConcurrentHashMap<>();
 
     public Task() {
         this.runnable = init();
@@ -41,61 +41,48 @@ public abstract class Task {
 
     public abstract Boolean check();
 
-    public synchronized Boolean hasChildThread(String childName) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childThreadMap.compute(childName, (key, value) -> {
-                if (value == null || !value.isAlive()) {
-                    return null;
-                }
-                return value;
-            });
-        } else {
-            Thread oldThread = childThreadMap.get(childName);
-            if (oldThread == null || !oldThread.isAlive()) {
-                childThreadMap.remove(childName);
-            }
-        }
-        return childThreadMap.containsKey(childName);
+    public synchronized Boolean hasChildTask(String childName) {
+        return childTaskMap.containsKey(childName);
     }
 
-    public synchronized void addChildThread(String childName, Thread childThread) {
+    public synchronized void addChildTask(String childName, Task childTask) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childThreadMap.compute(childName, (key, value) -> {
+            childTaskMap.compute(childName, (key, value) -> {
                 if (value != null) {
-                    ThreadUtil.shutdownAndWait(value, -1, TimeUnit.SECONDS);
+                    value.stopTask();
                 }
-                childThread.start();
-                return childThread;
+                childTask.startTask();
+                return childTask;
             });
         } else {
-            Thread oldThread = childThreadMap.get(childName);
-            if (oldThread != null) {
-                ThreadUtil.shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
+            Task oldTask = childTaskMap.get(childName);
+            if (oldTask != null) {
+                oldTask.stopTask();
             }
-            childThread.start();
-            childThreadMap.put(childName, childThread);
+            childTask.startTask();
+            childTaskMap.put(childName, childTask);
         }
     }
 
-    public synchronized void removeChildThread(String childName) {
+    public synchronized void removeChildTask(String childName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childThreadMap.compute(childName, (key, value) -> {
+            childTaskMap.compute(childName, (key, value) -> {
                 if (value != null) {
-                    ThreadUtil.shutdownAndWait(value, -1, TimeUnit.SECONDS);
+                    ThreadUtil.shutdownAndWait(value.getThread(), -1, TimeUnit.SECONDS);
                 }
                 return null;
             });
         } else {
-            Thread oldThread = childThreadMap.get(childName);
-            if (oldThread != null) {
-                ThreadUtil.shutdownAndWait(oldThread, -1, TimeUnit.SECONDS);
+            Task oldTask = childTaskMap.get(childName);
+            if (oldTask != null) {
+                ThreadUtil.shutdownAndWait(oldTask.getThread(), -1, TimeUnit.SECONDS);
             }
-            childThreadMap.remove(childName);
+            childTaskMap.remove(childName);
         }
     }
 
-    public synchronized Integer countChildThread() {
-        return childThreadMap.size();
+    public synchronized Integer countChildTask() {
+        return childTaskMap.size();
     }
 
     public Boolean startTask() {
@@ -112,6 +99,11 @@ public abstract class Task {
         thread = new Thread(runnable);
         if (check()) {
             thread.start();
+            for (Task childTask : childTaskMap.values()) {
+                if (childTask != null) {
+                    childTask.startTask();
+                }
+            }
             return true;
         }
         return false;
@@ -121,13 +113,12 @@ public abstract class Task {
         if (thread != null && thread.isAlive()) {
             ThreadUtil.shutdownAndWait(thread, 5, TimeUnit.SECONDS);
         }
-        for (Thread childThread : childThreadMap.values()) {
-            if (childThread != null) {
-                ThreadUtil.shutdownAndWait(childThread, -1, TimeUnit.SECONDS);
+        for (Task childTask : childTaskMap.values()) {
+            if (childTask != null) {
+                ThreadUtil.shutdownAndWait(childTask.getThread(), -1, TimeUnit.SECONDS);
             }
         }
         thread = null;
-        childThreadMap.clear();
     }
 
     public static Boolean hasTask(Class<? extends Task> taskClazz) {
@@ -166,7 +157,7 @@ public abstract class Task {
             if (task != null) {
                 if (task.startTask(force)) {
                     try {
-                        Thread.sleep(50);
+                        Thread.sleep(80);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }

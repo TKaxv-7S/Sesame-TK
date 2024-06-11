@@ -412,8 +412,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             Notification.setNextScanTime(System.currentTimeMillis() + checkInterval);
                             Notification.setContentTextIdle();
                             mainHandler.postDelayed(this, checkInterval);
-                            FileUtils.clearLog(2);
-                        } catch (Exception e){
+                            FileUtils.clearLog();
+                        } catch (Exception e) {
                             Log.record("执行异常:");
                             Log.printStackTrace(e);
                         } finally {
@@ -581,7 +581,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     public static String getUserId() {
         try {
             Object callMethod = XposedHelpers.callMethod(XposedHelpers.callMethod(getMicroApplicationContext(), "findServiceByInterface", XposedHelpers.findClass("com.alipay.mobile.personalbase.service.SocialSdkContactService", classLoader).getName()), "getMyAccountInfoModelByLocal");
-            if  (callMethod != null) {
+            if (callMethod != null) {
                 return (String) XposedHelpers.getObjectField(callMethod, "userId");
             }
         } catch (Throwable th) {
