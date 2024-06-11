@@ -631,6 +631,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.restart");
+            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.execute");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.reLogin");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.test");
             context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter);

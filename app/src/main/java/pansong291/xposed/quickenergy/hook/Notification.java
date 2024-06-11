@@ -11,6 +11,7 @@ import android.os.Build;
 
 import java.text.DateFormat;
 
+import lombok.Getter;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -22,6 +23,9 @@ public class Notification {
     private static android.app.Notification mNotification;
     private static android.app.Notification.Builder builder;
     private static boolean isStart = false;
+
+    @Getter
+    private static long lastScanTime = 0;
 
     private static long nextScanTime = 0;
     private static CharSequence contentText = "";
@@ -117,6 +121,7 @@ public class Notification {
                 cs = "触发异常,等待至" + DateFormat.getDateTimeInstance().format(forestPauseTime);
             }
             contentText = cs;
+            lastScanTime = System.currentTimeMillis();
             innerSetContentText();
         }
     }

@@ -1303,7 +1303,9 @@ public class AntForest extends Task {
             }
             Log.record(sb.toString());
             Notification.setContentText(Log.getFormatTime() + sb);
-            ApplicationHook.getMainHandler().postDelayed(Notification::setContentTextIdle, 60_000);
+            if (System.currentTimeMillis() - Notification.getLastScanTime() > 60_000) {
+                ApplicationHook.getMainHandler().postDelayed(Notification::setContentTextIdle, 60_000);
+            }
         }
         laterTime = -1;
     }
@@ -2040,7 +2042,9 @@ public class AntForest extends Task {
                     String s = "  收：" + totalCollected + "，帮：" + totalHelpCollected;
                     Log.record(s);
                     Notification.setContentText(Log.getFormatTime() + s);
-                    ApplicationHook.getMainHandler().postDelayed(Notification::setContentTextIdle, 60_000);
+                    if (System.currentTimeMillis() - Notification.getLastScanTime() > 60_000) {
+                        ApplicationHook.getMainHandler().postDelayed(Notification::setContentTextIdle, 60_000);
+                    }
                 } catch (Throwable t) {
                     Log.i(TAG, "BubbleTimerTask.run err:");
                     Log.printStackTrace(TAG, t);
