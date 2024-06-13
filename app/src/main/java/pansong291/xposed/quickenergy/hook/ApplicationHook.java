@@ -280,7 +280,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     try {
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
-                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7) {
+                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 0 && calendar.get(Calendar.MINUTE) >= 0 && calendar.get(Calendar.SECOND) >= 0 && calendar.get(Calendar.MILLISECOND) >= 0) {
                             calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
                         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -297,7 +297,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     try {
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
-                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 6) {
+                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 6 && calendar.get(Calendar.MINUTE) >= 55 && calendar.get(Calendar.SECOND) >= 0 && calendar.get(Calendar.MILLISECOND) >= 0) {
                             calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
                         calendar.set(Calendar.HOUR_OF_DAY, 6);
