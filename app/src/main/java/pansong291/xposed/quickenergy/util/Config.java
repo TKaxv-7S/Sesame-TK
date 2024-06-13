@@ -53,7 +53,7 @@ public class Config {
     private List<String> doubleCardTime;
     private int doubleCountLimit;
     private int advanceTime;
-    private int collectInterval;
+    private int collectInterval = 350;
     private int collectTimeout;
     private int returnWater33;
     private int returnWater18;
@@ -197,6 +197,10 @@ public class Config {
         return false;
     }
 
+    public int getCollectInterval() {
+        return Math.max(collectInterval, 350);
+    }
+
     public static Config defInit() {
         Config c = new Config();
 
@@ -223,7 +227,7 @@ public class Config {
         c.doubleCardTime.add("0700-0730");
         c.doubleCountLimit = 6;
         c.advanceTime = 0;
-        c.collectInterval = 100;
+        c.collectInterval = 350;
         c.collectTimeout = 2_000;
         c.returnWater33 = 0;
         c.returnWater18 = 0;

@@ -7,7 +7,7 @@ import java.util.List;
 import pansong291.xposed.quickenergy.task.model.ancientTree.AncientTree;
 import pansong291.xposed.quickenergy.task.model.antCooperate.AntCooperate;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm;
-import pansong291.xposed.quickenergy.task.model.antForest.AntForest;
+import pansong291.xposed.quickenergy.task.model.antForest.AntForestV2;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMember;
 import pansong291.xposed.quickenergy.task.model.antOcean.AntOcean;
 import pansong291.xposed.quickenergy.task.model.antOrchard.AntOrchard;
@@ -19,7 +19,7 @@ import pansong291.xposed.quickenergy.task.model.reserve.Reserve;
 public class TaskOrder {
 
     private static final Class<Task>[] array = new Class[]{
-            AntForest.class
+            AntForestV2.class
             , AntCooperate.class
             , AntFarm.class
             , Reserve.class

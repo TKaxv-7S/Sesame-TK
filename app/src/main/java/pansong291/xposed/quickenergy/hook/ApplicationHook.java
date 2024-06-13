@@ -133,7 +133,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             protected void afterHookedMethod(MethodHookParam param) {
                                 Log.i(TAG, "Activity onResume");
                                 if (!init) {
-                                    startHandler(false);
                                     return;
                                 }
                                 String targetUid = getUserId();
@@ -280,9 +279,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     try {
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
-                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 0 && calendar.get(Calendar.MINUTE) >= 0 && calendar.get(Calendar.SECOND) >= 0 && calendar.get(Calendar.MILLISECOND) >= 0) {
-                            calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        }
+                        calendar.add(Calendar.DAY_OF_MONTH, 1);
                         calendar.set(Calendar.HOUR_OF_DAY, 0);
                         calendar.set(Calendar.MINUTE, 0);
                         calendar.set(Calendar.SECOND, 0);
@@ -295,9 +292,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 if (config.isStartAt7()) {
                     try {
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
-                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 6 && calendar.get(Calendar.MINUTE) >= 55 && calendar.get(Calendar.SECOND) >= 0 && calendar.get(Calendar.MILLISECOND) >= 0) {
+                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 6 && calendar.get(Calendar.MINUTE) >= 55) {
                             calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
                         calendar.set(Calendar.HOUR_OF_DAY, 6);
@@ -494,6 +491,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             } else {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, operation);
             }
+            Log.i("setAlarmTask triggerAtMillis:" + triggerAtMillis + " operation:" + operation.toString());
         } catch (Throwable th) {
             Log.i(TAG, "setAlarmTask err:");
             Log.printStackTrace(TAG, th);
@@ -613,6 +611,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
+            Log.i("broadcast action:" + action + " intent:" + intent);
             if ("com.eg.android.AlipayGphone.xqe.restart".equals(action)) {
                 startHandler(true);
             } else if ("com.eg.android.AlipayGphone.xqe.execute".equals(action)) {

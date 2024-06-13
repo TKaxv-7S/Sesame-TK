@@ -45,6 +45,10 @@ public abstract class Task {
         return childTaskMap.containsKey(childName);
     }
 
+    public synchronized Task getChildTask(String childName) {
+        return childTaskMap.get(childName);
+    }
+
     public synchronized void addChildTask(String childName, Task childTask) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childTaskMap.compute(childName, (key, value) -> {
@@ -125,8 +129,9 @@ public abstract class Task {
         return taskMap.containsKey(taskClazz);
     }
 
-    public static Task getTask(Class<? extends Task> taskClazz) {
-        return taskMap.get(taskClazz);
+    @SuppressWarnings("unchecked")
+    public static <T extends Task> T getTask(Class<T> taskClazz) {
+        return (T) taskMap.get(taskClazz);
     }
 
     public static List<Task> getTaskList() {
@@ -183,6 +188,20 @@ public abstract class Task {
                 taskMap.remove(task.getClass());
             }
         }
+    }
+
+    public static Task newInstance() {
+        return new Task() {
+            @Override
+            public Runnable init() {
+                return () -> {};
+            }
+
+            @Override
+            public Boolean check() {
+                return true;
+            }
+        };
     }
 
 }
