@@ -40,7 +40,6 @@ import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
-import pansong291.xposed.quickenergy.util.TimeUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class ApplicationHook implements IXposedHookLoadPackage {
@@ -443,9 +442,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 mainHandler.postDelayed(this, config.getCheckInterval());
                                 return;
                             }
-                            TaskCommon.IS_MORNING = TimeUtil.getTimeStr().compareTo("0700") >= 0 && TimeUtil.getTimeStr().compareTo("0730") <= 0;
-                            TaskCommon.IS_AFTER_8AM = TimeUtil.getTimeStr().compareTo("0800") >= 0;
-
+                            TaskCommon.update();
                             Task.startAllTask(false);
                             int checkInterval = config.getCheckInterval();
                             mainHandler.postDelayed(this, checkInterval);
