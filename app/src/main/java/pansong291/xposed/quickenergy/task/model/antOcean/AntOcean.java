@@ -8,7 +8,7 @@ import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
@@ -104,7 +104,7 @@ public class AntOcean extends Task {
                                 JSONObject retBubble = retBubbles.optJSONObject(j);
                                 if (retBubble != null) {
                                     int collectedEnergy = retBubble.getInt("collectedEnergy");
-                                    Log.forest("神奇海洋🐳收取[" + FriendIdMap.getNameById(userId) + "]的海洋能量#"
+                                    Log.forest("神奇海洋🐳收取[" + UserIdMap.getNameById(userId) + "]的海洋能量#"
                                             + collectedEnergy + "g");
                                 }
                             }
@@ -376,7 +376,7 @@ public class AntOcean extends Task {
         }
         try {
             String userId = fillFlag.getString("userId");
-            if (Config.INSTANCE.getDontCollectList().contains(userId)) {
+            if (Config.INSTANCE.getDontCollectSet().contains(userId)) {
                 return;
             }
             String s = AntOceanRpcCall.queryFriendPage(userId);

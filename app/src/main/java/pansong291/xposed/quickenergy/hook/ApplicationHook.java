@@ -13,7 +13,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -35,11 +37,11 @@ import pansong291.xposed.quickenergy.ui.MainActivity;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class ApplicationHook implements IXposedHookLoadPackage {
 
@@ -72,11 +74,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static RpcBridge rpcBridge;
 
+    private static PowerManager.WakeLock wakeLock;
+
+    private static PendingIntent alarmLastPi;
+
     private static PendingIntent alarm0Pi;
 
     private static PendingIntent alarm7Pi;
-
-    private static PowerManager.WakeLock wakeLock;
 
     private static XC_MethodHook.Unhook rpcRequestUnhook;
 
@@ -138,16 +142,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 String targetUid = getUserId();
                                 if (targetUid == null) {
                                     return;
-                                }
-                                String currentUid = FriendIdMap.getCurrentUid();
-                                if (!targetUid.equals(currentUid)) {
-                                    FriendIdMap.setCurrentUid(targetUid);
-                                    if (currentUid != null) {
-                                        startHandler(true);
-                                        Log.i(TAG, "Activity changeUser");
-                                        return;
-                                    }
-                                    offline = true;
                                 }
                                 if (offline) {
                                     startHandler(false);
@@ -275,9 +269,46 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     rpcBridge = new OldRpcBridge();
                 }
                 rpcBridge.load();
+                if (config.isStayAwake()) {
+                    try {
+                        PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
+                        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
+                        wakeLock.acquire();
+                        Log.record("stayAwake 已设置");
+                    } catch (Throwable th) {
+                        Log.i(TAG, "stayAwake err:");
+                        Log.printStackTrace(TAG, th);
+                    }
+                    try {
+                        Intent it = new Intent();
+                        it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
+                        PendingIntent pi = PendingIntent.getService(context, 0, it, getPendingIntentFlag());
+                        setAlarmTask(System.currentTimeMillis() + 30 * 60 * 1000, pi);
+                        Log.record("stayAwakeAlarm 已设置");
+                    } catch (Throwable th) {
+                        Log.i(TAG, "stayAwakeAlarm err:");
+                        Log.printStackTrace(TAG, th);
+                    }
+                }
+                try {
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
+                    Calendar calendar = Calendar.getInstance();
+                    if (calendar.get(Calendar.HOUR_OF_DAY) == 23 && calendar.get(Calendar.MINUTE) == 57) {
+                        calendar.add(Calendar.DAY_OF_MONTH, 1);
+                    }
+                    calendar.set(Calendar.HOUR_OF_DAY, 23);
+                    calendar.set(Calendar.MINUTE, 57);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
+                    alarmLastPi = pendingIntent;
+                    Log.record("alarmLast 已设置");
+                } catch (Throwable th) {
+                    Log.printStackTrace("alarmLast", th);
+                }
                 if (config.isStartAt0()) {
                     try {
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
                         calendar.add(Calendar.DAY_OF_MONTH, 1);
                         calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -286,15 +317,16 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         calendar.set(Calendar.MILLISECOND, 0);
                         setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
                         alarm0Pi = pendingIntent;
+                        Log.record("alarm0 已设置");
                     } catch (Throwable th) {
                         Log.printStackTrace("alarm0", th);
                     }
                 }
                 if (config.isStartAt7()) {
                     try {
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 3, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
                         Calendar calendar = Calendar.getInstance();
-                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 6 && calendar.get(Calendar.MINUTE) >= 55) {
+                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7 || (calendar.get(Calendar.HOUR_OF_DAY) >= 6 && calendar.get(Calendar.MINUTE) >= 55)) {
                             calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
                         calendar.set(Calendar.HOUR_OF_DAY, 6);
@@ -303,15 +335,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         calendar.set(Calendar.MILLISECOND, 0);
                         setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
                         alarm7Pi = pendingIntent;
+                        Log.record("alarm7 已设置");
                     } catch (Throwable th) {
                         Log.printStackTrace("alarm7", th);
                     }
-                }
-                if (config.isStayAwake()) {
-                    PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
-                    wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
-                    wakeLock.acquire();
-                    holdByAlarm(30 * 60 * 1000, false);
                 }
                 if (config.isNewRpc() && config.isDebugMode()) {
                     try {
@@ -382,7 +409,16 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 Log.record("用户为空，放弃执行");
                                 return;
                             }
-                            FriendIdMap.setCurrentUid(targetUid);
+                            String currentUid = UserIdMap.getCurrentUid();
+                            if (!targetUid.equals(currentUid)) {
+                                UserIdMap.setCurrentUid(targetUid);
+                                if (currentUid != null) {
+                                    offline = true;
+                                    mainHandler.postDelayed(this, config.getCheckInterval());
+                                    return;
+                                }
+                            }
+                            UserIdMap.setCurrentUid(targetUid);
                             Notification.setContentTextExec();
                             try {
                                 Statistics.resetToday();
@@ -447,10 +483,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 if (rpcRequestUnhook != null) {
                     rpcRequestUnhook.unhook();
                 }
-                if (wakeLock != null) {
-                    wakeLock.release();
-                    wakeLock = null;
-                }
                 try {
                     if (alarm7Pi != null) {
                         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -470,6 +502,20 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     Log.printStackTrace("alarm0", th);
                 } finally {
                     alarm0Pi = null;
+                }
+                try {
+                    if (alarmLastPi != null) {
+                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                        alarmManager.cancel(alarmLastPi);
+                    }
+                } catch (Throwable th) {
+                    Log.printStackTrace("alarmLast", th);
+                } finally {
+                    alarmLastPi = null;
+                }
+                if (wakeLock != null) {
+                    wakeLock.release();
+                    wakeLock = null;
                 }
                 if (rpcBridge != null) {
                     rpcBridge.unload();
@@ -491,7 +537,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             } else {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, operation);
             }
-            Log.i("setAlarmTask triggerAtMillis:" + triggerAtMillis + " operation:" + operation.toString());
+            Log.i("setAlarmTask triggerAtMillis:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(triggerAtMillis) + " operation:" + (operation == null ? "" : operation.toString()));
         } catch (Throwable th) {
             Log.i(TAG, "setAlarmTask err:");
             Log.printStackTrace(TAG, th);
@@ -528,21 +574,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     public static RpcEntity requestObject(String method, String data, int retryCount) {
         return rpcBridge.requestObject(method, data, retryCount);
-    }
-
-    public static void holdByAlarm(long delayTime, boolean force) {
-        try {
-            Intent it = new Intent();
-            it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
-            PendingIntent pi = PendingIntent.getService(context, 2, it, getPendingIntentFlag());
-            if (force) {
-                offline = true;
-            }
-            setAlarmTask(System.currentTimeMillis() + delayTime, pi);
-        } catch (Throwable th) {
-            Log.i(TAG, "holdByAlarm err:");
-            Log.printStackTrace(TAG, th);
-        }
     }
 
     public static void reLoginByBroadcast() {

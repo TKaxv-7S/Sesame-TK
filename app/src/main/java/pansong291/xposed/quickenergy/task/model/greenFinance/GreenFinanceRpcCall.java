@@ -3,7 +3,7 @@ package pansong291.xposed.quickenergy.task.model.greenFinance;
 import org.json.JSONArray;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class GreenFinanceRpcCall {
 
@@ -16,7 +16,7 @@ public class GreenFinanceRpcCall {
     public static String batchSelfCollect(JSONArray bsnIds) {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinancePointCollectService.batchSelfCollect",
                 "[{\"bsnIds\":" + bsnIds + ",\"clientVersion\":\"VERSION2\",\"custType\":\"MERCHANT\",\"uid\":\""
-                        + FriendIdMap.getCurrentUid() + "\"}]");
+                        + UserIdMap.getCurrentUid() + "\"}]");
     }
 
     public static String signInQuery(String sceneId) {

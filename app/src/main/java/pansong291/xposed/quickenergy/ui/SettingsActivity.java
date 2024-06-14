@@ -23,7 +23,7 @@ import pansong291.xposed.quickenergy.entity.CooperateUser;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.LanguageUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.ReserveIdMap;
@@ -69,7 +69,7 @@ public class SettingsActivity extends Activity {
         initFlipper();
 
         Config.load();
-        FriendIdMap.shouldReload = true;
+        UserIdMap.shouldReload = true;
         CooperationIdMap.shouldReload = true;
         ReserveIdMap.shouldReload = true;
         BeachIdMap.shouldReload = true;
@@ -840,12 +840,12 @@ public class SettingsActivity extends Activity {
         if (Config.isModify() && Config.save(false)) {
             Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
             try {
-                this.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.restart"));
+                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.restart"));
             } catch (Throwable th) {
                 Log.printStackTrace(th);
             }
         }
-        FriendIdMap.saveIdMap();
+        UserIdMap.saveIdMap();
         CooperationIdMap.saveIdMap();
         ReserveIdMap.saveIdMap();
         BeachIdMap.saveIdMap();

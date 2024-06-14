@@ -6,17 +6,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import lombok.Getter;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.hook.FriendManager;
 
-public class FriendIdMap {
-    private static final String TAG = FriendIdMap.class.getSimpleName();
+public class UserIdMap {
+    private static final String TAG = UserIdMap.class.getSimpleName();
+
+    private static Map<String, String> idMap;
 
     public static boolean shouldReload = false;
 
+    @Getter
     private static String currentUid = null;
 
-    private static Map<String, String> idMap;
     private static boolean hasChanged = false;
 
     public static void setCurrentUid(String uid) {
@@ -24,10 +27,6 @@ public class FriendIdMap {
             currentUid = uid;
             FriendManager.fillUser(ApplicationHook.getClassLoader());
         }
-    }
-
-    public static String getCurrentUid() {
-        return currentUid;
     }
 
     public static void putIdMapIfEmpty(String key, String value) {
@@ -107,17 +106,6 @@ public class FriendIdMap {
 //        return idList;
 //    }
 
-    public static List<String> getFriendIds() {
-        List<String> idList = new ArrayList<>();
-        for (Map.Entry<String, String> entry : getIdMap().entrySet()) {
-            if ("我".equals(entry.getValue()) || entry.getKey().equals(currentUid)) {
-                continue;
-            }
-            idList.add(entry.getKey());
-        }
-        return idList;
-    }
-
     public static Map<String, String> getIdMap() {
         if (idMap == null || shouldReload) {
             shouldReload = false;
@@ -138,6 +126,17 @@ public class FriendIdMap {
             }
         }
         return idMap;
+    }
+
+    public static List<String> getFriendIds() {
+        List<String> idList = new ArrayList<>();
+        for (Map.Entry<String, String> entry : getIdMap().entrySet()) {
+            if ("我".equals(entry.getValue()) || entry.getKey().equals(currentUid)) {
+                continue;
+            }
+            idList.add(entry.getKey());
+        }
+        return idList;
     }
 
     public static void waitingCurrentUid() throws InterruptedException {

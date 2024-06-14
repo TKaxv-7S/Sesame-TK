@@ -140,7 +140,7 @@ public class Statistics {
     }
 
     public static boolean canWaterFriendToday(String id, int count) {
-        id = FriendIdMap.getCurrentUid() + "-" + id;
+        id = UserIdMap.getCurrentUid() + "-" + id;
         Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.waterFriendLogList.size(); i++)
@@ -155,7 +155,7 @@ public class Statistics {
     }
 
     public static void waterFriendToday(String id, int count) {
-        id = FriendIdMap.getCurrentUid() + "-" + id;
+        id = UserIdMap.getCurrentUid() + "-" + id;
         Statistics stat = INSTANCE;
         WaterFriendLog wfl;
         int index = -1;
@@ -337,7 +337,7 @@ public class Statistics {
     }
 
     public static boolean canVisitFriendToday(String id, int count) {
-        id = FriendIdMap.getCurrentUid() + "-" + id;
+        id = UserIdMap.getCurrentUid() + "-" + id;
         Statistics stat = INSTANCE;
         int index = -1;
         for (int i = 0; i < stat.visitFriendLogList.size(); i++)
@@ -352,7 +352,7 @@ public class Statistics {
     }
 
     public static void visitFriendToday(String id, int count) {
-        id = FriendIdMap.getCurrentUid() + "-" + id;
+        id = UserIdMap.getCurrentUid() + "-" + id;
         Statistics stat = INSTANCE;
         VisitFriendLog vfl;
         int index = -1;
@@ -526,12 +526,12 @@ public class Statistics {
     }
 
     public static boolean canStallP2PHelpToday(String uid) {
-        uid = FriendIdMap.getCurrentUid() + "-" + uid;
+        uid = UserIdMap.getCurrentUid() + "-" + uid;
         return !INSTANCE.stallP2PHelpedList.contains(uid);
     }
 
     public static void stallP2PHelpeToday(String uid) {
-        uid = FriendIdMap.getCurrentUid() + "-" + uid;
+        uid = UserIdMap.getCurrentUid() + "-" + uid;
         Statistics stat = INSTANCE;
         if (!stat.stallP2PHelpedList.contains(uid)) {
             stat.stallP2PHelpedList.add(uid);

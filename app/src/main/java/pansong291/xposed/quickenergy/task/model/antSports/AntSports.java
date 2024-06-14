@@ -9,7 +9,7 @@ import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
@@ -36,7 +36,7 @@ public class AntSports extends Task {
                 if (Config.INSTANCE.isDonateCharityCoin())
                     queryProjectList(loader);
 
-                if (Config.INSTANCE.getMinExchangeCount() > 0 && Statistics.canExchangeToday(FriendIdMap.getCurrentUid()))
+                if (Config.INSTANCE.getMinExchangeCount() > 0 && Statistics.canExchangeToday(UserIdMap.getCurrentUid()))
                     queryWalkStep(loader);
 
                 if (Config.INSTANCE.isTiyubiz()) {
@@ -357,7 +357,7 @@ public class AntSports extends Task {
                     JSONObject walkDonateHomeModel = jo.getJSONObject("walkDonateHomeModel");
                     JSONObject walkUserInfoModel = walkDonateHomeModel.getJSONObject("walkUserInfoModel");
                     if (!walkUserInfoModel.has("exchangeFlag")) {
-                        Statistics.exchangeToday(FriendIdMap.getCurrentUid());
+                        Statistics.exchangeToday(UserIdMap.getCurrentUid());
                         return;
                     }
 
@@ -372,10 +372,10 @@ public class AntSports extends Task {
                         int userCount = donateExchangeResultModel.getInt("userCount");
                         double amount = donateExchangeResultModel.getJSONObject("userAmount").getDouble("amount");
                         Log.other("捐出活动❤️[" + userCount + "步]#兑换" + amount + "元公益金");
-                        Statistics.exchangeToday(FriendIdMap.getCurrentUid());
+                        Statistics.exchangeToday(UserIdMap.getCurrentUid());
 
                     } else if (s.contains("已捐步")) {
-                        Statistics.exchangeToday(FriendIdMap.getCurrentUid());
+                        Statistics.exchangeToday(UserIdMap.getCurrentUid());
                     } else {
                         Log.i(TAG, jo.getString("resultDesc"));
                     }
@@ -521,7 +521,7 @@ public class AntSports extends Task {
                 int minGoStepCount = path.getInt("minGoStepCount");
                 if (jo.has("userPath")) {
                     JSONObject userPath = jo.getJSONObject("userPath");
-                    FriendIdMap.setCurrentUid(userPath.getString("userId"));
+                    UserIdMap.setCurrentUid(userPath.getString("userId"));
                     String userPathRecordStatus = userPath.getString("userPathRecordStatus");
                     if ("COMPLETED".equals(userPathRecordStatus)) {
                         pathMapHomepage(pathId);

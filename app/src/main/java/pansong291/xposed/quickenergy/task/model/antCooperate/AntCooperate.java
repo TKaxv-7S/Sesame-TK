@@ -7,7 +7,7 @@ import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
@@ -41,7 +41,7 @@ public class AntCooperate extends Task {
                         String name = jo.getString("name");
                         int waterDayLimit = jo.getInt("waterDayLimit");
                         CooperationIdMap.putIdMap(cooperationId, name);
-                        if (!Statistics.canCooperateWaterToday(FriendIdMap.getCurrentUid(), cooperationId))
+                        if (!Statistics.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
                             continue;
                         int index = -1;
                         for (int j = 0; j < Config.INSTANCE.getCooperateWaterList().size(); j++) {
@@ -57,7 +57,7 @@ public class AntCooperate extends Task {
                             if (num > userCurrentEnergy)
                                 num = userCurrentEnergy;
                             if (num > 0)
-                                cooperateWater(FriendIdMap.getCurrentUid(), cooperationId, num, name);
+                                cooperateWater(UserIdMap.getCurrentUid(), cooperationId, num, name);
                         }
                     }
                 } else {
@@ -77,7 +77,7 @@ public class AntCooperate extends Task {
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.forest("合种浇水🚿[" + name + "]" + jo.getString("barrageText"));
-                Statistics.cooperateWaterToday(FriendIdMap.getCurrentUid(), coopId);
+                Statistics.cooperateWaterToday(UserIdMap.getCurrentUid(), coopId);
             } else {
                 Log.i(TAG, jo.getString("resultDesc"));
             }

@@ -10,7 +10,7 @@ import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
@@ -377,7 +377,7 @@ public class AntOrchard extends Task {
 
     private static void batchHireAnimalRecommend() {
         try {
-            JSONObject jo = new JSONObject(AntOrchardRpcCall.batchHireAnimalRecommend(FriendIdMap.getCurrentUid()));
+            JSONObject jo = new JSONObject(AntOrchardRpcCall.batchHireAnimalRecommend(UserIdMap.getCurrentUid()));
             if ("100".equals(jo.getString("resultCode"))) {
                 JSONArray recommendGroupList = jo.optJSONArray("recommendGroupList");
                 if (recommendGroupList != null && recommendGroupList.length() > 0) {

@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.util.Objects;
 
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 
 /**
@@ -29,14 +29,14 @@ public class RuntimeInfo {
     }
 
     public static RuntimeInfo getInstance() {
-        if (instance == null || !Objects.equals(instance.userId, FriendIdMap.getCurrentUid())) {
+        if (instance == null || !Objects.equals(instance.userId, UserIdMap.getCurrentUid())) {
             instance = new RuntimeInfo();
         }
         return instance;
     }
 
     private RuntimeInfo() {
-        userId = FriendIdMap.getCurrentUid();
+        userId = UserIdMap.getCurrentUid();
         String content = FileUtils.readFromFile(FileUtils.runtimeInfoFile());
         try {
             joAll = new JSONObject(content);

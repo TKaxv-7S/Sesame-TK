@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -21,13 +21,13 @@ public class AntMember extends Task {
     public Runnable init() {
         return () -> {
             try {
-                if (Statistics.canMemberSignInToday(FriendIdMap.getCurrentUid())) {
+                if (Statistics.canMemberSignInToday(UserIdMap.getCurrentUid())) {
                     String s = AntMemberRpcCall.queryMemberSigninCalendar();
                     JSONObject jo = new JSONObject(s);
                     if ("SUCCESS".equals(jo.getString("resultCode"))) {
                         Log.other("每日签到📅[" + jo.getString("signinPoint") + "积分]#已签到" + jo.getString("signinSumDay")
                                 + "天");
-                        Statistics.memberSignInToday(FriendIdMap.getCurrentUid());
+                        Statistics.memberSignInToday(UserIdMap.getCurrentUid());
                     } else {
                         Log.record(jo.getString("resultDesc"));
                         Log.i(s);

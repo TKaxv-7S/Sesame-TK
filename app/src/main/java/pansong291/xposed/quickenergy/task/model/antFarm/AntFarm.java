@@ -12,7 +12,7 @@ import pansong291.xposed.quickenergy.task.common.Task;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.dadaDailyRpcCall.DadaDailyRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
@@ -60,7 +60,7 @@ public class AntFarm extends Task {
     public Runnable init() {
         return () -> {
             try {
-                String s = AntFarmRpcCall.enterFarm("", FriendIdMap.getCurrentUid());
+                String s = AntFarmRpcCall.enterFarm("", UserIdMap.getCurrentUid());
                 if (s == null) {
                     throw new RuntimeException("庄园加载失败");
                 }
@@ -128,7 +128,7 @@ public class AntFarm extends Task {
                         }
 
                         boolean hungry = false;
-                        String userName = FriendIdMap
+                        String userName = UserIdMap
                                 .getNameById(AntFarmRpcCall.farmId2UserId(ownerAnimal.currentFarmId));
                         switch (AnimalFeedStatus.valueOf(ownerAnimal.animalFeedStatus)) {
                             case HUNGRY:
@@ -196,7 +196,7 @@ public class AntFarm extends Task {
                     donation();
                 }
 
-                if (Config.INSTANCE.isAnswerQuestion() && Statistics.canAnswerQuestionToday(FriendIdMap.getCurrentUid())) {
+                if (Config.INSTANCE.isAnswerQuestion() && Statistics.canAnswerQuestionToday(UserIdMap.getCurrentUid())) {
                     answerQuestion();
                 }
 
@@ -257,14 +257,14 @@ public class AntFarm extends Task {
                 Log.i(TAG, "AntFarm.start.run err:");
                 Log.printStackTrace(TAG, t);
             }
-            FriendIdMap.saveIdMap();
+            UserIdMap.saveIdMap();
         };
 
     }
 
     private static void animalSleep() {
         try {
-            String s = AntFarmRpcCall.queryLoveCabin(FriendIdMap.getCurrentUid());
+            String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("memo"))) {
                 JSONObject sleepNotifyInfo = jo.getJSONObject("sleepNotifyInfo");
@@ -334,7 +334,7 @@ public class AntFarm extends Task {
                     if ("SUCCESS".equals(memo)) {
                         double rewardCount = benevolenceScore - jo.getDouble("farmProduct");
                         benevolenceScore -= rewardCount;
-                        Log.farm("打赏好友💰[" + FriendIdMap.getNameById(rewardFriend.friendId) + "]#得" + rewardCount
+                        Log.farm("打赏好友💰[" + UserIdMap.getNameById(rewardFriend.friendId) + "]#得" + rewardCount
                                 + "颗爱心鸡蛋");
                     } else {
                         Log.record(memo);
@@ -383,7 +383,7 @@ public class AntFarm extends Task {
                     if (Config.INSTANCE.getDontSendFriendList().contains(user))
                         continue;
                     int sendType = Config.INSTANCE.getSendType();
-                    user = FriendIdMap.getNameById(user);
+                    user = UserIdMap.getNameById(user);
                     String s = AntFarmRpcCall.sendBackAnimal(
                             SendType.nickNames[sendType], animal.animalId,
                             animal.currentFarmId, animal.masterFarmId);
@@ -576,7 +576,7 @@ public class AntFarm extends Task {
                                         }
                                         Log.record("答题" + (correct ? "正确" : "错误") + "可领取［"
                                                 + extInfo.getString("award") + "克］");
-                                        Statistics.answerQuestionToday(FriendIdMap.getCurrentUid());
+                                        Statistics.answerQuestionToday(UserIdMap.getCurrentUid());
 
                                         JSONArray operationConfigList = joDailySubmit
                                                 .getJSONArray("operationConfigList");
@@ -607,13 +607,13 @@ public class AntFarm extends Task {
                             case RECEIVED:
                                 Statistics.setQuestionHint(null);
                                 Log.record("今日答题已完成");
-                                Statistics.answerQuestionToday(FriendIdMap.getCurrentUid());
+                                Statistics.answerQuestionToday(UserIdMap.getCurrentUid());
                                 break;
 
                             case FINISHED:
                                 Statistics.setQuestionHint(null);
                                 Log.record("已经答过题了，饲料待领取");
-                                Statistics.answerQuestionToday(FriendIdMap.getCurrentUid());
+                                Statistics.answerQuestionToday(UserIdMap.getCurrentUid());
                                 break;
                         }
                         break;
@@ -901,7 +901,7 @@ public class AntFarm extends Task {
             JSONObject jo;
             for (int i = 0; i < Config.INSTANCE.getFeedFriendAnimalList().size(); i++) {
                 String userId = Config.INSTANCE.getFeedFriendAnimalList().get(i);
-                if (userId.equals(FriendIdMap.getCurrentUid()))
+                if (userId.equals(UserIdMap.getCurrentUid()))
                     continue;
                 if (!Statistics.canFeedFriendToday(userId, Config.INSTANCE.getFeedFriendCountList().get(i)))
                     continue;
@@ -919,7 +919,7 @@ public class AntFarm extends Task {
                             jo = jo.getJSONObject("animalStatusVO");
                             if (AnimalInteractStatus.HOME.name().equals(jo.getString("animalInteractStatus"))
                                     && AnimalFeedStatus.HUNGRY.name().equals(jo.getString("animalFeedStatus"))) {
-                                feedFriendAnimal(friendFarmId, FriendIdMap.getNameById(userId));
+                                feedFriendAnimal(friendFarmId, UserIdMap.getNameById(userId));
                             }
                             break;
                         }
@@ -986,9 +986,9 @@ public class AntFarm extends Task {
                     for (int i = 0; i < jaRankingList.length(); i++) {
                         jo = jaRankingList.getJSONObject(i);
                         String userId = jo.getString("userId");
-                        String userName = FriendIdMap.getNameById(userId);
+                        String userName = UserIdMap.getNameById(userId);
                         if (Config.INSTANCE.getDontNotifyFriendList().contains(userId)
-                                || userId.equals(FriendIdMap.getCurrentUid()))
+                                || userId.equals(UserIdMap.getCurrentUid()))
                             continue;
                         boolean starve = jo.has("actionType") && "starve_action".equals(jo.getString("actionType"));
                         if (jo.getBoolean("stealingAnimal") && !starve) {
@@ -1292,7 +1292,7 @@ public class AntFarm extends Task {
         try {
             for (int i = 0; i < Config.INSTANCE.getVisitFriendList().size(); i++) {
                 String userId = Config.INSTANCE.getVisitFriendList().get(i);
-                if (userId.equals(FriendIdMap.getCurrentUid()))
+                if (userId.equals(UserIdMap.getCurrentUid()))
                     continue;
                 int visitCount = Config.INSTANCE.getVisitFriendCountList().get(i);
                 if (visitCount <= 0)
@@ -1329,10 +1329,10 @@ public class AntFarm extends Task {
                     jo = new JSONObject(AntFarmRpcCall.visitFriend(farmId));
                     if ("SUCCESS".equals(jo.getString("memo"))) {
                         foodStock = jo.getInt("foodStock");
-                        Log.farm("赠送麦子🌾[" + FriendIdMap.getNameById(userId) + "]#" + jo.getInt("giveFoodNum") + "g");
+                        Log.farm("赠送麦子🌾[" + UserIdMap.getNameById(userId) + "]#" + jo.getInt("giveFoodNum") + "g");
                         visitedTimes++;
                         if (jo.optBoolean("isReachLimit")) {
-                            Log.record("今日给[" + FriendIdMap.getNameById(userId) + "]送麦子已达上限");
+                            Log.record("今日给[" + UserIdMap.getNameById(userId) + "]送麦子已达上限");
                             visitedTimes = 3;
                             break;
                         }

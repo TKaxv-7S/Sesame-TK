@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import lombok.Data;
 import lombok.Getter;
@@ -59,7 +61,7 @@ public class Config {
     private int returnWater18;
     private int returnWater10;
     private boolean helpFriendCollect;
-    private List<String> dontCollectList;
+    private Set<String> dontCollectSet = new HashSet<>();
     private List<String> dontHelpCollectList;
     private boolean receiveForestTaskAward;
     private List<String> waterFriendList;
@@ -198,7 +200,15 @@ public class Config {
     }
 
     public int getCollectInterval() {
-        return Math.max(collectInterval, 350);
+        return Math.max(collectInterval, 100);
+    }
+
+    public List<String> getDontCollectList() {
+        return new ArrayList<>(dontCollectSet);
+    }
+
+    public void setDontCollectList(List<String> dontCollectList) {
+        this.dontCollectSet = new HashSet<>(dontCollectList);
     }
 
     public static Config defInit() {
@@ -233,8 +243,8 @@ public class Config {
         c.returnWater18 = 0;
         c.returnWater10 = 0;
         c.helpFriendCollect = true;
-        if (c.dontCollectList == null)
-            c.dontCollectList = new ArrayList<>();
+        if (c.dontCollectSet == null)
+            c.dontCollectSet = new HashSet<>();
         if (c.dontHelpCollectList == null)
             c.dontHelpCollectList = new ArrayList<>();
         c.receiveForestTaskAward = true;
@@ -353,8 +363,8 @@ public class Config {
 
     public static Boolean isModify() {
         String json = null;
-        if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
+        if (FileUtils.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtils.readFromFile(FileUtils.getConfigFile(UserIdMap.getCurrentUid()));
         }
         if (json != null) {
             String formatted = JsonUtil.toJsonString(INSTANCE);
@@ -378,8 +388,8 @@ public class Config {
     public static synchronized Config load() {
         Log.i(TAG, "load config");
         String json = null;
-        if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
+        if (FileUtils.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtils.readFromFile(FileUtils.getConfigFile(UserIdMap.getCurrentUid()));
         }
         try {
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);

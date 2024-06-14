@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
@@ -50,12 +50,12 @@ public class FriendWatch extends IdAndName {
             } else {
                 joFriendWatch = new JSONObject(strFriendWatch);
             }
-            for (String id : FriendIdMap.getFriendIds()) {
+            for (String id : UserIdMap.getFriendIds()) {
                 JSONObject friend = joFriendWatch.optJSONObject(id);
                 if (friend == null) {
                     friend = new JSONObject();
                 }
-                String name = FriendIdMap.getNameById(id);
+                String name = UserIdMap.getNameById(id);
                 FriendWatch friendWatch = new FriendWatch(id, name);
                 friendWatch.startTime = friend.optString("startTime", "无");
                 friendWatch.weekGet = friend.optInt("weekGet", 0);

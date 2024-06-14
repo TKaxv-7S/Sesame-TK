@@ -8,7 +8,7 @@ import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -42,9 +42,9 @@ public class FriendManager {
                             remarkName = nickName;
                         }
                         remarkName += "|" + name;
-                        FriendIdMap.putIdMap(userId, remarkName + "(" + account + ")");
+                        UserIdMap.putIdMap(userId, remarkName + "(" + account + ")");
                     }
-                    FriendIdMap.saveIdMap();
+                    UserIdMap.saveIdMap();
                 } catch (Throwable t) {
                     Log.i(TAG, "checkUnknownId.run err:");
                     Log.printStackTrace(TAG, t);
@@ -69,7 +69,7 @@ public class FriendManager {
     private static JSONObject joFriendWatch;
 
     public static void friendWatch(String id, int collectedEnergy) {
-        if (id.equals(FriendIdMap.getCurrentUid())) {
+        if (id.equals(UserIdMap.getCurrentUid())) {
             return;
         }
         try {
@@ -95,7 +95,7 @@ public class FriendManager {
         JSONObject joSingle = joFriendWatch.optJSONObject(id);
         if (joSingle == null) {
             joSingle = new JSONObject();
-            joSingle.put("name", FriendIdMap.getNameById(id));
+            joSingle.put("name", UserIdMap.getNameById(id));
             joSingle.put("allGet", 0);
             joSingle.put("startTime", TimeUtil.getDateStr());
             joFriendWatch.put(id, joSingle);
@@ -108,14 +108,14 @@ public class FriendManager {
         JSONObject joSingle;
         try {
             String dateStr = TimeUtil.getDateStr();
-            List<String> friendIds = FriendIdMap.getFriendIds();
+            List<String> friendIds = UserIdMap.getFriendIds();
             for (String id : friendIds) {
                 if (joFriendWatch.has(id)) {
                     joSingle = joFriendWatch.getJSONObject(id);
                 } else {
                     joSingle = new JSONObject();
                 }
-                joSingle.put("name", FriendIdMap.getNameById(id));
+                joSingle.put("name", UserIdMap.getNameById(id));
                 joSingle.put("allGet", joSingle.optInt("allGet", 0) + joSingle.optInt("weekGet", 0));
                 joSingle.put("weekGet", 0);
                 if (!joSingle.has("startTime")) {

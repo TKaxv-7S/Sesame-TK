@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class AlipayUser extends IdAndName {
     private static List<AlipayUser> list;
@@ -16,9 +16,9 @@ public class AlipayUser extends IdAndName {
     }
 
     public static List<AlipayUser> getList() {
-        if (list == null || FriendIdMap.shouldReload) {
+        if (list == null || UserIdMap.shouldReload) {
             list = new ArrayList<>();
-            Set<Map.Entry<String, String>> idSet = FriendIdMap.getIdMap().entrySet();
+            Set<Map.Entry<String, String>> idSet = UserIdMap.getIdMap().entrySet();
             for (Map.Entry<String, String> entry : idSet) {
                 list.add(new AlipayUser(entry.getKey(), entry.getValue()));
             }

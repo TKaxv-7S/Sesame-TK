@@ -13,7 +13,7 @@ import lombok.Data;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.SendType;
 import pansong291.xposed.quickenergy.util.FileUtils;
-import pansong291.xposed.quickenergy.util.FriendIdMap;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.JsonUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
@@ -335,8 +335,8 @@ public class ConfigV2 {
 
     public static Boolean isModify() {
         String json = null;
-        if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
+        if (FileUtils.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtils.readFromFile(FileUtils.getConfigFile(UserIdMap.getCurrentUid()));
         }
         if (json != null) {
             String formatted = JsonUtil.toJsonString(INSTANCE);
@@ -360,8 +360,8 @@ public class ConfigV2 {
     public static synchronized ConfigV2 load() {
         Log.i(TAG, "load config");
         String json = null;
-        if (FileUtils.getConfigFile(FriendIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigFile(FriendIdMap.getCurrentUid()));
+        if (FileUtils.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtils.readFromFile(FileUtils.getConfigFile(UserIdMap.getCurrentUid()));
         }
         try {
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
