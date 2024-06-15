@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 
 import de.robv.android.xposed.XposedHelpers;
+import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.hook.Notification;
@@ -153,7 +154,7 @@ public class NewRpcBridge implements RpcBridge {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
                             Notification.setContentText("登录超时");
-                            if (Config.INSTANCE.isTimeoutRestart()) {
+                            if (ConfigV2.INSTANCE.isTimeoutRestart()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();
                             }
@@ -244,7 +245,7 @@ public class NewRpcBridge implements RpcBridge {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
                             Notification.setContentText("登录超时");
-                            if (Config.INSTANCE.isTimeoutRestart()) {
+                            if (ConfigV2.INSTANCE.isTimeoutRestart()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();
                             }

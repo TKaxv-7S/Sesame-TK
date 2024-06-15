@@ -131,6 +131,34 @@ public class FileUtils {
         return configFileMap.get("Default");
     }
 
+    public static File getConfigV2File() {
+        return getConfigV2File(null);
+    }
+
+    public static File getConfigV2File(String userId) {
+        if (!configFileMap.containsKey("DefaultV2")) {
+            File configFile = new File(MAIN_DIRECTORY_FILE, "config_v2.json");
+            if (configFile.exists()) {
+                Log.i(TAG, "[config_v2]读:" + configFile.canRead() + ";写:" + configFile.canWrite());
+            } else {
+                Log.i(TAG, "config_v2.json文件不存在");
+            }
+            configFileMap.put("DefaultV2", configFile);
+        }
+        if (!StringUtil.isEmpty(userId)) {
+            if (!configFileMap.containsKey(userId)) {
+                File configFile = new File(CONFIG_DIRECTORY_FILE, "config_v2-" + userId + ".json");
+                if (configFile.exists()) {
+                    configFileMap.put(userId, configFile);
+                    return configFile;
+                }
+            } else {
+                return configFileMap.get(userId);
+            }
+        }
+        return configFileMap.get("DefaultV2");
+    }
+
     public static File getFriendWatchFile() {
         if (friendWatchFile == null) {
             friendWatchFile = new File(MAIN_DIRECTORY_FILE, "friendWatch.json");

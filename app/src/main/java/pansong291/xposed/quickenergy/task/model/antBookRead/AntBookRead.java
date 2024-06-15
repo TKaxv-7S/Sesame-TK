@@ -3,16 +3,29 @@ package pansong291.xposed.quickenergy.task.model.antBookRead;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
-public class AntBookRead extends Task {
+public class AntBookRead extends ModelTask {
     private static final String TAG = AntBookRead.class.getSimpleName();
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.ant_book_read);
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     public Boolean check() {
         if (!Config.INSTANCE.isAntBookRead()) {

@@ -26,11 +26,12 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
+import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.rpc.NewRpcBridge;
 import pansong291.xposed.quickenergy.rpc.OldRpcBridge;
 import pansong291.xposed.quickenergy.rpc.RpcBridge;
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMemberRpcCall;
 import pansong291.xposed.quickenergy.ui.MainActivity;
@@ -248,7 +249,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     return;
                 }
                 Log.record("开始加载");
-                Config config = Config.load();
+                ConfigV2 config = ConfigV2.load(context);
                 if (!config.isImmediateEffect()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");
@@ -392,7 +393,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.printStackTrace(TAG, t);
                     }
                 }
-                Task.initAllTask();
                 Statistics.load();
                 mainRunner = new Runnable() {
                     @Override
@@ -402,7 +402,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         }
                         Log.record("开始执行");
                         try {
-                            Config config = Config.INSTANCE;
+                            ConfigV2 config = ConfigV2.INSTANCE;
                             String targetUid = getUserId();
                             if (targetUid == null) {
                                 Log.record("用户为空，放弃执行");
@@ -443,7 +443,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 return;
                             }
                             TaskCommon.update();
-                            Task.startAllTask(false);
+                            ModelTask.startAllTask(false);
                             int checkInterval = config.getCheckInterval();
                             mainHandler.postDelayed(this, checkInterval);
                             Notification.setNextScanTime(System.currentTimeMillis() + checkInterval);
@@ -519,7 +519,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     rpcBridge = null;
                 }
             }
-            Task.stopAllTask();
+            ModelTask.stopAllTask();
         } catch (Throwable th) {
             Log.i(TAG, "stopHandler err:");
             Log.printStackTrace(TAG, th);

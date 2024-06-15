@@ -3,13 +3,16 @@ package pansong291.xposed.quickenergy.task.model.omegakoiTown;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
-public class OmegakoiTown extends Task {
+public class OmegakoiTown extends ModelTask {
     private static final String TAG = OmegakoiTown.class.getSimpleName();
 
     public enum RewardType {
@@ -45,6 +48,16 @@ public class OmegakoiTown extends Task {
         public CharSequence houseName() {
             return houseNames[ordinal()];
         }
+    }
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.omegakoi_town);
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
     }
 
     public Boolean check() {

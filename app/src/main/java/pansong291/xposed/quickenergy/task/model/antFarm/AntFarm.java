@@ -8,18 +8,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.ChoiceModelField;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.task.model.dadaDailyRpcCall.DadaDailyRpcCall;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 import pansong291.xposed.quickenergy.util.TimeUtil;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
-public class AntFarm extends Task {
+public class AntFarm extends ModelTask {
     private static final String TAG = AntFarm.class.getSimpleName();
 
     private static String ownerFarmId;
@@ -51,6 +53,22 @@ public class AntFarm extends Task {
         bizKeyList.add("SHANGYEHUA_90_1");//去杂货铺逛一逛
         bizKeyList.add("TAOBAO_tab2gzy");// 去逛一逛淘宝视频
         bizKeyList.add("YITAO_appgyg");// 去一淘APP逛逛
+    }
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.farm_configuration);
+    }
+
+    private ChoiceModelField.SendChoiceModelField sendType;
+    private ChoiceModelField.RecallAnimalChoiceModelField recallAnimalType;
+
+    @Override
+    public ModelFields setFields() {
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(sendType = new ChoiceModelField.SendChoiceModelField("sendType", "遣返方式", 0));
+        modelFields.addField(recallAnimalType = new ChoiceModelField.RecallAnimalChoiceModelField("recallAnimalType", "召回类型", 0));
+        return modelFields;
     }
 
     public Boolean check() {
@@ -565,7 +583,7 @@ public class AntFarm extends Task {
                                     s = DadaDailyRpcCall.submit("100", answer, questionId);
                                     JSONObject joDailySubmit = new JSONObject(s);
                                     if (joDailySubmit.getBoolean("success")) {
-                                        Log.record("提交结果" + " " + s);
+                                        Log.record("提交完成");
                                         dadaDailySet = new HashSet<>();
                                         JSONObject extInfo = joDailySubmit.getJSONObject("extInfo");
                                         boolean correct = joDailySubmit.getBoolean("correct");

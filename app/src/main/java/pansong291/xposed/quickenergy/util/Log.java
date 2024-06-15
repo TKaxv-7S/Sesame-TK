@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import pansong291.xposed.quickenergy.data.ConfigV2;
+
 public class Log {
 
     static {
@@ -121,7 +123,7 @@ public class Log {
 
     public static void record(String str) {
         runtimeLogger.i(str);
-        if (!Config.INSTANCE.isRecordLog()) {
+        if (!ConfigV2.INSTANCE.isRecordLog()) {
             return;
         }
         recordLogger.i(str);

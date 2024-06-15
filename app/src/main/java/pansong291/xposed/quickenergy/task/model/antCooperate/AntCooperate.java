@@ -3,20 +3,42 @@ package pansong291.xposed.quickenergy.task.model.antCooperate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import java.util.ArrayList;
+import java.util.List;
+
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
-import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
-public class AntCooperate extends Task {
+public class AntCooperate extends ModelTask {
     private static final String TAG = AntCooperate.class.getSimpleName();
 
+    @Override
+    public String setName() {
+        return context.getString(R.string.cooperate_water);
+    }
+
+    public static BooleanModelField cooperateWater;
+    public static IdAndNameSelectModelField.UserAndNameSelectModelField cooperateWaterList;
+
+    @Override
+    public ModelFields setFields() {
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", true));
+        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField.UserAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), new ArrayList<>())));
+        return modelFields;
+    }
+
     public Boolean check() {
-        return Config.INSTANCE.isCooperateWater() && !TaskCommon.IS_MORNING;
+        return cooperateWater.getValue() && !TaskCommon.IS_MORNING;
     }
 
     public Runnable init() {
@@ -44,14 +66,15 @@ public class AntCooperate extends Task {
                         if (!Statistics.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
                             continue;
                         int index = -1;
-                        for (int j = 0; j < Config.INSTANCE.getCooperateWaterList().size(); j++) {
-                            if (Config.INSTANCE.getCooperateWaterList().get(j).equals(cooperationId)) {
+                        List<String> list = cooperateWaterList.getValue().getKey();
+                        for (int j = 0; j < list.size(); j++) {
+                            if (list.get(j).equals(cooperationId)) {
                                 index = j;
                                 break;
                             }
                         }
                         if (index >= 0) {
-                            int num = Config.INSTANCE.getCooperateWaterNumList().get(index);
+                            int num = cooperateWaterList.getValue().getValue().get(index);
                             if (num > waterDayLimit)
                                 num = waterDayLimit;
                             if (num > userCurrentEnergy)

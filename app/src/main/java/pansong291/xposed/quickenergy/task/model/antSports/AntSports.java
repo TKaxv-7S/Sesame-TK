@@ -5,18 +5,31 @@ import org.json.JSONObject;
 
 import java.util.HashSet;
 
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ConfigV2;
+import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
-public class AntSports extends Task {
+public class AntSports extends ModelTask {
     private static final String TAG = AntSports.class.getSimpleName();
 
     private static final HashSet<String> waitOpenBoxNos = new HashSet<>();
+
+    @Override
+    public String setName() {
+        return "步数";
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     @Override
     public Boolean check() {
@@ -225,7 +238,7 @@ public class AntSports extends Task {
                 long now = Long.parseLong(rankCacheKey);
                 long delay = cot - now;
                 Log.record("还有 " + delay + "ms 才能开宝箱");
-                if (delay < Config.INSTANCE.getCheckInterval()) {
+                if (delay < ConfigV2.INSTANCE.getCheckInterval()) {
                     if (waitOpenBoxNos.contains(boxNo)) {
                         return;
                     }

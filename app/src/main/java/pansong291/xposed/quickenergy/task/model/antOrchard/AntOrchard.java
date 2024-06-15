@@ -6,7 +6,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
@@ -16,11 +19,21 @@ import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
-public class AntOrchard extends Task {
+public class AntOrchard extends ModelTask {
     private static final String TAG = AntOrchard.class.getSimpleName();
 
     private static String userId;
     private static String treeLevel;
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.ant_ocean);
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     public Boolean check() {
         return Config.INSTANCE.isAntOrchard() && !TaskCommon.IS_MORNING;

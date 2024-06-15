@@ -7,25 +7,19 @@ import android.content.DialogInterface.OnClickListener;
 import android.widget.EditText;
 
 import pansong291.xposed.quickenergy.R;
-import pansong291.xposed.quickenergy.util.Config;
+import pansong291.xposed.quickenergy.data.ModelField;
+import pansong291.xposed.quickenergy.util.Log;
 
 public class EditDialog {
-    public enum EditMode {
-        TOAST_OFFSET_Y, CHECK_INTERVAL, THREAD_COUNT, ADVANCE_TIME, COLLECT_INTERVAL, LIMIT_COUNT, DOUBLE_CARD_TIME,
-        DOUBLE_COUNT_LIMIT, COLLECT_TIMEOUT, RETURN_WATER_30, RETURN_WATER_20, RETURN_WATER_10, WATER_FRIEND_COUNT,
-        FARM_GAME_TIME, ANIMAL_SLEEP_TIME, MIN_EXCHANGE_COUNT, LATEST_EXCHANGE_TIME, SYNC_STEP_COUNT,
-        WAIT_WHEN_EXCEPTION, EXCHANGE_ENERGY_DOUBLE_CLICK_COUNT, ORCHARD_SPREAD_MANURE_COUNT,
-        STALL_ALLOW_OPEN_TIME, STALL_SELF_OPEN_TIME
+
+    private static ModelField modelField;
+
+    public static void showEditDialog(Context c, CharSequence title, ModelField modelField) {
+        showEditDialog(c, title, modelField, null);
     }
 
-    private static EditMode mode;
-
-    public static void showEditDialog(Context c, CharSequence title, EditMode em) {
-        showEditDialog(c, title, em, null);
-    }
-
-    public static void showEditDialog(Context c, CharSequence title, EditMode em, String msg) {
-        mode = em;
+    public static void showEditDialog(Context c, CharSequence title, ModelField modelField, String msg) {
+        EditDialog.modelField = modelField;
         AlertDialog editDialog = getEditDialog(c);
         if (msg != null) {
             editDialog.setTitle(title);
@@ -37,7 +31,6 @@ public class EditDialog {
     }
 
     private static AlertDialog getEditDialog(Context c) {
-        Config config = Config.INSTANCE;
         EditText edt = new EditText(c);
         AlertDialog editDialog = new AlertDialog.Builder(c)
                 .setTitle("title")
@@ -55,224 +48,14 @@ public class EditDialog {
                             @Override
                             public void onClick(DialogInterface p1, int p2) {
                                 try {
-                                    int i = 0;
-                                    try {
-                                        i = Integer.parseInt(edt.getText().toString());
-                                    } catch (Throwable ignored) {
-                                    }
-                                    switch (mode) {
-                                        case TOAST_OFFSET_Y:
-                                            config.setToastOffsetY(i);
-                                            break;
-
-                                        case CHECK_INTERVAL:
-                                            if (i > 0)
-                                                config.setCheckInterval(i * 60_000);
-                                            break;
-
-                                        case ADVANCE_TIME:
-                                            config.setAdvanceTime(i);
-                                            break;
-
-                                        case COLLECT_INTERVAL:
-                                            if (i >= 0)
-                                                config.setCollectInterval(i);
-                                            break;
-
-                                        case LIMIT_COUNT:
-                                            if (i > 0) {
-                                                config.setLimitCount(i);
-                                            }
-                                            break;
-
-                                        case DOUBLE_CARD_TIME:
-                                            config.setDoubleCardTime(edt.getText().toString());
-                                            break;
-
-                                        case DOUBLE_COUNT_LIMIT:
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setDoubleCountLimit(i);
-                                            break;
-
-                                        case COLLECT_TIMEOUT:
-                                            if (i > 0)
-                                                config.setCollectTimeout(i * 1_000);
-                                            break;
-
-                                        case RETURN_WATER_30:
-                                            if (i >= 0)
-                                                config.setReturnWater33(i);
-                                            break;
-
-                                        case RETURN_WATER_20:
-
-                                            if (i >= 0)
-                                                config.setReturnWater18(i);
-                                            break;
-
-                                        case RETURN_WATER_10:
-                                            if (i >= 0)
-                                                config.setReturnWater10(i);
-                                            break;
-
-                                        case WATER_FRIEND_COUNT:
-                                            if (i >= 0)
-                                                config.setWaterFriendCount(i);
-                                            break;
-
-                                        case FARM_GAME_TIME:
-                                            config.setFarmGameTime(edt.getText().toString());
-                                            break;
-
-                                        case ANIMAL_SLEEP_TIME:
-                                            config.setAnimalSleepTime(edt.getText().toString());
-                                            break;
-
-                                        case MIN_EXCHANGE_COUNT:
-                                            if (i >= 0)
-                                                config.setMinExchangeCount(i);
-                                            break;
-
-                                        case LATEST_EXCHANGE_TIME:
-                                            if (i >= 0 && i < 24)
-                                                config.setLatestExchangeTime(i);
-                                            break;
-
-                                        case SYNC_STEP_COUNT:
-                                            if (i > 100000)
-                                                i = 100000;
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setSyncStepCount(i);
-                                            break;
-
-                                        case WAIT_WHEN_EXCEPTION:
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setWaitWhenException(i * 60 * 1000);
-                                            break;
-
-                                        case EXCHANGE_ENERGY_DOUBLE_CLICK_COUNT:
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setExchangeEnergyDoubleClickCount(i);
-                                            break;
-
-                                        case ORCHARD_SPREAD_MANURE_COUNT:
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setOrchardSpreadManureCount(i);
-                                            break;
-
-                                        case STALL_ALLOW_OPEN_TIME:
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setStallAllowOpenTime(i);
-                                            break;
-
-                                        case STALL_SELF_OPEN_TIME:
-                                            if (i < 0)
-                                                i = 0;
-                                            config.setStallSelfOpenTime(i);
-                                            break;
-
-                                    }
-                                } catch (Throwable ignored) {
+                                    modelField.setValue(edt.getText());
+                                } catch (Throwable e) {
+                                    Log.printStackTrace(e);
                                 }
                             }
                         }.setData(c))
                 .create();
-        String str = "";
-        switch (mode) {
-            case TOAST_OFFSET_Y:
-                str = String.valueOf(config.getToastOffsetY());
-                break;
-
-            case CHECK_INTERVAL:
-                str = String.valueOf(config.getCheckInterval() / 60_000);
-                break;
-
-            case ADVANCE_TIME:
-                str = String.valueOf(config.getAdvanceTime());
-                break;
-
-            case COLLECT_INTERVAL:
-                str = String.valueOf(config.getCollectInterval());
-                break;
-
-            case LIMIT_COUNT:
-                str = String.valueOf(config.getLimitCount());
-                break;
-
-            case DOUBLE_CARD_TIME:
-                str = config.getDoubleCardTime();
-                break;
-
-            case DOUBLE_COUNT_LIMIT:
-                str = String.valueOf(config.getDoubleCountLimit());
-                break;
-
-            case COLLECT_TIMEOUT:
-                str = String.valueOf(config.getCollectTimeout() / 1_000);
-                break;
-
-            case RETURN_WATER_30:
-                str = String.valueOf(config.getReturnWater33());
-                break;
-
-            case RETURN_WATER_20:
-                str = String.valueOf(config.getReturnWater18());
-                break;
-
-            case RETURN_WATER_10:
-                str = String.valueOf(config.getReturnWater10());
-                break;
-
-            case WATER_FRIEND_COUNT:
-                str = String.valueOf(config.getWaterFriendCount());
-                break;
-
-            case FARM_GAME_TIME:
-                str = config.getFarmGameTime();
-                break;
-
-            case ANIMAL_SLEEP_TIME:
-                str = config.getAnimalSleepTime();
-                break;
-
-            case MIN_EXCHANGE_COUNT:
-                str = String.valueOf(config.getMinExchangeCount());
-                break;
-
-            case LATEST_EXCHANGE_TIME:
-                str = String.valueOf(config.getLatestExchangeTime());
-                break;
-
-            case SYNC_STEP_COUNT:
-                str = String.valueOf(config.getSyncStepCount());
-                break;
-
-            case WAIT_WHEN_EXCEPTION:
-                str = String.valueOf(config.getWaitWhenException() / 60 / 1000);
-                break;
-
-            case EXCHANGE_ENERGY_DOUBLE_CLICK_COUNT:
-                str = String.valueOf(config.getExchangeEnergyDoubleClickCount());
-                break;
-
-            case ORCHARD_SPREAD_MANURE_COUNT:
-                str = String.valueOf(config.getOrchardSpreadManureCount());
-                break;
-
-            case STALL_ALLOW_OPEN_TIME:
-                str = String.valueOf(config.getStallAllowOpenTime());
-                break;
-
-            case STALL_SELF_OPEN_TIME:
-                str = String.valueOf(config.getStallSelfOpenTime());
-                break;
-        }
+        String str = String.valueOf(modelField.getValue());
         edt.setText(str);
         return editDialog;
     }

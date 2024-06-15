@@ -3,14 +3,27 @@ package pansong291.xposed.quickenergy.task.model.consumeGold;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
-public class ConsumeGold extends Task {
+public class ConsumeGold extends ModelTask {
     private static final String TAG = ConsumeGold.class.getSimpleName();
+
+    @Override
+    public String setName() {
+        return "消费金";
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     public Boolean check() {
         if (!Config.INSTANCE.isConsumeGold()) {

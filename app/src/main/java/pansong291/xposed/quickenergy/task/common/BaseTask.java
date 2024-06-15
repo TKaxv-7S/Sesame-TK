@@ -2,27 +2,14 @@ package pansong291.xposed.quickenergy.task.common;
 
 import android.os.Build;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
-import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.ThreadUtil;
 
-public abstract class Task {
-
-    private static final Map<Class<? extends Task>, Task> taskMap = new ConcurrentHashMap<>();
-
-    private static final Task[] taskArray = new Task[TaskOrder.getClazzSize()];
-
-    private static final List<Task> taskList = new LinkedList<>(Arrays.asList(taskArray));
-
-    private static final List<Task> readOnlyTaskList = Collections.unmodifiableList(taskList);
+public abstract class BaseTask {
 
     @Getter
     private final Runnable runnable;
@@ -30,9 +17,9 @@ public abstract class Task {
     @Getter
     private volatile Thread thread;
 
-    private final Map<String, Task> childTaskMap = new ConcurrentHashMap<>();
+    private final Map<String, BaseTask> childTaskMap = new ConcurrentHashMap<>();
 
-    public Task() {
+    public BaseTask() {
         this.runnable = init();
         this.thread = null;
     }
@@ -45,11 +32,11 @@ public abstract class Task {
         return childTaskMap.containsKey(childName);
     }
 
-    public synchronized Task getChildTask(String childName) {
+    public synchronized BaseTask getChildTask(String childName) {
         return childTaskMap.get(childName);
     }
 
-    public synchronized void addChildTask(String childName, Task childTask) {
+    public synchronized void addChildTask(String childName, BaseTask childTask) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childTaskMap.compute(childName, (key, value) -> {
                 if (value != null) {
@@ -59,7 +46,7 @@ public abstract class Task {
                 return childTask;
             });
         } else {
-            Task oldTask = childTaskMap.get(childName);
+            BaseTask oldTask = childTaskMap.get(childName);
             if (oldTask != null) {
                 oldTask.stopTask();
             }
@@ -77,7 +64,7 @@ public abstract class Task {
                 return null;
             });
         } else {
-            Task oldTask = childTaskMap.get(childName);
+            BaseTask oldTask = childTaskMap.get(childName);
             if (oldTask != null) {
                 ThreadUtil.shutdownAndWait(oldTask.getThread(), -1, TimeUnit.SECONDS);
             }
@@ -103,7 +90,7 @@ public abstract class Task {
         thread = new Thread(runnable);
         if (check()) {
             thread.start();
-            for (Task childTask : childTaskMap.values()) {
+            for (BaseTask childTask : childTaskMap.values()) {
                 if (childTask != null) {
                     childTask.startTask();
                 }
@@ -117,7 +104,7 @@ public abstract class Task {
         if (thread != null && thread.isAlive()) {
             ThreadUtil.shutdownAndWait(thread, 5, TimeUnit.SECONDS);
         }
-        for (Task childTask : childTaskMap.values()) {
+        for (BaseTask childTask : childTaskMap.values()) {
             if (childTask != null) {
                 ThreadUtil.shutdownAndWait(childTask.getThread(), -1, TimeUnit.SECONDS);
             }
@@ -125,73 +112,8 @@ public abstract class Task {
         thread = null;
     }
 
-    public static Boolean hasTask(Class<? extends Task> taskClazz) {
-        return taskMap.containsKey(taskClazz);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends Task> T getTask(Class<T> taskClazz) {
-        return (T) taskMap.get(taskClazz);
-    }
-
-    public static List<Task> getTaskList() {
-        return readOnlyTaskList;
-    }
-
-    public static void initAllTask() {
-        removeAllTask();
-        List<Class<Task>> taskClazzList = TaskOrder.getClazzList();
-        for (int i = 0, len = taskClazzList.size(); i < len; i++) {
-            Class<Task> taskClazz = taskClazzList.get(i);
-            try {
-                Task task = taskClazz.newInstance();
-                taskArray[i] = task;
-                taskMap.put(taskClazz, task);
-            } catch (IllegalAccessException | InstantiationException e) {
-                Log.printStackTrace(e);
-            }
-        }
-    }
-
-    public static void startAllTask() {
-        startAllTask(false);
-    }
-
-    public static void startAllTask(Boolean force) {
-        for (Task task : taskArray) {
-            if (task != null) {
-                if (task.startTask(force)) {
-                    try {
-                        Thread.sleep(80);
-                    } catch (InterruptedException e) {
-                        Log.printStackTrace(e);
-                    }
-                }
-            }
-        }
-    }
-
-    public static void stopAllTask() {
-        for (Task task : taskArray) {
-            if (task != null) {
-                task.stopTask();
-            }
-        }
-    }
-
-    public static synchronized void removeAllTask() {
-        for (int i = 0, len = taskArray.length; i < len; i++) {
-            Task task = taskArray[i];
-            if (task != null) {
-                task.stopTask();
-                taskArray[i] = null;
-                taskMap.remove(task.getClass());
-            }
-        }
-    }
-
-    public static Task newInstance() {
-        return new Task() {
+    public static BaseTask newInstance() {
+        return new BaseTask() {
             @Override
             public Runnable init() {
                 return () -> {};

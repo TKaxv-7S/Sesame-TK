@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 31
+    compileSdk 34
 
     defaultConfig {
         applicationId "pansong291.xposed.quickenergy.repair"
@@ -9,7 +9,7 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk 31
         versionCode 71
-        versionName "1.2.5-test2-TK"
+        versionName "1.2.5-test3-TK"
     }
     buildTypes {
         release {
@@ -36,5 +36,6 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.32'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.17.1'
     implementation 'com.elvishew:xlog:1.11.0'
 }

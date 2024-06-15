@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.Data;
+import pansong291.xposed.quickenergy.task.model.antCooperate.AntCooperate;
 
 @Data
 public class Statistics {
@@ -259,7 +260,7 @@ public class Statistics {
     }
 
     public static boolean canCooperateWaterToday(String uid, String coopId) {
-        return !INSTANCE.cooperateWaterList.contains(uid + "_" + coopId);
+        return !AntCooperate.cooperateWaterList.getValue().getKey().contains(uid + "_" + coopId);
     }
 
     public static void cooperateWaterToday(String uid, String coopId) {

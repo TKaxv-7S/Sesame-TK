@@ -19,6 +19,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
 import pansong291.xposed.quickenergy.entity.AlipayUser;
 import pansong291.xposed.quickenergy.entity.AreaCode;
 import pansong291.xposed.quickenergy.entity.CooperateUser;
@@ -49,6 +50,15 @@ public class ListDialog {
 
     public enum ListType {
         RADIO, CHECK, SHOW
+    }
+
+    public static void show(Context c, CharSequence title, IdAndNameSelectModelField idAndNameSelectModelField) {
+        show(c, title, idAndNameSelectModelField, ListDialog.ListType.CHECK);
+    }
+
+    public static void show(Context c, CharSequence title, IdAndNameSelectModelField idAndNameSelectModelField, ListType listType) {
+        IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> kvNode = idAndNameSelectModelField.getValue();
+        show(c, title, idAndNameSelectModelField.getList(), kvNode.getKey(), kvNode.getValue(), listType);
     }
 
     public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, List<String> sl,

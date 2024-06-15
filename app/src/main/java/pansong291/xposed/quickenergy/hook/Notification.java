@@ -12,6 +12,7 @@ import android.os.Build;
 import java.text.DateFormat;
 
 import lombok.Getter;
+import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -86,7 +87,7 @@ public class Notification {
                     .setContentTitle("芝麻粒")
                     .setAutoCancel(false)
                     .setContentIntent(pi);
-            if (Config.INSTANCE.isEnableOnGoing()) {
+            if (ConfigV2.INSTANCE.isEnableOnGoing()) {
                 builder.setOngoing(true);
             }
             mNotification = builder.build();

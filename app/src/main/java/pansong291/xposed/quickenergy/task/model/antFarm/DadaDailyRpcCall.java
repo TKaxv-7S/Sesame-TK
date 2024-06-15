@@ -1,4 +1,4 @@
-package pansong291.xposed.quickenergy.task.model.dadaDailyRpcCall;
+package pansong291.xposed.quickenergy.task.model.antFarm;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 

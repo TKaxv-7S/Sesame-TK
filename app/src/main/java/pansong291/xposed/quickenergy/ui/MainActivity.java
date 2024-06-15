@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.entity.FriendWatch;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
@@ -126,7 +127,7 @@ public class MainActivity extends Activity {
                     }
                     hasPermissions = PermissionUtil.checkOrRequestFilePermissions(MainActivity.this);
                     if (hasPermissions) {
-                        Config.load();
+                        ConfigV2.load(MainActivity.this);
                         Statistics.load();
                         onResume();
                         return;
@@ -149,7 +150,7 @@ public class MainActivity extends Activity {
         if (v.getId() == R.id.btn_test) {
             if (isApkInDebug(this)) {
                 Toast toast = Toast.makeText(this, "测试", Toast.LENGTH_SHORT);
-                toast.setGravity(toast.getGravity(), toast.getXOffset(), Config.INSTANCE.getToastOffsetY());
+                toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
                 toast.show();
                 sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.test"));
             }
@@ -204,7 +205,7 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (Config.INSTANCE.isDebugMode()) {
+        if (ConfigV2.INSTANCE.isDebugMode()) {
             MenuItem item = menu.findItem(7);
             if (item == null) {
                 menu.add(0, 7, 7, R.string.view_debug);

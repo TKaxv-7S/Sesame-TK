@@ -5,14 +5,27 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
-public class AncientTree extends Task {
+public class AncientTree extends ModelTask {
     private static final String TAG = AncientTree.class.getSimpleName();
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.ancient_tree);
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     public Boolean check() {
         return Config.INSTANCE.isAncientTree() && Config.hasAncientTreeWeek() && !TaskCommon.IS_MORNING && TaskCommon.IS_AFTER_8AM;

@@ -18,7 +18,7 @@ import pansong291.xposed.quickenergy.task.model.reserve.Reserve;
 
 public class TaskOrder {
 
-    private static final Class<Task>[] array = new Class[]{
+    private static final Class<ModelTask>[] array = new Class[]{
             AntForestV2.class
             , AntCooperate.class
             , AntFarm.class
@@ -32,13 +32,13 @@ public class TaskOrder {
             , GreenFinance.class
     };
 
-    private static final List<Class<Task>> readOnlyClazzList = Collections.unmodifiableList(Arrays.asList(array));
+    private static final List<Class<ModelTask>> readOnlyClazzList = Collections.unmodifiableList(Arrays.asList(array));
 
     public static Integer getClazzSize() {
         return array.length;
     }
 
-    public static List<Class<Task>> getClazzList() {
+    public static List<Class<ModelTask>> getClazzList() {
         return readOnlyClazzList;
     }
 

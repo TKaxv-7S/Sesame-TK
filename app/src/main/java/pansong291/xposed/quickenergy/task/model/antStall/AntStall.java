@@ -9,7 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.readingDada.ReadingDada;
 import pansong291.xposed.quickenergy.util.Config;
@@ -21,7 +24,7 @@ import pansong291.xposed.quickenergy.util.Statistics;
  * @author Constanline
  * @since 2023/08/22
  */
-public class AntStall extends Task {
+public class AntStall extends ModelTask {
     private static final String TAG = AntStall.class.getSimpleName();
 
     private static class Seat {
@@ -43,6 +46,16 @@ public class AntStall extends Task {
         taskTypeList.add("SHANGYEHUA_ceshi");// 【木兰市集】逛精选好物
         taskTypeList.add("ANTSTALL_ELEME_VISIT");// 去饿了么果园逛一逛
         taskTypeList.add("ANTSTALL_TASK_diantao202311");// 去点淘赚元宝提现
+    }
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.enable_stall);
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
     }
 
     public Boolean check() {

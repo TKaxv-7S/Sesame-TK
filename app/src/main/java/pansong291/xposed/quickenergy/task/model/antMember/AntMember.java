@@ -3,7 +3,10 @@ package pansong291.xposed.quickenergy.task.model.antMember;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.UserIdMap;
@@ -11,8 +14,18 @@ import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
-public class AntMember extends Task {
+public class AntMember extends ModelTask {
     private static final String TAG = AntMember.class.getSimpleName();
+
+    @Override
+    public String setName() {
+        return context.getString(R.string.receive_point);
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     public Boolean check() {
         return Config.INSTANCE.isReceivePoint() && !TaskCommon.IS_MORNING;

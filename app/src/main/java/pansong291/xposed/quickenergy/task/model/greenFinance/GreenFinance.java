@@ -3,7 +3,8 @@ package pansong291.xposed.quickenergy.task.model.greenFinance;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.task.common.Task;
+import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
@@ -12,8 +13,18 @@ import pansong291.xposed.quickenergy.util.Log;
  * @author Constanline
  * @since 2023/09/08
  */
-public class GreenFinance extends Task {
+public class GreenFinance extends ModelTask {
     private static final String TAG = GreenFinance.class.getSimpleName();
+
+    @Override
+    public String setName() {
+        return "绿色经营";
+    }
+
+    @Override
+    public ModelFields setFields() {
+        return null;
+    }
 
     public Boolean check() {
         return Config.INSTANCE.isGreenFinance() && !TaskCommon.IS_MORNING;
