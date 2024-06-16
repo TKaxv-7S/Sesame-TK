@@ -55,7 +55,7 @@
 
                     <Button
                         android:id="@+id/btn_checkInterval"
-                        style="?android:attr/buttonBarButtonStyle"
+                        android:textColor="#008175"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button"
@@ -104,7 +104,7 @@
 
                     <Button
                         android:id="@+id/btn_waitWhenException"
-                        style="?android:attr/buttonBarButtonStyle"
+                        android:textColor="#008175"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button"
@@ -180,7 +180,7 @@
 
                     <Button
                         android:id="@+id/btn_toastOffsetY"
-                        style="?android:attr/buttonBarButtonStyle"
+                        android:textColor="#008175"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/button"
@@ -242,7 +242,7 @@
 
                                     <Button
                                         android:id="@+id/btn_advanceTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -256,7 +256,7 @@
 
                                     <Button
                                         android:id="@+id/btn_collectInterval"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -270,7 +270,7 @@
 
                                     <Button
                                         android:id="@+id/btn_collectTimeout"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -294,7 +294,7 @@
 
                                     <Button
                                         android:id="@+id/btn_limitCount"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -318,7 +318,7 @@
 
                                     <Button
                                         android:id="@+id/btn_doubleCardTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -332,7 +332,7 @@
 
                                     <Button
                                         android:id="@+id/btn_doubleCountLimit"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -356,7 +356,7 @@
 
                                     <Button
                                         android:id="@+id/btn_dontCollectList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -370,7 +370,7 @@
 
                                     <Button
                                         android:id="@+id/btn_dontHelpCollectList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -384,7 +384,7 @@
 
                                     <Button
                                         android:id="@+id/btn_returnWater30"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -398,7 +398,7 @@
 
                                     <Button
                                         android:id="@+id/btn_returnWater20"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -412,7 +412,7 @@
 
                                     <Button
                                         android:id="@+id/btn_returnWater10"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -436,7 +436,7 @@
 
                                     <Button
                                         android:id="@+id/btn_waterFriendList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -450,7 +450,7 @@
 
                                     <Button
                                         android:id="@+id/btn_waterFriendCount"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -475,7 +475,7 @@
 
                                     <Button
                                         android:id="@+id/btn_cooperateWaterList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -499,7 +499,7 @@
 
                                     <Button
                                         android:id="@+id/btn_giveEnergyRainList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -523,7 +523,7 @@
 
                                     <Button
                                         android:id="@+id/btn_ExchangeEnergyDoubleClickCount"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -537,7 +537,7 @@
 
                                     <Button
                                         android:id="@+id/btn_WhoYouWantToGiveTo"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -561,7 +561,7 @@
 
                                     <Button
                                         android:id="@+id/btn_reserveList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -585,7 +585,7 @@
 
                                     <Button
                                         android:id="@+id/btn_ancientTreeAreaCodeList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -619,7 +619,7 @@
 
                                     <Button
                                         android:id="@+id/btn_sendFriendCard"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -653,7 +653,7 @@
 
                                     <Button
                                         android:id="@+id/btn_beachList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -747,7 +747,7 @@
 
                                     <Button
                                         android:id="@+id/btn_sendType"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -761,7 +761,7 @@
 
                                     <Button
                                         android:id="@+id/btn_dontSendFriendList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -775,7 +775,7 @@
 
                                     <Button
                                         android:id="@+id/btn_recallAnimalType"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -809,7 +809,7 @@
 
                                     <Button
                                         android:id="@+id/btn_farmGameTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -913,7 +913,7 @@
 
                                     <Button
                                         android:id="@+id/btn_feedFriendAnimalList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -927,7 +927,7 @@
 
                                     <Button
                                         android:id="@+id/btn_animalSleepTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -951,7 +951,7 @@
 
                                     <Button
                                         android:id="@+id/btn_dontNotifyFriendList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -975,7 +975,7 @@
 
                                     <Button
                                         android:id="@+id/btn_visitFriendList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1019,7 +1019,7 @@
 
                                     <Button
                                         android:id="@+id/btn_orchardSpreadManureCount"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1103,7 +1103,7 @@
 
                                     <Button
                                         android:id="@+id/btn_stallOpenList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1117,7 +1117,7 @@
 
                                     <Button
                                         android:id="@+id/btn_stallWhiteList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1131,7 +1131,7 @@
 
                                     <Button
                                         android:id="@+id/btn_stallBlackList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1145,7 +1145,7 @@
 
                                     <Button
                                         android:id="@+id/btn_stallAllowOpenTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1159,7 +1159,7 @@
 
                                     <Button
                                         android:id="@+id/btn_stallSelfOpenTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1203,7 +1203,7 @@
 
                                     <Button
                                         android:id="@+id/btn_stallInviteShopList"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1269,7 +1269,7 @@
 
                                     <Button
                                         android:id="@+id/btn_minExchangeCount"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1283,7 +1283,7 @@
 
                                     <Button
                                         android:id="@+id/btn_latestExchangeTime"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"
@@ -1297,7 +1297,7 @@
 
                                     <Button
                                         android:id="@+id/btn_syncStepCount"
-                                        style="?android:attr/buttonBarButtonStyle"
+                                        android:textColor="#008175"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:background="@drawable/button"

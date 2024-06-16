@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -438,7 +439,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
                                 Thread checkThread = new Thread(checkTask);
                                 checkThread.start();
-                                if (!checkTask.get()) {
+                                if (!checkTask.get(2, TimeUnit.SECONDS)) {
                                     reLogin();
                                     return;
                                 }

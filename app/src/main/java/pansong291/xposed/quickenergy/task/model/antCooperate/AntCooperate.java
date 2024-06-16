@@ -27,13 +27,13 @@ public class AntCooperate extends ModelTask {
     }
 
     public static BooleanModelField cooperateWater;
-    public static IdAndNameSelectModelField.UserAndNameSelectModelField cooperateWaterList;
+    public static IdAndNameSelectModelField.CooperateUserAndNameSelectModelField cooperateWaterList;
 
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", true));
-        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField.UserAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), new ArrayList<>())));
+        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField.CooperateUserAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), new ArrayList<>())));
         return modelFields;
     }
 

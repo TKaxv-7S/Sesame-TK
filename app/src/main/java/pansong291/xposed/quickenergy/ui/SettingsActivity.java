@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -207,7 +208,7 @@ public class SettingsActivity extends Activity {
                                     Button btn = new Button(context);
                                     btn.setText(integerModelField.getName());
                                     btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                                    btn.setTextColor(Color.parseColor("#008175"));
                                     btn.setBackground(getResources().getDrawable(R.drawable.button));
                                     btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                     btn.setMinHeight(150);
@@ -242,7 +243,7 @@ public class SettingsActivity extends Activity {
                                     Button btn = new Button(context);
                                     btn.setText(stringModelField.getName());
                                     btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                                    btn.setTextColor(Color.parseColor("#008175"));
                                     btn.setBackground(getResources().getDrawable(R.drawable.button));
                                     btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                     btn.setMinHeight(150);
@@ -277,7 +278,7 @@ public class SettingsActivity extends Activity {
                                     Button btn = new Button(context);
                                     btn.setText(userAndNameSelectOneModelField.getName());
                                     btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                                    btn.setTextColor(Color.parseColor("#008175"));
                                     btn.setBackground(getResources().getDrawable(R.drawable.button));
                                     btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                     btn.setMinHeight(150);
@@ -317,7 +318,7 @@ public class SettingsActivity extends Activity {
                                     Button btn = new Button(context);
                                     btn.setText(idAndNameSelectModelField.getName());
                                     btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                                    btn.setTextColor(Color.parseColor("#008175"));
                                     btn.setBackground(getResources().getDrawable(R.drawable.button));
                                     btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                     btn.setMinHeight(150);
@@ -357,7 +358,7 @@ public class SettingsActivity extends Activity {
                                     Button btn = new Button(context);
                                     btn.setText(choiceModelField.getName());
                                     btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                                    btn.setTextColor(Color.parseColor("#008175"));
                                     btn.setBackground(getResources().getDrawable(R.drawable.button));
                                     btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                     btn.setMinHeight(150);

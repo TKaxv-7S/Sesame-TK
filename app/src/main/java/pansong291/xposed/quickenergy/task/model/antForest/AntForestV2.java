@@ -14,9 +14,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import de.robv.android.xposed.XposedHelpers;
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
@@ -57,6 +57,8 @@ public class AntForestV2 extends ModelTask {
 
     private BaseTask timerTask;
 
+    private final AtomicLong offsetTime = new AtomicLong(-1);
+
     private volatile boolean isScanning = false;
 
     private volatile long lastCollectTime = 0;
@@ -68,8 +70,8 @@ public class AntForestV2 extends ModelTask {
     private final Object doubleCardLockObj = new Object();
 
     private final ThreadPoolExecutor collectEnergyThreadPoolExecutor = new ThreadPoolExecutor(
-            1,
-            3,
+            0,
+            20,
             TimeUnit.SECONDS.toNanos(30)
             , TimeUnit.NANOSECONDS,
             new ArrayBlockingQueue<>(10000),
@@ -309,14 +311,17 @@ public class AntForestV2 extends ModelTask {
     private void collectUserEnergy(String userId) {
         try {
             boolean isSelf = Objects.equals(selfId, userId);
+            long start = System.currentTimeMillis();
             JSONObject userHomeObject;
             if (isSelf) {
                 userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
             } else {
                 userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
             }
+            long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            Log.i("服务器时间：" + serverTime);
+            offsetTime.set((start + end) / 2 - serverTime);
+            Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
             if (!"SUCCESS".equals(userHomeObject.getString("resultCode"))) {
                 Log.record(userHomeObject.getString("resultDesc"));
                 return;
@@ -2016,8 +2021,8 @@ public class AntForestV2 extends ModelTask {
         public Runnable init() {
             return () -> {
                 try {
-                    long sleep = produceTime - System.currentTimeMillis() - advanceTime.getValue();
-                    Log.record("添加[" + UserIdMap.getNameById(userId) + "]蹲点收取, 在[" + sleep / 1000 + "]秒后执行, 任务ID[" + id + "]");
+                    long sleep = produceTime + offsetTime.get() - System.currentTimeMillis() - advanceTime.getValue();
+                    Log.i("添加[" + UserIdMap.getNameById(userId) + "]蹲点收取, 在[" + sleep / 1000 + "]秒后执行, 任务ID[" + id + "]");
                     if (sleep < -5000) {
                         return;
                     }
@@ -2042,7 +2047,7 @@ public class AntForestV2 extends ModelTask {
                 } finally {
                     if (timerTask != null) {
                         timerTask.removeChildTask(id);
-                        Log.record("删除[" + UserIdMap.getNameById(userId) + "]蹲点收取, 任务ID[" + id + "]");
+                        Log.i("删除[" + UserIdMap.getNameById(userId) + "]蹲点收取, 任务ID[" + id + "]");
                     }
                 }
             };
