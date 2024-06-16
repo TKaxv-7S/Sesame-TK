@@ -1,5 +1,8 @@
 package pansong291.xposed.quickenergy.data;
 
+import android.content.Context;
+import android.view.View;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
@@ -13,6 +16,7 @@ public class ModelField implements Serializable {
 
     private String type;
 
+    @JsonIgnore
     private String code;
 
     @JsonIgnore
@@ -38,6 +42,10 @@ public class ModelField implements Serializable {
 
     public void setConfigValue(Object matchValue) {
         setValue(matchValue);
+    }
+
+    public View getView(Context context) {
+        return null;
     }
 
     @JsonIgnore

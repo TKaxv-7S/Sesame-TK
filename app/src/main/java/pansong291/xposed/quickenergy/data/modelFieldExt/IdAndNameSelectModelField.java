@@ -1,6 +1,14 @@
 package pansong291.xposed.quickenergy.data.modelFieldExt;
 
 
+import android.content.Context;
+import android.graphics.Color;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -9,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
+import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.entity.AlipayBeach;
 import pansong291.xposed.quickenergy.entity.AlipayReserve;
@@ -16,6 +25,7 @@ import pansong291.xposed.quickenergy.entity.AlipayUser;
 import pansong291.xposed.quickenergy.entity.AreaCode;
 import pansong291.xposed.quickenergy.entity.CooperateUser;
 import pansong291.xposed.quickenergy.entity.IdAndName;
+import pansong291.xposed.quickenergy.ui.ListDialog;
 import pansong291.xposed.quickenergy.util.JsonUtil;
 
 public class IdAndNameSelectModelField extends ModelField {
@@ -43,6 +53,21 @@ public class IdAndNameSelectModelField extends ModelField {
     @Override
     public KVNode<List<String>, List<Integer>> getValue() {
         return (KVNode<List<String>, List<Integer>>) value;
+    }
+
+    @Override
+    public View getView(Context context) {
+        Button btn = new Button(context);
+        btn.setText(getName());
+        btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        btn.setTextColor(Color.parseColor("#008175"));
+        btn.setBackground(context.getResources().getDrawable(R.drawable.button));
+        btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        btn.setMinHeight(150);
+        btn.setPaddingRelative(40, 0, 40, 0);
+        btn.setAllCaps(false);
+        btn.setOnClickListener(v -> ListDialog.show(v.getContext(), ((Button) v).getText(), this));
+        return btn;
     }
 
     public static class BeachAndNameSelectModelField extends IdAndNameSelectModelField {
@@ -138,6 +163,21 @@ public class IdAndNameSelectModelField extends ModelField {
         @JsonIgnore
         public List<? extends IdAndName> getList() {
             return AlipayUser.getList();
+        }
+
+        @Override
+        public View getView(Context context) {
+            Button btn = new Button(context);
+            btn.setText(getName());
+            btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            btn.setTextColor(Color.parseColor("#008175"));
+            btn.setBackground(context.getResources().getDrawable(R.drawable.button));
+            btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            btn.setMinHeight(150);
+            btn.setPaddingRelative(40, 0, 40, 0);
+            btn.setAllCaps(false);
+            btn.setOnClickListener(v -> ListDialog.show(v.getContext(), ((Button) v).getText(), this, ListDialog.ListType.RADIO));
+            return btn;
         }
     }
 

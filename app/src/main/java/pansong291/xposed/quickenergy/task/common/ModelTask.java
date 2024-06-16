@@ -1,8 +1,5 @@
 package pansong291.xposed.quickenergy.task.common;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,9 +13,6 @@ import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.util.Log;
 
 public abstract class ModelTask extends BaseTask {
-
-    @SuppressLint("StaticFieldLeak")
-    protected static Context context;
 
     private static final Map<String, ModelConfig> modelConfigMap = new LinkedHashMap<>();
 
@@ -53,8 +47,7 @@ public abstract class ModelTask extends BaseTask {
         return readOnlyTaskList;
     }
 
-    public static void initAllTask(Context context) {
-        ModelTask.context = context;
+    public static void initAllModel() {
         removeAllTask();
         List<Class<ModelTask>> taskClazzList = TaskOrder.getClazzList();
         for (int i = 0, len = taskClazzList.size(); i < len; i++) {

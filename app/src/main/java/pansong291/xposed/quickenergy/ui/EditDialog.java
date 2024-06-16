@@ -51,22 +51,22 @@ public class EditDialog {
                                 try {
                                     Editable text = edt.getText();
                                     if (text == null) {
-                                        modelField.setValue(null);
+                                        modelField.setConfigValue(null);
                                         return;
                                     }
                                     String textString = text.toString();
                                     if (textString.isEmpty()) {
-                                        modelField.setValue(null);
+                                        modelField.setConfigValue(null);
                                         return;
                                     }
-                                    modelField.setValue(textString);
+                                    modelField.setConfigValue(textString);
                                 } catch (Throwable e) {
                                     Log.printStackTrace(e);
                                 }
                             }
                         }.setData(c))
                 .create();
-        edt.setText(String.valueOf(modelField.getValue()));
+        edt.setText(String.valueOf(modelField.getConfigValue()));
         return editDialog;
     }
 

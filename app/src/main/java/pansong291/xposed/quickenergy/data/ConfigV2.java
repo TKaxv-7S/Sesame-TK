@@ -1,6 +1,5 @@
 package pansong291.xposed.quickenergy.data;
 
-import android.content.Context;
 import android.os.Build;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -47,19 +46,30 @@ public class ConfigV2 {
     public void setModelFieldsMap(Map<String, ModelFields> newModels) {
         modelFieldsMap.clear();
         if (newModels != null) {
+            Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
             for (Map.Entry<String, ModelFields> modelFieldsEntry : newModels.entrySet()) {
-                String modelCode = modelFieldsEntry.getKey();
-                ModelFields modelFields = new ModelFields();
                 ModelFields newModelFields = modelFieldsEntry.getValue();
                 if (newModelFields != null) {
-                    for (Map.Entry<String, ModelField> modelFieldEntry : newModelFields.entrySet()) {
-                        ModelField modelField = modelFieldEntry.getValue();
-                        if (modelField != null) {
-                            modelFields.put(modelField.getCode(), JsonUtil.parseObject(modelField, modelField.getClazz()));
+                    String modelCode = modelFieldsEntry.getKey();
+                    ModelConfig modelConfig = modelConfigMap.get(modelCode);
+                    if (modelConfig != null) {
+                        ModelFields configModelFields = modelConfig.getFields();
+                        for (Map.Entry<String, ModelField> modelFieldEntry : newModelFields.entrySet()) {
+                            ModelField modelField = modelFieldEntry.getValue();
+                            if (modelField != null) {
+                                ModelField configModelField = configModelFields.get(modelFieldEntry.getKey());
+                                if (configModelField != null) {
+                                    try {
+                                        configModelField.setValue(modelField.getValue());
+                                    } catch (Exception e) {
+                                        Log.printStackTrace(e);
+                                    }
+                                }
+                            }
                         }
+                        modelFieldsMap.put(modelCode, configModelFields);
                     }
                 }
-                modelFieldsMap.put(modelCode, modelFields);
             }
         }
     }
@@ -210,8 +220,8 @@ public class ConfigV2 {
         return FileUtils.write2File(json, FileUtils.getConfigV2File());
     }
 
-    /* base */
-    public static synchronized ConfigV2 load(Context context) {
+    public static synchronized ConfigV2 load() {
+        ModelTask.initAllModel();
         Log.i(TAG, "load config_v2");
         String json = null;
         if (FileUtils.getConfigV2File(UserIdMap.getCurrentUid()).exists()) {
@@ -235,7 +245,6 @@ public class ConfigV2 {
             Log.system(TAG, "重新格式化 config_v2.json");
             FileUtils.write2File(formatted, FileUtils.getConfigV2File());
         }
-        ModelTask.initAllTask(context);
         init = true;
         return INSTANCE;
     }

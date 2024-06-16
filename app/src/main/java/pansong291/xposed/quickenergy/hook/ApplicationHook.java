@@ -260,7 +260,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     return;
                 }
                 Log.record("开始加载");
-                ConfigV2 config = ConfigV2.load(context);
+                ConfigV2 config = ConfigV2.load();
                 if (!config.isImmediateEffect()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");

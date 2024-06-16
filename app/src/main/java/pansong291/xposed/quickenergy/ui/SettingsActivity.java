@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -19,7 +18,6 @@ import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.Toast;
 
-import java.util.List;
 import java.util.Map;
 
 import pansong291.xposed.quickenergy.R;
@@ -27,12 +25,7 @@ import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.ModelConfig;
 import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.data.ModelFields;
-import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
-import pansong291.xposed.quickenergy.data.modelFieldExt.ChoiceModelField;
-import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
-import pansong291.xposed.quickenergy.data.modelFieldExt.StringModelField;
-import pansong291.xposed.quickenergy.entity.IdAndName;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
@@ -74,7 +67,7 @@ public class SettingsActivity extends Activity {
                 .setIndicator(getString(R.string.base_configuration))
                 .setContent(R.id.tab_base));
 
-        ConfigV2 config = ConfigV2.load(context);
+        ConfigV2 config = ConfigV2.load();
 
         Switch sw_immediateEffect = findViewById(R.id.sw_immediateEffect);
         sw_immediateEffect.setChecked(config.isImmediateEffect());
@@ -177,223 +170,8 @@ public class SettingsActivity extends Activity {
                             linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                             linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
                             linearLayout.setOrientation(LinearLayout.VERTICAL);
-                            for (Map.Entry<String, ModelField> fieldEntry : modelFields.entrySet()) {
-                                String fieldCode = fieldEntry.getKey();
-                                ModelField modelField = fieldEntry.getValue();
-                                if (modelField instanceof BooleanModelField) {
-                                    BooleanModelField booleanModelField = (BooleanModelField) modelField;
-                                    Switch sw = new Switch(context);
-                                    sw.setText(booleanModelField.getName());
-                                    sw.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    sw.setMinHeight(150);
-                                    sw.setPaddingRelative(40, 0, 40, 0);
-                                    final BooleanModelField configModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                    if (configModelField != null) {
-                                        sw.setChecked(configModelField.getValue());
-                                    }
-                                    sw.setOnClickListener(v -> {
-                                        BooleanModelField thisModelField = configModelField;
-                                        if (thisModelField == null) {
-                                            thisModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                            if (thisModelField == null) {
-                                                Log.i("无法获取配置字段 modelCode:" + modelCode + " fieldCode:" + fieldCode);
-                                                return;
-                                            }
-                                        }
-                                        thisModelField.setValue(((Switch) v).isChecked());
-                                    });
-                                    linearLayout.addView(sw);
-                                } else if (modelField instanceof IntegerModelField) {
-                                    IntegerModelField integerModelField = (IntegerModelField) modelField;
-                                    Button btn = new Button(context);
-                                    btn.setText(integerModelField.getName());
-                                    btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(Color.parseColor("#008175"));
-                                    btn.setBackground(getResources().getDrawable(R.drawable.button));
-                                    btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                    btn.setMinHeight(150);
-                                    btn.setPaddingRelative(40, 0, 40, 0);
-                                    btn.setAllCaps(false);
-                                    final IntegerModelField configModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                    btn.setOnClickListener(v -> {
-                                        IntegerModelField thisModelField = configModelField;
-                                        if (thisModelField == null) {
-                                            thisModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                            if (thisModelField == null) {
-                                                Log.i("无法获取配置字段 modelCode:" + modelCode + " fieldCode:" + fieldCode);
-                                                return;
-                                            }
-                                        }
-                                        IntegerModelField finalThisModelField = thisModelField;
-                                        EditDialog.showEditDialog(v.getContext(), ((Button) v).getText(), new IntegerModelField() {
-                                            @Override
-                                            public void setValue(Object value) {
-                                                finalThisModelField.setConfigValue(value);
-                                            }
-
-                                            @Override
-                                            public Integer getValue() {
-                                                return finalThisModelField.getConfigValue();
-                                            }
-                                        });
-                                    });
-                                    linearLayout.addView(btn);
-                                } else if (modelField instanceof StringModelField) {
-                                    StringModelField stringModelField = (StringModelField) modelField;
-                                    Button btn = new Button(context);
-                                    btn.setText(stringModelField.getName());
-                                    btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(Color.parseColor("#008175"));
-                                    btn.setBackground(getResources().getDrawable(R.drawable.button));
-                                    btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                    btn.setMinHeight(150);
-                                    btn.setPaddingRelative(40, 0, 40, 0);
-                                    btn.setAllCaps(false);
-                                    final StringModelField configModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                    btn.setOnClickListener(v -> {
-                                        StringModelField thisModelField = configModelField;
-                                        if (thisModelField == null) {
-                                            thisModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                            if (thisModelField == null) {
-                                                Log.i("无法获取配置字段 modelCode:" + modelCode + " fieldCode:" + fieldCode);
-                                                return;
-                                            }
-                                        }
-                                        StringModelField finalThisModelField = thisModelField;
-                                        EditDialog.showEditDialog(v.getContext(), ((Button) v).getText(), new StringModelField() {
-                                            @Override
-                                            public void setValue(Object value) {
-                                                finalThisModelField.setValue(value);
-                                            }
-
-                                            @Override
-                                            public String getValue() {
-                                                return finalThisModelField.getValue();
-                                            }
-                                        });
-                                    });
-                                    linearLayout.addView(btn);
-                                } else if (modelField instanceof IdAndNameSelectModelField.UserAndNameSelectOneModelField) {
-                                    IdAndNameSelectModelField.UserAndNameSelectOneModelField userAndNameSelectOneModelField = (IdAndNameSelectModelField.UserAndNameSelectOneModelField) modelField;
-                                    Button btn = new Button(context);
-                                    btn.setText(userAndNameSelectOneModelField.getName());
-                                    btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(Color.parseColor("#008175"));
-                                    btn.setBackground(getResources().getDrawable(R.drawable.button));
-                                    btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                    btn.setMinHeight(150);
-                                    btn.setPaddingRelative(40, 0, 40, 0);
-                                    btn.setAllCaps(false);
-                                    final IdAndNameSelectModelField.UserAndNameSelectOneModelField configModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                    btn.setOnClickListener(v -> {
-                                        IdAndNameSelectModelField.UserAndNameSelectOneModelField thisModelField = configModelField;
-                                        if (thisModelField == null) {
-                                            thisModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                            if (thisModelField == null) {
-                                                Log.i("无法获取配置字段 modelCode:" + modelCode + " fieldCode:" + fieldCode);
-                                                return;
-                                            }
-                                        }
-                                        IdAndNameSelectModelField.UserAndNameSelectOneModelField finalThisModelField = thisModelField;
-                                        ListDialog.show(v.getContext(), ((Button) v).getText(), new IdAndNameSelectModelField() {
-                                            @Override
-                                            public List<? extends IdAndName> getList() {
-                                                return finalThisModelField.getList();
-                                            }
-
-                                            @Override
-                                            public void setValue(Object value) {
-                                                finalThisModelField.setValue(value);
-                                            }
-
-                                            @Override
-                                            public IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> getValue() {
-                                                return finalThisModelField.getValue();
-                                            }
-                                        }, ListDialog.ListType.RADIO);
-                                    });
-                                    linearLayout.addView(btn);
-                                } else if (modelField instanceof IdAndNameSelectModelField) {
-                                    IdAndNameSelectModelField idAndNameSelectModelField = (IdAndNameSelectModelField) modelField;
-                                    Button btn = new Button(context);
-                                    btn.setText(idAndNameSelectModelField.getName());
-                                    btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(Color.parseColor("#008175"));
-                                    btn.setBackground(getResources().getDrawable(R.drawable.button));
-                                    btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                    btn.setMinHeight(150);
-                                    btn.setPaddingRelative(40, 0, 40, 0);
-                                    btn.setAllCaps(false);
-                                    final IdAndNameSelectModelField configModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                    btn.setOnClickListener(v -> {
-                                        IdAndNameSelectModelField thisModelField = configModelField;
-                                        if (thisModelField == null) {
-                                            thisModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                            if (thisModelField == null) {
-                                                Log.i("无法获取配置字段 modelCode:" + modelCode + " fieldCode:" + fieldCode);
-                                                return;
-                                            }
-                                        }
-                                        IdAndNameSelectModelField finalThisModelField = thisModelField;
-                                        ListDialog.show(v.getContext(), ((Button) v).getText(), new IdAndNameSelectModelField() {
-                                            @Override
-                                            public List<? extends IdAndName> getList() {
-                                                return finalThisModelField.getList();
-                                            }
-
-                                            @Override
-                                            public void setValue(Object value) {
-                                                finalThisModelField.setValue(value);
-                                            }
-
-                                            @Override
-                                            public IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> getValue() {
-                                                return finalThisModelField.getValue();
-                                            }
-                                        });
-                                    });
-                                    linearLayout.addView(btn);
-                                } else if (modelField instanceof ChoiceModelField) {
-                                    ChoiceModelField choiceModelField = (ChoiceModelField) modelField;
-                                    Button btn = new Button(context);
-                                    btn.setText(choiceModelField.getName());
-                                    btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                                    btn.setTextColor(Color.parseColor("#008175"));
-                                    btn.setBackground(getResources().getDrawable(R.drawable.button));
-                                    btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                    btn.setMinHeight(150);
-                                    btn.setPaddingRelative(40, 0, 40, 0);
-                                    btn.setAllCaps(false);
-                                    final ChoiceModelField configModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                    btn.setOnClickListener(v -> {
-                                        ChoiceModelField thisModelField = configModelField;
-                                        if (thisModelField == null) {
-                                            thisModelField = ConfigV2.INSTANCE.getModelFieldExt(modelCode, fieldCode, true);
-                                            if (thisModelField == null) {
-                                                Log.i("无法获取配置字段 modelCode:" + modelCode + " fieldCode:" + fieldCode);
-                                                return;
-                                            }
-                                        }
-                                        ChoiceModelField finalThisModelField = thisModelField;
-                                        ChoiceDialog.show(v.getContext(), ((Button) v).getText(), new ChoiceModelField() {
-                                            @Override
-                                            public CharSequence[] getList() {
-                                                return finalThisModelField.getList();
-                                            }
-
-                                            @Override
-                                            public void setValue(Object value) {
-                                                finalThisModelField.setValue(value);
-                                            }
-
-                                            @Override
-                                            public Integer getValue() {
-                                                return finalThisModelField.getValue();
-                                            }
-                                        });
-                                    });
-                                    linearLayout.addView(btn);
-                                }
+                            for (ModelField modelField : modelFields.values()) {
+                                linearLayout.addView(modelField.getView(context));
                             }
                             return linearLayout;
                         }

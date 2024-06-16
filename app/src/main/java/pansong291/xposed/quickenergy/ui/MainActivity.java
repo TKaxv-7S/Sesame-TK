@@ -127,7 +127,7 @@ public class MainActivity extends Activity {
                     }
                     hasPermissions = PermissionUtil.checkOrRequestFilePermissions(MainActivity.this);
                     if (hasPermissions) {
-                        ConfigV2.load(MainActivity.this);
+                        ConfigV2.load();
                         Statistics.load();
                         onResume();
                         return;
