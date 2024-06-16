@@ -23,7 +23,7 @@ public class AntCooperate extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.cooperate_water);
+        return "合种";
     }
 
     public static BooleanModelField cooperateWater;
