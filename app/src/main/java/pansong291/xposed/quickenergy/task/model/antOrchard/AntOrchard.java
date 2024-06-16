@@ -26,7 +26,7 @@ public class AntOrchard extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.ant_orchard);
+        return "农场";
     }
 
     @Override
