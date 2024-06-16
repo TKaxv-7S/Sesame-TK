@@ -24,21 +24,30 @@ public abstract class BaseTask {
         this.thread = null;
     }
 
-    public abstract Runnable init();
+    public String getId() {
+        return toString();
+    }
 
     public abstract Boolean check();
 
-    public synchronized Boolean hasChildTask(String childName) {
-        return childTaskMap.containsKey(childName);
+    public abstract Runnable init();
+
+    public void destroy() {
+
     }
 
-    public synchronized BaseTask getChildTask(String childName) {
-        return childTaskMap.get(childName);
+    public synchronized Boolean hasChildTask(String childId) {
+        return childTaskMap.containsKey(childId);
     }
 
-    public synchronized void addChildTask(String childName, BaseTask childTask) {
+    public synchronized BaseTask getChildTask(String childId) {
+        return childTaskMap.get(childId);
+    }
+
+    public synchronized void addChildTask(BaseTask childTask) {
+        String childId = childTask.getId();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childTaskMap.compute(childName, (key, value) -> {
+            childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
                     value.stopTask();
                 }
@@ -46,29 +55,29 @@ public abstract class BaseTask {
                 return childTask;
             });
         } else {
-            BaseTask oldTask = childTaskMap.get(childName);
+            BaseTask oldTask = childTaskMap.get(childId);
             if (oldTask != null) {
                 oldTask.stopTask();
             }
             childTask.startTask();
-            childTaskMap.put(childName, childTask);
+            childTaskMap.put(childId, childTask);
         }
     }
 
-    public synchronized void removeChildTask(String childName) {
+    public synchronized void removeChildTask(String childId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childTaskMap.compute(childName, (key, value) -> {
+            childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
                     ThreadUtil.shutdownAndWait(value.getThread(), -1, TimeUnit.SECONDS);
                 }
                 return null;
             });
         } else {
-            BaseTask oldTask = childTaskMap.get(childName);
+            BaseTask oldTask = childTaskMap.get(childId);
             if (oldTask != null) {
                 ThreadUtil.shutdownAndWait(oldTask.getThread(), -1, TimeUnit.SECONDS);
             }
-            childTaskMap.remove(childName);
+            childTaskMap.remove(childId);
         }
     }
 
@@ -114,6 +123,25 @@ public abstract class BaseTask {
 
     public static BaseTask newInstance() {
         return new BaseTask() {
+            @Override
+            public Runnable init() {
+                return () -> {};
+            }
+
+            @Override
+            public Boolean check() {
+                return true;
+            }
+        };
+    }
+
+    public static BaseTask newInstance(String id) {
+        return new BaseTask() {
+            @Override
+            public String getId() {
+                return id;
+            }
+
             @Override
             public Runnable init() {
                 return () -> {};

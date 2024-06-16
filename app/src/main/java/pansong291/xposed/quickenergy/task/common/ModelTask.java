@@ -102,6 +102,11 @@ public abstract class ModelTask extends BaseTask {
             ModelTask task = taskArray[i];
             if (task != null) {
                 task.stopTask();
+                try {
+                    task.destroy();
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
                 taskArray[i] = null;
                 taskMap.remove(task.getClass());
             }

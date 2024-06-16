@@ -13,7 +13,6 @@ import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.hook.Notification;
 import pansong291.xposed.quickenergy.util.ClassUtil;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.StringUtil;
@@ -33,7 +32,7 @@ public class OldRpcBridge implements RpcBridge {
     private Object curH5PageImpl;
 
 
-    public void load() {
+    public void load() throws Exception {
         loader = ApplicationHook.getClassLoader();
         try {
             h5PageClazz = loader.loadClass(ClassUtil.H5PAGE_NAME);
@@ -55,9 +54,9 @@ public class OldRpcBridge implements RpcBridge {
                         int.class, String.class, boolean.class, int.class, String.class);
                 getResponseMethod = loader.loadClass("com.alipay.mobile.nebulaappproxy.api.rpc.H5Response").getMethod("getResponse");
                 Log.i(TAG, "get oldRpcCallMethod successfully");
-            } catch (Throwable t) {
+            } catch (Exception e) {
                 Log.i(TAG, "get oldRpcCallMethod err:");
-                Log.printStackTrace(TAG, t);
+                throw e;
             }
         }
     }

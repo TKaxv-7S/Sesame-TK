@@ -1,18 +1,18 @@
 package pansong291.xposed.quickenergy.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -49,12 +49,14 @@ public class SettingsActivity extends Activity {
 
     private Context context;
     private TabHost tabHost;
+    private ScrollView svTabs;
     private GestureDetector gestureDetector;
     private Animation slideLeftIn;
     private Animation slideLeftOut;
     private Animation slideRightIn;
     private Animation slideRightOut;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +66,7 @@ public class SettingsActivity extends Activity {
 
         context = this;
         tabHost = findViewById(R.id.tab_settings);
+        svTabs = findViewById(R.id.sv_tabs);
         tabHost.setup();
         tabHost.addTab(tabHost.newTabSpec("base")
                 .setIndicator(getString(R.string.base_configuration))
@@ -396,20 +399,26 @@ public class SettingsActivity extends Activity {
             );
 
         }
-        TabWidget tabWidget = tabHost.getTabWidget();
-        int childCount = tabWidget.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = tabWidget.getChildAt(i);
-            child.getLayoutParams().width = 280;
-        }
         tabHost.setCurrentTab(0);
-
-        initFlipper();
 
         UserIdMap.shouldReload = true;
         CooperationIdMap.shouldReload = true;
         ReserveIdMap.shouldReload = true;
         BeachIdMap.shouldReload = true;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            int width = svTabs.getWidth();
+            TabWidget tabWidget = tabHost.getTabWidget();
+            int childCount = tabWidget.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                tabWidget.getChildAt(i).getLayoutParams().width = width;
+            }
+            tabWidget.requestLayout();
+        }
     }
 
     @Override
@@ -427,64 +436,6 @@ public class SettingsActivity extends Activity {
         CooperationIdMap.saveIdMap();
         ReserveIdMap.saveIdMap();
         BeachIdMap.saveIdMap();
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (gestureDetector.onTouchEvent(event)) {
-            event.setAction(MotionEvent.ACTION_CANCEL);
-        }
-        return super.dispatchTouchEvent(event);
-    }
-
-    private void initFlipper() {
-        slideLeftIn = AnimationUtils.loadAnimation(this, R.anim.slide_left_in);
-        slideLeftOut = AnimationUtils.loadAnimation(this, R.anim.slide_left_out);
-        slideRightIn = AnimationUtils.loadAnimation(this, R.anim.slide_right_in);
-        slideRightOut = AnimationUtils.loadAnimation(this, R.anim.slide_right_out);
-
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-                                   float velocityY) {
-                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-                    return false;
-                int lastView = tabHost.getCurrentTab();
-                int currentView = lastView;
-                if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
-                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    if (currentView < MAX_TAB_INDEX) {
-                        currentView++;
-                    }
-                    setCurrentTab(lastView, currentView);
-                } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
-                        && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    if (currentView > 0) {
-                        currentView--;
-                    }
-                    setCurrentTab(lastView, currentView);
-                }
-                return true;
-            }
-        });
-    }
-
-    private void setCurrentTab(int lastView, int currentView) {
-        if (lastView == currentView)
-            return;
-        if (lastView < currentView) {
-            tabHost.getCurrentView().startAnimation(slideLeftOut);
-        } else {
-            tabHost.getCurrentView().startAnimation(slideRightOut);
-        }
-
-        tabHost.setCurrentTab(currentView);
-
-        if (lastView < currentView) {
-            tabHost.getCurrentView().startAnimation(slideRightIn);
-        } else {
-            tabHost.getCurrentView().startAnimation(slideLeftIn);
-        }
     }
 
 }

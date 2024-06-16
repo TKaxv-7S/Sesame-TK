@@ -4,7 +4,7 @@ import pansong291.xposed.quickenergy.entity.RpcEntity;
 
 public interface RpcBridge {
 
-    void load();
+    void load() throws Exception;
 
     void unload();
 

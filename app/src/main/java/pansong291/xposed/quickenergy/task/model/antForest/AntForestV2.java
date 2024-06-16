@@ -39,6 +39,7 @@ import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtils;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
+import pansong291.xposed.quickenergy.util.ThreadUtil;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 
@@ -49,13 +50,8 @@ public class AntForestV2 extends ModelTask {
     private static final String TAG = AntForestV2.class.getSimpleName();
 
     private static final Set<String> AntForestTaskTypeSet;
-    private static int collectedEnergy = 0;
-    private static int helpCollectedEnergy = 0;
     private static int totalCollected = 0;
     private static int totalHelpCollected = 0;
-    private static long serverTime = -1;
-    private static long offsetTime = -1;
-    private static long laterTime = -1;
 
     private String selfId;
 
@@ -184,23 +180,16 @@ public class AntForestV2 extends ModelTask {
                 selfId = UserIdMap.getCurrentUid();
                 timerTask = getChildTask("bubbleTimerTask");
                 if (timerTask == null) {
-                    timerTask = BaseTask.newInstance();
-                    addChildTask("bubbleTimerTask", timerTask);
+                    timerTask = BaseTask.newInstance("bubbleTimerTask");
+                    addChildTask(timerTask);
                 }
                 IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> dontCollectListValue = dontCollectList.getValue();
                 List<String> dontCollectList = dontCollectListValue.getKey();
                 dontCollectSet = new HashSet<>(dontCollectList);
                 Log.record("执行开始-蚂蚁森林");
                 isScanning = true;
-                long start = System.currentTimeMillis();
-                String selfHomePageStr = AntForestRpcCall.queryHomePage();
-                long end = System.currentTimeMillis();
-                JSONObject selfHomePage = new JSONObject(selfHomePageStr);
-                serverTime = selfHomePage.getLong("now");
-                offsetTime = (start + end) / 2 - serverTime;
-                Log.i(TAG, "服务器时间：" + serverTime + "，本地减服务器时间差：" + offsetTime);
 
-                collectUserEnergy(selfHomePage);
+                collectUserEnergy(selfId);
 
                 if (!collectEnergy.getValue()) {
                     Log.record("不收取能量");
@@ -312,16 +301,28 @@ public class AntForestV2 extends ModelTask {
         };
     }
 
-    private void collectUserEnergy(JSONObject userHomeObject) {
+    @Override
+    public void destroy() {
+        ThreadUtil.shutdownAndAwaitTermination(collectEnergyThreadPoolExecutor, -1, TimeUnit.SECONDS);
+    }
+
+    private void collectUserEnergy(String userId) {
         try {
+            boolean isSelf = Objects.equals(selfId, userId);
+            JSONObject userHomeObject;
+            if (isSelf) {
+                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
+            } else {
+                userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
+            }
+            long serverTime = userHomeObject.getLong("now");
+            Log.i("服务器时间：" + serverTime);
             if (!"SUCCESS".equals(userHomeObject.getString("resultCode"))) {
                 Log.record(userHomeObject.getString("resultDesc"));
                 return;
             }
             JSONObject userEnergy = userHomeObject.getJSONObject("userEnergy");
-            String userId = userEnergy.getString("userId");
             String userName;
-            boolean isSelf = Objects.equals(selfId, userId);
             if (isSelf) {
                 userName = userEnergy.optString("displayName");
                 if (userName.isEmpty()) {
@@ -381,18 +382,16 @@ public class AntForestV2 extends ModelTask {
                         break;
                     case WAITING:
                         long produceTime = bubble.getLong("produceTime");
-                        if (produceTime - serverTime < ConfigV2.INSTANCE.getCheckInterval()) {
+                        if (ConfigV2.INSTANCE.getCheckInterval() > produceTime - serverTime) {
                             if (timerTask != null) {
                                 String tid = AntForestV2.getTid(userId, bubbleId);
                                 if (timerTask.hasChildTask(tid)) {
                                     break;
                                 }
-                                BubbleTimerTask btt = new BubbleTimerTask(userId, bubbleId, produceTime);
-                                String bttTid = btt.getTid();
-                                timerTask.addChildTask(bttTid, btt);
+                                timerTask.addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
                             }
                         } else {
-                            setLaterTime(produceTime);
+                            Log.i(TAG, "用户[" + UserIdMap.getNameById(userId) + "]能量成熟时间: " + produceTime);
                         }
                         break;
                 }
@@ -562,7 +561,7 @@ public class AntForestV2 extends ModelTask {
                     Log.record("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
                     return;
                 }
-                collectUserEnergy(new JSONObject(AntForestRpcCall.queryFriendHomePage(userId)));
+                collectUserEnergy(userId);
             }
             if (!TaskCommon.IS_MORNING) {
                 if (helpFriendCollect.getValue() && friendsObject.getBoolean("canProtectBubble") && restTimes > 0) {
@@ -776,18 +775,20 @@ public class AntForestV2 extends ModelTask {
             JSONObject jo = new JSONObject(AntForestRpcCall.startWhackMole());
             if (jo.getBoolean("success")) {
                 JSONArray moleInfo = jo.optJSONArray("moleInfo");
-                List < String > whackMoleIdList = new ArrayList <> ();
-                for (int i = 0; i < moleInfo.length(); i++) {
-                    JSONObject mole = moleInfo.getJSONObject(i);
-                    long moleId = mole.getLong("id");
-                    whackMoleIdList.add(String.valueOf(moleId));
-                }
-                if (!whackMoleIdList.isEmpty()) {
-                    String token = jo.getString("token");
-                    jo = new JSONObject(AntForestRpcCall.settlementWhackMole(token, whackMoleIdList));
-                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                        int totalEnergy = jo.getInt("totalEnergy");
-                        Log.forest("森林能量⚡[获得:6秒拼手速能量" + totalEnergy + "g]");
+                if (moleInfo != null) {
+                    List<String> whackMoleIdList = new ArrayList<>();
+                    for (int i = 0; i < moleInfo.length(); i++) {
+                        JSONObject mole = moleInfo.getJSONObject(i);
+                        long moleId = mole.getLong("id");
+                        whackMoleIdList.add(String.valueOf(moleId));
+                    }
+                    if (!whackMoleIdList.isEmpty()) {
+                        String token = jo.getString("token");
+                        jo = new JSONObject(AntForestRpcCall.settlementWhackMole(token, whackMoleIdList));
+                        if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                            int totalEnergy = jo.getInt("totalEnergy");
+                            Log.forest("森林能量⚡[获得:6秒拼手速能量" + totalEnergy + "g]");
+                        }
                     }
                 }
             } else {
@@ -922,7 +923,6 @@ public class AntForestV2 extends ModelTask {
                         if ("SUCCESS".equals(jo.getString("resultCode"))) {
                             int energy = jo.optInt("energy", 0);
                             Log.forest("收取礼盒🎁[" + UserIdMap.getNameById(userId) + "-" + title + "]#" + energy + "g");
-                            collectedEnergy += energy;
                             Statistics.addData(Statistics.DataType.COLLECTED, energy);
                         } else {
                             Log.record(jo.getString("resultDesc"));
@@ -1006,7 +1006,7 @@ public class AntForestV2 extends ModelTask {
     }
 
     private static void exchangeEnergyDoubleClick(int count) {
-        int exchangedTimes = 0;
+        int exchangedTimes;
         try {
             String s = AntForestRpcCall.itemList("SC_ASSETS");
             JSONObject jo = new JSONObject(s);
@@ -1273,54 +1273,6 @@ public class AntForestV2 extends ModelTask {
             Log.i(TAG, "energyRain err:");
             Log.printStackTrace(TAG, th);
         }
-    }
-
-    private static void setLaterTime(long time) {
-        Log.i(TAG, "能量成熟时间：" + time);
-        if (time > serverTime && serverTime > 0
-                && (laterTime < 0 || time < laterTime)) {
-            laterTime = time;
-            Log.i(TAG, laterTime - serverTime + "ms 后能量成熟");
-        }
-    }
-
-    private static void onForestEnd() {
-        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
-        Integer countChildThread = 0;
-        if (task != null) {
-            countChildThread = task.countChildTask();
-        }
-        Log.record(
-                "收[" + collectedEnergy + "g]，帮["
-                        + helpCollectedEnergy + "g]，"
-                        + countChildThread + "个蹲点任务");
-        UserIdMap.saveIdMap();
-        collectedEnergy = 0;
-        helpCollectedEnergy = 0;
-        if (collectEnergy.getValue()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("  收：").append(totalCollected).append("，帮：").append(totalHelpCollected);
-            if (laterTime > 0) {
-                sb.append("，下个：");
-                long second = (laterTime - serverTime) / 1000;
-                long minute = second / 60;
-                second %= 60;
-                long hour = minute / 60;
-                minute %= 60;
-                if (hour > 0)
-                    sb.append(hour).append("时");
-                if (minute > 0)
-                    sb.append(minute).append("分");
-                sb.append(second).append("秒");
-            }
-            Log.record(sb.toString());
-            long lastScanTime = Notification.getLastScanTime();
-            Notification.setContentText(Log.getFormatTime() + sb);
-            if (System.currentTimeMillis() - lastScanTime > 60_000) {
-                ApplicationHook.getMainHandler().postDelayed(Notification::setContentTextIdle, 60_000);
-            }
-        }
-        laterTime = -1;
     }
 
     private void useDoubleCard() {
@@ -1946,7 +1898,6 @@ public class AntForestV2 extends ModelTask {
                 }
                 if (helped > 0) {
                     Log.forest("帮收能量🧺[" + UserIdMap.getNameById(targetUserId) + "]#" + helped + "g");
-                    helpCollectedEnergy += helped;
                     totalHelpCollected += helped;
                     Statistics.addData(Statistics.DataType.HELPED, helped);
                 } else {
@@ -2056,7 +2007,8 @@ public class AntForestV2 extends ModelTask {
             produceTime = pt;
         }
 
-        public String getTid() {
+        @Override
+        public String getId() {
             return id;
         }
 
@@ -2064,7 +2016,7 @@ public class AntForestV2 extends ModelTask {
         public Runnable init() {
             return () -> {
                 try {
-                    long sleep = produceTime + offsetTime - System.currentTimeMillis() - advanceTime.getValue();
+                    long sleep = produceTime - System.currentTimeMillis() - advanceTime.getValue();
                     Log.record("添加[" + UserIdMap.getNameById(userId) + "]蹲点收取, 在[" + sleep / 1000 + "]秒后执行, 任务ID[" + id + "]");
                     if (sleep < -5000) {
                         return;

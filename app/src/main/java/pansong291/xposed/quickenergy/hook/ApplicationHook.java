@@ -470,6 +470,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         } catch (Throwable th) {
             Log.i(TAG, "startHandler err:");
             Log.printStackTrace(TAG, th);
+            Toast.show("芝麻粒加载失败");
         }
     }
 
