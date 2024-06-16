@@ -94,7 +94,7 @@ public class AntForestV2 extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.forest_configuration);
+        return "森林";
     }
 
     public static BooleanModelField collectEnergy;
