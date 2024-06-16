@@ -132,7 +132,7 @@ public class AntForestV2 extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", true));
-        modelFields.addField(advanceTime = new IntegerModelField.Multiply1000IntegerModelField("advanceTime", "提前时间(毫秒)", 0));
+        modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0));
         modelFields.addField(dontCollectList = new IdAndNameSelectModelField.UserAndNameSelectModelField("dontCollectList", "不收取能量名单", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), null)));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", true));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收能量", true));
@@ -191,12 +191,12 @@ public class AntForestV2 extends ModelTask {
                 Log.record("执行开始-蚂蚁森林");
                 isScanning = true;
 
-                collectUserEnergy(selfId);
-
                 if (!collectEnergy.getValue()) {
                     Log.record("不收取能量");
                     return;
                 }
+
+                collectUserEnergy(selfId);
                 try {
                     JSONObject friendsObject = new JSONObject(AntForestRpcCall.queryEnergyRanking());
                     if ("SUCCESS".equals(friendsObject.getString("resultCode"))) {
