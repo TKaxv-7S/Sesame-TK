@@ -52,7 +52,7 @@ public class OmegakoiTown extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.omegakoi_town);
+        return "小镇";
     }
 
     @Override
