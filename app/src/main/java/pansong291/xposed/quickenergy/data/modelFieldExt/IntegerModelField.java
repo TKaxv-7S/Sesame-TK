@@ -56,4 +56,28 @@ public class IntegerModelField extends ModelField {
         }
     }
 
+    public static class Limit0To100000IntegerModelField extends IntegerModelField {
+
+        public Limit0To100000IntegerModelField() {
+        }
+
+        public Limit0To100000IntegerModelField(String code, String name, Integer value) {
+            super(code, name, value);
+        }
+
+        @Override
+        public void setConfigValue(Object newValue) {
+            setValue(newValue);
+            Integer setNewValue = getValue();
+            if (setNewValue !=null) {
+                if (setNewValue < 0) {
+                    value = 0;
+                } else if (setNewValue > 100000) {
+                    value = 100000;
+                }
+            }
+        }
+
+    }
+
 }
