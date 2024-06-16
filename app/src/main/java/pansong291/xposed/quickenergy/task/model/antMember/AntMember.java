@@ -19,7 +19,7 @@ public class AntMember extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.receive_point);
+        return "会员";
     }
 
     @Override
