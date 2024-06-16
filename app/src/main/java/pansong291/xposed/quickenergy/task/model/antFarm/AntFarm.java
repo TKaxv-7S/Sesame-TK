@@ -57,7 +57,7 @@ public class AntFarm extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.farm_configuration);
+        return "庄园";
     }
 
     private ChoiceModelField.SendChoiceModelField sendType;
