@@ -50,7 +50,7 @@ public class AntStall extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.enable_stall);
+        return "新村";
     }
 
     @Override
