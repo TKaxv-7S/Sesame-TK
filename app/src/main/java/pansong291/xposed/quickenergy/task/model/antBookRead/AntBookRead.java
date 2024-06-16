@@ -19,7 +19,7 @@ public class AntBookRead extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.ant_book_read);
+        return "读书听书";
     }
 
     @Override
