@@ -3,9 +3,7 @@ package pansong291.xposed.quickenergy.task.model.antOcean;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.TaskStatus;
@@ -390,7 +388,7 @@ public class AntOcean extends ModelTask {
         }
         try {
             String userId = fillFlag.getString("userId");
-            if (AntForestV2.dontCollectSet.contains(userId)) {
+            if (AntForestV2.dontCollectMap.containsKey(userId)) {
                 return;
             }
             String s = AntOceanRpcCall.queryFriendPage(userId);

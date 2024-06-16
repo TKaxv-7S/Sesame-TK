@@ -4,9 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
@@ -33,7 +32,7 @@ public class AntCooperate extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", true));
-        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField.CooperateUserAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), new ArrayList<>())));
+        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField.CooperateUserAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), true)));
         return modelFields;
     }
 
@@ -65,16 +64,8 @@ public class AntCooperate extends ModelTask {
                         CooperationIdMap.putIdMap(cooperationId, name);
                         if (!Statistics.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
                             continue;
-                        int index = -1;
-                        List<String> list = cooperateWaterList.getValue().getKey();
-                        for (int j = 0; j < list.size(); j++) {
-                            if (list.get(j).equals(cooperationId)) {
-                                index = j;
-                                break;
-                            }
-                        }
-                        if (index >= 0) {
-                            int num = cooperateWaterList.getValue().getValue().get(index);
+                        Integer num = cooperateWaterList.getValue().getKey().get(cooperationId);
+                        if (num != null) {
                             if (num > waterDayLimit)
                                 num = waterDayLimit;
                             if (num > userCurrentEnergy)

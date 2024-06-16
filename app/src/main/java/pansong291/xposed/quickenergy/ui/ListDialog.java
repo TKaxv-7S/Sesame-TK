@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Map;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
@@ -33,8 +34,8 @@ public class ListDialog {
             btn_select_all, btn_select_invert;
     static EditText edt_find;
     static ListView lv_list;
-    static List<String> selectedList;
-    static List<Integer> countList;
+    static Map<String, Integer> selectedMap;
+    static Boolean hasCount;
     static ListAdapter.ViewHolder curViewHolder;
     static IdAndName curIdAndName;
 
@@ -57,22 +58,20 @@ public class ListDialog {
     }
 
     public static void show(Context c, CharSequence title, IdAndNameSelectModelField idAndNameSelectModelField, ListType listType) {
-        IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> kvNode = idAndNameSelectModelField.getValue();
+        IdAndNameSelectModelField.KVNode<Map<String, Integer>, Boolean> kvNode = idAndNameSelectModelField.getValue();
         show(c, title, idAndNameSelectModelField.getList(), kvNode.getKey(), kvNode.getValue(), listType);
     }
 
-    public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, List<String> sl,
-                            List<Integer> cl) {
-        show(c, title, bl, sl, cl, ListType.CHECK);
+    public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, Map<String, Integer> selectedMap, Boolean hasCount) {
+        show(c, title, bl, selectedMap, hasCount, ListType.CHECK);
     }
 
-    public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, List<String> sl,
-                            List<Integer> cl, ListType listType) {
-        selectedList = sl;
-        countList = cl;
+    public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, Map<String, Integer> selectedMap, Boolean hasCount, ListType listType) {
+        ListDialog.selectedMap = selectedMap;
+        ListDialog.hasCount = hasCount;
         ListAdapter la = ListAdapter.get(c, listType);
         la.setBaseList(bl);
-        la.setSelectedList(selectedList);
+        la.setSelectedList(selectedMap);
         showListDialog(c, title);
         ListDialog.listType = listType;
     }
@@ -107,7 +106,7 @@ public class ListDialog {
                     public void onShow(DialogInterface p1) {
                         AlertDialog d = (AlertDialog) p1;
                         layout_batch_process = d.findViewById(R.id.layout_batch_process);
-                        layout_batch_process.setVisibility(listType == ListType.CHECK && countList == null ? View.VISIBLE : View.GONE);
+                        layout_batch_process.setVisibility(listType == ListType.CHECK && !hasCount ? View.VISIBLE : View.GONE);
                         ListAdapter.get(c).notifyDataSetChanged();
                     }
                 }.setContext(c));
@@ -139,9 +138,9 @@ public class ListDialog {
                     }
                     curIdAndName = (IdAndName) p1.getAdapter().getItem(p3);
                     curViewHolder = (ListAdapter.ViewHolder) p2.getTag();
-                    if (countList == null) {
+                    if (!hasCount) {
                         if (listType == ListType.RADIO) {
-                            selectedList.clear();
+                            selectedMap.clear();
                             if (curViewHolder.cb.isChecked()) {
                                 curViewHolder.cb.setChecked(false);
                             } else {
@@ -150,15 +149,16 @@ public class ListDialog {
                                     viewHolder.cb.setChecked(false);
                                 }
                                 curViewHolder.cb.setChecked(true);
-                                selectedList.add(curIdAndName.id);
+                                selectedMap.put(curIdAndName.id, 0);
                             }
                         } else {
                             if (curViewHolder.cb.isChecked()) {
-                                selectedList.remove(curIdAndName.id);
+                                selectedMap.remove(curIdAndName.id);
                                 curViewHolder.cb.setChecked(false);
                             } else {
-                                if (!selectedList.contains(curIdAndName.id))
-                                    selectedList.add(curIdAndName.id);
+                                if (!selectedMap.containsKey(curIdAndName.id)) {
+                                    selectedMap.put(curIdAndName.id, 0);
+                                }
                                 curViewHolder.cb.setChecked(true);
                             }
                         }
@@ -196,9 +196,9 @@ public class ListDialog {
             edt_count.setHint("浇水克数");
         else
             edt_count.setHint("次数");
-        int i = selectedList.indexOf(curIdAndName.id);
-        if (i >= 0)
-            edt_count.setText(String.valueOf(countList.get(i)));
+        Integer value = selectedMap.get(curIdAndName.id);
+        if (value != null && value >= 0)
+            edt_count.setText(String.valueOf(value));
         else
             edt_count.getText().clear();
     }
@@ -223,19 +223,13 @@ public class ListDialog {
                             } catch (Throwable t) {
                                 return;
                             }
-                        int index = selectedList.indexOf(curIdAndName.id);
+                        Integer value = selectedMap.get(curIdAndName.id);
                         if (count > 0) {
-                            if (index < 0) {
-                                selectedList.add(curIdAndName.id);
-                                countList.add(count);
-                            } else {
-                                countList.set(index, count);
-                            }
+                            selectedMap.put(curIdAndName.id, count);
                             curViewHolder.cb.setChecked(true);
                         } else {
-                            if (index >= 0) {
-                                selectedList.remove(index);
-                                countList.remove(index);
+                            if (value != null && value >= 0) {
+                                selectedMap.remove(curIdAndName.id);
                             }
                             curViewHolder.cb.setChecked(false);
                         }
@@ -333,7 +327,7 @@ public class ListDialog {
                             CooperationIdMap.removeIdMap(curIdAndName.id);
                             CooperateUser.remove(curIdAndName.id);
                         }
-                        selectedList.remove(curIdAndName.id);
+                        selectedMap.remove(curIdAndName.id);
                         ListAdapter.get(c).exitFind();
                     }
                     ListAdapter.get(c).notifyDataSetChanged();

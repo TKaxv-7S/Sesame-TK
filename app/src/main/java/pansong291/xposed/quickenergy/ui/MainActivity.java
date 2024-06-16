@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ConfigV2;
@@ -186,7 +187,7 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(this, SettingsActivity.class));
                 return;
             case R.id.btn_friend_watch:
-                ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), new ArrayList<>(), null, ListDialog.ListType.SHOW);
+                ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), new LinkedHashMap<>(), false, ListDialog.ListType.SHOW);
                 return;
         }
         Intent it = new Intent(this, HtmlViewerActivity.class);

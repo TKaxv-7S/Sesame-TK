@@ -7,10 +7,13 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -125,7 +128,7 @@ public class AntForestV2 extends ModelTask {
     public static IntegerModelField exchangeEnergyDoubleClickCount;
     public static IdAndNameSelectModelField.UserAndNameSelectOneModelField whoYouWantToGiveTo;
 
-    public static Set<String> dontCollectSet = new HashSet<>();
+    public static Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
 
     @Override
     public ModelFields setFields() {
@@ -133,7 +136,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", true));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0));
-        modelFields.addField(dontCollectList = new IdAndNameSelectModelField.UserAndNameSelectModelField("dontCollectList", "不收取能量名单", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), null)));
+        modelFields.addField(dontCollectList = new IdAndNameSelectModelField.UserAndNameSelectModelField("dontCollectList", "不收取能量名单", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), false)));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", true));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收能量", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", true));
@@ -144,17 +147,17 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(doubleCardTime = new StringModelField("doubleCardTime", "使用双击卡时间", "0700-0730"));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡次数限制", 6));
         modelFields.addField(helpFriendCollect = new BooleanModelField("helpFriendCollect", "复活好友能量", true));
-        modelFields.addField(dontHelpCollectList = new IdAndNameSelectModelField.UserAndNameSelectModelField("dontHelpCollectList", "不复活好友能量名单", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), null)));
+        modelFields.addField(dontHelpCollectList = new IdAndNameSelectModelField.UserAndNameSelectModelField("dontHelpCollectList", "不复活好友能量名单", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), false)));
         modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "返水33g", 0));
         modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "返水18g", 0));
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "返水10g", 0));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "收取森林任务奖励", true));
-        modelFields.addField(waterFriendList = new IdAndNameSelectModelField.UserAndNameSelectModelField("waterFriendList", "好友浇水列表", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), new ArrayList<>())));
+        modelFields.addField(waterFriendList = new IdAndNameSelectModelField.UserAndNameSelectModelField("waterFriendList", "好友浇水列表", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), true)));
         modelFields.addField(waterFriendCount = new IntegerModelField("waterFriendCount", "每次浇水克数(10 18 33 66)", 66));
-        modelFields.addField(giveEnergyRainList = new IdAndNameSelectModelField.UserAndNameSelectModelField("giveEnergyRainList", "赠送能量雨列表", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), null)));
+        modelFields.addField(giveEnergyRainList = new IdAndNameSelectModelField.UserAndNameSelectModelField("giveEnergyRainList", "赠送能量雨列表", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), false)));
         modelFields.addField(exchangeEnergyDoubleClick = new BooleanModelField("exchangeEnergyDoubleClick", "活力值兑换限时双击卡", true));
         modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "兑换限时双击卡数量", 6));
-        modelFields.addField(whoYouWantToGiveTo = new IdAndNameSelectModelField.UserAndNameSelectOneModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new IdAndNameSelectModelField.KVNode<>(new ArrayList<>(), null)));
+        modelFields.addField(whoYouWantToGiveTo = new IdAndNameSelectModelField.UserAndNameSelectOneModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), false)));
         return modelFields;
     }
 
@@ -185,9 +188,7 @@ public class AntForestV2 extends ModelTask {
                     timerTask = BaseTask.newInstance("bubbleTimerTask");
                     addChildTask(timerTask);
                 }
-                IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> dontCollectListValue = dontCollectList.getValue();
-                List<String> dontCollectList = dontCollectListValue.getKey();
-                dontCollectSet = new HashSet<>(dontCollectList);
+                dontCollectMap = dontCollectList.getValue().getKey();
                 Log.record("执行开始-蚂蚁森林");
                 isScanning = true;
 
@@ -254,16 +255,16 @@ public class AntForestV2 extends ModelTask {
                     if (Config.INSTANCE.isEcoLifeTick()) {
                         ecoLifeTick();
                     }
-                    IdAndNameSelectModelField.KVNode<List<String>, List<Integer>> waterFriendListValue = waterFriendList.getValue();
-                    List<String> waterFriendListValueKey = waterFriendListValue.getKey();
-                    List<Integer> waterFriendListValueValue = waterFriendListValue.getValue();
-                    for (int i = 0; i < waterFriendListValueKey.size(); i++) {
-                        String uid = waterFriendListValueKey.get(i);
+                    IdAndNameSelectModelField.KVNode<Map<String, Integer>, Boolean> waterFriendListValue = waterFriendList.getValue();
+                    Map<String, Integer> friendMap = waterFriendListValue.getKey();
+                    for (Map.Entry<String, Integer> friendEntry : friendMap.entrySet()) {
+                        String uid = friendEntry.getKey();
                         if (selfId.equals(uid))
                             continue;
-                        int waterCount = waterFriendListValueValue.get(i);
-                        if (waterCount <= 0)
+                        Integer waterCount = friendEntry.getValue();
+                        if (waterCount == null || waterCount <= 0) {
                             continue;
+                        }
                         if (waterCount > 3)
                             waterCount = 3;
                         if (Statistics.canWaterFriendToday(uid, waterCount)) {
@@ -275,10 +276,14 @@ public class AntForestV2 extends ModelTask {
                         antdodoPropList();
                         antdodoCollect();
                     }
-                    List<String> list = whoYouWantToGiveTo.getValue().getKey();
-                    if (!list.isEmpty()
-                            && !Objects.equals(selfId, list.get(0))) {
-                        giveProp(list.get(0));
+                    Map<String, Integer> map = whoYouWantToGiveTo.getValue().getKey();
+                    if (!map.isEmpty()) {
+                        for (String userId : map.keySet()) {
+                            if (!Objects.equals(selfId, userId)) {
+                                giveProp(userId);
+                                break;
+                            }
+                        }
                     }
                     if (Config.INSTANCE.isUserPatrol()) {
                         UserPatrol();
@@ -353,7 +358,7 @@ public class AntForestV2 extends ModelTask {
                 }
                 updateDoubleTime(userHomeObject);
             } else {
-                if (dontCollectSet.contains(userId)) {
+                if (dontCollectMap.containsKey(userId)) {
                     Log.record("不收取[" + userName + "], userId=" + userId);
                     return;
                 }
@@ -562,7 +567,7 @@ public class AntForestV2 extends ModelTask {
                     && friendsObject.getLong("canCollectLaterTime") - System.currentTimeMillis() < ConfigV2.INSTANCE.getCheckInterval());
             String userId = friendsObject.getString("userId");
             if (collectEnergy.getValue() && optBoolean && !userId.equals(selfId)) {
-                if (dontCollectSet.contains(userId)) {
+                if (dontCollectMap.containsKey(userId)) {
                     Log.record("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
                     return;
                 }
@@ -880,7 +885,7 @@ public class AntForestV2 extends ModelTask {
                         if ("fuhuo".equals(wateringBubble.getString("bizType"))) {
                             restTimes = wateringBubble.getJSONObject("extInfo").optInt("restTimes", 0);
                             if (wateringBubble.getBoolean("canProtect")) {
-                                if (dontHelpCollectList.getValue().getKey().contains(userId)) {
+                                if (dontHelpCollectList.getValue().getKey().containsKey(userId)) {
                                     Log.record("不复活[" + UserIdMap.getNameById(userId) + "]");
                                 } else {
                                     JSONObject joProtect = new JSONObject(AntForestRpcCall.protectBubble(userId));
@@ -1230,14 +1235,14 @@ public class AntForestV2 extends ModelTask {
                     JSONObject joEnergyRainCanGrantList = new JSONObject(
                             AntForestRpcCall.queryEnergyRainCanGrantList());
                     JSONArray grantInfos = joEnergyRainCanGrantList.getJSONArray("grantInfos");
-                    List<String> list = giveEnergyRainList.getValue().getKey();
+                    Map<String, Integer> map = giveEnergyRainList.getValue().getKey();
                     String userId;
                     boolean granted = false;
                     for (int j = 0; j < grantInfos.length(); j++) {
                         JSONObject grantInfo = grantInfos.getJSONObject(j);
                         if (grantInfo.getBoolean("canGrantedStatus")) {
                             userId = grantInfo.getString("userId");
-                            if (list.contains(userId)) {
+                            if (map.containsKey(userId)) {
                                 JSONObject joEnergyRainChance = new JSONObject(
                                         AntForestRpcCall.grantEnergyRainChance(userId));
                                 Log.record("尝试送能量雨给【" + UserIdMap.getNameById(userId) + "】");

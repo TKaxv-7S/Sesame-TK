@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.entity.IdAndName;
@@ -42,7 +43,7 @@ public class ListAdapter extends BaseAdapter {
 
     Context context;
     List<? extends IdAndName> list;
-    List<String> selects;
+    Map<String, Integer> selectedMap;
     int findIndex = -1;
     CharSequence findWord = null;
 
@@ -56,14 +57,14 @@ public class ListAdapter extends BaseAdapter {
         list = l;
     }
 
-    public void setSelectedList(List<String> l) {
-        selects = l;
+    public void setSelectedList(Map<String, Integer> selectedMap) {
+        this.selectedMap = selectedMap;
         try {
             Collections.sort(list, (o1, o2) -> {
-                if (selects.contains(o1.id) == selects.contains(o2.id)) {
+                if (this.selectedMap.containsKey(o1.id) == this.selectedMap.containsKey(o2.id)) {
                     return o1.compareTo(o2);
                 }
-                return selects.contains(o1.id) ? -1 : 1;
+                return this.selectedMap.containsKey(o1.id) ? -1 : 1;
             });
         } catch (Throwable t) {
             Log.i("ListAdapter err");
@@ -121,22 +122,21 @@ public class ListAdapter extends BaseAdapter {
     }
 
     public void selectAll() {
-        selects.clear();
+        selectedMap.clear();
         for (IdAndName ai : list) {
-            selects.add(ai.id);
+            selectedMap.put(ai.id, 0);
         }
         notifyDataSetChanged();
     }
 
     public void SelectInvert() {
-        List<String> newSelects = new ArrayList<>();
         for (IdAndName ai : list) {
-            if (!selects.contains(ai.id)) {
-                newSelects.add(ai.id);
+            if (!selectedMap.containsKey(ai.id)) {
+                selectedMap.put(ai.id, 0);
+            } else {
+                selectedMap.remove(ai.id);
             }
         }
-        selects.clear();
-        selects.addAll(newSelects);
         notifyDataSetChanged();
     }
 
@@ -175,7 +175,7 @@ public class ListAdapter extends BaseAdapter {
         IdAndName ai = list.get(p1);
         vh.tv.setText(ai.name);
         vh.tv.setTextColor(findIndex == p1 ? Color.RED : Color.BLACK);
-        vh.cb.setChecked(selects != null && selects.contains(ai.id));
+        vh.cb.setChecked(selectedMap != null && selectedMap.containsKey(ai.id));
         return p2;
     }
 

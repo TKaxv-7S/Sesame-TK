@@ -260,7 +260,7 @@ public class Statistics {
     }
 
     public static boolean canCooperateWaterToday(String uid, String coopId) {
-        return !AntCooperate.cooperateWaterList.getValue().getKey().contains(uid + "_" + coopId);
+        return !AntCooperate.cooperateWaterList.getValue().getKey().containsKey(uid + "_" + coopId);
     }
 
     public static void cooperateWaterToday(String uid, String coopId) {

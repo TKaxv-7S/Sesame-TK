@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 import pansong291.xposed.quickenergy.R;
@@ -30,13 +31,13 @@ import pansong291.xposed.quickenergy.util.JsonUtil;
 
 public class IdAndNameSelectModelField extends ModelField {
 
-    private static final TypeReference<KVNode<List<String>, List<Integer>>> typeReference = new TypeReference<KVNode<List<String>, List<Integer>>>() {
+    private static final TypeReference<KVNode<Map<String, Integer>, Boolean>> typeReference = new TypeReference<KVNode<Map<String, Integer>, Boolean>>() {
     };
 
     public IdAndNameSelectModelField() {
     }
 
-    public IdAndNameSelectModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+    public IdAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
         super(code, name, value);
     }
 
@@ -51,8 +52,8 @@ public class IdAndNameSelectModelField extends ModelField {
     }
 
     @Override
-    public KVNode<List<String>, List<Integer>> getValue() {
-        return (KVNode<List<String>, List<Integer>>) value;
+    public KVNode<Map<String, Integer>, Boolean> getValue() {
+        return (KVNode<Map<String, Integer>, Boolean>) value;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class IdAndNameSelectModelField extends ModelField {
         public BeachAndNameSelectModelField() {
         }
 
-        public BeachAndNameSelectModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+        public BeachAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
             super(code, name, value);
         }
 
@@ -91,7 +92,7 @@ public class IdAndNameSelectModelField extends ModelField {
         public UserAndNameSelectModelField() {
         }
 
-        public UserAndNameSelectModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+        public UserAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
             super(code, name, value);
         }
 
@@ -107,7 +108,7 @@ public class IdAndNameSelectModelField extends ModelField {
         public CooperateUserAndNameSelectModelField() {
         }
 
-        public CooperateUserAndNameSelectModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+        public CooperateUserAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
             super(code, name, value);
         }
 
@@ -123,7 +124,7 @@ public class IdAndNameSelectModelField extends ModelField {
         public AreaCodeAndNameSelectModelField() {
         }
 
-        public AreaCodeAndNameSelectModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+        public AreaCodeAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
             super(code, name, value);
         }
 
@@ -139,7 +140,7 @@ public class IdAndNameSelectModelField extends ModelField {
         public ReserveAndNameSelectModelField() {
         }
 
-        public ReserveAndNameSelectModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+        public ReserveAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
             super(code, name, value);
         }
 
@@ -155,7 +156,7 @@ public class IdAndNameSelectModelField extends ModelField {
         public UserAndNameSelectOneModelField() {
         }
 
-        public UserAndNameSelectOneModelField(String code, String name, KVNode<List<String>, List<Integer>> value) {
+        public UserAndNameSelectOneModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
             super(code, name, value);
         }
 
