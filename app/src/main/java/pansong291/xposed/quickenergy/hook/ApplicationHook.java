@@ -55,7 +55,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private static volatile boolean init = false;
 
     @Getter
-    private static volatile boolean offline = true;
+    private static volatile boolean offline = false;
 
     @Getter
     private static volatile ClassLoader classLoader;
@@ -142,6 +142,16 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 String targetUid = getUserId();
                                 if (targetUid == null) {
                                     return;
+                                }
+                                String currentUid = UserIdMap.getCurrentUid();
+                                if (!targetUid.equals(currentUid)) {
+                                    UserIdMap.setCurrentUid(targetUid);
+                                    if (currentUid != null) {
+                                        Toast.show("芝麻粒切换用户");
+                                        startHandler(true);
+                                        Log.i(TAG, "Activity changeUser");
+                                        return;
+                                    }
                                 }
                                 if (offline) {
                                     startHandler(false);
@@ -410,10 +420,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             }
                             String currentUid = UserIdMap.getCurrentUid();
                             if (!targetUid.equals(currentUid)) {
-                                UserIdMap.setCurrentUid(targetUid);
                                 if (currentUid != null) {
-                                    offline = true;
-                                    mainHandler.postDelayed(this, config.getCheckInterval());
+                                    reLogin();
                                     return;
                                 }
                             }
@@ -431,10 +439,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 Thread checkThread = new Thread(checkTask);
                                 checkThread.start();
                                 if (!checkTask.get()) {
-                                    if (!reLogin()) {
-                                        mainHandler.postDelayed(this, config.getCheckInterval());
-                                        return;
-                                    }
+                                    reLogin();
+                                    return;
                                 }
                             } catch (Exception e) {
                                 Log.i(TAG, "check err:");
@@ -620,20 +626,22 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return null;
     }
 
-    public static Boolean reLogin() {
+    public static void reLogin() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         offline = true;
         context.startActivity(intent);
-        return true;
-        /*Object authService = getExtServiceByInterface("com.alipay.mobile.framework.service.ext.security.AuthService");
+    }
+
+    /*public static Boolean reLogin() {
+        Object authService = getExtServiceByInterface("com.alipay.mobile.framework.service.ext.security.AuthService");
         if ((Boolean) XposedHelpers.callMethod(authService, "rpcAuth")) {
             return true;
         }
         Log.record("重新登录失败");
-        return false;*/
-    }
+        return false;
+    }*/
 
     private static class AlipayBroadcastReceiver extends BroadcastReceiver {
         @Override
@@ -646,7 +654,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 startHandler(false);
             } else if ("com.eg.android.AlipayGphone.xqe.reLogin".equals(action)) {
                 reLogin();
-                startHandler(false);
             } else if ("com.eg.android.AlipayGphone.xqe.test".equals(action)) {
                 Log.record("收到测试消息");
             }

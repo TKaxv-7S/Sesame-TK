@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.text.Editable;
 import android.widget.EditText;
 
 import pansong291.xposed.quickenergy.R;
@@ -48,15 +49,24 @@ public class EditDialog {
                             @Override
                             public void onClick(DialogInterface p1, int p2) {
                                 try {
-                                    modelField.setValue(edt.getText());
+                                    Editable text = edt.getText();
+                                    if (text == null) {
+                                        modelField.setValue(null);
+                                        return;
+                                    }
+                                    String textString = text.toString();
+                                    if (textString.isEmpty()) {
+                                        modelField.setValue(null);
+                                        return;
+                                    }
+                                    modelField.setValue(textString);
                                 } catch (Throwable e) {
                                     Log.printStackTrace(e);
                                 }
                             }
                         }.setData(c))
                 .create();
-        String str = String.valueOf(modelField.getValue());
-        edt.setText(str);
+        edt.setText(String.valueOf(modelField.getValue()));
         return editDialog;
     }
 

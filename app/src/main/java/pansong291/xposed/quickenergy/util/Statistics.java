@@ -66,7 +66,7 @@ public class Statistics {
 
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
-        resetToday();
+        //resetToday();
         switch (dt) {
             case COLLECTED:
                 stat.day.collected += i;

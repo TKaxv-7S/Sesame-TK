@@ -22,7 +22,7 @@
     <string name="don_t_collect_list">不收取能量名单</string>
     <string name="receive_forest_task_award">收取森林任务奖励</string>
     <string name="water_friend_list">好友浇水列表</string>
-    <string name="cooperate_water">合种浇水</string>
+    <string name="cooperate_water">合种</string>
     <string name="cooperate_water_list">合种浇水列表</string>
     <string name="farm_configuration">庄园</string>
     <string name="enable_farm">开启庄园</string>
@@ -45,7 +45,7 @@
     <string name="notify_friend">通知好友赶鸡</string>
     <string name="don_t_notify_friend_list">不通知赶鸡名单</string>
     <string name="other_configuration">其他</string>
-    <string name="receive_point">领取积分</string>
+    <string name="receive_point">积分</string>
     <string name="open_treasure_box">开启运动宝箱</string>
     <string name="receive_coin_asset">收集运动币</string>
     <string name="donate_charity_coin">捐运动币</string>
@@ -98,7 +98,7 @@
     <string name="reserve">每日兑换保护地(会使用能量慎用)</string>
     <string name="reserve_list">保护地列表</string>
     <string name="eco_life_tick">绿色行动打卡</string>
-    <string name="ancient_tree">保护古树(会使用能量慎用)</string>
+    <string name="ancient_tree">保护古树</string>
     <string name="ancient_tree_area_code_list">古树区划代码列表</string>
     <string name="ancient_tree_only_week">仅星期一、三、五运行保护古树</string>
     <string name="antdodo_collect">神奇物种开卡</string>
@@ -123,7 +123,7 @@
     <string name="debug_mode">开启抓包(基于新接口)</string>
     <string name="language_simplified_chinese">界面始终使用中文</string>
     <string name="language_simplified_chinese_need_restart">重启当前app生效</string>
-    <string name="ant_orchard">开启农场</string>
+    <string name="ant_orchard">农场</string>
     <string name="receive_orchard_task_award">收取农场任务奖励</string>
     <string name="enable_chouchoule">开启小鸡抽抽乐</string>
     <string name="orchard_spread_manure_count">农场每日施肥次数</string>
@@ -132,7 +132,7 @@
     <string name="collect_sesame">收芝麻粒</string>
     <string name="zcj_sign_in">招财金签到</string>
     <string name="merchant_kmdk">商户开门打卡</string>
-    <string name="enable_stall">开启蚂蚁新村</string>
+    <string name="enable_stall">新村</string>
     <string name="stall_auto_close">新村自动收摊</string>
     <string name="stall_auto_open">新村自动摆摊</string>
     <string name="stall_auto_task">新村自动任务</string>

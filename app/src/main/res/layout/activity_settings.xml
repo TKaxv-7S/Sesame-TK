@@ -45,7 +45,6 @@
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/immediate_effect" />
@@ -58,7 +57,6 @@
                         android:background="@drawable/button"
                         android:gravity="start|center_vertical"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/check_interval_minutes"
@@ -69,7 +67,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/stay_awake" />
@@ -79,7 +76,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/start_at_0_o_clock" />
@@ -89,7 +85,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/start_at_7_o_clock" />
@@ -99,7 +94,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/timeout_restart" />
@@ -112,7 +106,6 @@
                         android:background="@drawable/button"
                         android:gravity="start|center_vertical"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/wait_when_exception"
@@ -123,7 +116,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/battery_perm" />
@@ -133,7 +125,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/new_rpc" />
@@ -143,7 +134,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/debug_mode" />
@@ -153,7 +143,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/record_log" />
@@ -163,7 +152,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/enable_on_going" />
@@ -173,7 +161,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/language_simplified_chinese" />
@@ -183,7 +170,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/show_toast" />
@@ -196,7 +182,6 @@
                         android:background="@drawable/button"
                         android:gravity="start|center_vertical"
                         android:minHeight="50dp"
-                        android:onClick="onClick"
                         android:paddingStart="@dimen/setting_item_padding"
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/toast_vertical_offset"
