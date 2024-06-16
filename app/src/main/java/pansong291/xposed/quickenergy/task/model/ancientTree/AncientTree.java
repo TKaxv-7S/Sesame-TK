@@ -19,7 +19,7 @@ public class AncientTree extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.ancient_tree);
+        return "古树";
     }
 
     @Override
