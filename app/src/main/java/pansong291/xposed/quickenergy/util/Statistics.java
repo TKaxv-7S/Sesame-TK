@@ -641,7 +641,7 @@ public class Statistics {
         }
     }
 
-    public static void resetToday() {
+    public static Boolean resetToday() {
         Statistics stat = INSTANCE;
         String formatDate = Log.getFormatDate();
         String[] dateStr = formatDate.split("-");
@@ -649,20 +649,21 @@ public class Statistics {
         int mo = Integer.parseInt(dateStr[1]);
         int da = Integer.parseInt(dateStr[2]);
 
-        Log.record("原：" + stat.year.time + "-" + stat.month.time + "-" + stat.day.time + "；新：" + formatDate);
         if (ye > stat.year.time) {
             stat.year.reset(ye);
             stat.month.reset(mo);
             stat.day.reset(da);
-            dayClear();
         } else if (mo > stat.month.time) {
             stat.month.reset(mo);
             stat.day.reset(da);
-            dayClear();
         } else if (da > stat.day.time) {
             stat.day.reset(da);
-            dayClear();
+        } else {
+            return false;
         }
+        Log.record("日期更新，昨天：" + stat.year.time + "-" + stat.month.time + "-" + stat.day.time + "，今天：" + formatDate);
+        dayClear();
+        return true;
     }
 
     private static void dayClear() {
@@ -690,9 +691,6 @@ public class Statistics {
         stat.exchangeTimes = 0;
         stat.doubleTimes = 0;
         save();
-        FileUtils.getForestLogFile().delete();
-        FileUtils.getFarmLogFile().delete();
-        FileUtils.getOtherLogFile().delete();
     }
 
     private static Statistics defInit() {

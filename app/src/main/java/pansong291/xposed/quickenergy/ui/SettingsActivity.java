@@ -47,6 +47,7 @@ public class SettingsActivity extends Activity {
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
     private static final int MAX_TAB_INDEX = 3;
 
+    private Boolean isDraw = false;
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
@@ -410,7 +411,7 @@ public class SettingsActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
+        if (!isDraw && hasFocus) {
             int width = svTabs.getWidth();
             TabWidget tabWidget = tabHost.getTabWidget();
             int childCount = tabWidget.getChildCount();
@@ -418,6 +419,7 @@ public class SettingsActivity extends Activity {
                 tabWidget.getChildAt(i).getLayoutParams().width = width;
             }
             tabWidget.requestLayout();
+            isDraw = true;
         }
     }
 

@@ -25,7 +25,7 @@ public class AntOcean extends ModelTask {
 
     @Override
     public String setName() {
-        return context.getString(R.string.ant_orchard);
+        return context.getString(R.string.ant_ocean);
     }
 
     @Override

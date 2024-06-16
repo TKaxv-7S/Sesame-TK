@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.entity.FriendWatch;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 
@@ -142,6 +142,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (Statistics.resetToday()) {
+            try {
+                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
+            } catch (Throwable th) {
+                Log.printStackTrace(th);
+            }
+        }
         tvStatistics.setText(Statistics.getText());
     }
 
