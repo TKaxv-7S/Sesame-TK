@@ -591,7 +591,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             context.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reLogin"));
         } catch (Throwable th) {
-            Log.i(TAG, "sendBroadcast reLogin err:");
+            Log.i(TAG, "xqe sendBroadcast reLogin err:");
             Log.printStackTrace(TAG, th);
         }
     }
@@ -600,7 +600,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             context.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.restart"));
         } catch (Throwable th) {
-            Log.i(TAG, "sendBroadcast restart err:");
+            Log.i(TAG, "xqe sendBroadcast restart err:");
             Log.printStackTrace(TAG, th);
         }
     }
@@ -655,14 +655,17 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.i("broadcast action:" + action + " intent:" + intent);
+            Log.i("xqe broadcast action:" + action + " intent:" + intent);
             if (action != null) {
                 switch (action) {
                     case "com.eg.android.AlipayGphone.xqe.restart":
                         startHandler(true);
                         break;
                     case "com.eg.android.AlipayGphone.xqe.execute":
-                        startHandler(false);
+                        if (mainHandler != null && mainRunner != null) {
+                            mainHandler.removeCallbacks(mainRunner);
+                            mainHandler.post(mainRunner);
+                        }
                         break;
                     case "com.eg.android.AlipayGphone.xqe.reLogin":
                         reLogin();
@@ -671,7 +674,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         try {
                             context.sendBroadcast(new Intent("pansong291.xposed.quickenergy.status"));
                         } catch (Throwable th) {
-                            Log.i(TAG, "sendBroadcast xqe status err:");
+                            Log.i(TAG, "xqe sendBroadcast status err:");
                             Log.printStackTrace(TAG, th);
                         }
                         break;

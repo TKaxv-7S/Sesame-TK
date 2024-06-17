@@ -61,10 +61,6 @@ public class AntForestV2 extends ModelTask {
 
     private final AtomicLong offsetTime = new AtomicLong(-1);
 
-    private volatile boolean isScanning = false;
-
-    private volatile long lastCollectTime = 0;
-
     private volatile long doubleEndTime = 0;
 
     private final Object collectEnergyLockObj = new Object();
@@ -163,13 +159,6 @@ public class AntForestV2 extends ModelTask {
             Log.record("异常等待中，暂不执行检测！");
             return false;
         }
-        if (isScanning) {
-            if (lastCollectTime + 5000 > System.currentTimeMillis()) {
-                Log.record("之前的检测未结束，本次暂停");
-                return false;
-            }
-            Log.record("之前的检测未结束，但是上次收取时间超过5秒，继续执行本次检测");
-        }
         return true;
     }
 
@@ -179,7 +168,6 @@ public class AntForestV2 extends ModelTask {
                 Log.record("执行开始-蚂蚁森林");
                 selfId = UserIdMap.getCurrentUid();
                 dontCollectMap = dontCollectList.getValue().getKey();
-                isScanning = true;
 
                 if (!collectEnergy.getValue()) {
                     Log.record("不收取能量");
@@ -284,14 +272,10 @@ public class AntForestV2 extends ModelTask {
                     /* 森林集市 */
                     sendEnergyByAction();
                 }
-
-                //onForestEnd();
-                isScanning = false;
             } catch (Throwable t) {
                 Log.i(TAG, "checkEnergyRanking.run err:");
                 Log.printStackTrace(TAG, t);
             } finally {
-                isScanning = false;
                 Log.record("执行结束-蚂蚁森林");
             }
         };
@@ -321,21 +305,25 @@ public class AntForestV2 extends ModelTask {
                 Log.record(userHomeObject.getString("resultDesc"));
                 return;
             }
-            JSONObject userEnergy = userHomeObject.getJSONObject("userEnergy");
+            JSONObject userEnergy = userHomeObject.optJSONObject("userEnergy");
             String userName;
-            if (isSelf) {
-                userName = userEnergy.optString("displayName");
-                if (userName.isEmpty()) {
-                    userName = "我";
+            if (userEnergy != null) {
+                if (isSelf) {
+                    userName = userEnergy.optString("displayName");
+                    if (userName.isEmpty()) {
+                        userName = "我";
+                    }
+                } else {
+                    userName = userEnergy.getString("displayName");
+                    if (userName.isEmpty()) {
+                        userName = "*null*";
+                    }
+                    if (userEnergy.has("loginId")) {
+                        userName += "(" + userEnergy.getString("loginId") + ")";
+                    }
                 }
             } else {
-                userName = userEnergy.getString("displayName");
-                if (userName.isEmpty()) {
-                    userName = "*null*";
-                }
-                if (userEnergy.has("loginId")) {
-                    userName += "(" + userEnergy.getString("loginId") + ")";
-                }
+                userName = userId;
             }
             UserIdMap.putIdMapIfEmpty(userId, userName);
             Log.record("进入[" + userName + "]的蚂蚁森林");
@@ -605,7 +593,6 @@ public class AntForestV2 extends ModelTask {
                             break;
                         }
                         int collected = 0;
-                        lastCollectTime = System.currentTimeMillis();
                         JSONObject jo = new JSONObject(rpcEntity.getResponseString());
                         if (!"SUCCESS".equals(jo.getString("resultCode"))) {
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
@@ -695,7 +682,6 @@ public class AntForestV2 extends ModelTask {
                             break;
                         }
                         int collected = 0;
-                        lastCollectTime = System.currentTimeMillis();
                         JSONObject jo = new JSONObject(rpcEntity.getResponseString());
                         if (!"SUCCESS".equals(jo.getString("resultCode"))) {
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));

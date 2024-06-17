@@ -34,7 +34,7 @@ public class FileUtils {
     private static File forestLogFile;
     private static File farmLogFile;
     private static File otherLogFile;
-    private static File recordLogFile;
+    //private static File recordLogFile;
     private static File debugLogFile;
     private static File runtimeLogFile;
     private static File errorLogFile;
@@ -296,16 +296,14 @@ public class FileUtils {
     }
 
     public static File getRecordLogFile() {
-        if (recordLogFile == null) {
-            recordLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("record"));
-            if (recordLogFile.exists() && recordLogFile.isDirectory()) {
-                recordLogFile.delete();
-            }
-            if (!recordLogFile.exists()) {
-                try {
-                    recordLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File recordLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("record"));
+        if (recordLogFile.exists() && recordLogFile.isDirectory()) {
+            recordLogFile.delete();
+        }
+        if (!recordLogFile.exists()) {
+            try {
+                recordLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return recordLogFile;

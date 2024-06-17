@@ -61,20 +61,33 @@ public class MainActivity extends Activity {
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
-                    updateTitle(ModelType.PACKAGE);
-                }
-                viewHandler.removeCallbacks(titleRunner);
-                if (isClick) {
-                    Toast toast = Toast.makeText(context, "芝麻粒加载状态正常", Toast.LENGTH_SHORT);
-                    toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
-                    toast.show();
-                    isClick = false;
+                String action = intent.getAction();
+                Log.i("view broadcast action:" + action + " intent:" + intent);
+                if (action != null) {
+                    switch (action) {
+                        case "pansong291.xposed.quickenergy.status":
+                            if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
+                                updateTitle(ModelType.PACKAGE);
+                            }
+                            viewHandler.removeCallbacks(titleRunner);
+                            if (isClick) {
+                                Toast toast = Toast.makeText(context, "芝麻粒加载状态正常", Toast.LENGTH_SHORT);
+                                toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
+                                toast.show();
+                                isClick = false;
+                            }
+                            break;
+                        case "pansong291.xposed.quickenergy.update":
+                            Statistics.load();
+                            tvStatistics.setText(Statistics.getText());
+                            break;
+                    }
                 }
             }
         };
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("pansong291.xposed.quickenergy.status");
+        intentFilter.addAction("pansong291.xposed.quickenergy.update");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
         } else {
@@ -123,19 +136,24 @@ public class MainActivity extends Activity {
             try {
                 sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));
             } catch (Throwable th) {
-                Log.i("xqe sendBroadcast status err:");
+                Log.i("view sendBroadcast status err:");
                 Log.printStackTrace(th);
             }
         }
-        if (Statistics.resetToday()) {
-            try {
-                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
-            } catch (Throwable th) {
-                Log.i("xqe sendBroadcast execute err:");
-                Log.printStackTrace(th);
+        try {
+            if (Statistics.resetToday()) {
+                try {
+                    sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
+                } catch (Throwable th) {
+                    Log.i("view sendBroadcast execute err:");
+                    Log.printStackTrace(th);
+                }
             }
+            Statistics.load();
+            tvStatistics.setText(Statistics.getText());
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
-        tvStatistics.setText(Statistics.getText());
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -145,7 +163,7 @@ public class MainActivity extends Activity {
                 sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));
                 isClick = true;
             } catch (Throwable th) {
-                Log.i("xqe sendBroadcast status err:");
+                Log.i("view sendBroadcast status err:");
                 Log.printStackTrace(th);
             }
             return;
