@@ -5,11 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -25,6 +23,7 @@ import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.ModelConfig;
 import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.ViewAppInfo;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
@@ -36,20 +35,10 @@ import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class SettingsActivity extends Activity {
 
-    private static final int SWIPE_MIN_DISTANCE = 120;
-    private static final int SWIPE_MAX_OFF_PATH = 250;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-    private static final int MAX_TAB_INDEX = 3;
-
     private Boolean isDraw = false;
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
-    private GestureDetector gestureDetector;
-    private Animation slideLeftIn;
-    private Animation slideLeftOut;
-    private Animation slideRightIn;
-    private Animation slideRightOut;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -57,7 +46,7 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
-        setTitle(R.string.settings);
+        setTitle(getText(R.string.settings) + " " + ViewAppInfo.getAppVersion());
 
         context = this;
         tabHost = findViewById(R.id.tab_settings);

@@ -4,6 +4,7 @@ import android.os.Build;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,30 +46,55 @@ public class ConfigV2 {
 
     public void setModelFieldsMap(Map<String, ModelFields> newModels) {
         modelFieldsMap.clear();
-        if (newModels != null) {
-            Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
-            for (Map.Entry<String, ModelFields> modelFieldsEntry : newModels.entrySet()) {
-                ModelFields newModelFields = modelFieldsEntry.getValue();
-                if (newModelFields != null) {
-                    String modelCode = modelFieldsEntry.getKey();
-                    ModelConfig modelConfig = modelConfigMap.get(modelCode);
-                    if (modelConfig != null) {
-                        ModelFields configModelFields = modelConfig.getFields();
-                        for (Map.Entry<String, ModelField> modelFieldEntry : newModelFields.entrySet()) {
-                            ModelField modelField = modelFieldEntry.getValue();
-                            if (modelField != null) {
-                                ModelField configModelField = configModelFields.get(modelFieldEntry.getKey());
-                                if (configModelField != null) {
-                                    try {
-                                        configModelField.setValue(modelField.getValue());
-                                    } catch (Exception e) {
-                                        Log.printStackTrace(e);
-                                    }
+        Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
+        if (newModels == null) {
+            newModels = new HashMap<>();
+        }
+        for (ModelConfig modelConfig : modelConfigMap.values()) {
+            String modelCode = modelConfig.getCode();
+            ModelFields newModelFields = new ModelFields();
+            ModelFields configModelFields = modelConfig.getFields();
+            ModelFields modelFields = newModels.get(modelCode);
+            if (modelFields != null) {
+                for (ModelField configModelField : configModelFields.values()) {
+                    ModelField modelField = modelFields.get(configModelField.getCode());
+                    if (modelField != null) {
+                        try {
+                            configModelField.setValue(modelField.getValue());
+                        } catch (Exception e) {
+                            Log.printStackTrace(e);
+                        }
+                    }
+                    newModelFields.addField(configModelField);
+                }
+            } else {
+                for (ModelField configModelField : configModelFields.values()) {
+                    newModelFields.addField(configModelField);
+                }
+            }
+            modelFieldsMap.put(modelCode, newModelFields);
+        }
+        for (Map.Entry<String, ModelFields> modelFieldsEntry : newModels.entrySet()) {
+            ModelFields newModelFields = modelFieldsEntry.getValue();
+            if (newModelFields != null) {
+                String modelCode = modelFieldsEntry.getKey();
+                ModelConfig modelConfig = modelConfigMap.get(modelCode);
+                if (modelConfig != null) {
+                    ModelFields configModelFields = modelConfig.getFields();
+                    for (Map.Entry<String, ModelField> modelFieldEntry : newModelFields.entrySet()) {
+                        ModelField modelField = modelFieldEntry.getValue();
+                        if (modelField != null) {
+                            ModelField configModelField = configModelFields.get(modelFieldEntry.getKey());
+                            if (configModelField != null) {
+                                try {
+                                    configModelField.setValue(modelField.getValue());
+                                } catch (Exception e) {
+                                    Log.printStackTrace(e);
                                 }
                             }
                         }
-                        modelFieldsMap.put(modelCode, configModelFields);
                     }
+                    modelFieldsMap.put(modelCode, configModelFields);
                 }
             }
         }

@@ -30,6 +30,8 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.data.ConfigV2;
+import pansong291.xposed.quickenergy.data.ModelType;
+import pansong291.xposed.quickenergy.data.ViewAppInfo;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.rpc.NewRpcBridge;
 import pansong291.xposed.quickenergy.rpc.OldRpcBridge;
@@ -37,7 +39,6 @@ import pansong291.xposed.quickenergy.rpc.RpcBridge;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMemberRpcCall;
-import pansong291.xposed.quickenergy.ui.MainActivity;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtils;
@@ -96,12 +97,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         if ("pansong291.xposed.quickenergy.repair".equals(lpparam.packageName)) {
-            XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "setModuleActive", boolean.class, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) {
-                    param.args[0] = true;
-                }
-            });
+            try {
+                XposedHelpers.callStaticMethod(lpparam.classLoader.loadClass(ViewAppInfo.class.getName()), "setModelTypeByCode", ModelType.MODEL.getCode());
+            } catch (ClassNotFoundException e) {
+                Log.printStackTrace(e);
+            }
         } else if (ClassUtil.PACKAGE_NAME.equals(lpparam.packageName) && ClassUtil.PACKAGE_NAME.equals(lpparam.processName)) {
             if (hooked) {
                 return;
@@ -591,7 +591,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             context.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.reLogin"));
         } catch (Throwable th) {
-            Log.i(TAG, "reLoginByBroadcast err:");
+            Log.i(TAG, "sendBroadcast reLogin err:");
             Log.printStackTrace(TAG, th);
         }
     }
@@ -600,7 +600,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             context.sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.restart"));
         } catch (Throwable th) {
-            Log.i(TAG, "restartByBroadcast err:");
+            Log.i(TAG, "sendBroadcast restart err:");
             Log.printStackTrace(TAG, th);
         }
     }
@@ -656,14 +656,26 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.i("broadcast action:" + action + " intent:" + intent);
-            if ("com.eg.android.AlipayGphone.xqe.restart".equals(action)) {
-                startHandler(true);
-            } else if ("com.eg.android.AlipayGphone.xqe.execute".equals(action)) {
-                startHandler(false);
-            } else if ("com.eg.android.AlipayGphone.xqe.reLogin".equals(action)) {
-                reLogin();
-            } else if ("com.eg.android.AlipayGphone.xqe.test".equals(action)) {
-                Log.record("收到测试消息");
+            if (action != null) {
+                switch (action) {
+                    case "com.eg.android.AlipayGphone.xqe.restart":
+                        startHandler(true);
+                        break;
+                    case "com.eg.android.AlipayGphone.xqe.execute":
+                        startHandler(false);
+                        break;
+                    case "com.eg.android.AlipayGphone.xqe.reLogin":
+                        reLogin();
+                        break;
+                    case "com.eg.android.AlipayGphone.xqe.status":
+                        try {
+                            context.sendBroadcast(new Intent("pansong291.xposed.quickenergy.status"));
+                        } catch (Throwable th) {
+                            Log.i(TAG, "sendBroadcast xqe status err:");
+                            Log.printStackTrace(TAG, th);
+                        }
+                        break;
+                }
             }
         }
     }
@@ -675,8 +687,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.restart");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.execute");
             intentFilter.addAction("com.eg.android.AlipayGphone.xqe.reLogin");
-            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.test");
-            context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter);
+            intentFilter.addAction("com.eg.android.AlipayGphone.xqe.status");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter, Context.RECEIVER_EXPORTED);
+            } else {
+                context.registerReceiver(new AlipayBroadcastReceiver(), intentFilter);
+            }
             Log.i(TAG, "hook registerBroadcastReceiver successfully");
         } catch (Throwable th) {
             Log.i(TAG, "hook registerBroadcastReceiver err:");

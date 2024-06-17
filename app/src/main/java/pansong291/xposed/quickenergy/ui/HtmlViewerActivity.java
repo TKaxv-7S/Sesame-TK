@@ -17,6 +17,7 @@ import android.widget.Toast;
 import java.io.File;
 
 import pansong291.xposed.quickenergy.R;
+import pansong291.xposed.quickenergy.data.ViewAppInfo;
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.LanguageUtil;
 
@@ -43,7 +44,7 @@ public class HtmlViewerActivity extends Activity {
                             setTitle("Loading...");
                             pgb.setVisibility(View.VISIBLE);
                         } else {
-                            setTitle(mWebView.getTitle() + MainActivity.version);
+                            setTitle(mWebView.getTitle() + ViewAppInfo.getAppVersion());
                             pgb.setVisibility(View.GONE);
                         }
                     }

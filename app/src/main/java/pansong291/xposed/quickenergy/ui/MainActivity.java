@@ -3,14 +3,14 @@ package pansong291.xposed.quickenergy.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -20,11 +20,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ConfigV2;
+import pansong291.xposed.quickenergy.data.ModelType;
+import pansong291.xposed.quickenergy.data.ViewAppInfo;
 import pansong291.xposed.quickenergy.entity.FriendWatch;
 import pansong291.xposed.quickenergy.util.FileUtils;
 import pansong291.xposed.quickenergy.util.Log;
@@ -33,78 +34,57 @@ import pansong291.xposed.quickenergy.util.Statistics;
 
 public class MainActivity extends Activity {
 
-    public static String version = "";
-
     private final Handler handler = new Handler();
 
     private boolean hasPermissions = false;
 
     private boolean isBackground = false;
 
+    private boolean isClick = false;
+
     private TextView tvStatistics;
 
-    private static boolean isExpModuleActive(Context context) {
-        boolean isExp = false;
-        if (context == null)
-            throw new IllegalArgumentException("context must not be null!!");
+    private Handler viewHandler;
 
-        try {
-            ContentResolver contentResolver = context.getContentResolver();
-            Uri uri = Uri.parse("content://me.weishu.exposed.CP/");
-            Bundle result = null;
-            try {
-                result = contentResolver.call(uri, "active", null, null);
-            } catch (RuntimeException e) {
-                // TaiChi is killed, try invoke
-                try {
-                    Intent intent = new Intent("me.weishu.exp.ACTION_ACTIVE");
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                } catch (Throwable e1) {
-                    return false;
-                }
-            }
-            if (result == null)
-                result = contentResolver.call(uri, "active", null, null);
+    private Runnable titleRunner;
 
-            if (result == null)
-                return false;
-            isExp = result.getBoolean("active", false);
-        } catch (Throwable ignored) {
-        }
-        return isExp;
-    }
-
-    /**
-     * 判断当前应用是否是debug状态
-     */
-    public static boolean isApkInDebug(Context context) {
-        try {
-            ApplicationInfo info = context.getApplicationInfo();
-            return (info.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         tvStatistics = findViewById(R.id.tv_statistics);
-//        Button btnGithub = findViewById(R.id.btn_github);
-//        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
-//        int height = metrics.heightPixels;
-
-        try {
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            version = " v" + packageInfo.versionName;
-        } catch (PackageManager.NameNotFoundException ignored) {
+        ViewAppInfo.init(getApplicationContext());
+        ModelType modelType = ViewAppInfo.getModelType();
+        if (modelType == null) {
+            modelType = ModelType.DISABLE;
         }
-        this.setTitle(this.getTitle() + version);
-
-        setModuleActive(isExpModuleActive(this));
+        viewHandler = new Handler();
+        titleRunner = () -> updateTitle(ModelType.DISABLE);
+        updateTitle(modelType);
+        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                ModelType modelType = ViewAppInfo.getModelType();
+                if (modelType == null) {
+                    updateTitle(ModelType.PACKAGE);
+                }
+                viewHandler.removeCallbacks(titleRunner);
+                if (isClick) {
+                    Toast toast = Toast.makeText(context, "芝麻粒加载状态正常", Toast.LENGTH_SHORT);
+                    toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
+                    toast.show();
+                    isClick = false;
+                }
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("pansong291.xposed.quickenergy.status");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(broadcastReceiver, intentFilter);
+        }
         new AlertDialog.Builder(this)
                 .setTitle("提示")
                 .setMessage("本APP是为了学习研究开发，免费提供，不得进行任何形式的转发、发布、传播。请于24小时内卸载本APP。如果您是购买的可能已经被骗，请联系卖家退款。")
@@ -143,10 +123,21 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        ModelType modelType = ViewAppInfo.getModelType();
+        if (modelType == null || ModelType.DISABLE == modelType) {
+            viewHandler.postDelayed(titleRunner, 3000);
+            try {
+                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));
+            } catch (Throwable th) {
+                Log.i("xqe sendBroadcast status err:");
+                Log.printStackTrace(th);
+            }
+        }
         if (Statistics.resetToday()) {
             try {
                 sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
             } catch (Throwable th) {
+                Log.i("xqe sendBroadcast execute err:");
                 Log.printStackTrace(th);
             }
         }
@@ -156,11 +147,12 @@ public class MainActivity extends Activity {
     @SuppressLint("NonConstantResourceId")
     public void onClick(View v) {
         if (v.getId() == R.id.btn_test) {
-            if (isApkInDebug(this)) {
-                Toast toast = Toast.makeText(this, "测试", Toast.LENGTH_SHORT);
-                toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
-                toast.show();
-                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.test"));
+            try {
+                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));
+                isClick = true;
+            } catch (Throwable th) {
+                Log.i("xqe sendBroadcast status err:");
+                Log.printStackTrace(th);
             }
             return;
         }
@@ -285,11 +277,8 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void setModuleActive(boolean b) {
-//        ImageView ivUnactivated = findViewById(R.id.iv_unactivated);
-//        ivUnactivated.setVisibility(b ? View.GONE : View.VISIBLE);
-
-        this.setTitle(this.getTitle() + (b ? "【已激活】" : "【未激活】"));
+    private void updateTitle(ModelType modelType) {
+        setTitle(ViewAppInfo.getAppTitle() + "【" + modelType.getName() + "】");
     }
 
 }
