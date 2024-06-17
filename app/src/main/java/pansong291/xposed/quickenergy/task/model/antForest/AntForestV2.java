@@ -72,6 +72,32 @@ public class AntForestV2 extends ModelTask {
 
     private final BaseTask timerTask = BaseTask.newInstance("bubbleTimerTask");
 
+    public static BooleanModelField collectEnergy;
+    public static BooleanModelField energyRain;
+    public static IntegerModelField advanceTime;
+    public static IdAndNameSelectModelField.UserAndNameSelectModelField dontCollectList;
+    public static BooleanModelField collectWateringBubble;
+    public static BooleanModelField batchRobEnergy;
+    public static BooleanModelField collectProp;
+    public static IntegerModelField collectInterval;
+    public static BooleanModelField doubleCard;
+    public static StringModelField doubleCardTime;
+    public static IntegerModelField doubleCountLimit;
+    public static BooleanModelField helpFriendCollect;
+    public static IdAndNameSelectModelField.UserAndNameSelectModelField dontHelpCollectList;
+    public static IntegerModelField returnWater33;
+    public static IntegerModelField returnWater18;
+    public static IntegerModelField returnWater10;
+    public static BooleanModelField receiveForestTaskAward;
+    public static IdAndNameSelectModelField.UserAndNameSelectModelField waterFriendList;
+    public static IntegerModelField waterFriendCount;
+    public static IdAndNameSelectModelField.UserAndNameSelectModelField giveEnergyRainList;
+    public static BooleanModelField exchangeEnergyDoubleClick;
+    public static IntegerModelField exchangeEnergyDoubleClickCount;
+    public static IdAndNameSelectModelField.UserAndNameSelectOneModelField whoYouWantToGiveTo;
+
+    public static Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
+
     private final ThreadPoolExecutor collectEnergyThreadPoolExecutor = new ThreadPoolExecutor(
             0,
             20,
@@ -102,34 +128,6 @@ public class AntForestV2 extends ModelTask {
         return "森林";
     }
 
-    public static BooleanModelField collectEnergy;
-    public static BooleanModelField energyRain;
-    public static IntegerModelField advanceTime;
-    public static IdAndNameSelectModelField.UserAndNameSelectModelField dontCollectList;
-    public static BooleanModelField collectWateringBubble;
-    public static BooleanModelField batchRobEnergy;
-    public static BooleanModelField collectProp;
-    public static IntegerModelField collectInterval;
-    //public static IntegerModelField collectTimeout;
-    //public static BooleanModelField limitCollect;
-    public static BooleanModelField doubleCard;
-    public static StringModelField doubleCardTime;
-    public static IntegerModelField doubleCountLimit;
-    public static BooleanModelField helpFriendCollect;
-    public static IdAndNameSelectModelField.UserAndNameSelectModelField dontHelpCollectList;
-    public static IntegerModelField returnWater33;
-    public static IntegerModelField returnWater18;
-    public static IntegerModelField returnWater10;
-    public static BooleanModelField receiveForestTaskAward;
-    public static IdAndNameSelectModelField.UserAndNameSelectModelField waterFriendList;
-    public static IntegerModelField waterFriendCount;
-    public static IdAndNameSelectModelField.UserAndNameSelectModelField giveEnergyRainList;
-    public static BooleanModelField exchangeEnergyDoubleClick;
-    public static IntegerModelField exchangeEnergyDoubleClickCount;
-    public static IdAndNameSelectModelField.UserAndNameSelectOneModelField whoYouWantToGiveTo;
-
-    public static Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
-
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
@@ -141,8 +139,6 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收能量", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", true));
         modelFields.addField(collectInterval = new IntegerModelField("collectInterval", "收取间隔(毫秒)", 350));
-        //modelFields.addField(collectTimeout = new IntegerModelField("collectTimeout", "收取超时(秒)", 2_000));
-        //modelFields.addField(limitCollect = new BooleanModelField("limitCollect", "限制收取", true));
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "使用双击卡", true));
         modelFields.addField(doubleCardTime = new StringModelField("doubleCardTime", "使用双击卡时间", "0700-0730"));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡次数限制", 6));
@@ -176,15 +172,12 @@ public class AntForestV2 extends ModelTask {
         return true;
     }
 
-    /**
-     * Check energy ranking.
-     */
     public Runnable init() {
         return () -> {
             try {
+                Log.record("执行开始-蚂蚁森林");
                 selfId = UserIdMap.getCurrentUid();
                 dontCollectMap = dontCollectList.getValue().getKey();
-                Log.record("执行开始-蚂蚁森林");
                 isScanning = true;
 
                 if (!collectEnergy.getValue()) {
