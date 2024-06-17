@@ -1,8 +1,46 @@
 package pansong291.xposed.quickenergy.util;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
+
 public class StringUtil {
     public static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
+        return str == null || str.isEmpty();
+    }
+
+    public static String collectionJoinString(CharSequence conjunction, Collection<?> collection) {
+        if (!collection.isEmpty()) {
+            StringBuilder b = new StringBuilder();
+            Iterator<?> iterator = collection.iterator();
+            b.append(toStringOrEmpty(iterator.next()));
+            while (iterator.hasNext()) {
+                b.append(conjunction).append(toStringOrEmpty(iterator.next()));
+            }
+            return b.toString();
+        }
+        return "";
+    }
+
+    public static String arrayJoinString(CharSequence conjunction, Object... array) {
+        int length = array.length;
+        if (length > 0) {
+            StringBuilder b = new StringBuilder();
+            b.append(toStringOrEmpty(array[0]));
+            for (int i = 1; i < length; i++) {
+                b.append(conjunction).append(toStringOrEmpty(array[i]));
+            }
+            return b.toString();
+        }
+        return "";
+    }
+
+    public static String arrayToString(Object... array) {
+        return arrayJoinString(",", array);
+    }
+
+    private static String toStringOrEmpty(Object obj) {
+        return Objects.toString(obj, "");
     }
 
     public static String padLeft(int str, int totalWidth, char padChar) {

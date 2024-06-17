@@ -8,11 +8,11 @@ import lombok.Getter;
 @Getter
 public enum ModelType {
 
-    DISABLE(0, "关闭"),
+    DISABLE(0, "已关闭"),
 
-    MODEL(1, "模块"),
+    MODEL(1, "已激活"),
 
-    PACKAGE(2, "内置"),
+    PACKAGE(2, "已加载"),
 
     ;
 

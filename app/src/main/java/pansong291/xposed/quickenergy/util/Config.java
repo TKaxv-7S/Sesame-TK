@@ -285,9 +285,9 @@ public class Config {
         c.totalCertCount = false;
 
         c.enableFarm = true;
-        c.rewardFriend = true;
+        c.rewardFriend = false;
         c.sendBackAnimal = true;
-        c.sendType = SendType.HIT;
+        c.sendType = SendType.NORMAL;
         if (c.dontSendFriendList == null)
             c.dontSendFriendList = new ArrayList<>();
         c.recallAnimalType = RecallAnimalType.ALWAYS;

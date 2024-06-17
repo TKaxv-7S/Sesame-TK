@@ -26,7 +26,7 @@ public final class ViewAppInfo {
 
     @Setter
     @Getter
-    private static ModelType modelType = null;
+    private static ModelType modelType = ModelType.DISABLE;
 
     public static void init(Context context) {
         ViewAppInfo.context = context;
@@ -80,7 +80,11 @@ public final class ViewAppInfo {
     }
 
     public static void setModelTypeByCode(Integer modelTypeCode) {
-        ViewAppInfo.modelType = ModelType.getByCode(modelTypeCode);
+        ModelType newModelType = ModelType.getByCode(modelTypeCode);
+        if (newModelType == null) {
+            newModelType = ModelType.DISABLE;
+        }
+        ViewAppInfo.modelType = newModelType;
     }
 
     /**

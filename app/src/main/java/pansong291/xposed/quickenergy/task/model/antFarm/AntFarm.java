@@ -111,11 +111,13 @@ public class AntFarm extends ModelTask {
 
                 listFarmTool();
 
-                if (Config.INSTANCE.isRewardFriend())
+                if (Config.INSTANCE.isRewardFriend()) {
                     rewardFriend();
+                }
 
-                if (Config.INSTANCE.isSendBackAnimal())
+                if (Config.INSTANCE.isSendBackAnimal()) {
                     sendBackAnimal();
+                }
 
                 if (!AnimalInteractStatus.HOME.name().equals(ownerAnimal.animalInteractStatus)) {
                     if ("ORCHARD".equals(ownerAnimal.locationType)) {

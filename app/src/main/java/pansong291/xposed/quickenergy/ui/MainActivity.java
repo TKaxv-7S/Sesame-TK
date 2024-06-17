@@ -55,18 +55,13 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
         ViewAppInfo.init(getApplicationContext());
-        ModelType modelType = ViewAppInfo.getModelType();
-        if (modelType == null) {
-            modelType = ModelType.DISABLE;
-        }
+        updateTitle(ViewAppInfo.getModelType());
         viewHandler = new Handler();
         titleRunner = () -> updateTitle(ModelType.DISABLE);
-        updateTitle(modelType);
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                ModelType modelType = ViewAppInfo.getModelType();
-                if (modelType == null) {
+                if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
                     updateTitle(ModelType.PACKAGE);
                 }
                 viewHandler.removeCallbacks(titleRunner);
@@ -123,8 +118,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ModelType modelType = ViewAppInfo.getModelType();
-        if (modelType == null || ModelType.DISABLE == modelType) {
+        if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
             viewHandler.postDelayed(titleRunner, 3000);
             try {
                 sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));

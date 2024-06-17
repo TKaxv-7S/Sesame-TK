@@ -68,17 +68,17 @@ public class AntForestRpcCall {
         return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", args1);
     }
 
-    public static String collectEnergy(String bizType, String userId, long bubbleId) {
+    public static String collectEnergy(String bizType, String userId, Long bubbleId) {
         return ApplicationHook.requestString(getCollectEnergyRpcEntity(bizType, userId, bubbleId));
     }
 
-    public static RpcEntity getCollectBatchEnergyRpcEntity(String userId, List<String> bubbleId) {
-        return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", "[{\"bizType\":\"\",\"bubbleIds\":[" + String.join(",", bubbleId)
+    public static RpcEntity getCollectBatchEnergyRpcEntity(String userId, List<Long> bubbleIdList) {
+        return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", "[{\"bizType\":\"\",\"bubbleIds\":[" + StringUtil.collectionJoinString(",", bubbleIdList)
                 + "],\"fromAct\":\"BATCH_ROB_ENERGY\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\"" + userId + "\",\"version\":\""
                 + VERSION + "\"}]");
     }
 
-    public static String collectBatchEnergy(String userId, List<String> bubbleId) {
+    public static String collectBatchEnergy(String userId, List<Long> bubbleId) {
         return ApplicationHook.requestString(getCollectBatchEnergyRpcEntity(userId, bubbleId));
     }
 

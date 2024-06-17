@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -367,17 +368,13 @@ public class AntForestV2 extends ModelTask {
 
             String bizNo = userHomeObject.getString("bizNo");
             JSONArray jaBubbles = userHomeObject.getJSONArray("bubbles");
-            List<String> batchIdList = new ArrayList<>();
+            List<Long> bubbleIdList = new ArrayList<>();
             for (int i = 0; i < jaBubbles.length(); i++) {
                 JSONObject bubble = jaBubbles.getJSONObject(i);
                 long bubbleId = bubble.getLong("id");
                 switch (CollectStatus.valueOf(bubble.getString("collectStatus"))) {
                     case AVAILABLE:
-                        if (batchRobEnergy.getValue() && jaBubbles.length() < 7) {
-                            batchIdList.add(String.valueOf(bubbleId));
-                        } else {
-                            collectUserEnergy(userId, bubbleId, bizNo);
-                        }
+                        bubbleIdList.add(bubbleId);
                         break;
                     case WAITING:
                         long produceTime = bubble.getLong("produceTime");
@@ -394,8 +391,26 @@ public class AntForestV2 extends ModelTask {
                 }
             }
             if (batchRobEnergy.getValue()) {
-                if (!batchIdList.isEmpty()) {
-                    collectUserBatchEnergy(userId, batchIdList);
+                Iterator<Long> iterator = bubbleIdList.iterator();
+                List<Long> batchBubbleIdList = new ArrayList<>();
+                while (iterator.hasNext()) {
+                    batchBubbleIdList.add(iterator.next());
+                    if (batchBubbleIdList.size() >= 6) {
+                        collectUserBatchEnergy(userId, batchBubbleIdList);
+                        batchBubbleIdList = new ArrayList<>();
+                    }
+                }
+                int size = batchBubbleIdList.size();
+                if (size > 0) {
+                    if (size == 1) {
+                        collectUserEnergy(userId, batchBubbleIdList.get(0), bizNo);
+                    } else {
+                        collectUserBatchEnergy(userId, batchBubbleIdList);
+                    }
+                }
+            } else {
+                for (Long bubbleId : bubbleIdList) {
+                    collectUserEnergy(userId, bubbleId, bizNo);
                 }
             }
 
@@ -663,7 +678,7 @@ public class AntForestV2 extends ModelTask {
         });
     }
 
-    private void collectUserBatchEnergy(String userId, final List<String> bubbleId) {
+    private void collectUserBatchEnergy(String userId, final List<Long> bubbleIdList) {
         collectEnergyThreadPoolExecutor.execute(() -> {
             synchronized (collectEnergyLockObj) {
                 try {
@@ -672,9 +687,9 @@ public class AntForestV2 extends ModelTask {
                         useDoubleCard();
                     }
                     RpcEntity rpcEntity;
-                    List<String> bubbleList = bubbleId;
+                    List<Long> doBubbleIdList = bubbleIdList;
                     do {
-                        rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, bubbleList);
+                        rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIdList);
                         ApplicationHook.requestObject(rpcEntity);
                         if (rpcEntity.getHasError()) {
                             break;
@@ -687,11 +702,11 @@ public class AntForestV2 extends ModelTask {
                             return;
                         }
                         JSONArray jaBubbles = jo.getJSONArray("bubbles");
-                        List<String> newBubbleId = new ArrayList<>();
+                        List<Long> newBubbleIdList = new ArrayList<>();
                         for (int i = 0; i < jaBubbles.length(); i++) {
                             JSONObject bubble = jaBubbles.getJSONObject(i);
                             if (bubble.getBoolean("canBeRobbedAgain")) {
-                                newBubbleId.add(String.valueOf(bubble.getLong("id")));
+                                newBubbleIdList.add(bubble.getLong("id"));
                             }
                             collected += bubble.getInt("collectedEnergy");
                         }
@@ -703,10 +718,10 @@ public class AntForestV2 extends ModelTask {
                             totalCollected += collected;
                             Statistics.addData(Statistics.DataType.COLLECTED, collected);
                         } else {
-                            Log.record("一键收取[" + UserIdMap.getNameById(userId) + "]的能量失败" + " " + "，UserID：" + userId + "，BubbleId：" + newBubbleId);
+                            Log.record("一键收取[" + UserIdMap.getNameById(userId) + "]的能量失败" + " " + "，UserID：" + userId + "，BubbleId：" + newBubbleIdList);
                         }
-                        if (!newBubbleId.isEmpty()) {
-                            bubbleList = newBubbleId;
+                        if (!newBubbleIdList.isEmpty()) {
+                            doBubbleIdList = newBubbleIdList;
                             isDouble = true;
                             continue;
                         }
@@ -1785,7 +1800,6 @@ public class AntForestV2 extends ModelTask {
                     jo = animalProps.getJSONObject(i);
                     JSONObject animal = jo.getJSONObject("animal");
                     int id = animal.getInt("id");
-                    String name = animal.getString("name");
                     if (canConsumeProp && Config.INSTANCE.isAnimalConsumeProp()) {
                         JSONObject main = jo.optJSONObject("main");
                         if (main != null && main.optInt("holdsNum", 0) > 0) {
