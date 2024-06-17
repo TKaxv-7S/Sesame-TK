@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,7 @@ import pansong291.xposed.quickenergy.util.JsonUtil;
 
 public class IdAndNameSelectModelField extends ModelField {
 
-    private static final TypeReference<KVNode<Map<String, Integer>, Boolean>> typeReference = new TypeReference<KVNode<Map<String, Integer>, Boolean>>() {
+    private static final TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>> typeReference = new TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>>() {
     };
 
     public IdAndNameSelectModelField() {

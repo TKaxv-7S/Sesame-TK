@@ -18,8 +18,10 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -443,6 +445,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     reLogin();
                                     return;
                                 }
+                            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                                Log.i(TAG, "check timeout");
+                                mainHandler.postDelayed(this, config.getCheckInterval());
+                                return;
                             } catch (Exception e) {
                                 Log.i(TAG, "check err:");
                                 Log.printStackTrace(TAG, e);

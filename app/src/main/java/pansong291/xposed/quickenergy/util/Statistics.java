@@ -9,6 +9,7 @@ import java.util.Set;
 
 import lombok.Data;
 import pansong291.xposed.quickenergy.task.model.antCooperate.AntCooperate;
+import pansong291.xposed.quickenergy.task.model.antForest.AntForestV2;
 
 @Data
 public class Statistics {
@@ -568,7 +569,7 @@ public class Statistics {
         Statistics stat = INSTANCE;
         if (stat.exchangeDoubleCard < stat.day.time) {
             return true;
-        } else return stat.exchangeTimes < Config.INSTANCE.getExchangeEnergyDoubleClickCount();
+        } else return stat.exchangeTimes < AntForestV2.exchangeEnergyDoubleClickCount.getValue();
     }
 
     public static void exchangeDoubleCardToday(boolean isSuccess) {
@@ -579,7 +580,7 @@ public class Statistics {
         if (isSuccess) {
             stat.exchangeTimes += 1;
         } else {
-            stat.exchangeTimes = Config.INSTANCE.getExchangeEnergyDoubleClickCount();
+            stat.exchangeTimes = AntForestV2.exchangeEnergyDoubleClickCount.getValue();
         }
         save();
     }

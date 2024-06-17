@@ -32,7 +32,7 @@ public abstract class BaseTask {
 
     public abstract Runnable init();
 
-    public void destroy() {
+    public synchronized void destroy() {
 
     }
 
@@ -119,6 +119,7 @@ public abstract class BaseTask {
             }
         }
         thread = null;
+        childTaskMap.clear();
     }
 
     public static BaseTask newInstance() {

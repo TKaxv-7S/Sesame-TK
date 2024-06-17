@@ -58,8 +58,6 @@ public class AntForestV2 extends ModelTask {
 
     private String selfId;
 
-    private BaseTask timerTask;
-
     private final AtomicLong offsetTime = new AtomicLong(-1);
 
     private volatile boolean isScanning = false;
@@ -71,6 +69,8 @@ public class AntForestV2 extends ModelTask {
     private final Object collectEnergyLockObj = new Object();
 
     private final Object doubleCardLockObj = new Object();
+
+    private final BaseTask timerTask = BaseTask.newInstance("bubbleTimerTask");
 
     private final ThreadPoolExecutor collectEnergyThreadPoolExecutor = new ThreadPoolExecutor(
             0,
@@ -183,11 +183,6 @@ public class AntForestV2 extends ModelTask {
         return () -> {
             try {
                 selfId = UserIdMap.getCurrentUid();
-                timerTask = getChildTask("bubbleTimerTask");
-                if (timerTask == null) {
-                    timerTask = BaseTask.newInstance("bubbleTimerTask");
-                    addChildTask(timerTask);
-                }
                 dontCollectMap = dontCollectList.getValue().getKey();
                 Log.record("执行开始-蚂蚁森林");
                 isScanning = true;
@@ -310,6 +305,7 @@ public class AntForestV2 extends ModelTask {
 
     @Override
     public void destroy() {
+        timerTask.stopTask();
         ThreadUtil.shutdownAndAwaitTermination(collectEnergyThreadPoolExecutor, -1, TimeUnit.SECONDS);
     }
 
@@ -393,13 +389,11 @@ public class AntForestV2 extends ModelTask {
                     case WAITING:
                         long produceTime = bubble.getLong("produceTime");
                         if (ConfigV2.INSTANCE.getCheckInterval() > produceTime - serverTime) {
-                            if (timerTask != null) {
-                                String tid = AntForestV2.getTid(userId, bubbleId);
-                                if (timerTask.hasChildTask(tid)) {
-                                    break;
-                                }
-                                timerTask.addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
+                            String tid = AntForestV2.getTid(userId, bubbleId);
+                            if (timerTask.hasChildTask(tid)) {
+                                break;
                             }
+                            timerTask.addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
                         } else {
                             Log.i(TAG, "用户[" + UserIdMap.getNameById(userId) + "]能量成熟时间: " + produceTime);
                         }
@@ -624,7 +618,6 @@ public class AntForestV2 extends ModelTask {
                             Log.i("，UserID：" + userId + "，BubbleId：" + bubbleId);
                         }
                         if (jo.getBoolean("canBeRobbedAgain")) {
-                            collectUserEnergy(userId, bubbleId, null);
                             doBizNo = null;
                             isDouble = true;
                             continue;
@@ -2037,10 +2030,7 @@ public class AntForestV2 extends ModelTask {
                         Log.record("终止[" + UserIdMap.getNameById(userId) + "]蹲点收取, 任务ID[" + id + "]");
                         return;
                     }
-                    Integer countChildTask = 0;
-                    if (timerTask != null) {
-                        countChildTask = timerTask.countChildTask();
-                    }
+                    Integer countChildTask = timerTask.countChildTask();
                     Log.record("执行[" + UserIdMap.getNameById(userId) + "]蹲点收取, 剩[" + countChildTask + "]个任务, 任务ID[" + id + "]");
                     // 20230725收取失败不再继续尝试
                     //collectEnergy(userId, bubbleId, bizNo);
@@ -2050,10 +2040,8 @@ public class AntForestV2 extends ModelTask {
                     Log.i(TAG, "bubbleTimerTask err:");
                     Log.printStackTrace(TAG, t);
                 } finally {
-                    if (timerTask != null) {
-                        timerTask.removeChildTask(id);
-                        Log.i("删除[" + UserIdMap.getNameById(userId) + "]蹲点收取, 任务ID[" + id + "]");
-                    }
+                    timerTask.removeChildTask(id);
+                    Log.i("删除[" + UserIdMap.getNameById(userId) + "]蹲点收取, 任务ID[" + id + "]");
                 }
             };
         }

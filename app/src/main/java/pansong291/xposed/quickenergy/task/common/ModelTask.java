@@ -47,20 +47,41 @@ public abstract class ModelTask extends BaseTask {
         return readOnlyTaskList;
     }
 
-    public static void initAllModel() {
-        removeAllTask();
+    public static synchronized void initAllModel() {
+        destroyAllTask();
         List<Class<ModelTask>> taskClazzList = TaskOrder.getClazzList();
         for (int i = 0, len = taskClazzList.size(); i < len; i++) {
             Class<ModelTask> taskClazz = taskClazzList.get(i);
             try {
                 ModelTask task = taskClazz.newInstance();
                 ModelConfig modelConfig = new ModelConfig(task);
-                modelConfigMap.put(modelConfig.getCode(), modelConfig);
                 taskArray[i] = task;
                 taskMap.put(taskClazz, task);
+                modelConfigMap.put(modelConfig.getCode(), modelConfig);
             } catch (IllegalAccessException | InstantiationException e) {
                 Log.printStackTrace(e);
             }
+        }
+    }
+
+    public static synchronized void destroyAllTask() {
+        for (int i = 0, len = taskArray.length; i < len; i++) {
+            ModelTask task = taskArray[i];
+            if (task != null) {
+                try {
+                    task.stopTask();
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
+                try {
+                    task.destroy();
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
+                taskArray[i] = null;
+            }
+            taskMap.clear();
+            modelConfigMap.clear();
         }
     }
 
@@ -86,22 +107,6 @@ public abstract class ModelTask extends BaseTask {
         for (ModelTask task : taskArray) {
             if (task != null) {
                 task.stopTask();
-            }
-        }
-    }
-
-    public static synchronized void removeAllTask() {
-        for (int i = 0, len = taskArray.length; i < len; i++) {
-            ModelTask task = taskArray[i];
-            if (task != null) {
-                task.stopTask();
-                try {
-                    task.destroy();
-                } catch (Exception e) {
-                    Log.printStackTrace(e);
-                }
-                taskArray[i] = null;
-                taskMap.remove(task.getClass());
             }
         }
     }
