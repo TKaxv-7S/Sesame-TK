@@ -1515,8 +1515,9 @@ public class AntFarm extends ModelTask {
                             if (rightsTimes < rightsTimesLimit) {
                                 chouchouleDoFarmTask(taskId, title, rightsTimesLimit - rightsTimes);
                             }
-                            chouchouleReceiveFarmTaskAward(taskId);
-                            doubleCheck = true;
+                            if (chouchouleReceiveFarmTaskAward(taskId)) {
+                                doubleCheck = true;
+                            }
                         } else if ("TODO".equals(taskStatus)) {
                             chouchouleDoFarmTask(taskId, title, rightsTimesLimit - rightsTimes);
                             doubleCheck = true;
@@ -1571,17 +1572,17 @@ public class AntFarm extends ModelTask {
         }
     }
 
-    private static void chouchouleReceiveFarmTaskAward(String taskId) {
+    private static Boolean chouchouleReceiveFarmTaskAward(String taskId) {
         try {
             String s = AntFarmRpcCall.chouchouleReceiveFarmTaskAward(taskId);
             JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                // Log.other("庄园小鸡🧾️[完成:心愿金" + name + "]" + amount);
-            }
+            // Log.other("庄园小鸡🧾️[完成:心愿金" + name + "]" + amount);
+            return jo.optBoolean("success", false);
         } catch (Throwable t) {
             Log.i(TAG, "chouchouleReceiveFarmTaskAward err:");
             Log.printStackTrace(TAG, t);
         }
+        return false;
     }
 
     public interface SendType {

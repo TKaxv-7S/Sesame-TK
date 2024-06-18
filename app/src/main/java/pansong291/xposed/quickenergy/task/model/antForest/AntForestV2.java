@@ -57,9 +57,11 @@ public class AntForestV2 extends ModelTask {
     private static int totalCollected = 0;
     private static int totalHelpCollected = 0;
 
+    private final AtomicLong offsetTime = new AtomicLong(-1);
+
     private String selfId;
 
-    private final AtomicLong offsetTime = new AtomicLong(-1);
+    private Integer collectIntervalInt;
 
     private volatile long doubleEndTime = 0;
 
@@ -97,12 +99,12 @@ public class AntForestV2 extends ModelTask {
 
     private final ThreadPoolExecutor collectEnergyThreadPoolExecutor = new ThreadPoolExecutor(
             0,
-            20,
+            8,
             TimeUnit.SECONDS.toNanos(30)
             , TimeUnit.NANOSECONDS,
-            new ArrayBlockingQueue<>(10000),
+            new ArrayBlockingQueue<>(100000),
             Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.AbortPolicy()
+            new ThreadPoolExecutor.CallerRunsPolicy()
     );
 
     static {
@@ -171,6 +173,7 @@ public class AntForestV2 extends ModelTask {
                 Notification.setContentTextExec();
 
                 selfId = UserIdMap.getCurrentUid();
+                collectIntervalInt = Math.max(collectInterval.getValue(), 100);
                 dontCollectMap = dontCollectList.getValue().getKey();
                 if (!collectEnergy.getValue()) {
                     Log.record("不收取能量");
@@ -746,7 +749,7 @@ public class AntForestV2 extends ModelTask {
                     Log.printStackTrace(TAG, t);
                 } finally {
                     try {
-                        Thread.sleep(collectInterval.getValue());
+                        Thread.sleep(collectIntervalInt);
                     } catch (InterruptedException ignored) {
                     }
                 }
@@ -822,7 +825,7 @@ public class AntForestV2 extends ModelTask {
                     Log.printStackTrace(TAG, e);
                 } finally {
                     try {
-                        Thread.sleep(collectInterval.getValue());
+                        Thread.sleep(collectIntervalInt);
                     } catch (InterruptedException ignored) {
                     }
                 }
