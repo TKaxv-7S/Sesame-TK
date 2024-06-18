@@ -259,6 +259,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                                             execDelayedHandler(execAtTimeCalendar.getTimeInMillis() - lastExecTime);
                                                             FileUtil.clearLog();
                                                             return;
+                                                        } else if (execAtTimeCalendar.get(Calendar.HOUR_OF_DAY) == 0 && execAtTimeCalendar.get(Calendar.MINUTE) == 0 && execAtTimeCalendar.get(Calendar.SECOND) == 0) {
+                                                            execAtTimeCalendar.add(Calendar.DATE, 1);
+                                                            if (lastExecTimeCalendar.compareTo(execAtTimeCalendar) < 0 && nextExecTimeCalendar.compareTo(execAtTimeCalendar) > 0) {
+                                                                Log.record("下次检测为0点整执行:" + execAtTime);
+                                                                execDelayedHandler(execAtTimeCalendar.getTimeInMillis() - lastExecTime);
+                                                                FileUtil.clearLog();
+                                                                return;
+                                                            }
                                                         }
                                                     }
                                                 }
