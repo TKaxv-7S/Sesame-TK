@@ -5,7 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 
 public class AntFarmRpcCall {
     private static final String VERSION = "1.8.2302070202.46";
@@ -195,13 +195,13 @@ public class AntFarmRpcCall {
 
     public static int RandomScore(String str) {
         if ("starGame".equals(str)) {
-            return RandomUtils.nextInt(300, 400);
+            return RandomUtil.nextInt(300, 400);
         } else if ("jumpGame".equals(str)) {
-            return RandomUtils.nextInt(250, 270) * 10;
+            return RandomUtil.nextInt(250, 270) * 10;
         } else if ("flyGame".equals(str)) {
-            return RandomUtils.nextInt(4000, 8000);
+            return RandomUtil.nextInt(4000, 8000);
         } else if ("hitGame".equals(str)) {
-            return RandomUtils.nextInt(80, 120);
+            return RandomUtil.nextInt(80, 120);
         } else {
             return 210;
         }

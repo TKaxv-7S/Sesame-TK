@@ -367,8 +367,8 @@ public class Config {
 
     public static Boolean isModify() {
         String json = null;
-        if (FileUtils.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigFile(UserIdMap.getCurrentUid()));
+        if (FileUtil.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtil.readFromFile(FileUtil.getConfigFile(UserIdMap.getCurrentUid()));
         }
         if (json != null) {
             String formatted = JsonUtil.toJsonString(INSTANCE);
@@ -385,15 +385,15 @@ public class Config {
         }
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system(TAG, "保存 config.json: " + json);
-        return FileUtils.write2File(json, FileUtils.getConfigFile());
+        return FileUtil.write2File(json, FileUtil.getConfigFile());
     }
 
     /* base */
     public static synchronized Config load() {
         Log.i(TAG, "load config");
         String json = null;
-        if (FileUtils.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigFile(UserIdMap.getCurrentUid()));
+        if (FileUtil.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtil.readFromFile(FileUtil.getConfigFile(UserIdMap.getCurrentUid()));
         }
         try {
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
@@ -411,7 +411,7 @@ public class Config {
         if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 config.json");
             Log.system(TAG, "重新格式化 config.json");
-            FileUtils.write2File(formatted, FileUtils.getConfigFile());
+            FileUtil.write2File(formatted, FileUtil.getConfigFile());
         }
         init = true;
         return INSTANCE;
@@ -452,7 +452,7 @@ public class Config {
         }
         tmpStepCount = Config.INSTANCE.getSyncStepCount();
         if (tmpStepCount > 0) {
-            tmpStepCount = RandomUtils.nextInt(tmpStepCount, tmpStepCount + 2000);
+            tmpStepCount = RandomUtil.nextInt(tmpStepCount, tmpStepCount + 2000);
             if (tmpStepCount > 100000) {
                 tmpStepCount = 100000;
             }

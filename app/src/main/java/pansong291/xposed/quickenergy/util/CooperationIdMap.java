@@ -46,7 +46,7 @@ public class CooperationIdMap {
                 sb.append(entry.getValue());
                 sb.append('\n');
             }
-            hasChanged = !FileUtils.write2File(sb.toString(), FileUtils.getCooperationIdMapFile());
+            hasChanged = !FileUtil.write2File(sb.toString(), FileUtil.getCooperationIdMapFile());
         }
     }
 
@@ -54,7 +54,7 @@ public class CooperationIdMap {
         if (idMap == null || shouldReload) {
             shouldReload = false;
             idMap = new TreeMap<>();
-            String str = FileUtils.readFromFile(FileUtils.getCooperationIdMapFile());
+            String str = FileUtil.readFromFile(FileUtil.getCooperationIdMapFile());
             if (str != null && str.length() > 0) {
                 try {
                     String[] idSet = str.split("\n");

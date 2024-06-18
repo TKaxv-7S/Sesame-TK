@@ -15,6 +15,7 @@ import android.os.PowerManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,10 +42,11 @@ import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMemberRpcCall;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
+import pansong291.xposed.quickenergy.util.TimeUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class ApplicationHook implements IXposedHookLoadPackage {
@@ -151,13 +153,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     UserIdMap.setCurrentUid(targetUid);
                                     if (currentUid != null) {
                                         Toast.show("芝麻粒切换用户");
-                                        startHandler(true);
+                                        initHandler(true);
                                         Log.i(TAG, "Activity changeUser");
                                         return;
                                     }
                                 }
                                 if (offline) {
-                                    startHandler(false);
+                                    execHandler();
                                     ((Activity) param.thisObject).finish();
                                     Log.i(TAG, "Activity reLogin");
                                 }
@@ -183,8 +185,98 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 context = appService.getApplicationContext();
                                 service = appService;
                                 mainHandler = new Handler();
+                                mainRunner = new Runnable() {
+
+                                    private volatile long lastExecTime = 0;
+
+                                    @Override
+                                    public void run() {
+                                        if (!init) {
+                                            return;
+                                        }
+                                        Log.record("开始执行");
+                                        try {
+                                            ConfigV2 config = ConfigV2.INSTANCE;
+                                            if (lastExecTime + 5000 > System.currentTimeMillis()) {
+                                                Log.record("执行间隔较短，跳过执行");
+                                                execDelayedHandler(config.getCheckInterval());
+                                                return;
+                                            }
+
+                                            String targetUid = getUserId();
+                                            if (targetUid == null) {
+                                                Log.record("用户为空，放弃执行");
+                                                return;
+                                            }
+                                            String currentUid = UserIdMap.getCurrentUid();
+                                            if (!targetUid.equals(currentUid)) {
+                                                if (currentUid != null) {
+                                                    reLogin();
+                                                    return;
+                                                }
+                                            }
+                                            UserIdMap.setCurrentUid(targetUid);
+                                            try {
+                                                Statistics.resetToday();
+                                            } catch (Exception e) {
+                                                Log.i(TAG, "statistics err:");
+                                                Log.printStackTrace(TAG, e);
+                                            }
+
+                                            try {
+                                                FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
+                                                Thread checkThread = new Thread(checkTask);
+                                                checkThread.start();
+                                                if (!checkTask.get(2, TimeUnit.SECONDS)) {
+                                                    reLogin();
+                                                    return;
+                                                }
+                                            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                                                Log.i(TAG, "check timeout");
+                                                execDelayedHandler(config.getCheckInterval());
+                                                return;
+                                            } catch (Exception e) {
+                                                Log.i(TAG, "check err:");
+                                                Log.printStackTrace(TAG, e);
+                                                execDelayedHandler(config.getCheckInterval());
+                                                return;
+                                            }
+                                            TaskCommon.update();
+                                            ModelTask.startAllTask(false);
+                                            lastExecTime = System.currentTimeMillis();
+                                            int checkInterval = config.getCheckInterval();
+
+                                            try {
+                                                List<String> execAtTimeList = config.getExecAtTimeList();
+                                                if (execAtTimeList != null) {
+                                                    long nextExecTime = lastExecTime + checkInterval;
+                                                    Calendar lastExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(lastExecTime);
+                                                    Calendar nextExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(nextExecTime);
+                                                    for (String execAtTime : execAtTimeList) {
+                                                        Calendar execAtTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(execAtTime);
+                                                        if (lastExecTimeCalendar.compareTo(execAtTimeCalendar) < 0 && nextExecTimeCalendar.compareTo(execAtTimeCalendar) > 0) {
+                                                            Log.record("下次检测为定时执行:" + execAtTime);
+                                                            execDelayedHandler(execAtTimeCalendar.getTimeInMillis() - lastExecTime);
+                                                            FileUtil.clearLog();
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            } catch (Exception e) {
+                                                Log.i(TAG, "execAtTime err:");
+                                                Log.printStackTrace(TAG, e);
+                                            }
+
+                                            execDelayedHandler(checkInterval);
+                                            FileUtil.clearLog();
+                                        } catch (Exception e) {
+                                            Log.record("执行异常:");
+                                            Log.printStackTrace(e);
+                                        }
+                                    }
+                                };
                                 registerBroadcastReceiver(appService);
-                                startHandler(true);
+                                initHandler(true);
                             }
                         });
                 Log.i(TAG, "hook service onCreate successfully");
@@ -201,7 +293,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             return;
                         }
                         Notification.setContentText("支付宝前台服务被销毁");
-                        stopHandler(true);
+                        destroyHandler(true);
                         Log.record("支付宝前台服务被销毁");
                         restartByBroadcast();
                     }
@@ -244,12 +336,30 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
+    private static void execHandler() {
+        if (context != null) {
+            mainHandler.removeCallbacks(mainRunner);
+            mainHandler.post(mainRunner);
+        }
+    }
+
+    private static void execDelayedHandler(long delayMillis) {
+        if (context != null) {
+            mainHandler.postDelayed(mainRunner, delayMillis);
+            try {
+                Notification.setNextExecTime(System.currentTimeMillis() + delayMillis);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
     @SuppressLint("WakelockTimeout")
-    private static void startHandler(Boolean force) {
+    private static void initHandler(Boolean force) {
         if (context == null) {
             return;
         }
-        stopHandler(force);
+        destroyHandler(force);
         try {
             if (!init || force) {
                 if (!PermissionUtil.checkAlarmPermissions()) {
@@ -407,73 +517,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }
                 }
                 Statistics.load();
-                mainRunner = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!init) {
-                            return;
-                        }
-                        Log.record("开始执行");
-                        try {
-                            ConfigV2 config = ConfigV2.INSTANCE;
-                            String targetUid = getUserId();
-                            if (targetUid == null) {
-                                Log.record("用户为空，放弃执行");
-                                return;
-                            }
-                            String currentUid = UserIdMap.getCurrentUid();
-                            if (!targetUid.equals(currentUid)) {
-                                if (currentUid != null) {
-                                    reLogin();
-                                    return;
-                                }
-                            }
-                            UserIdMap.setCurrentUid(targetUid);
-                            Notification.setContentTextExec();
-                            try {
-                                Statistics.resetToday();
-                            } catch (Exception e) {
-                                Log.i(TAG, "statistics err:");
-                                Log.printStackTrace(TAG, e);
-                            }
-
-                            try {
-                                FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
-                                Thread checkThread = new Thread(checkTask);
-                                checkThread.start();
-                                if (!checkTask.get(2, TimeUnit.SECONDS)) {
-                                    reLogin();
-                                    return;
-                                }
-                            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                                Log.i(TAG, "check timeout");
-                                mainHandler.postDelayed(this, config.getCheckInterval());
-                                return;
-                            } catch (Exception e) {
-                                Log.i(TAG, "check err:");
-                                Log.printStackTrace(TAG, e);
-                                mainHandler.postDelayed(this, config.getCheckInterval());
-                                return;
-                            }
-                            TaskCommon.update();
-                            ModelTask.startAllTask(false);
-                            int checkInterval = config.getCheckInterval();
-                            mainHandler.postDelayed(this, checkInterval);
-                            Notification.setNextScanTime(System.currentTimeMillis() + checkInterval);
-                            FileUtils.clearLog();
-                        } catch (Exception e) {
-                            Log.record("执行异常:");
-                            Log.printStackTrace(e);
-                        }
-                    }
-                };
+                Notification.start(service);
                 Log.record("加载完成");
                 Toast.show("芝麻粒加载成功");
                 init = true;
             }
             offline = false;
-            Notification.start(service);
-            mainHandler.post(mainRunner);
+            execHandler();
         } catch (Throwable th) {
             Log.i(TAG, "startHandler err:");
             Log.printStackTrace(TAG, th);
@@ -481,13 +531,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private static void stopHandler(Boolean force) {
+    private static void destroyHandler(Boolean force) {
         try {
-            if (mainHandler != null && mainRunner != null) {
-                mainHandler.removeCallbacks(mainRunner);
-                Notification.stop(service, false);
-            }
             if (force) {
+                if (context != null) {
+                    Notification.stop(service, false);
+                    mainHandler.removeCallbacks(mainRunner);
+                }
                 if (rpcResponseUnhook != null) {
                     rpcResponseUnhook.unhook();
                 }
@@ -661,13 +711,10 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             if (action != null) {
                 switch (action) {
                     case "com.eg.android.AlipayGphone.xqe.restart":
-                        startHandler(true);
+                        initHandler(true);
                         break;
                     case "com.eg.android.AlipayGphone.xqe.execute":
-                        if (mainHandler != null && mainRunner != null) {
-                            mainHandler.removeCallbacks(mainRunner);
-                            mainHandler.post(mainRunner);
-                        }
+                        initHandler(false);
                         break;
                     case "com.eg.android.AlipayGphone.xqe.reLogin":
                         reLogin();

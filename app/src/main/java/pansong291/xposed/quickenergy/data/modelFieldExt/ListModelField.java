@@ -26,6 +26,10 @@ public class ListModelField extends ModelField {
     public ListModelField() {
     }
 
+    public ListModelField(Object value) {
+        super(value);
+    }
+
     public ListModelField(String code, String name, List<String> value) {
         super(code, name, value);
     }
@@ -63,17 +67,22 @@ public class ListModelField extends ModelField {
         public ListJoinCommaToStringModelField() {
         }
 
+        public ListJoinCommaToStringModelField(Object value) {
+            super(value);
+        }
+
         public ListJoinCommaToStringModelField(String code, String name, List<String> value) {
             super(code, name, value);
         }
 
         @Override
-        public void setConfigValue(Object newValue) {
-            if (newValue == null) {
+        public void setConfigValue(String value) {
+            if (value == null) {
                 setValue(null);
+                return;
             }
             List<String> list = new ArrayList<>();
-            for (String str : newValue.toString().split(",")) {
+            for (String str : value.split(",")) {
                 if (!str.isEmpty()) {
                     list.add(str);
                 }

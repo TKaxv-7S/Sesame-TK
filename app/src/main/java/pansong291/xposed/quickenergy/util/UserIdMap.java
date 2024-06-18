@@ -72,7 +72,7 @@ public class UserIdMap {
                 sb.append(entry.getValue());
                 sb.append('\n');
             }
-            hasChanged = !FileUtils.write2File(sb.toString(), FileUtils.getFriendIdMapFile());
+            hasChanged = !FileUtil.write2File(sb.toString(), FileUtil.getFriendIdMapFile());
         }
     }
 
@@ -110,7 +110,7 @@ public class UserIdMap {
         if (idMap == null || shouldReload) {
             shouldReload = false;
             idMap = new ConcurrentHashMap<>();
-            String str = FileUtils.readFromFile(FileUtils.getFriendIdMapFile());
+            String str = FileUtil.readFromFile(FileUtil.getFriendIdMapFile());
             if (str != null && !str.isEmpty()) {
                 try {
                     String[] idSet = str.split("\n");

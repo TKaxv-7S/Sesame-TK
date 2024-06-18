@@ -18,6 +18,10 @@ public class IntegerModelField extends ModelField {
     public IntegerModelField() {
     }
 
+    public IntegerModelField(Object value) {
+        super(value);
+    }
+
     public IntegerModelField(String code, String name, Integer value) {
         super(code, name, value);
     }
@@ -33,16 +37,6 @@ public class IntegerModelField extends ModelField {
     @Override
     public Integer getValue() {
         return (Integer) value;
-    }
-
-    @Override
-    public Integer getConfigValue() {
-        return getValue();
-    }
-
-    @Override
-    public void setConfigValue(Object matchValue) {
-        setValue(matchValue);
     }
 
     @Override
@@ -70,14 +64,17 @@ public class IntegerModelField extends ModelField {
         }
 
         @Override
-        public void setConfigValue(Object newValue) {
-            setValue(newValue);
-            value = getValue() * 1_000;
+        public void setConfigValue(String value) {
+            if (value == null) {
+                setValue(null);
+                return;
+            }
+            setValue(Integer.parseInt(value) * 1_000);
         }
 
         @Override
-        public Integer getConfigValue() {
-            return getValue() / 1_000;
+        public String getConfigValue() {
+            return String.valueOf(getValue() / 1_000);
         }
     }
 
@@ -91,15 +88,16 @@ public class IntegerModelField extends ModelField {
         }
 
         @Override
-        public void setConfigValue(Object newValue) {
-            setValue(newValue);
-            Integer setNewValue = getValue();
-            if (setNewValue !=null) {
-                if (setNewValue < 0) {
-                    value = 0;
-                } else if (setNewValue > 100000) {
-                    value = 100000;
-                }
+        public void setConfigValue(String value) {
+            if (value == null) {
+                setValue(null);
+                return;
+            }
+            int setNewValue = Integer.parseInt(value);
+            if (setNewValue < 0) {
+                setValue(0);
+            } else if (setNewValue > 100000) {
+                setValue(100000);
             }
         }
 

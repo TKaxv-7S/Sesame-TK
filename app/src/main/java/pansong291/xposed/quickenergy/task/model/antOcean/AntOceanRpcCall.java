@@ -1,7 +1,7 @@
 package pansong291.xposed.quickenergy.task.model.antOcean;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 
 /**
  * @author Constanline
@@ -11,7 +11,7 @@ public class AntOceanRpcCall {
     private static final String VERSION = "20230901";
 
     private static String getUniqueId() {
-        return String.valueOf(System.currentTimeMillis()) + RandomUtils.nextLong();
+        return String.valueOf(System.currentTimeMillis()) + RandomUtil.nextLong();
     }
 
     public static String queryOceanStatus() {
@@ -47,7 +47,7 @@ public class AntOceanRpcCall {
     }
 
     public static String finishTask(String sceneCode, String taskType) {
-        String outBizNo = taskType + "_" + RandomUtils.nextDouble();
+        String outBizNo = taskType + "_" + RandomUtil.nextDouble();
         return ApplicationHook.requestString("com.alipay.antiep.finishTask",
                 "[{\"outBizNo\":\"" + outBizNo + "\",\"requestType\":\"RPC\",\"sceneCode\":\"" +
                         sceneCode + "\",\"source\":\"ANTFOCEAN\",\"taskType\":\"" + taskType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]");

@@ -1,12 +1,12 @@
 package pansong291.xposed.quickenergy.task.model.antMember;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 
 public class AntMemberRpcCall {
 
     private static String getUniqueId() {
-        return String.valueOf(System.currentTimeMillis()) + RandomUtils.nextLong();
+        return String.valueOf(System.currentTimeMillis()) + RandomUtil.nextLong();
     }
 
     public static Boolean check() {

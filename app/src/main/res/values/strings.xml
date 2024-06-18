@@ -13,6 +13,7 @@
     <string name="stay_awake">Stay awake</string>
     <string name="timeout_restart">Restart when timeout</string>
     <string name="forest_configuration">FOREST CONFIGURATION</string>
+    <string name="exec_at_time">Execute at time</string>
     <string name="collect_energy">Collect energy</string>
     <string name="check_interval_minutes">Execute interval (minutes)</string>
     <string name="thread_count">Thread count</string>

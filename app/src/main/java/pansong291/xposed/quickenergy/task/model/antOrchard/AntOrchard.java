@@ -6,14 +6,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
@@ -94,14 +93,14 @@ public class AntOrchard extends ModelTask {
     private static String getWua() {
         if (wuaList == null) {
             try {
-                String content = FileUtils.readFromFile(FileUtils.getWuaFile());
+                String content = FileUtil.readFromFile(FileUtil.getWuaFile());
                 wuaList = content.split("\n");
             } catch (Throwable ignored) {
                 wuaList = new String[0];
             }
         }
         if (wuaList.length > 0) {
-            return wuaList[RandomUtils.nextInt(0, wuaList.length - 1)];
+            return wuaList[RandomUtil.nextInt(0, wuaList.length - 1)];
         }
         return "null";
     }

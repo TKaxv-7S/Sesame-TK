@@ -25,6 +25,7 @@ import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.ViewAppInfo;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.ListModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
@@ -98,51 +99,52 @@ public class SettingsActivity extends Activity {
             // 提示需要重启 language_simplified_chinese_need_restart
             Toast.makeText(this, R.string.language_simplified_chinese_need_restart, Toast.LENGTH_SHORT).show();
         });
+        Button btn_execAtTimeList = findViewById(R.id.btn_execAtTimeList);
+        btn_execAtTimeList.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new ListModelField.ListJoinCommaToStringModelField(config.getExecAtTimeList()) {
+            @Override
+            public void setConfigValue(String value) {
+                super.setConfigValue(value);
+                config.setExecAtTimeList(getValue());
+            }
+
+        }));
         Button btn_toastOffsetY = findViewById(R.id.btn_toastOffsetY);
-        btn_toastOffsetY.setOnClickListener(v -> {
-            EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField() {
-                @Override
-                public void setValue(Object value) {
-                    super.setValue(value);
-                    config.setToastOffsetY(super.getValue());
-                }
+        btn_toastOffsetY.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getToastOffsetY()) {
+            @Override
+            public void setConfigValue(String value) {
+                super.setConfigValue(value);
+                config.setToastOffsetY(getValue());
+            }
 
-                @Override
-                public Integer getValue() {
-                    return config.getToastOffsetY();
-                }
-            });
-        });
+        }));
         Button btn_checkInterval = findViewById(R.id.btn_checkInterval);
-        btn_checkInterval.setOnClickListener(v -> {
-            EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField() {
-                @Override
-                public void setValue(Object value) {
-                    super.setValue(value);
-                    config.setCheckInterval(super.getValue() * 60_000);
-                }
+        btn_checkInterval.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getCheckInterval()) {
+            @Override
+            public void setConfigValue(String value) {
+                super.setConfigValue(value);
+                config.setCheckInterval(getValue() * 60_000);
+            }
 
-                @Override
-                public Integer getValue() {
-                    return config.getCheckInterval() / 60_000;
-                }
-            });
-        });
+            @Override
+            public String getConfigValue() {
+                setValue(getValue() / 60_000);
+                return super.getConfigValue();
+            }
+        }));
         Button btn_waitWhenException = findViewById(R.id.btn_waitWhenException);
-        btn_waitWhenException.setOnClickListener(v -> {
-            EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField() {
-                @Override
-                public void setValue(Object value) {
-                    super.setValue(value);
-                    config.setWaitWhenException(super.getValue() * 60 * 1000);
-                }
+        btn_waitWhenException.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getWaitWhenException()) {
+            @Override
+            public void setConfigValue(String value) {
+                super.setConfigValue(value);
+                config.setWaitWhenException(getValue() * 60_000);
+            }
 
-                @Override
-                public Integer getValue() {
-                    return config.getWaitWhenException() / 60 / 1000;
-                }
-            });
-        });
+            @Override
+            public String getConfigValue() {
+                setValue(getValue() / 60_000);
+                return super.getConfigValue();
+            }
+        }));
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
         for (Map.Entry<String, ModelConfig> configEntry : modelConfigMap.entrySet()) {

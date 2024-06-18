@@ -50,7 +50,7 @@ public class Log {
     };
 
     private static final Logger runtimeLogger = XLog.tag("RUNTIME").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("runtime"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -58,7 +58,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger recordLogger = XLog.tag("RECORD").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("record"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -66,7 +66,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger systemLogger = XLog.tag("SYSTEM").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("system"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -74,7 +74,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger debugLogger = XLog.tag("DEBUG").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("debug"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -82,7 +82,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger forestLogger = XLog.tag("FOREST").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("forest"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -90,7 +90,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger farmLogger = XLog.tag("FARM").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("farm"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -98,7 +98,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger otherLogger = XLog.tag("OTHER").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("other"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())
@@ -106,7 +106,7 @@ public class Log {
                     .build()).build();
 
     private static final Logger errorLogger = XLog.tag("ERROR").printers(
-            new FilePrinter.Builder(FileUtils.LOG_DIRECTORY_FILE.getPath())
+            new FilePrinter.Builder(FileUtil.LOG_DIRECTORY_FILE.getPath())
                     .fileNameGenerator(new CustomDateFileNameGenerator("error"))
                     .backupStrategy(new NeverBackupStrategy())
                     .cleanStrategy(new NeverCleanStrategy())

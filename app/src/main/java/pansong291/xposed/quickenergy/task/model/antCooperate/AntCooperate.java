@@ -3,7 +3,6 @@ package pansong291.xposed.quickenergy.task.model.antCooperate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import pansong291.xposed.quickenergy.data.ModelFields;
@@ -13,7 +12,7 @@ import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 
@@ -45,7 +44,7 @@ public class AntCooperate extends ModelTask {
             try {
                 String s = AntCooperateRpcCall.queryUserCooperatePlantList();
                 if (s == null) {
-                    Thread.sleep(RandomUtils.delay());
+                    Thread.sleep(RandomUtil.delay());
                     s = AntCooperateRpcCall.queryUserCooperatePlantList();
                 }
                 JSONObject jo = new JSONObject(s);

@@ -746,9 +746,9 @@ public class Statistics {
     public static synchronized Statistics load() {
         String json = null;
         try {
-            File statisticsFile = FileUtils.getStatisticsFile();
+            File statisticsFile = FileUtil.getStatisticsFile();
             if (statisticsFile.exists()) {
-                json = FileUtils.readFromFile(statisticsFile);
+                json = FileUtil.readFromFile(statisticsFile);
             }
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
         } catch (Throwable t) {
@@ -765,7 +765,7 @@ public class Statistics {
         if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 statistics.json");
             Log.system(TAG, "重新格式化 statistics.json");
-            FileUtils.write2File(formatted, FileUtils.getStatisticsFile());
+            FileUtil.write2File(formatted, FileUtil.getStatisticsFile());
         }
         return INSTANCE;
     }
@@ -773,7 +773,7 @@ public class Statistics {
     private static void save() {
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system(TAG, "保存 statistics.json");
-        FileUtils.write2File(json, FileUtils.getStatisticsFile());
+        FileUtil.write2File(json, FileUtil.getStatisticsFile());
     }
 
     public enum TimeType {

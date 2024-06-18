@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
@@ -74,14 +74,14 @@ public class FriendManager {
         }
         try {
             if (joFriendWatch == null) {
-                String strFriendWatch = FileUtils.readFromFile(FileUtils.getFriendWatchFile());
+                String strFriendWatch = FileUtil.readFromFile(FileUtil.getFriendWatchFile());
                 if (!"".equals(strFriendWatch)) {
                     joFriendWatch = new JSONObject(strFriendWatch);
                 } else {
                     joFriendWatch = new JSONObject();
                 }
             }
-            if (needUpdateAll(FileUtils.getFriendWatchFile().lastModified())) {
+            if (needUpdateAll(FileUtil.getFriendWatchFile().lastModified())) {
                 friendWatchNewWeek();
             }
             friendWatchSingle(id, collectedEnergy);
@@ -101,7 +101,7 @@ public class FriendManager {
             joFriendWatch.put(id, joSingle);
         }
         joSingle.put("weekGet", joSingle.optInt("weekGet", 0) + collectedEnergy);
-        FileUtils.write2File(joFriendWatch.toString(), FileUtils.getFriendWatchFile());
+        FileUtil.write2File(joFriendWatch.toString(), FileUtil.getFriendWatchFile());
     }
 
     private static void friendWatchNewWeek() {
@@ -123,7 +123,7 @@ public class FriendManager {
                 }
                 joFriendWatch.put(id, joSingle);
             }
-            FileUtils.write2File(joFriendWatch.toString(), FileUtils.getFriendWatchFile());
+            FileUtil.write2File(joFriendWatch.toString(), FileUtil.getFriendWatchFile());
         } catch (Throwable th) {
             Log.i(TAG, "friendWatchNewWeek err:");
             Log.printStackTrace(TAG, th);

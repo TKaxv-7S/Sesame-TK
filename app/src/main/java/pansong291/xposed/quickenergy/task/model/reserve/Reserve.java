@@ -3,15 +3,13 @@ package pansong291.xposed.quickenergy.task.model.reserve;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.ReserveIdMap;
 import pansong291.xposed.quickenergy.util.Statistics;
 
@@ -70,7 +68,7 @@ public class Reserve extends ModelTask {
         try {
             String s = ReserveRpcCall.queryTreeItemsForExchange();
             if (s == null) {
-                Thread.sleep(RandomUtils.delay());
+                Thread.sleep(RandomUtil.delay());
                 s = ReserveRpcCall.queryTreeItemsForExchange();
             }
             JSONObject jo = new JSONObject(s);
@@ -192,7 +190,7 @@ public class Reserve extends ModelTask {
         try {
             String s = ReserveRpcCall.queryCultivationList();
             if (s == null) {
-                Thread.sleep(RandomUtils.delay());
+                Thread.sleep(RandomUtil.delay());
                 s = ReserveRpcCall.queryCultivationList();
             }
             JSONObject jo = new JSONObject(s);

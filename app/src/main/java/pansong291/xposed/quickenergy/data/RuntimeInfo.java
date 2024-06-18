@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 
@@ -37,7 +37,7 @@ public class RuntimeInfo {
 
     private RuntimeInfo() {
         userId = UserIdMap.getCurrentUid();
-        String content = FileUtils.readFromFile(FileUtils.runtimeInfoFile());
+        String content = FileUtil.readFromFile(FileUtil.runtimeInfoFile());
         try {
             joAll = new JSONObject(content);
         } catch (Exception ignored) {
@@ -57,7 +57,7 @@ public class RuntimeInfo {
     }
 
     public void save() {
-        FileUtils.write2File(joAll.toString(), FileUtils.runtimeInfoFile());
+        FileUtil.write2File(joAll.toString(), FileUtil.runtimeInfoFile());
     }
 
     public Object get(RuntimeInfoKey key) throws JSONException {

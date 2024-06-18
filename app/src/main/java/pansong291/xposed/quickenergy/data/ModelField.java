@@ -38,6 +38,12 @@ public class ModelField implements Serializable {
         this.type = this.getClass().getName().replace(extPackage, "");
     }
 
+    public ModelField(Object value) {
+        this();
+        this.defaultValue = value;
+        setValue(value);
+    }
+
     public ModelField(String code, String name, Object value) {
         this();
         this.code = code;
@@ -47,12 +53,12 @@ public class ModelField implements Serializable {
     }
 
     @JsonIgnore
-    public Object getConfigValue() {
-        return getValue();
+    public String getConfigValue() {
+        return String.valueOf(getValue());
     }
 
-    public void setConfigValue(Object matchValue) {
-        setValue(matchValue);
+    public void setConfigValue(String value) {
+        setValue(value);
     }
 
     public View getView(Context context) {

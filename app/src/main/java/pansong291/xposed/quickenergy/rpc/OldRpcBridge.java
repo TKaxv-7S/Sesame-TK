@@ -14,7 +14,7 @@ import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.hook.Notification;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class OldRpcBridge implements RpcBridge {
@@ -120,7 +120,7 @@ public class OldRpcBridge implements RpcBridge {
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
                             try {
-                                Thread.sleep(600 + RandomUtils.delay());
+                                Thread.sleep(600 + RandomUtil.delay());
                             } catch (InterruptedException e) {
                                 Log.printStackTrace(e);
                             }
@@ -134,7 +134,7 @@ public class OldRpcBridge implements RpcBridge {
                                 Log.printStackTrace(e);
                             }
                             try {
-                                Thread.sleep(600 + RandomUtils.delay());
+                                Thread.sleep(600 + RandomUtil.delay());
                             } catch (InterruptedException e) {
                                 Log.printStackTrace(e);
                             }

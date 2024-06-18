@@ -2,7 +2,7 @@ package pansong291.xposed.quickenergy.util;
 
 import java.util.Random;
 
-public class RandomUtils {
+public class RandomUtil {
     private static final Random rnd = new Random();
 
     public static int delay() {

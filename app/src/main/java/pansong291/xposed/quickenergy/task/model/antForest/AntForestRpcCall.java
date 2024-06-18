@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class AntForestRpcCall {
@@ -29,7 +29,7 @@ public class AntForestRpcCall {
     );
 
     private static String getUniqueId() {
-        return String.valueOf(System.currentTimeMillis()) + RandomUtils.nextLong();
+        return String.valueOf(System.currentTimeMillis()) + RandomUtil.nextLong();
     }
 
     public static String fillUserRobFlag(String userIdList) {
@@ -139,7 +139,7 @@ public class AntForestRpcCall {
     }
 
     public static String finishTask(String sceneCode, String taskType) {
-        String outBizNo = taskType + "_" + RandomUtils.nextDouble();
+        String outBizNo = taskType + "_" + RandomUtil.nextDouble();
         return ApplicationHook.requestString("com.alipay.antiep.finishTask",
                 "[{\"outBizNo\":\"" + outBizNo + "\",\"requestType\":\"H5\",\"sceneCode\":\"" +
                         sceneCode + "\",\"source\":\"ANTFOREST\",\"taskType\":\"" + taskType + "\"}]");
@@ -203,7 +203,7 @@ public class AntForestRpcCall {
     public static String exchangeBenefit(String spuId, String skuId) {
         return ApplicationHook.requestString("com.alipay.antcommonweal.exchange.h5.exchangeBenefit",
                 "[{\"sceneCode\":\"ANTFOREST_VITALITY\",\"requestId\":\"" + System.currentTimeMillis()
-                        + "_" + RandomUtils.getRandom(17) + "\",\"spuId\":\"" +
+                        + "_" + RandomUtil.getRandom(17) + "\",\"spuId\":\"" +
                         spuId + "\",\"skuId\":\"" + skuId + "\",\"source\":\"GOOD_DETAIL\"}]");
     }
 

@@ -18,7 +18,7 @@ import java.io.File;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ViewAppInfo;
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.LanguageUtil;
 
 public class HtmlViewerActivity extends Activity {
@@ -72,7 +72,7 @@ public class HtmlViewerActivity extends Activity {
                 if (uri != null) {
                     String path = uri.getPath();
                     if (path != null) {
-                        File exportFile = FileUtils.exportFile(new File(path));
+                        File exportFile = FileUtil.exportFile(new File(path));
                         if (exportFile != null) {
                             Toast.makeText(this, "文件已导出到: " + exportFile.getPath(), Toast.LENGTH_SHORT).show();
                         }

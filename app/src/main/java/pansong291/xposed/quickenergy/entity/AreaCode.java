@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class AreaCode extends IdAndName {
@@ -21,7 +21,7 @@ public class AreaCode extends IdAndName {
 
     public static List<AreaCode> getList() {
         if (list == null) {
-            String cityCode = FileUtils.readFromFile(FileUtils.getCityCodeFile());
+            String cityCode = FileUtil.readFromFile(FileUtil.getCityCodeFile());
             JSONArray ja;
             try {
                 ja = new JSONArray(cityCode);

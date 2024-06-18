@@ -75,6 +75,19 @@
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/stay_awake" />
 
+                    <Button
+                        android:id="@+id/btn_execAtTimeList"
+                        android:textColor="#008175"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button"
+                        android:gravity="start|center_vertical"
+                        android:minHeight="50dp"
+                        android:paddingStart="@dimen/setting_item_padding"
+                        android:paddingEnd="@dimen/setting_item_padding"
+                        android:text="@string/exec_at_time"
+                        android:textAllCaps="false" />
+
                     <Switch
                         android:id="@+id/sw_startAt0"
                         android:layout_width="match_parent"

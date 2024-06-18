@@ -14,7 +14,7 @@ import java.text.DateFormat;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.util.Config;
+import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.TimeUtil;
 
 public class Notification {
@@ -26,9 +26,23 @@ public class Notification {
     private static boolean isStart = false;
 
     @Getter
-    private static long lastScanTime = 0;
+    private static final Runnable idleRunnable = () -> {
+        long lastNoticeTime = Notification.getLastNoticeTime();
+        if (System.currentTimeMillis() - lastNoticeTime > 60_000) {
+            if (ApplicationHook.isOffline() || RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System.currentTimeMillis()) {
+                return;
+            }
+            setContentText("空闲");
+        } else {
+            ApplicationHook.getMainHandler().postDelayed(Notification.getIdleRunnable(), 60_000);
+        }
+    };
 
-    private static long nextScanTime = 0;
+    @Getter
+    private static volatile long lastNoticeTime = 0;
+
+    private static volatile long nextExecTime = 0;
+
     private static CharSequence contentText = "";
 
     private Notification() {
@@ -94,15 +108,15 @@ public class Notification {
         }
     }
 
-    public static void setNextScanTime(long nextScanTime) {
-        Notification.nextScanTime = nextScanTime;
+    public static void setNextExecTime(long nextExecTime) {
+        Notification.nextExecTime = nextExecTime;
         if (isStart) {
             innerSetContentText();
         }
     }
 
     private static void innerSetContentText() {
-        String preContent = (nextScanTime > 0) ? "下次扫描时间" + TimeUtil.getTimeStr(nextScanTime) + "\n" : "";
+        String preContent = (nextExecTime > 0) ? "下次扫描时间" + TimeUtil.getTimeStr(nextExecTime) + "\n" : "";
         android.app.Notification.BigTextStyle style = new android.app.Notification.BigTextStyle();
         style.bigText(preContent + contentText);
 //        Notification.InboxStyle style = new Notification.InboxStyle();
@@ -111,8 +125,9 @@ public class Notification {
         builder.setStyle(style);
 
         mNotification = builder.build();
-        if (mNotifyManager != null)
+        if (mNotifyManager != null) {
             mNotifyManager.notify(NOTIFICATION_ID, mNotification);
+        }
     }
 
     public static void setContentText(CharSequence cs) {
@@ -122,13 +137,17 @@ public class Notification {
                 cs = "触发异常,等待至" + DateFormat.getDateTimeInstance().format(forestPauseTime);
             }
             contentText = cs;
-            lastScanTime = System.currentTimeMillis();
+            lastNoticeTime = System.currentTimeMillis();
             innerSetContentText();
         }
     }
 
     public static void setContentTextIdle() {
-        setContentText("空闲");
+        try {
+            idleRunnable.run();
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
     }
 
     public static void setContentTextExec() {

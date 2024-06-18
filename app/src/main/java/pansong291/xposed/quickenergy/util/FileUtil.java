@@ -16,8 +16,8 @@ import java.util.Map;
 
 import pansong291.xposed.quickenergy.hook.Toast;
 
-public class FileUtils {
-    private static final String TAG = FileUtils.class.getSimpleName();
+public class FileUtil {
+    private static final String TAG = FileUtil.class.getSimpleName();
 
     public static final File MAIN_DIRECTORY_FILE = getMainDirectoryFile();
     public static final File CONFIG_DIRECTORY_FILE = getConfigDirectoryFile();
@@ -264,7 +264,7 @@ public class FileUtils {
         if (exportFile.exists() && exportFile.isDirectory()) {
             exportFile.delete();
         }
-        if (FileUtils.copyTo(file, exportFile)) {
+        if (FileUtil.copyTo(file, exportFile)) {
             return exportFile;
         }
         return null;

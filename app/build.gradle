@@ -9,7 +9,7 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk 31
         versionCode 71
-        versionName "1.2.5-test14-TK"
+        versionName "1.2.5-test15-TK"
     }
     buildTypes {
         release {

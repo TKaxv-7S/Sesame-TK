@@ -3,15 +3,13 @@ package pansong291.xposed.quickenergy.task.model.antBookRead;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.StringUtil;
 
 public class AntBookRead extends ModelTask {
@@ -66,7 +64,7 @@ public class AntBookRead extends ModelTask {
                         JSONArray bookList = jo.getJSONObject("data").getJSONArray("dynamicCardList").getJSONObject(0)
                                 .getJSONObject("data").getJSONArray("bookList");
                         int bookListLength = bookList.length();
-                        int postion = RandomUtils.nextInt(0, bookListLength - 1);
+                        int postion = RandomUtil.nextInt(0, bookListLength - 1);
                         JSONObject book = bookList.getJSONObject(postion);
                         String bookId = book.getString("bookId");
                         jo = new JSONObject(AntBookReadRpcCall.queryReaderContent(bookId));

@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
@@ -42,7 +42,7 @@ public class FriendWatch extends IdAndName {
 
     public static List<FriendWatch> getList() {
         ArrayList<FriendWatch> list = new ArrayList<>();
-        String strFriendWatch = FileUtils.readFromFile(FileUtils.getFriendWatchFile());
+        String strFriendWatch = FileUtil.readFromFile(FileUtil.getFriendWatchFile());
         try {
             JSONObject joFriendWatch;
             if (StringUtil.isEmpty(strFriendWatch)) {
@@ -69,7 +69,7 @@ public class FriendWatch extends IdAndName {
             Log.i(TAG, "FriendWatch getList: ");
             Log.printStackTrace(TAG, t);
             try {
-                FileUtils.write2File(new JSONObject().toString(), FileUtils.getFriendWatchFile());
+                FileUtil.write2File(new JSONObject().toString(), FileUtil.getFriendWatchFile());
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }

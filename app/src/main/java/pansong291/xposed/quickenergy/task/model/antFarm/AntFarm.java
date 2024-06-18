@@ -8,14 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.modelFieldExt.ChoiceModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.StringUtil;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -1234,7 +1233,7 @@ public class AntFarm extends ModelTask {
                         } else {
                             Log.i(TAG, jo.toString());
                         }
-                        Thread.sleep(RandomUtils.delay());
+                        Thread.sleep(RandomUtil.delay());
                     }
                 }
             } else {

@@ -27,7 +27,7 @@ import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.ModelType;
 import pansong291.xposed.quickenergy.data.ViewAppInfo;
 import pansong291.xposed.quickenergy.entity.FriendWatch;
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
@@ -172,15 +172,15 @@ public class MainActivity extends Activity {
         String data = "file://";
         switch (v.getId()) {
             case R.id.btn_forest_log:
-                data += FileUtils.getForestLogFile().getAbsolutePath();
+                data += FileUtil.getForestLogFile().getAbsolutePath();
                 break;
 
             case R.id.btn_farm_log:
-                data += FileUtils.getFarmLogFile().getAbsolutePath();
+                data += FileUtil.getFarmLogFile().getAbsolutePath();
                 break;
 
             case R.id.btn_all_log:
-                data += FileUtils.getRecordLogFile().getAbsolutePath();
+                data += FileUtil.getRecordLogFile().getAbsolutePath();
                 break;
 
             case R.id.btn_github:
@@ -240,35 +240,35 @@ public class MainActivity extends Activity {
 
             case 2:
                 String errorData = "file://";
-                errorData += FileUtils.getErrorLogFile().getAbsolutePath();
+                errorData += FileUtil.getErrorLogFile().getAbsolutePath();
                 Intent errorIt = new Intent(this, HtmlViewerActivity.class);
                 errorIt.setData(Uri.parse(errorData));
                 startActivity(errorIt);
                 break;
 
             case 3:
-                File errorLogFile = FileUtils.exportFile(FileUtils.getErrorLogFile());
+                File errorLogFile = FileUtil.exportFile(FileUtil.getErrorLogFile());
                 if (errorLogFile != null) {
                     Toast.makeText(this, "文件已导出到: " + errorLogFile.getPath(), Toast.LENGTH_SHORT).show();
                 }
                 break;
 
             case 4:
-                File allLogFile = FileUtils.exportFile(FileUtils.getRuntimeLogFile());
+                File allLogFile = FileUtil.exportFile(FileUtil.getRuntimeLogFile());
                 if (allLogFile != null) {
                     Toast.makeText(this, "文件已导出到: " + allLogFile.getPath(), Toast.LENGTH_SHORT).show();
                 }
                 break;
 
             case 5:
-                File statisticsFile = FileUtils.exportFile(FileUtils.getStatisticsFile());
+                File statisticsFile = FileUtil.exportFile(FileUtil.getStatisticsFile());
                 if (statisticsFile != null) {
                     Toast.makeText(this, "文件已导出到: " + statisticsFile.getPath(), Toast.LENGTH_SHORT).show();
                 }
                 break;
 
             case 6:
-                if (FileUtils.copyTo(FileUtils.getExportedStatisticsFile(), FileUtils.getStatisticsFile())) {
+                if (FileUtil.copyTo(FileUtil.getExportedStatisticsFile(), FileUtil.getStatisticsFile())) {
                     tvStatistics.setText(Statistics.getText());
                     Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
                 }
@@ -276,7 +276,7 @@ public class MainActivity extends Activity {
 
             case 7:
                 String debugData = "file://";
-                debugData += FileUtils.getDebugLogFile().getAbsolutePath();
+                debugData += FileUtil.getDebugLogFile().getAbsolutePath();
                 Intent debugIt = new Intent(this, HtmlViewerActivity.class);
                 debugIt.setData(Uri.parse(debugData));
                 startActivity(debugIt);

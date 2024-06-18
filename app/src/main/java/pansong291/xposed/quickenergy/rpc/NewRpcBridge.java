@@ -12,7 +12,7 @@ import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.hook.Notification;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 
 /**
  * 新版rpc接口 支持最低支付宝版本v10.3.96.8100
@@ -166,7 +166,7 @@ public class NewRpcBridge implements RpcBridge {
                     Log.printStackTrace(TAG, e);
                 }
                 try {
-                    Thread.sleep(600 + RandomUtils.delay());
+                    Thread.sleep(600 + RandomUtil.delay());
                 } catch (InterruptedException e) {
                     Log.printStackTrace(e);
                 }
@@ -174,7 +174,7 @@ public class NewRpcBridge implements RpcBridge {
                 Log.i(TAG, "new rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
                 try {
-                    Thread.sleep(600 + RandomUtils.delay());
+                    Thread.sleep(600 + RandomUtil.delay());
                 } catch (InterruptedException e) {
                     Log.printStackTrace(e);
                 }
@@ -257,7 +257,7 @@ public class NewRpcBridge implements RpcBridge {
                     Log.printStackTrace(TAG, e);
                 }
                 try {
-                    Thread.sleep(600 + RandomUtils.delay());
+                    Thread.sleep(600 + RandomUtil.delay());
                 } catch (InterruptedException e) {
                     Log.printStackTrace(e);
                 }
@@ -265,7 +265,7 @@ public class NewRpcBridge implements RpcBridge {
                 Log.i(TAG, "new rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
                 try {
-                    Thread.sleep(600 + RandomUtils.delay());
+                    Thread.sleep(600 + RandomUtil.delay());
                 } catch (InterruptedException e) {
                     Log.printStackTrace(e);
                 }

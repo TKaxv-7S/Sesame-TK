@@ -6,14 +6,16 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Data;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
-import pansong291.xposed.quickenergy.util.FileUtils;
+import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.JsonUtil;
+import pansong291.xposed.quickenergy.util.ListUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 
@@ -33,6 +35,7 @@ public class ConfigV2 {
     private int toastOffsetY = 0;
     private int checkInterval = 1800_000;
     private boolean stayAwake = true;
+    private List<String> execAtTimeList = ListUtil.newArrayList("00,065555");
     private boolean timeoutRestart = true;
     private boolean startAt0 = true;
     private boolean startAt7 = true;
@@ -229,8 +232,8 @@ public class ConfigV2 {
 
     public static Boolean isModify() {
         String json = null;
-        if (FileUtils.getConfigV2File(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigV2File(UserIdMap.getCurrentUid()));
+        if (FileUtil.getConfigV2File(UserIdMap.getCurrentUid()).exists()) {
+            json = FileUtil.readFromFile(FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
         }
         if (json != null) {
             String formatted = JsonUtil.toJsonString(INSTANCE);
@@ -247,7 +250,7 @@ public class ConfigV2 {
         }
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system(TAG, "保存 config_v2.json: " + json);
-        return FileUtils.write2File(json, FileUtils.getConfigV2File());
+        return FileUtil.write2File(json, FileUtil.getConfigV2File());
     }
 
     public static synchronized ConfigV2 load() {
@@ -255,9 +258,9 @@ public class ConfigV2 {
         ModelTask.initAllModel();
         String json = null;
         try {
-            File configV2File = FileUtils.getConfigV2File(UserIdMap.getCurrentUid());
+            File configV2File = FileUtil.getConfigV2File(UserIdMap.getCurrentUid());
             if (configV2File.exists()) {
-                json = FileUtils.readFromFile(configV2File);
+                json = FileUtil.readFromFile(configV2File);
             }
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
         } catch (Throwable t) {
@@ -274,7 +277,7 @@ public class ConfigV2 {
         if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 config_v2.json");
             Log.system(TAG, "重新格式化 config_v2.json");
-            FileUtils.write2File(formatted, FileUtils.getConfigV2File());
+            FileUtil.write2File(formatted, FileUtil.getConfigV2File());
         }
         init = true;
         Log.i(TAG, "加载配置成功");

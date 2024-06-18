@@ -46,7 +46,7 @@ public class BeachIdMap {
                 sb.append(entry.getValue());
                 sb.append('\n');
             }
-            hasChanged = !FileUtils.write2File(sb.toString(), FileUtils.getBeachIdMapFile());
+            hasChanged = !FileUtil.write2File(sb.toString(), FileUtil.getBeachIdMapFile());
         }
     }
 
@@ -54,7 +54,7 @@ public class BeachIdMap {
         if (idMap == null || shouldReload) {
             shouldReload = false;
             idMap = new TreeMap<>();
-            String str = FileUtils.readFromFile(FileUtils.getBeachIdMapFile());
+            String str = FileUtil.readFromFile(FileUtil.getBeachIdMapFile());
             if (str != null && str.length() > 0) {
                 try {
                     String[] idSet = str.split("\n");

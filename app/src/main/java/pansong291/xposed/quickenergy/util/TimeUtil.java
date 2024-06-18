@@ -80,21 +80,58 @@ public class TimeUtil {
 
     public static Integer isCompareTimeStr(Long timeMillis, String compareTimeStr) {
         try {
-            if (compareTimeStr.length() == 4) {
-                int compareHour = Integer.parseInt(compareTimeStr.substring(0, 2));
-                int compareMinute = Integer.parseInt(compareTimeStr.substring(2));
-                Calendar timeCalendar = Calendar.getInstance();
-                Calendar compareCalendar = (Calendar) timeCalendar.clone();
-                timeCalendar.setTimeInMillis(timeMillis);
-                compareCalendar.set(Calendar.HOUR_OF_DAY, compareHour);
-                compareCalendar.set(Calendar.MINUTE, compareMinute);
-                compareCalendar.set(Calendar.SECOND, 0);
+            Calendar timeCalendar = Calendar.getInstance();
+            timeCalendar.setTimeInMillis(timeMillis);
+            Calendar compareCalendar = getTodayCalendarByTimeStr(compareTimeStr);
+            if (compareCalendar != null) {
                 return timeCalendar.compareTo(compareCalendar);
             }
         } catch (Exception e) {
             Log.printStackTrace(e);
         }
         return null;
+    }
+
+    public static Calendar getTodayCalendarByTimeStr(String timeStr) {
+        return getCalendarByTimeStr(null, timeStr);
+    }
+
+    public static Calendar getCalendarByTimeStr(Long timeMillis, String timeStr) {
+        try {
+            Calendar timeCalendar = Calendar.getInstance();
+            if (timeMillis != null) {
+                timeCalendar.setTimeInMillis(timeMillis);
+            }
+            int length = timeStr.length();
+            switch (length) {
+                case 6:
+                    timeCalendar.set(Calendar.SECOND, Integer.parseInt(timeStr.substring(4)));
+                    timeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeStr.substring(2, 4)));
+                    timeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeStr.substring(0, 2)));
+                    return timeCalendar;
+                case 4:
+                    timeCalendar.set(Calendar.SECOND, 0);
+                    timeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeStr.substring(2, 4)));
+                    timeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeStr.substring(0, 2)));
+                    return timeCalendar;
+                case 2:
+                    timeCalendar.set(Calendar.SECOND, 0);
+                    timeCalendar.set(Calendar.MINUTE, 0);
+                    timeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeStr.substring(0, 2)));
+                    return timeCalendar;
+            }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+        return null;
+    }
+
+    public static Calendar getCalendarByTimeMillis(Long timeMillis) {
+        Calendar timeCalendar = Calendar.getInstance();
+        if (timeMillis != null) {
+            timeCalendar.setTimeInMillis(timeMillis);
+        }
+        return timeCalendar;
     }
 
     public static String getTimeStr(long ts) {

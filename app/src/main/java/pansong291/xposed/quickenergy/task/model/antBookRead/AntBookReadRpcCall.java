@@ -1,7 +1,7 @@
 package pansong291.xposed.quickenergy.task.model.antBookRead;
 
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.RandomUtils;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 
 /**
  * @author cwj851
@@ -24,8 +24,8 @@ public class AntBookReadRpcCall {
     }
 
     public static String syncUserReadInfo(String bookId, String chapterId) {
-        int readCount = RandomUtils.nextInt(40, 200);
-        int readTime = RandomUtils.nextInt(160, 170) * 10000;
+        int readCount = RandomUtil.nextInt(40, 200);
+        int readTime = RandomUtil.nextInt(160, 170) * 10000;
         return ApplicationHook.requestString("com.alipay.antbookread.biz.mgw.syncUserReadInfo",
                 "[{\"bookId\":\"" + bookId
                         + "\",\"chInfo\":\"ch_appcenter__chsub_9patch\",\"chapterId\":\""
