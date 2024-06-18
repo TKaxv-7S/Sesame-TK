@@ -4,6 +4,7 @@ import android.os.Build;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,12 +59,15 @@ public class ConfigV2 {
             if (modelFields != null) {
                 for (ModelField configModelField : configModelFields.values()) {
                     ModelField modelField = modelFields.get(configModelField.getCode());
-                    if (modelField != null) {
-                        try {
-                            configModelField.setValue(modelField.getValue());
-                        } catch (Exception e) {
-                            Log.printStackTrace(e);
+                    try {
+                        if (modelField != null) {
+                            Object value = modelField.getValue();
+                            if (value != null) {
+                                configModelField.setValue(value);
+                            }
                         }
+                    } catch (Exception e) {
+                        Log.printStackTrace(e);
                     }
                     newModelFields.addField(configModelField);
                 }
@@ -247,13 +251,14 @@ public class ConfigV2 {
     }
 
     public static synchronized ConfigV2 load() {
+        Log.i(TAG, "开始加载配置");
         ModelTask.initAllModel();
-        Log.i(TAG, "load config_v2");
         String json = null;
-        if (FileUtils.getConfigV2File(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtils.readFromFile(FileUtils.getConfigV2File(UserIdMap.getCurrentUid()));
-        }
         try {
+            File configV2File = FileUtils.getConfigV2File(UserIdMap.getCurrentUid());
+            if (configV2File.exists()) {
+                json = FileUtils.readFromFile(configV2File);
+            }
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
@@ -272,6 +277,7 @@ public class ConfigV2 {
             FileUtils.write2File(formatted, FileUtils.getConfigV2File());
         }
         init = true;
+        Log.i(TAG, "加载配置成功");
         return INSTANCE;
     }
 

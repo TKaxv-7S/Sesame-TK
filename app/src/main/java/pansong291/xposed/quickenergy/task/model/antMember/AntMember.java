@@ -65,8 +65,8 @@ public class AntMember extends ModelTask {
                                 zcjSignIn();
 
                             if (Config.INSTANCE.isMerchantKmdk()) {
-                                if (TimeUtil.getTimeStr().compareTo("0600") > 0
-                                        && TimeUtil.getTimeStr().compareTo("1200") < 0)
+                                if (TimeUtil.isNowAfterTimeStr("0600")
+                                        && TimeUtil.isNowBeforeTimeStr("1200"))
                                     kmdkSignIn();
                                 kmdkSignUp();
                             }

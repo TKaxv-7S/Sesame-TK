@@ -5,7 +5,6 @@ import java.util.Map;
 
 import lombok.Data;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
-import pansong291.xposed.quickenergy.util.Log;
 
 @Data
 public final class ModelConfig implements Serializable {
@@ -37,29 +36,7 @@ public final class ModelConfig implements Serializable {
             for (Map.Entry<String, ModelField> entry : newFields.entrySet()) {
                 ModelField modelField = entry.getValue();
                 if (modelField != null) {
-                    String fieldCode = modelField.getCode();
-                    Object defaultValue = modelField.getValue();
-                    ModelField configModelField = ConfigV2.INSTANCE.getModelField(code, fieldCode);
-                    if (configModelField != null) {
-                        Object configValue = configModelField.getValue();
-                        if (configValue != null) {
-                            modelField.setValue(configValue);
-                        }
-                    }
-                    try {
-                        Object value = modelField.getValue();
-                        if (value != null) {
-                            fields.put(fieldCode, modelField);
-                        }
-                    } catch (Exception e) {
-                        Log.printStackTrace(e);
-                        try {
-                            modelField.setValue(defaultValue);
-                            fields.put(fieldCode, modelField);
-                        } catch (Exception ee) {
-                            Log.printStackTrace(ee);
-                        }
-                    }
+                    fields.put(modelField.getCode(), modelField);
                 }
             }
         }

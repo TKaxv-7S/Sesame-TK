@@ -160,7 +160,10 @@ public class SettingsActivity extends Activity {
                             linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
                             linearLayout.setOrientation(LinearLayout.VERTICAL);
                             for (ModelField modelField : modelFields.values()) {
-                                linearLayout.addView(modelField.getView(context));
+                                View view = modelField.getView(context);
+                                if (view != null) {
+                                    linearLayout.addView(view);
+                                }
                             }
                             return linearLayout;
                         }

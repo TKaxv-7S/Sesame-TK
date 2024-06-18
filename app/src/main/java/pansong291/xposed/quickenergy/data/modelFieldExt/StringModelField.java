@@ -24,10 +24,10 @@ public class StringModelField extends ModelField {
 
     @Override
     public void setValue(Object value) {
-        if (value != null) {
-            value = String.valueOf(value);
+        if (value == null) {
+            value = defaultValue;
         }
-        this.value = value;
+        this.value = String.valueOf(value);
     }
 
     @Override

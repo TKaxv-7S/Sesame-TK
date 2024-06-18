@@ -24,10 +24,10 @@ public class IntegerModelField extends ModelField {
 
     @Override
     public void setValue(Object value) {
-        if (value != null) {
-            value = Integer.parseInt(value.toString());
+        if (value == null) {
+            value = defaultValue;
         }
-        this.value = value;
+        this.value = Integer.parseInt(value.toString());
     }
 
     @Override

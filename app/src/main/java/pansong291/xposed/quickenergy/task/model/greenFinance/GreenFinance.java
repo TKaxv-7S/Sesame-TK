@@ -8,6 +8,7 @@ import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.RandomUtils;
 
 /**
  * @author Constanline
@@ -47,6 +48,12 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "batchSelfCollect err:");
             Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 
@@ -94,8 +101,8 @@ public class GreenFinance extends ModelTask {
     }
 
     private static void signIn(String sceneId) {
-        String s = GreenFinanceRpcCall.signInQuery(sceneId);
         try {
+            String s = GreenFinanceRpcCall.signInQuery(sceneId);
             JSONObject jo = new JSONObject(s);
             if (jo.getBoolean("success")) {
                 JSONObject result = jo.getJSONObject("result");
@@ -114,6 +121,12 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
             Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 

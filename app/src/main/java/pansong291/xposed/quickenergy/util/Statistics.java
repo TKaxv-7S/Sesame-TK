@@ -2,6 +2,7 @@ package pansong291.xposed.quickenergy.util;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -744,10 +745,11 @@ public class Statistics {
 
     public static synchronized Statistics load() {
         String json = null;
-        if (FileUtils.getStatisticsFile().exists()) {
-            json = FileUtils.readFromFile(FileUtils.getStatisticsFile());
-        }
         try {
+            File statisticsFile = FileUtils.getStatisticsFile();
+            if (statisticsFile.exists()) {
+                json = FileUtils.readFromFile(statisticsFile);
+            }
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);

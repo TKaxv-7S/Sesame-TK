@@ -9,9 +9,9 @@ public class TaskCommon {
     public static volatile Boolean IS_AFTER_8AM = false;
 
     public static void update() {
-        String timeStr = TimeUtil.getTimeStr();
-        IS_MORNING = timeStr.compareTo("0700") >= 0 && timeStr.compareTo("0730") <= 0;
-        IS_AFTER_8AM = timeStr.compareTo("0800") >= 0;
+        long currentTimeMillis = System.currentTimeMillis();
+        IS_MORNING = TimeUtil.isAfterOrCompareTimeStr(currentTimeMillis, "0700") && TimeUtil.isBeforeOrCompareTimeStr(currentTimeMillis, "0730");
+        IS_AFTER_8AM = TimeUtil.isAfterOrCompareTimeStr(currentTimeMillis, "0800");
     }
 
 }

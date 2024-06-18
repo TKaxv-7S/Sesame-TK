@@ -34,6 +34,9 @@ public class ChoiceModelField extends ModelField {
 
     @Override
     public void setValue(Object value) {
+        if (value == null) {
+            value = defaultValue;
+        }
         this.value = JsonUtil.parseObject(value, Integer.class);
     }
 

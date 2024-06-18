@@ -30,6 +30,12 @@ import pansong291.xposed.quickenergy.entity.IdAndName;
 import pansong291.xposed.quickenergy.ui.ListDialog;
 import pansong291.xposed.quickenergy.util.JsonUtil;
 
+/**
+ * 数据结构说明
+ * KVNode<Map<String, Integer>, Boolean>
+ *     Map<String, Integer> 表示已选择的数据与已经设置的数量映射关系，如果未设置数量，则默认为0
+ *     Boolean 表示是否需要设置数量
+ */
 public class IdAndNameSelectModelField extends ModelField {
 
     private static final TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>> typeReference = new TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>>() {
@@ -49,6 +55,9 @@ public class IdAndNameSelectModelField extends ModelField {
 
     @Override
     public void setValue(Object value) {
+        if (value == null) {
+            value = defaultValue;
+        }
         this.value = JsonUtil.parseObject(value, typeReference);
     }
 

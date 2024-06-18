@@ -116,8 +116,6 @@ public class MainActivity extends Activity {
                     }
                     hasPermissions = PermissionUtil.checkOrRequestFilePermissions(MainActivity.this);
                     if (hasPermissions) {
-                        ConfigV2.load();
-                        Statistics.load();
                         onResume();
                         return;
                     }
@@ -131,28 +129,30 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
-            viewHandler.postDelayed(titleRunner, 3000);
-            try {
-                sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));
-            } catch (Throwable th) {
-                Log.i("view sendBroadcast status err:");
-                Log.printStackTrace(th);
-            }
-        }
-        try {
-            if (Statistics.resetToday()) {
+        if (hasPermissions) {
+            if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
+                viewHandler.postDelayed(titleRunner, 3000);
                 try {
-                    sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
+                    sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.status"));
                 } catch (Throwable th) {
-                    Log.i("view sendBroadcast execute err:");
+                    Log.i("view sendBroadcast status err:");
                     Log.printStackTrace(th);
                 }
             }
-            Statistics.load();
-            tvStatistics.setText(Statistics.getText());
-        } catch (Exception e) {
-            Log.printStackTrace(e);
+            try {
+                if (Statistics.resetToday()) {
+                    try {
+                        sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
+                    } catch (Throwable th) {
+                        Log.i("view sendBroadcast execute err:");
+                        Log.printStackTrace(th);
+                    }
+                }
+                Statistics.load();
+                tvStatistics.setText(Statistics.getText());
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 
@@ -208,7 +208,7 @@ public class MainActivity extends Activity {
                 .setChecked(state > PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
         menu.add(0, 2, 2, R.string.view_error_log_file);
         menu.add(0, 3, 3, R.string.export_error_log_file);
-        menu.add(0, 4, 4, R.string.export_all_log_file);
+        menu.add(0, 4, 4, R.string.export_runtime_log_file);
         menu.add(0, 5, 5, R.string.export_the_statistic_file);
         menu.add(0, 6, 6, R.string.import_the_statistic_file);
         menu.add(0, 8, 8, R.string.settings);

@@ -184,17 +184,21 @@ public class Config {
     }
 
     public boolean hasAnimalSleepTime() {
-        for (String doubleTime : animalSleepTime) {
-            if (checkInTimeSpan(doubleTime))
+        long currentTimeMillis = System.currentTimeMillis();
+        for (String time : animalSleepTime) {
+            if (TimeUtil.checkInTimeRange(currentTimeMillis, time)) {
                 return true;
+            }
         }
         return false;
     }
 
     public boolean hasFarmGameTime() {
-        for (String doubleTime : farmGameTime) {
-            if (checkInTimeSpan(doubleTime))
+        long currentTimeMillis = System.currentTimeMillis();
+        for (String time : farmGameTime) {
+            if (TimeUtil.checkInTimeRange(currentTimeMillis, time)) {
                 return true;
+            }
         }
         return false;
     }
@@ -422,9 +426,11 @@ public class Config {
     }
 
     public boolean hasDoubleCardTime() {
-        for (String doubleTime : doubleCardTime) {
-            if (checkInTimeSpan(doubleTime))
+        long currentTimeMillis = System.currentTimeMillis();
+        for (String time : doubleCardTime) {
+            if (TimeUtil.checkInTimeRange(currentTimeMillis, time)) {
                 return true;
+            }
         }
         return false;
     }
@@ -452,18 +458,6 @@ public class Config {
             }
         }
         return tmpStepCount;
-    }
-
-    private static boolean checkInTimeSpan(String timeStr) {
-        if (timeStr.contains("-")) {
-            String[] arr = timeStr.split("-");
-            String min = arr[0];
-            String max = arr[1];
-            String now = TimeUtil.getTimeStr();
-            return min.compareTo(now) <= 0 && max.compareTo(now) >= 0;
-        } else {
-            return TimeUtil.checkInTime(-INSTANCE.checkInterval, timeStr);
-        }
     }
 
     public interface RecallAnimalType {
