@@ -12,13 +12,10 @@ import android.widget.LinearLayout;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Data;
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.entity.AlipayBeach;
@@ -27,6 +24,7 @@ import pansong291.xposed.quickenergy.entity.AlipayUser;
 import pansong291.xposed.quickenergy.entity.AreaCode;
 import pansong291.xposed.quickenergy.entity.CooperateUser;
 import pansong291.xposed.quickenergy.entity.IdAndName;
+import pansong291.xposed.quickenergy.entity.KVNode;
 import pansong291.xposed.quickenergy.ui.ListDialog;
 import pansong291.xposed.quickenergy.util.JsonUtil;
 
@@ -35,22 +33,26 @@ import pansong291.xposed.quickenergy.util.JsonUtil;
  * KVNode<Map<String, Integer>, Boolean>
  *     Map<String, Integer> 表示已选择的数据与已经设置的数量映射关系，如果未设置数量，则默认为0
  *     Boolean 表示是否需要设置数量
+ * List<? extends IdAndName> 需要选择的数据
  */
 public class IdAndNameSelectModelField extends ModelField {
 
     private static final TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>> typeReference = new TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>>() {
     };
 
+    private List<? extends IdAndName> idAndNameList;
+
     public IdAndNameSelectModelField() {
     }
 
-    public IdAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
+    public IdAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> idAndNameList) {
         super(code, name, value);
+        this.idAndNameList = idAndNameList;
     }
 
     @JsonIgnore
-    public List<? extends IdAndName> getList() {
-        return new ArrayList<>();
+    public List<? extends IdAndName> getIdAndNameList() {
+        return idAndNameList;
     }
 
     @Override
@@ -86,30 +88,10 @@ public class IdAndNameSelectModelField extends ModelField {
         public BeachAndNameSelectModelField() {
         }
 
-        public BeachAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
-            super(code, name, value);
-        }
-
         @Override
         @JsonIgnore
-        public List<? extends IdAndName> getList() {
+        public List<? extends IdAndName> getIdAndNameList() {
             return AlipayBeach.getList();
-        }
-    }
-
-    public static class UserAndNameSelectModelField extends IdAndNameSelectModelField {
-
-        public UserAndNameSelectModelField() {
-        }
-
-        public UserAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
-            super(code, name, value);
-        }
-
-        @Override
-        @JsonIgnore
-        public List<? extends IdAndName> getList() {
-            return AlipayUser.getList();
         }
     }
 
@@ -118,13 +100,9 @@ public class IdAndNameSelectModelField extends ModelField {
         public CooperateUserAndNameSelectModelField() {
         }
 
-        public CooperateUserAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
-            super(code, name, value);
-        }
-
         @Override
         @JsonIgnore
-        public List<? extends IdAndName> getList() {
+        public List<? extends IdAndName> getIdAndNameList() {
             return CooperateUser.getList();
         }
     }
@@ -134,13 +112,9 @@ public class IdAndNameSelectModelField extends ModelField {
         public AreaCodeAndNameSelectModelField() {
         }
 
-        public AreaCodeAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
-            super(code, name, value);
-        }
-
         @Override
         @JsonIgnore
-        public List<? extends IdAndName> getList() {
+        public List<? extends IdAndName> getIdAndNameList() {
             return AreaCode.getList();
         }
     }
@@ -150,13 +124,9 @@ public class IdAndNameSelectModelField extends ModelField {
         public ReserveAndNameSelectModelField() {
         }
 
-        public ReserveAndNameSelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
-            super(code, name, value);
-        }
-
         @Override
         @JsonIgnore
-        public List<? extends IdAndName> getList() {
+        public List<? extends IdAndName> getIdAndNameList() {
             return AlipayReserve.getList();
         }
     }
@@ -166,14 +136,8 @@ public class IdAndNameSelectModelField extends ModelField {
         public UserAndNameSelectOneModelField() {
         }
 
-        public UserAndNameSelectOneModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value) {
-            super(code, name, value);
-        }
-
-        @Override
-        @JsonIgnore
-        public List<? extends IdAndName> getList() {
-            return AlipayUser.getList();
+        public UserAndNameSelectOneModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> idAndNameList) {
+            super(code, name, value, idAndNameList);
         }
 
         @Override
@@ -192,19 +156,4 @@ public class IdAndNameSelectModelField extends ModelField {
         }
     }
 
-    @Data
-    public static class KVNode<K, V> implements Serializable {
-
-        private K key;
-
-        private V value;
-
-        public KVNode() {
-        }
-
-        public KVNode(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-    }
 }

@@ -5,6 +5,8 @@ import android.os.Build;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,10 @@ public class ConfigV2 {
 
     private static final String TAG = ConfigV2.class.getSimpleName();
 
+    public static final List<String> DEFAULT_EXEC_AT_TIME_LIST = Collections.unmodifiableList(ListUtil.newArrayList("065530", "2359", "24"));
+
+    public static final List<String> DEFAULT_WAKEN_AT_TIME_LIST = Collections.unmodifiableList(ListUtil.newArrayList("0650", "2350"));
+
     public static final ConfigV2 INSTANCE = new ConfigV2();
 
     @Getter
@@ -35,7 +41,8 @@ public class ConfigV2 {
     private int toastOffsetY = 0;
     private int checkInterval = 1800_000;
     private boolean stayAwake = true;
-    private List<String> execAtTimeList = ListUtil.newArrayList("00,065555");
+    private List<String> execAtTimeList = new ArrayList<>(DEFAULT_EXEC_AT_TIME_LIST);
+    private List<String> wakenAtTimeList = new ArrayList<>(DEFAULT_WAKEN_AT_TIME_LIST);
     private boolean timeoutRestart = true;
     private boolean startAt0 = true;
     private boolean startAt7 = true;

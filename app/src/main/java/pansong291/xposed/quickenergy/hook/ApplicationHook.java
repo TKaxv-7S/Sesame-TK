@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -40,10 +41,12 @@ import pansong291.xposed.quickenergy.rpc.RpcBridge;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMemberRpcCall;
+import pansong291.xposed.quickenergy.task.model.antSports.AntSports;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.NotificationUtil;
 import pansong291.xposed.quickenergy.util.PermissionUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
@@ -55,13 +58,20 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static final Map<Object, Boolean> rpcHookMap = new ConcurrentHashMap<>();
 
+    private static final Map<String, PendingIntent> wakenAtTimeAlarmMap = new ConcurrentHashMap<>();
+
     @Getter
     private static volatile boolean hooked = false;
 
     private static volatile boolean init = false;
 
+    private static volatile Calendar dayCalendar = Calendar.getInstance();
+
     @Getter
     private static volatile boolean offline = false;
+
+    @Getter
+    private static volatile AtomicInteger reLoginCount = new AtomicInteger(0);
 
     @Getter
     private static volatile ClassLoader classLoader;
@@ -82,11 +92,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static PowerManager.WakeLock wakeLock;
 
-    private static PendingIntent alarmLastPi;
-
     private static PendingIntent alarm0Pi;
-
-    private static PendingIntent alarm7Pi;
 
     private static XC_MethodHook.Unhook rpcRequestUnhook;
 
@@ -122,7 +128,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             @Override
                             protected void afterHookedMethod(MethodHookParam param) {
                                 int originStep = (Integer) param.getResult();
-                                int step = Config.tmpStepCount();
+                                int step = AntSports.tmpStepCount();
                                 if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 6 || originStep >= step) {
                                     return;
                                 }
@@ -197,12 +203,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                         Log.record("开始执行");
                                         try {
                                             ConfigV2 config = ConfigV2.INSTANCE;
+                                            int checkInterval = Math.max(config.getCheckInterval(), 180_000);
                                             if (lastExecTime + 5000 > System.currentTimeMillis()) {
                                                 Log.record("执行间隔较短，跳过执行");
-                                                execDelayedHandler(config.getCheckInterval());
+                                                execDelayedHandler(checkInterval);
                                                 return;
                                             }
-
+                                            updateDay();
                                             String targetUid = getUserId();
                                             if (targetUid == null) {
                                                 Log.record("用户为空，放弃执行");
@@ -216,12 +223,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                                 }
                                             }
                                             UserIdMap.setCurrentUid(targetUid);
-                                            try {
-                                                Statistics.resetToday();
-                                            } catch (Exception e) {
-                                                Log.i(TAG, "statistics err:");
-                                                Log.printStackTrace(TAG, e);
-                                            }
 
                                             try {
                                                 FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
@@ -233,40 +234,30 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                                 }
                                             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                                                 Log.i(TAG, "check timeout");
-                                                execDelayedHandler(config.getCheckInterval());
+                                                execDelayedHandler(checkInterval);
                                                 return;
                                             } catch (Exception e) {
                                                 Log.i(TAG, "check err:");
                                                 Log.printStackTrace(TAG, e);
-                                                execDelayedHandler(config.getCheckInterval());
+                                                execDelayedHandler(checkInterval);
                                                 return;
                                             }
                                             TaskCommon.update();
                                             ModelTask.startAllTask(false);
                                             lastExecTime = System.currentTimeMillis();
-                                            int checkInterval = config.getCheckInterval();
 
                                             try {
                                                 List<String> execAtTimeList = config.getExecAtTimeList();
                                                 if (execAtTimeList != null) {
-                                                    long nextExecTime = lastExecTime + checkInterval;
                                                     Calendar lastExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(lastExecTime);
-                                                    Calendar nextExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(nextExecTime);
+                                                    Calendar nextExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(lastExecTime + checkInterval);
                                                     for (String execAtTime : execAtTimeList) {
                                                         Calendar execAtTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(execAtTime);
-                                                        if (lastExecTimeCalendar.compareTo(execAtTimeCalendar) < 0 && nextExecTimeCalendar.compareTo(execAtTimeCalendar) > 0) {
-                                                            Log.record("下次检测为定时执行:" + execAtTime);
+                                                        if (execAtTimeCalendar != null && lastExecTimeCalendar.compareTo(execAtTimeCalendar) < 0 && nextExecTimeCalendar.compareTo(execAtTimeCalendar) > 0) {
+                                                            Log.record("设置定时执行:" + execAtTime);
                                                             execDelayedHandler(execAtTimeCalendar.getTimeInMillis() - lastExecTime);
                                                             FileUtil.clearLog();
                                                             return;
-                                                        } else if (execAtTimeCalendar.get(Calendar.HOUR_OF_DAY) == 0 && execAtTimeCalendar.get(Calendar.MINUTE) == 0 && execAtTimeCalendar.get(Calendar.SECOND) == 0) {
-                                                            execAtTimeCalendar.add(Calendar.DATE, 1);
-                                                            if (lastExecTimeCalendar.compareTo(execAtTimeCalendar) < 0 && nextExecTimeCalendar.compareTo(execAtTimeCalendar) > 0) {
-                                                                Log.record("下次检测为0点整执行:" + execAtTime);
-                                                                execDelayedHandler(execAtTimeCalendar.getTimeInMillis() - lastExecTime);
-                                                                FileUtil.clearLog();
-                                                                return;
-                                                            }
                                                         }
                                                     }
                                                 }
@@ -300,7 +291,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         if (!ClassUtil.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
                             return;
                         }
-                        Notification.setContentText("支付宝前台服务被销毁");
+                        NotificationUtil.setContentText("支付宝前台服务被销毁");
                         destroyHandler(true);
                         Log.record("支付宝前台服务被销毁");
                         restartByBroadcast();
@@ -344,6 +335,114 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
+    private static void setWakenAtTimeAlarm() {
+        try {
+            unsetWakenAtTimeAlarm();
+            ConfigV2 config = ConfigV2.INSTANCE;
+            List<String> wakenAtTimeList = config.getWakenAtTimeList();
+            boolean hasWakenAtTime = wakenAtTimeList != null && !wakenAtTimeList.isEmpty();
+            if (config.isStartAt0() || hasWakenAtTime) {
+                try {
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_MONTH, 1);
+                    calendar.set(Calendar.HOUR_OF_DAY, 0);
+                    calendar.set(Calendar.MINUTE, 0);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    if (setAlarmTask(calendar.getTimeInMillis(), pendingIntent)) {
+                        alarm0Pi = pendingIntent;
+                        Log.record("设置定时唤醒:0|000000");
+                    }
+                } catch (Exception e) {
+                    Log.i(TAG, "setWakenAt0 err:");
+                    Log.printStackTrace(TAG, e);
+                }
+            }
+            if (hasWakenAtTime) {
+                Calendar nowCalendar = Calendar.getInstance();
+                for (int i = 1, len = wakenAtTimeList.size(); i < len; i++) {
+                    try {
+                        String wakenAtTime = wakenAtTimeList.get(i);
+                        Calendar wakenAtTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(wakenAtTime);
+                        if (wakenAtTimeCalendar != null) {
+                            if (wakenAtTimeCalendar.compareTo(nowCalendar) > 0) {
+                                PendingIntent wakenAtTimePendingIntent = PendingIntent.getBroadcast(context, i, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
+                                if (setAlarmTask(wakenAtTimeCalendar.getTimeInMillis(), wakenAtTimePendingIntent)) {
+                                    String wakenAtTimeKey = i + "|" + wakenAtTime;
+                                    wakenAtTimeAlarmMap.put(wakenAtTimeKey, wakenAtTimePendingIntent);
+                                    Log.record("设置定时唤醒:" + wakenAtTimeKey);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.i(TAG, "setWakenAtTime err:");
+                        Log.printStackTrace(TAG, e);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.i(TAG, "setWakenAtTimeAlarm err:");
+            Log.printStackTrace(TAG, e);
+        }
+    }
+
+    private static void unsetWakenAtTimeAlarm() {
+        try {
+            try {
+                if (unsetAlarmTask(alarm0Pi)) {
+                    alarm0Pi = null;
+                    Log.record("取消定时唤醒:0|000000");
+                }
+            } catch (Exception e) {
+                Log.i(TAG, "unsetWakenAt0 err:");
+                Log.printStackTrace(TAG, e);
+            }
+            for (Map.Entry<String, PendingIntent> entry : wakenAtTimeAlarmMap.entrySet()) {
+                try {
+                    String wakenAtTimeKey = entry.getKey();
+                    PendingIntent wakenAtTimePendingIntent = entry.getValue();
+                    if (unsetAlarmTask(wakenAtTimePendingIntent)) {
+                        wakenAtTimeAlarmMap.remove(wakenAtTimeKey);
+                        Log.record("取消定时唤醒:" + wakenAtTimeKey);
+                    }
+                } catch (Exception e) {
+                    Log.i(TAG, "unsetWakenAtTime err:");
+                    Log.printStackTrace(TAG, e);
+                }
+            }
+        } catch (Exception e) {
+            Log.i(TAG, "unsetWakenAtTimeAlarm err:");
+            Log.printStackTrace(TAG, e);
+        }
+    }
+
+    private void updateDay() {
+        Calendar nowCalendar = Calendar.getInstance();
+        int nowYear = nowCalendar.get(Calendar.YEAR);
+        int nowMonth = nowCalendar.get(Calendar.MONTH);
+        int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
+        if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
+            nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
+            nowCalendar.set(Calendar.MINUTE, 0);
+            nowCalendar.set(Calendar.SECOND, 0);
+            dayCalendar = nowCalendar;
+            Log.record("日期更新为：" + nowYear + "-" + nowMonth + "-" + nowDay);
+            try {
+                setWakenAtTimeAlarm();
+            } catch (Exception e) {
+                Log.i(TAG, "setWakenAtTimeAlarm err:");
+                Log.printStackTrace(TAG, e);
+            }
+            try {
+                Statistics.INSTANCE.resetByCalendar(nowCalendar);
+            } catch (Exception e) {
+                Log.i(TAG, "statistics err:");
+                Log.printStackTrace(TAG, e);
+            }
+        }
+    }
+
     private static void execHandler() {
         if (context != null) {
             mainHandler.removeCallbacks(mainRunner);
@@ -355,7 +454,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         if (context != null) {
             mainHandler.postDelayed(mainRunner, delayMillis);
             try {
-                Notification.setNextExecTime(System.currentTimeMillis() + delayMillis);
+                NotificationUtil.setNextExecTime(System.currentTimeMillis() + delayMillis);
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }
@@ -414,63 +513,17 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Intent it = new Intent();
                         it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
                         PendingIntent pi = PendingIntent.getService(context, 0, it, getPendingIntentFlag());
-                        setAlarmTask(System.currentTimeMillis() + 30 * 60 * 1000, pi);
-                        Log.record("stayAwakeAlarm 已设置");
+                        if (setAlarmTask(System.currentTimeMillis() + 30 * 60 * 1000, pi)) {
+                            Log.record("stayAwakeAlarm 已设置");
+                        }
                     } catch (Throwable th) {
                         Log.i(TAG, "stayAwakeAlarm err:");
                         Log.printStackTrace(TAG, th);
                     }
                 }
-                try {
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
-                    Calendar calendar = Calendar.getInstance();
-                    if (calendar.get(Calendar.HOUR_OF_DAY) == 23 && calendar.get(Calendar.MINUTE) == 57) {
-                        calendar.add(Calendar.DAY_OF_MONTH, 1);
-                    }
-                    calendar.set(Calendar.HOUR_OF_DAY, 23);
-                    calendar.set(Calendar.MINUTE, 57);
-                    calendar.set(Calendar.SECOND, 0);
-                    calendar.set(Calendar.MILLISECOND, 0);
-                    setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
-                    alarmLastPi = pendingIntent;
-                    Log.record("alarmLast 已设置");
-                } catch (Throwable th) {
-                    Log.printStackTrace("alarmLast", th);
-                }
-                if (config.isStartAt0()) {
-                    try {
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        calendar.set(Calendar.HOUR_OF_DAY, 0);
-                        calendar.set(Calendar.MINUTE, 0);
-                        calendar.set(Calendar.SECOND, 0);
-                        calendar.set(Calendar.MILLISECOND, 0);
-                        setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
-                        alarm0Pi = pendingIntent;
-                        Log.record("alarm0 已设置");
-                    } catch (Throwable th) {
-                        Log.printStackTrace("alarm0", th);
-                    }
-                }
-                if (config.isStartAt7()) {
-                    try {
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 3, new Intent("com.eg.android.AlipayGphone.xqe.restart"), getPendingIntentFlag());
-                        Calendar calendar = Calendar.getInstance();
-                        if (calendar.get(Calendar.HOUR_OF_DAY) >= 7 || (calendar.get(Calendar.HOUR_OF_DAY) >= 6 && calendar.get(Calendar.MINUTE) >= 55)) {
-                            calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        }
-                        calendar.set(Calendar.HOUR_OF_DAY, 6);
-                        calendar.set(Calendar.MINUTE, 55);
-                        calendar.set(Calendar.SECOND, 0);
-                        calendar.set(Calendar.MILLISECOND, 0);
-                        setAlarmTask(calendar.getTimeInMillis(), pendingIntent);
-                        alarm7Pi = pendingIntent;
-                        Log.record("alarm7 已设置");
-                    } catch (Throwable th) {
-                        Log.printStackTrace("alarm7", th);
-                    }
-                }
+
+                setWakenAtTimeAlarm();
+
                 if (config.isNewRpc() && config.isDebugMode()) {
                     try {
                         rpcRequestUnhook = XposedHelpers.findAndHookMethod(
@@ -525,7 +578,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }
                 }
                 Statistics.load();
-                Notification.start(service);
+                NotificationUtil.start(service);
                 Log.record("加载完成");
                 Toast.show("芝麻粒加载成功");
                 init = true;
@@ -543,7 +596,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             if (force) {
                 if (context != null) {
-                    Notification.stop(service, false);
+                    NotificationUtil.stop(service, false);
                     mainHandler.removeCallbacks(mainRunner);
                 }
                 if (rpcResponseUnhook != null) {
@@ -551,36 +604,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 if (rpcRequestUnhook != null) {
                     rpcRequestUnhook.unhook();
-                }
-                try {
-                    if (alarm7Pi != null) {
-                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        alarmManager.cancel(alarm7Pi);
-                    }
-                } catch (Throwable th) {
-                    Log.printStackTrace("alarm7", th);
-                } finally {
-                    alarm7Pi = null;
-                }
-                try {
-                    if (alarm0Pi != null) {
-                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        alarmManager.cancel(alarm0Pi);
-                    }
-                } catch (Throwable th) {
-                    Log.printStackTrace("alarm0", th);
-                } finally {
-                    alarm0Pi = null;
-                }
-                try {
-                    if (alarmLastPi != null) {
-                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                        alarmManager.cancel(alarmLastPi);
-                    }
-                } catch (Throwable th) {
-                    Log.printStackTrace("alarmLast", th);
-                } finally {
-                    alarmLastPi = null;
                 }
                 if (wakeLock != null) {
                     wakeLock.release();
@@ -600,7 +623,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private static void setAlarmTask(long triggerAtMillis, PendingIntent operation) {
+    private static Boolean setAlarmTask(long triggerAtMillis, PendingIntent operation) {
         try {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -609,10 +632,26 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, operation);
             }
             Log.i("setAlarmTask triggerAtMillis:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(triggerAtMillis) + " operation:" + (operation == null ? "" : operation.toString()));
+            return true;
         } catch (Throwable th) {
             Log.i(TAG, "setAlarmTask err:");
             Log.printStackTrace(TAG, th);
         }
+        return false;
+    }
+
+    private static Boolean unsetAlarmTask(PendingIntent operation) {
+        try {
+            if (operation != null) {
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.cancel(operation);
+            }
+            return true;
+        } catch (Throwable th) {
+            Log.i(TAG, "unsetAlarmTask err:");
+            Log.printStackTrace(TAG, th);
+        }
+        return false;
     }
 
     public static String requestString(RpcEntity rpcEntity) {
@@ -695,6 +734,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     }
 
     public static void reLogin() {
+        if (reLoginCount.get() < 5) {
+            int andIncrement = reLoginCount.getAndIncrement();
+            execDelayedHandler(andIncrement * 5000L);
+        } else {
+            execDelayedHandler(Math.max(ConfigV2.INSTANCE.getCheckInterval(), 180_000));
+        }
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

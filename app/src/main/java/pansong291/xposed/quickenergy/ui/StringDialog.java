@@ -11,7 +11,7 @@ import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.util.Log;
 
-public class EditDialog {
+public class StringDialog {
 
     private static ModelField modelField;
 
@@ -20,7 +20,7 @@ public class EditDialog {
     }
 
     public static void showEditDialog(Context c, CharSequence title, ModelField modelField, String msg) {
-        EditDialog.modelField = modelField;
+        StringDialog.modelField = modelField;
         AlertDialog editDialog = getEditDialog(c);
         if (msg != null) {
             editDialog.setTitle(title);

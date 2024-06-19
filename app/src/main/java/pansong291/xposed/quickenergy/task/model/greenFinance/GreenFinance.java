@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
@@ -16,6 +18,10 @@ import pansong291.xposed.quickenergy.util.Log;
 public class GreenFinance extends ModelTask {
     private static final String TAG = GreenFinance.class.getSimpleName();
 
+    private Integer executeIntervalInt;
+    private BooleanModelField greenFinance;
+    private IntegerModelField executeInterval;
+
     @Override
     public String setName() {
         return "绿色经营";
@@ -23,18 +29,63 @@ public class GreenFinance extends ModelTask {
 
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(greenFinance = new BooleanModelField("greenFinance", "开启绿色经营", false));
+        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
+        return modelFields;
     }
 
     public Boolean check() {
-        return Config.INSTANCE.isGreenFinance() && !TaskCommon.IS_MORNING;
+        return greenFinance.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     public Runnable init() {
-        return GreenFinance::index;
+        return () -> {
+            executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
+            String s = GreenFinanceRpcCall.greenFinanceIndex();
+            try {
+                JSONObject jo = new JSONObject(s);
+                if (jo.getBoolean("success")) {
+                    JSONObject result = jo.getJSONObject("result");
+                    if (!result.getBoolean("greenFinanceSigned")) {
+                        Log.other("绿色经营📊未开通");
+                        return;
+                    }
+                    JSONObject mcaGreenLeafResult = result.getJSONObject("mcaGreenLeafResult");
+                    JSONArray greenLeafList = mcaGreenLeafResult.getJSONArray("greenLeafList");
+                    String currentCode = "";
+                    JSONArray bsnIds = new JSONArray();
+                    for (int i = 0; i < greenLeafList.length(); i++) {
+                        JSONObject greenLeaf = greenLeafList.getJSONObject(i);
+                        String code = greenLeaf.getString("code");
+                        if (currentCode.equals(code) || bsnIds.length() == 0) {
+                            bsnIds.put(greenLeaf.getString("bsnId"));
+                        } else {
+                            batchSelfCollect(bsnIds);
+                            bsnIds = new JSONArray();
+                        }
+                    }
+                    if (bsnIds.length() > 0) {
+                        batchSelfCollect(bsnIds);
+                    }
+                } else {
+                    Log.i(TAG, jo.getString("resultDesc"));
+                }
+            } catch (Throwable th) {
+                Log.i(TAG, "index err:");
+                Log.printStackTrace(TAG, th);
+            }
+
+            signIn("PLAY102632271");
+            signIn("PLAY102932217");
+            signIn("PLAY102232206");
+
+            String appletId = "AP13159535";
+            doTask(appletId);
+        };
     }
 
-    private static void batchSelfCollect(JSONArray bsnIds) {
+    private void batchSelfCollect(JSONArray bsnIds) {
         String s = GreenFinanceRpcCall.batchSelfCollect(bsnIds);
         try {
             JSONObject joSelfCollect = new JSONObject(s);
@@ -49,57 +100,14 @@ public class GreenFinance extends ModelTask {
             Log.printStackTrace(TAG, th);
         } finally {
             try {
-                Thread.sleep(10000);
+                Thread.sleep(executeIntervalInt);
             } catch (InterruptedException e) {
                 Log.printStackTrace(e);
             }
         }
     }
 
-    private static void index() {
-        String s = GreenFinanceRpcCall.greenFinanceIndex();
-        try {
-            JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                JSONObject result = jo.getJSONObject("result");
-                if (!result.getBoolean("greenFinanceSigned")) {
-                    Log.other("绿色经营📊未开通");
-                    return;
-                }
-                JSONObject mcaGreenLeafResult = result.getJSONObject("mcaGreenLeafResult");
-                JSONArray greenLeafList = mcaGreenLeafResult.getJSONArray("greenLeafList");
-                String currentCode = "";
-                JSONArray bsnIds = new JSONArray();
-                for (int i = 0; i < greenLeafList.length(); i++) {
-                    JSONObject greenLeaf = greenLeafList.getJSONObject(i);
-                    String code = greenLeaf.getString("code");
-                    if (currentCode.equals(code) || bsnIds.length() == 0) {
-                        bsnIds.put(greenLeaf.getString("bsnId"));
-                    } else {
-                        batchSelfCollect(bsnIds);
-                        bsnIds = new JSONArray();
-                    }
-                }
-                if (bsnIds.length() > 0) {
-                    batchSelfCollect(bsnIds);
-                }
-            } else {
-                Log.i(TAG, jo.getString("resultDesc"));
-            }
-        } catch (Throwable th) {
-            Log.i(TAG, "index err:");
-            Log.printStackTrace(TAG, th);
-        }
-
-        signIn("PLAY102632271");
-        signIn("PLAY102932217");
-        signIn("PLAY102232206");
-
-        String appletId = "AP13159535";
-        doTask(appletId);
-    }
-
-    private static void signIn(String sceneId) {
+    private void signIn(String sceneId) {
         try {
             String s = GreenFinanceRpcCall.signInQuery(sceneId);
             JSONObject jo = new JSONObject(s);
@@ -129,7 +137,7 @@ public class GreenFinance extends ModelTask {
         }
     }
 
-    private static void doTask(String appletId) {
+    private void doTask(String appletId) {
         String s = GreenFinanceRpcCall.taskQuery(appletId);
         try {
             JSONObject jo = new JSONObject(s);

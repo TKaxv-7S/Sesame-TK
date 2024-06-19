@@ -3,16 +3,15 @@ package pansong291.xposed.quickenergy.task.model.antMember;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 import pansong291.xposed.quickenergy.util.TimeUtil;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class AntMember extends ModelTask {
     private static final String TAG = AntMember.class.getSimpleName();
@@ -21,14 +20,25 @@ public class AntMember extends ModelTask {
     public String setName() {
         return "会员";
     }
+    public BooleanModelField receivePoint;
+    public BooleanModelField insBlueBeanExchange;
+    public BooleanModelField collectSesame;
+    public BooleanModelField zcjSignIn;
+    public BooleanModelField merchantKmdk;
 
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(receivePoint = new BooleanModelField("receivePoint", "开启会员", false));
+        modelFields.addField(insBlueBeanExchange = new BooleanModelField("insBlueBeanExchange", "安心豆兑换时光加速器", false));
+        modelFields.addField(collectSesame = new BooleanModelField("collectSesame", "收芝麻粒", false));
+        modelFields.addField(zcjSignIn = new BooleanModelField("zcjSignIn", "招财金签到", false));
+        modelFields.addField(merchantKmdk = new BooleanModelField("merchantKmdk", "商户开门打卡", false));
+        return modelFields;
     }
 
     public Boolean check() {
-        return Config.INSTANCE.isReceivePoint() && !TaskCommon.IS_MORNING;
+        return receivePoint.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     public Runnable init() {
@@ -53,18 +63,18 @@ public class AntMember extends ModelTask {
 
                 signPageTaskList();
 
-                if (Config.INSTANCE.isCollectSesame())
+                if (collectSesame.getValue())
                     zmxy();
 
-                if (Config.INSTANCE.isMerchantKmdk() || Config.INSTANCE.isZcjSignIn()) {
+                if (merchantKmdk.getValue() || zcjSignIn.getValue()) {
                     JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
                     if (jo.getBoolean("success")) {
                         JSONObject data = jo.getJSONObject("data");
                         if (data.optBoolean("isOpened")) {
-                            if (Config.INSTANCE.isZcjSignIn())
+                            if (zcjSignIn.getValue())
                                 zcjSignIn();
 
-                            if (Config.INSTANCE.isMerchantKmdk()) {
+                            if (merchantKmdk.getValue()) {
                                 if (TimeUtil.isNowAfterTimeStr("0600")
                                         && TimeUtil.isNowBeforeTimeStr("1200"))
                                     kmdkSignIn();
@@ -116,7 +126,7 @@ public class AntMember extends ModelTask {
         }
     }
 
-    private static void insBlueBean() {
+    private void insBlueBean() {
         try {
             String s = AntMemberRpcCall.pageRender();
             JSONObject jo = new JSONObject(s);
@@ -132,7 +142,7 @@ public class AntMember extends ModelTask {
                     } else if ("兑换时光加速器".equals(jo.getString("name"))) {
                         String oneStopId = jo.getJSONObject("content").getJSONObject("beanDeductBanner")
                                 .getString("oneStopId");
-                        if (Config.INSTANCE.isInsBlueBeanExchange())
+                        if (insBlueBeanExchange.getValue())
                             insBlueBeanExchange(oneStopId);
                     }
                 }

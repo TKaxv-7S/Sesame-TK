@@ -9,7 +9,7 @@ import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.hook.Notification;
+import pansong291.xposed.quickenergy.util.NotificationUtil;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtil;
@@ -152,7 +152,7 @@ public class NewRpcBridge implements RpcBridge {
                     if ("2000".equals(errorCode)) {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
-                            Notification.setContentText("登录超时");
+                            NotificationUtil.setContentText("登录超时");
                             if (ConfigV2.INSTANCE.isTimeoutRestart()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();
@@ -243,7 +243,7 @@ public class NewRpcBridge implements RpcBridge {
                     if ("2000".equals(errorCode)) {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
-                            Notification.setContentText("登录超时");
+                            NotificationUtil.setContentText("登录超时");
                             if (ConfigV2.INSTANCE.isTimeoutRestart()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();

@@ -13,12 +13,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
-import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm;
 import pansong291.xposed.quickenergy.ui.ChoiceDialog;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.JsonUtil;
 
 public class ChoiceModelField extends ModelField {
+
+    private CharSequence[] choiceArray;
 
     public ChoiceModelField() {
     }
@@ -27,9 +27,14 @@ public class ChoiceModelField extends ModelField {
         super(code, name, value);
     }
 
+    public ChoiceModelField(String code, String name, Integer value, CharSequence[] choiceArray) {
+        super(code, name, value);
+        this.choiceArray = choiceArray;
+    }
+
     @JsonIgnore
-    public CharSequence[] getList() {
-        return new CharSequence[]{};
+    public CharSequence[] getChoiceArray() {
+        return choiceArray;
     }
 
     @Override
@@ -58,38 +63,6 @@ public class ChoiceModelField extends ModelField {
         btn.setAllCaps(false);
         btn.setOnClickListener(v -> ChoiceDialog.show(v.getContext(), ((Button) v).getText(), this));
         return btn;
-    }
-
-    public static class RecallAnimalChoiceModelField extends ChoiceModelField {
-
-        public RecallAnimalChoiceModelField() {
-        }
-
-        public RecallAnimalChoiceModelField(String code, String name, Integer value) {
-            super(code, name, value);
-        }
-
-        @Override
-        @JsonIgnore
-        public CharSequence[] getList() {
-            return Config.RecallAnimalType.nickNames;
-        }
-    }
-
-    public static class SendChoiceModelField extends ChoiceModelField {
-
-        public SendChoiceModelField() {
-        }
-
-        public SendChoiceModelField(String code, String name, Integer value) {
-            super(code, name, value);
-        }
-
-        @Override
-        @JsonIgnore
-        public CharSequence[] getList() {
-            return AntFarm.SendType.nickNames;
-        }
     }
 
 }

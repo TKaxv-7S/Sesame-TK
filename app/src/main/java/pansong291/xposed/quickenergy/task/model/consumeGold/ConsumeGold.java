@@ -3,13 +3,11 @@ package pansong291.xposed.quickenergy.task.model.consumeGold;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class ConsumeGold extends ModelTask {
@@ -20,16 +18,20 @@ public class ConsumeGold extends ModelTask {
         return "消费金";
     }
 
+    private BooleanModelField consumeGold;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(consumeGold = new BooleanModelField("consumeGold", "开启消费金", false));
+        return modelFields;
     }
 
     public Boolean check() {
-        if (!Config.INSTANCE.isConsumeGold()) {
+        if (!consumeGold.getValue()) {
             return false;
         }
-        if (TaskCommon.IS_MORNING) {
+        if (TaskCommon.IS_ENERGY_TIME) {
             return false;
         }
         long executeTime = RuntimeInfo.getInstance().getLong("consumeGold", 0);

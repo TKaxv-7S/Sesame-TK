@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 
 import pansong291.xposed.quickenergy.R;
@@ -140,7 +141,7 @@ public class MainActivity extends Activity {
                 }
             }
             try {
-                if (Statistics.resetToday()) {
+                if (Statistics.INSTANCE.resetByCalendar(Calendar.getInstance())) {
                     try {
                         sendBroadcast(new Intent("com.eg.android.AlipayGphone.xqe.execute"));
                     } catch (Throwable th) {

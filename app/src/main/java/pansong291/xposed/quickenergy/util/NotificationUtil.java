@@ -1,5 +1,6 @@
-package pansong291.xposed.quickenergy.hook;
+package pansong291.xposed.quickenergy.util;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -14,27 +15,26 @@ import java.text.DateFormat;
 import lombok.Getter;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.util.Log;
-import pansong291.xposed.quickenergy.util.TimeUtil;
+import pansong291.xposed.quickenergy.hook.ApplicationHook;
 
-public class Notification {
+public class NotificationUtil {
     public static final int NOTIFICATION_ID = 99;
     public static final String CHANNEL_ID = "pansong291.xposed.quickenergy.repair.ANTFOREST_NOTIFY_CHANNEL";
     private static NotificationManager mNotifyManager;
-    private static android.app.Notification mNotification;
-    private static android.app.Notification.Builder builder;
+    private static Notification mNotification;
+    private static Notification.Builder builder;
     private static boolean isStart = false;
 
     @Getter
     private static final Runnable idleRunnable = () -> {
-        long lastNoticeTime = Notification.getLastNoticeTime();
+        long lastNoticeTime = NotificationUtil.getLastNoticeTime();
         if (System.currentTimeMillis() - lastNoticeTime > 60_000) {
             if (ApplicationHook.isOffline() || RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System.currentTimeMillis()) {
                 return;
             }
             setContentText("空闲");
         } else {
-            ApplicationHook.getMainHandler().postDelayed(Notification.getIdleRunnable(), 60_000);
+            ApplicationHook.getMainHandler().postDelayed(NotificationUtil.getIdleRunnable(), 60_000);
         }
     };
 
@@ -45,17 +45,49 @@ public class Notification {
 
     private static CharSequence contentText = "";
 
-    private Notification() {
+    private NotificationUtil() {
     }
 
     public static void start(Context context) {
-        initNotification(context);
-        if (!isStart) {
-            if (context instanceof Service)
-                ((Service) context).startForeground(NOTIFICATION_ID, mNotification);
-            else
-                getNotificationManager(context).notify(NOTIFICATION_ID, mNotification);
-            isStart = true;
+        try {
+            if (mNotification == null) {
+                Intent it = new Intent(Intent.ACTION_VIEW);
+                it.setData(Uri.parse("alipays://platformapi/startapp?appId="));
+                PendingIntent pi = PendingIntent.getActivity(context, 0, it,
+                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "芝麻粒能量提醒",
+                            NotificationManager.IMPORTANCE_LOW);
+                    notificationChannel.enableLights(false);
+                    notificationChannel.enableVibration(false);
+                    notificationChannel.setShowBadge(false);
+                    getNotificationManager(context).createNotificationChannel(notificationChannel);
+                    builder = new android.app.Notification.Builder(context, CHANNEL_ID);
+                } else {
+                    getNotificationManager(context);
+                    builder = new android.app.Notification.Builder(context)
+                            .setPriority(android.app.Notification.PRIORITY_LOW);
+                }
+                builder
+                        .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                        .setContentTitle("芝麻粒")
+                        .setAutoCancel(false)
+                        .setContentIntent(pi);
+                if (ConfigV2.INSTANCE.isEnableOnGoing()) {
+                    builder.setOngoing(true);
+                }
+                mNotification = builder.build();
+            }
+            if (!isStart) {
+                if (context instanceof Service)
+                    ((Service) context).startForeground(NOTIFICATION_ID, mNotification);
+                else
+                    getNotificationManager(context).notify(NOTIFICATION_ID, mNotification);
+                isStart = true;
+            }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
     }
 
@@ -76,40 +108,8 @@ public class Notification {
         return mNotifyManager;
     }
 
-    private static void initNotification(Context context) {
-        if (mNotification == null) {
-            Intent it = new Intent(Intent.ACTION_VIEW);
-            it.setData(Uri.parse("alipays://platformapi/startapp?appId="));
-            PendingIntent pi = PendingIntent.getActivity(context, 0, it,
-                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "芝麻粒能量提醒",
-                        NotificationManager.IMPORTANCE_LOW);
-                notificationChannel.enableLights(false);
-                notificationChannel.enableVibration(false);
-                notificationChannel.setShowBadge(false);
-                getNotificationManager(context).createNotificationChannel(notificationChannel);
-                builder = new android.app.Notification.Builder(context, CHANNEL_ID);
-            } else {
-                getNotificationManager(context);
-                builder = new android.app.Notification.Builder(context)
-                        .setPriority(android.app.Notification.PRIORITY_LOW);
-            }
-            builder
-                    .setSmallIcon(android.R.drawable.sym_def_app_icon)
-                    .setContentTitle("芝麻粒")
-                    .setAutoCancel(false)
-                    .setContentIntent(pi);
-            if (ConfigV2.INSTANCE.isEnableOnGoing()) {
-                builder.setOngoing(true);
-            }
-            mNotification = builder.build();
-        }
-    }
-
     public static void setNextExecTime(long nextExecTime) {
-        Notification.nextExecTime = nextExecTime;
+        NotificationUtil.nextExecTime = nextExecTime;
         if (isStart) {
             innerSetContentText();
         }
@@ -117,7 +117,7 @@ public class Notification {
 
     private static void innerSetContentText() {
         String preContent = (nextExecTime > 0) ? "下次扫描时间" + TimeUtil.getTimeStr(nextExecTime) + "\n" : "";
-        android.app.Notification.BigTextStyle style = new android.app.Notification.BigTextStyle();
+        Notification.BigTextStyle style = new Notification.BigTextStyle();
         style.bigText(preContent + contentText);
 //        Notification.InboxStyle style = new Notification.InboxStyle();
 //        style.addLine(preContent);

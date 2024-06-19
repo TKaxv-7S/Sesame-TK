@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,9 +16,9 @@ import pansong291.xposed.quickenergy.task.model.antForest.AntForestV2;
 @Data
 public class Statistics {
 
-    public static final Statistics INSTANCE = defInit();
-
     private static final String TAG = Statistics.class.getSimpleName();
+
+    public static final Statistics INSTANCE = new Statistics();
 
     private TimeStatistics year;
     private TimeStatistics month;
@@ -54,16 +55,10 @@ public class Statistics {
     private int kbSignIn = 0;
 
     public Statistics() {
-        String[] date = Log.getFormatDate().split("-");
-        if (year == null) {
-            year = new TimeStatistics(Integer.parseInt(date[0]));
-        }
-        if (month == null) {
-            month = new TimeStatistics(Integer.parseInt(date[1]));
-        }
-        if (day == null) {
-            day = new TimeStatistics(Integer.parseInt(date[2]));
-        }
+        Calendar calendar = Calendar.getInstance();
+        year = new TimeStatistics(calendar.get(Calendar.YEAR));
+        month = new TimeStatistics(calendar.get(Calendar.MONTH));
+        day = new TimeStatistics(calendar.get(Calendar.DAY_OF_YEAR));
     }
 
     public static void addData(DataType dt, int i) {
@@ -211,53 +206,6 @@ public class Statistics {
             rl = stat.reserveLogList.get(index);
         }
         rl.applyCount += count;
-        save();
-    }
-
-    public static int getBeachTimes(String id) {
-        Statistics stat = INSTANCE;
-        int index = -1;
-        for (int i = 0; i < stat.beachLogList.size(); i++)
-            if (stat.beachLogList.get(i).cultivationCode.equals(id)) {
-                index = i;
-                break;
-            }
-        if (index < 0)
-            return 0;
-        BeachLog bl = stat.beachLogList.get(index);
-        return bl.applyCount;
-    }
-
-    public static boolean canBeach(String id, int count) {
-        Statistics stat = INSTANCE;
-        int index = -1;
-        for (int i = 0; i < stat.beachLogList.size(); i++)
-            if (stat.beachLogList.get(i).cultivationCode.equals(id)) {
-                index = i;
-                break;
-            }
-        if (index < 0)
-            return true;
-        BeachLog bl = stat.beachLogList.get(index);
-        return bl.applyCount < count;
-    }
-
-    public static void beachRecord(String id, int count) {
-        Statistics stat = INSTANCE;
-        BeachLog bl;
-        int index = -1;
-        for (int i = 0; i < stat.beachLogList.size(); i++)
-            if (stat.beachLogList.get(i).cultivationCode.equals(id)) {
-                index = i;
-                break;
-            }
-        if (index < 0) {
-            bl = new BeachLog(id);
-            stat.beachLogList.add(bl);
-        } else {
-            bl = stat.beachLogList.get(index);
-        }
-        bl.applyCount += count;
         save();
     }
 
@@ -587,7 +535,7 @@ public class Statistics {
     }
 
     public static boolean canDoubleToday() {
-        return INSTANCE.doubleTimes < Config.INSTANCE.getDoubleCountLimit();
+        return INSTANCE.doubleTimes < AntForestV2.doubleCountLimit.getValue();
     }
 
     public static void DoubleToday() {
@@ -630,40 +578,22 @@ public class Statistics {
         }
     }
 
-    public static boolean canBeachToday(String cultivationCode) {
-        Statistics stat = INSTANCE;
-        return !stat.beachTodayList.contains(cultivationCode);
-    }
-
-    public static void beachToday(String cultivationCode) {
-        Statistics stat = INSTANCE;
-        if (!stat.beachTodayList.contains(cultivationCode)) {
-            stat.beachTodayList.add(cultivationCode);
-            save();
-        }
-    }
-
-    public static Boolean resetToday() {
-        Statistics stat = INSTANCE;
-        String formatDate = Log.getFormatDate();
-        String[] dateStr = formatDate.split("-");
-        int ye = Integer.parseInt(dateStr[0]);
-        int mo = Integer.parseInt(dateStr[1]);
-        int da = Integer.parseInt(dateStr[2]);
-
-        if (ye > stat.year.time) {
-            stat.year.reset(ye);
-            stat.month.reset(mo);
-            stat.day.reset(da);
-        } else if (mo > stat.month.time) {
-            stat.month.reset(mo);
-            stat.day.reset(da);
-        } else if (da > stat.day.time) {
-            stat.day.reset(da);
+    public Boolean resetByCalendar(Calendar calendar) {
+        int ye = calendar.get(Calendar.YEAR);
+        int mo = calendar.get(Calendar.MONTH);
+        int da = calendar.get(Calendar.DAY_OF_MONTH);
+        if (ye > year.time) {
+            year.reset(ye);
+            month.reset(mo);
+            day.reset(da);
+        } else if (mo > month.time) {
+            month.reset(mo);
+            day.reset(da);
+        } else if (da > day.time) {
+            day.reset(da);
         } else {
             return false;
         }
-        Log.record("日期更新，昨天：" + stat.year.time + "-" + stat.month.time + "-" + stat.day.time + "，今天：" + formatDate);
         dayClear();
         return true;
     }
@@ -695,54 +625,6 @@ public class Statistics {
         save();
     }
 
-    private static Statistics defInit() {
-        Statistics stat = new Statistics();
-        String[] date = Log.getFormatDate().split("-");
-        if (stat.year == null)
-            stat.year = new TimeStatistics(Integer.parseInt(date[0]));
-        if (stat.month == null)
-            stat.month = new TimeStatistics(Integer.parseInt(date[1]));
-        if (stat.day == null)
-            stat.day = new TimeStatistics(Integer.parseInt(date[2]));
-        if (stat.waterFriendLogList == null)
-            stat.waterFriendLogList = new ArrayList<>();
-        if (stat.cooperateWaterList == null)
-            stat.cooperateWaterList = new ArrayList<>();
-        if (stat.answerQuestionList == null)
-            stat.answerQuestionList = new ArrayList<>();
-        if (stat.donationEggList == null)
-            stat.donationEggList = new ArrayList<>();
-        if (stat.spreadManureList == null)
-            stat.spreadManureList = new ArrayList<>();
-        if (stat.stallP2PHelpedList == null)
-            stat.stallP2PHelpedList = new ArrayList<>();
-        if (stat.memberSignInList == null)
-            stat.memberSignInList = new ArrayList<>();
-        if (stat.feedFriendLogList == null)
-            stat.feedFriendLogList = new ArrayList<>();
-        if (stat.visitFriendLogList == null)
-            stat.visitFriendLogList = new ArrayList<>();
-        if (stat.stallShareIdLogList == null)
-            stat.stallShareIdLogList = new ArrayList<>();
-        if (stat.stallHelpedCountLogList == null)
-            stat.stallHelpedCountLogList = new ArrayList<>();
-        if (stat.ancientTreeCityCodeList == null)
-            stat.ancientTreeCityCodeList = new ArrayList<>();
-        if (stat.syncStepList == null)
-            stat.syncStepList = new ArrayList<>();
-        if (stat.reserveLogList == null)
-            stat.reserveLogList = new ArrayList<>();
-        if (stat.beachTodayList == null)
-            stat.beachTodayList = new ArrayList<>();
-        if (stat.exchangeList == null)
-            stat.exchangeList = new ArrayList<>();
-        if (stat.protectBubbleList == null)
-            stat.protectBubbleList = new ArrayList<>();
-        if (stat.dailyAnswerList == null)
-            stat.dailyAnswerList = new HashSet<>();
-        return stat;
-    }
-
     public static synchronized Statistics load() {
         String json = null;
         try {
@@ -756,7 +638,7 @@ public class Statistics {
             Log.i(TAG, "统计文件格式有误，已重置统计文件");
             Log.system(TAG, "统计文件格式有误，已重置统计文件");
             try {
-                JsonUtil.MAPPER.updateValue(INSTANCE, defInit());
+                JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, t);
             }

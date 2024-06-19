@@ -11,7 +11,7 @@ import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.hook.Notification;
+import pansong291.xposed.quickenergy.util.NotificationUtil;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtil;
@@ -106,7 +106,7 @@ public class OldRpcBridge implements RpcBridge {
                         if (msg.contains("登录超时")) {
                             if (!ApplicationHook.isOffline()) {
                                 ApplicationHook.setOffline(true);
-                                Notification.setContentText("登录超时");
+                                NotificationUtil.setContentText("登录超时");
                                 if (ConfigV2.INSTANCE.isTimeoutRestart()) {
                                     Log.record("尝试重新登录");
                                     ApplicationHook.reLoginByBroadcast();
@@ -116,7 +116,7 @@ public class OldRpcBridge implements RpcBridge {
                             if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
                                 long waitTime = System.currentTimeMillis() + ConfigV2.INSTANCE.getWaitWhenException();
                                 RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                                Notification.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
                             try {
@@ -150,7 +150,7 @@ public class OldRpcBridge implements RpcBridge {
                 JSONObject resultObject = new JSONObject(resultStr);
                 if (resultObject.optString("memo", "").contains("系统繁忙")) {
                     ApplicationHook.setOffline(true);
-                    Notification.setContentText("系统繁忙，可能需要滑动验证");
+                    NotificationUtil.setContentText("系统繁忙，可能需要滑动验证");
                     Log.record("系统繁忙，可能需要滑动验证");
                     return null;
                 }

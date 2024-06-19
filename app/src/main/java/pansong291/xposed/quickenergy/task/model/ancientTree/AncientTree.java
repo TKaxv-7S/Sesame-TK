@@ -3,14 +3,19 @@ package pansong291.xposed.quickenergy.task.model.ancientTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
+import pansong291.xposed.quickenergy.entity.AreaCode;
+import pansong291.xposed.quickenergy.entity.KVNode;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.Statistics;
 
@@ -22,20 +27,36 @@ public class AncientTree extends ModelTask {
         return "古树";
     }
 
+    private BooleanModelField enableAncientTree;
+    private BooleanModelField ancientTreeOnlyWeek;
+    private IdAndNameSelectModelField ancientTreeCityCodeList;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(enableAncientTree = new BooleanModelField("enableAncientTree", "开启古树", false));
+        modelFields.addField(ancientTreeOnlyWeek = new BooleanModelField("ancientTreeOnlyWeek", "仅星期一、三、五运行保护古树", true));
+        modelFields.addField(ancientTreeCityCodeList = new IdAndNameSelectModelField("ancientTreeCityCodeList", "古树区划代码列表", new KVNode<>(new LinkedHashMap<>(), false), AreaCode.getList()));
+        return modelFields;
     }
 
     public Boolean check() {
-        return Config.INSTANCE.isAncientTree() && Config.hasAncientTreeWeek() && !TaskCommon.IS_MORNING && TaskCommon.IS_AFTER_8AM;
+        if (enableAncientTree.getValue() && !TaskCommon.IS_ENERGY_TIME && TaskCommon.IS_AFTER_8AM) {
+            if (!ancientTreeOnlyWeek.getValue()) {
+                return true;
+            }
+            SimpleDateFormat sdf_week = new SimpleDateFormat("EEEE", Locale.getDefault());
+            String week = sdf_week.format(new Date());
+            return "星期一".equals(week) || "星期三".equals(week) || "星期五".equals(week);
+        }
+        return false;
     }
 
     public Runnable init() {
         return () -> {
             try {
                 Log.record("开始检测古树保护");
-                ancientTree(Config.INSTANCE.getAncientTreeCityCodeList()); // 二次检查 有时会返回繁忙漏保护
+                ancientTree(ancientTreeCityCodeList.getValue().getKey().keySet()); // 二次检查 有时会返回繁忙漏保护
             } catch (Throwable t) {
                 Log.i(TAG, "start.run err:");
                 Log.printStackTrace(TAG, t);
@@ -43,7 +64,7 @@ public class AncientTree extends ModelTask {
         };
     }
 
-    private static void ancientTree(List<String> ancientTreeCityCodeList) {
+    private static void ancientTree(Collection<String> ancientTreeCityCodeList) {
         try {
             for (String cityCode : ancientTreeCityCodeList) {
                 if (!Statistics.canAncientTreeToday(cityCode))

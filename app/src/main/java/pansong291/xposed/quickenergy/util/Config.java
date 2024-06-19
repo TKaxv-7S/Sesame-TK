@@ -1,14 +1,8 @@
 package pansong291.xposed.quickenergy.util;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import lombok.Data;
@@ -166,55 +160,6 @@ public class Config {
     private boolean consumeGold;
     private boolean omegakoiTown;
 
-    /* forest */
-    public void setDoubleCardTime(String i) {
-        doubleCardTime = Arrays.asList(i.split(","));
-    }
-
-    public String getDoubleCardTime() {
-        return String.join(",", doubleCardTime);
-    }
-
-    public void setFarmGameTime(String i) {
-        farmGameTime = Arrays.asList(i.split(","));
-    }
-
-    public String getFarmGameTime() {
-        return String.join(",", farmGameTime);
-    }
-
-    public boolean hasAnimalSleepTime() {
-        long currentTimeMillis = System.currentTimeMillis();
-        for (String time : animalSleepTime) {
-            if (TimeUtil.checkInTimeRange(currentTimeMillis, time)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean hasFarmGameTime() {
-        long currentTimeMillis = System.currentTimeMillis();
-        for (String time : farmGameTime) {
-            if (TimeUtil.checkInTimeRange(currentTimeMillis, time)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public int getCollectInterval() {
-        return Math.max(collectInterval, 100);
-    }
-
-    public List<String> getDontCollectList() {
-        return new ArrayList<>(dontCollectSet);
-    }
-
-    public void setDontCollectList(List<String> dontCollectList) {
-        this.dontCollectSet = new HashSet<>(dontCollectList);
-    }
-
     public static Config defInit() {
         Config c = new Config();
 
@@ -363,101 +308,6 @@ public class Config {
         c.consumeGold = false;
         c.omegakoiTown = false;
         return c;
-    }
-
-    public static Boolean isModify() {
-        String json = null;
-        if (FileUtil.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtil.readFromFile(FileUtil.getConfigFile(UserIdMap.getCurrentUid()));
-        }
-        if (json != null) {
-            String formatted = JsonUtil.toJsonString(INSTANCE);
-            return formatted == null || !formatted.equals(json);
-        }
-        return true;
-    }
-
-    public static Boolean save(Boolean force) {
-        if (!force) {
-            if (!isModify()) {
-                return true;
-            }
-        }
-        String json = JsonUtil.toJsonString(INSTANCE);
-        Log.system(TAG, "保存 config.json: " + json);
-        return FileUtil.write2File(json, FileUtil.getConfigFile());
-    }
-
-    /* base */
-    public static synchronized Config load() {
-        Log.i(TAG, "load config");
-        String json = null;
-        if (FileUtil.getConfigFile(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtil.readFromFile(FileUtil.getConfigFile(UserIdMap.getCurrentUid()));
-        }
-        try {
-            JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
-        } catch (Throwable t) {
-            Log.printStackTrace(TAG, t);
-            Log.i(TAG, "配置文件格式有误，已重置配置文件");
-            Log.system(TAG, "配置文件格式有误，已重置配置文件");
-            try {
-                JsonUtil.MAPPER.updateValue(INSTANCE, defInit());
-            } catch (JsonMappingException e) {
-                Log.printStackTrace(TAG, t);
-            }
-        }
-        String formatted = JsonUtil.toJsonString(INSTANCE);
-        if (formatted != null && !formatted.equals(json)) {
-            Log.i(TAG, "重新格式化 config.json");
-            Log.system(TAG, "重新格式化 config.json");
-            FileUtil.write2File(formatted, FileUtil.getConfigFile());
-        }
-        init = true;
-        return INSTANCE;
-    }
-
-    public void setAnimalSleepTime(String i) {
-        animalSleepTime = Arrays.asList(i.split(","));
-    }
-
-    public String getAnimalSleepTime() {
-        return String.join(",", animalSleepTime);
-    }
-
-    public boolean hasDoubleCardTime() {
-        long currentTimeMillis = System.currentTimeMillis();
-        for (String time : doubleCardTime) {
-            if (TimeUtil.checkInTimeRange(currentTimeMillis, time)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean hasAncientTreeWeek() {
-        if (!INSTANCE.isAncientTreeOnlyWeek()) {
-            return true;
-        }
-        SimpleDateFormat sdf_week = new SimpleDateFormat("EEEE", Locale.getDefault());
-        String week = sdf_week.format(new Date());
-        return "星期一".equals(week) || "星期三".equals(week) || "星期五".equals(week);
-    }
-
-    private static int tmpStepCount = -1;
-
-    public static int tmpStepCount() {
-        if (tmpStepCount >= 0) {
-            return tmpStepCount;
-        }
-        tmpStepCount = Config.INSTANCE.getSyncStepCount();
-        if (tmpStepCount > 0) {
-            tmpStepCount = RandomUtil.nextInt(tmpStepCount, tmpStepCount + 2000);
-            if (tmpStepCount > 100000) {
-                tmpStepCount = 100000;
-            }
-        }
-        return tmpStepCount;
     }
 
     public interface RecallAnimalType {

@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import lombok.Getter;
+import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.ThreadUtil;
 
 public abstract class BaseTask {
@@ -97,14 +98,18 @@ public abstract class BaseTask {
             stopTask();
         }
         thread = new Thread(runnable);
-        if (check()) {
-            thread.start();
-            for (BaseTask childTask : childTaskMap.values()) {
-                if (childTask != null) {
-                    childTask.startTask();
+        try {
+            if (check()) {
+                thread.start();
+                for (BaseTask childTask : childTaskMap.values()) {
+                    if (childTask != null) {
+                        childTask.startTask();
+                    }
                 }
+                return true;
             }
-            return true;
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
         return false;
     }

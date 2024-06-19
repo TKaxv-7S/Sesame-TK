@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
-import pansong291.xposed.quickenergy.ui.EditDialog;
+import pansong291.xposed.quickenergy.ui.StringDialog;
 
 public class StringModelField extends ModelField {
 
@@ -46,7 +46,7 @@ public class StringModelField extends ModelField {
         btn.setMinHeight(150);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> EditDialog.showEditDialog(v.getContext(), ((Button) v).getText(), this));
+        btn.setOnClickListener(v -> StringDialog.showEditDialog(v.getContext(), ((Button) v).getText(), this));
         return btn;
     }
 

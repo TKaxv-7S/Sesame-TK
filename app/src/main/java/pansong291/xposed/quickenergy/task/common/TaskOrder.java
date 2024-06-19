@@ -14,6 +14,7 @@ import pansong291.xposed.quickenergy.task.model.antOrchard.AntOrchard;
 import pansong291.xposed.quickenergy.task.model.antSports.AntSports;
 import pansong291.xposed.quickenergy.task.model.antStall.AntStall;
 import pansong291.xposed.quickenergy.task.model.greenFinance.GreenFinance;
+import pansong291.xposed.quickenergy.task.model.kbMember.KBMember;
 import pansong291.xposed.quickenergy.task.model.reserve.Reserve;
 
 public class TaskOrder {
@@ -30,6 +31,7 @@ public class TaskOrder {
             , AntOrchard.class
             , AntStall.class
             , GreenFinance.class
+            , KBMember.class
     };
 
     private static final List<Class<ModelTask>> readOnlyClazzList = Collections.unmodifiableList(Arrays.asList(array));

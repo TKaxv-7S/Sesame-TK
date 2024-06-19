@@ -15,7 +15,7 @@ import java.util.List;
 
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
-import pansong291.xposed.quickenergy.ui.EditDialog;
+import pansong291.xposed.quickenergy.ui.StringDialog;
 import pansong291.xposed.quickenergy.util.JsonUtil;
 
 public class ListModelField extends ModelField {
@@ -28,6 +28,10 @@ public class ListModelField extends ModelField {
 
     public ListModelField(Object value) {
         super(value);
+    }
+
+    public ListModelField(Object value, Object defaultValue) {
+        super(value, defaultValue);
     }
 
     public ListModelField(String code, String name, List<String> value) {
@@ -58,7 +62,7 @@ public class ListModelField extends ModelField {
         btn.setMinHeight(150);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> EditDialog.showEditDialog(v.getContext(), ((Button) v).getText(), this));
+        btn.setOnClickListener(v -> StringDialog.showEditDialog(v.getContext(), ((Button) v).getText(), this));
         return btn;
     }
 
@@ -67,8 +71,12 @@ public class ListModelField extends ModelField {
         public ListJoinCommaToStringModelField() {
         }
 
-        public ListJoinCommaToStringModelField(Object value) {
+        public ListJoinCommaToStringModelField(List<String> value) {
             super(value);
+        }
+
+        public ListJoinCommaToStringModelField(List<String> value, List<String> defaultValue) {
+            super(value, defaultValue);
         }
 
         public ListJoinCommaToStringModelField(String code, String name, List<String> value) {

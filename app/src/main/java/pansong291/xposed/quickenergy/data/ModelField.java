@@ -29,10 +29,10 @@ public class ModelField implements Serializable {
     @JsonIgnore
     private String name;
 
+    protected volatile Object value;
+
     @JsonIgnore
     protected Object defaultValue;
-
-    protected volatile Object value;
 
     public ModelField() {
         this.type = this.getClass().getName().replace(extPackage, "");
@@ -41,6 +41,12 @@ public class ModelField implements Serializable {
     public ModelField(Object value) {
         this();
         this.defaultValue = value;
+        setValue(value);
+    }
+
+    public ModelField(Object value, Object defaultValue) {
+        this();
+        this.defaultValue = defaultValue;
         setValue(value);
     }
 
@@ -61,6 +67,7 @@ public class ModelField implements Serializable {
         setValue(value);
     }
 
+    @JsonIgnore
     public View getView(Context context) {
         Button btn = new Button(context);
         btn.setText(getName());

@@ -7,13 +7,14 @@
 
     <string name="hello_user">Hello User!</string>
     <string name="base_configuration">BASE CONFIGURATION</string>
-    <string name="immediate_effect">Immediate effect</string>
+    <string name="immediate_effect">Enable</string>
     <string name="record_log">Record log</string>
     <string name="show_toast">Show toast</string>
     <string name="stay_awake">Stay awake</string>
     <string name="timeout_restart">Restart when timeout</string>
     <string name="forest_configuration">FOREST CONFIGURATION</string>
-    <string name="exec_at_time">Execute at time</string>
+    <string name="exec_at_time">Execute at time(range)</string>
+    <string name="waken_at_time">Waken at time(range)</string>
     <string name="collect_energy">Collect energy</string>
     <string name="check_interval_minutes">Execute interval (minutes)</string>
     <string name="thread_count">Thread count</string>

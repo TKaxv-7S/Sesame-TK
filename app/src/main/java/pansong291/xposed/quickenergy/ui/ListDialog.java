@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -25,6 +24,7 @@ import pansong291.xposed.quickenergy.entity.AlipayUser;
 import pansong291.xposed.quickenergy.entity.AreaCode;
 import pansong291.xposed.quickenergy.entity.CooperateUser;
 import pansong291.xposed.quickenergy.entity.IdAndName;
+import pansong291.xposed.quickenergy.entity.KVNode;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
 import pansong291.xposed.quickenergy.util.UserIdMap;
 
@@ -58,8 +58,8 @@ public class ListDialog {
     }
 
     public static void show(Context c, CharSequence title, IdAndNameSelectModelField idAndNameSelectModelField, ListType listType) {
-        IdAndNameSelectModelField.KVNode<Map<String, Integer>, Boolean> kvNode = idAndNameSelectModelField.getValue();
-        show(c, title, idAndNameSelectModelField.getList(), kvNode.getKey(), kvNode.getValue(), listType);
+        KVNode<Map<String, Integer>, Boolean> kvNode = idAndNameSelectModelField.getValue();
+        show(c, title, idAndNameSelectModelField.getIdAndNameList(), kvNode.getKey(), kvNode.getValue(), listType);
     }
 
     public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, Map<String, Integer> selectedMap, Boolean hasCount) {
@@ -93,23 +93,12 @@ public class ListDialog {
                     .setView(getListView(c))
                     .setPositiveButton(c.getString(R.string.close), null)
                     .create();
-        listDialog.setOnShowListener(
-                new OnShowListener() {
-                    Context c;
-
-                    public OnShowListener setContext(Context c) {
-                        this.c = c;
-                        return this;
-                    }
-
-                    @Override
-                    public void onShow(DialogInterface p1) {
-                        AlertDialog d = (AlertDialog) p1;
-                        layout_batch_process = d.findViewById(R.id.layout_batch_process);
-                        layout_batch_process.setVisibility(listType == ListType.CHECK && !hasCount ? View.VISIBLE : View.GONE);
-                        ListAdapter.get(c).notifyDataSetChanged();
-                    }
-                }.setContext(c));
+        listDialog.setOnShowListener(p1 -> {
+            AlertDialog d = (AlertDialog) p1;
+            layout_batch_process = d.findViewById(R.id.layout_batch_process);
+            layout_batch_process.setVisibility(listType == ListType.CHECK && !hasCount ? View.VISIBLE : View.GONE);
+            ListAdapter.get(c).notifyDataSetChanged();
+        });
         return listDialog;
     }
 

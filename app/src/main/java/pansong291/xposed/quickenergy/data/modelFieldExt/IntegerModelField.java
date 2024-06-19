@@ -9,11 +9,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
-import pansong291.xposed.quickenergy.ui.EditDialog;
+import pansong291.xposed.quickenergy.ui.StringDialog;
 
 public class IntegerModelField extends ModelField {
+
+    protected Integer minLimit;
+
+    protected Integer maxLimit;
 
     public IntegerModelField() {
     }
@@ -26,12 +32,27 @@ public class IntegerModelField extends ModelField {
         super(code, name, value);
     }
 
+    public IntegerModelField(String code, String name, Integer value, Integer minLimit, Integer maxLimit) {
+        super(code, name, value);
+        this.minLimit = minLimit;
+        this.maxLimit = maxLimit;
+    }
+
     @Override
     public void setValue(Object value) {
+        Integer newValue;
         if (value == null) {
-            value = defaultValue;
+            newValue = (Integer) defaultValue;
+        } else {
+            newValue = Integer.parseInt(value.toString());
         }
-        this.value = Integer.parseInt(value.toString());
+        if (minLimit != null) {
+            newValue = Math.max(minLimit, newValue);
+        }
+        if (maxLimit != null) {
+            newValue = Math.min(maxLimit, newValue);
+        }
+        this.value = newValue;
     }
 
     @Override
@@ -50,7 +71,7 @@ public class IntegerModelField extends ModelField {
         btn.setMinHeight(150);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> EditDialog.showEditDialog(v.getContext(), ((Button) v).getText(), this));
+        btn.setOnClickListener(v -> StringDialog.showEditDialog(v.getContext(), ((Button) v).getText(), this));
         return btn;
     }
 

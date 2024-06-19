@@ -32,7 +32,7 @@ public class Reserve extends ModelTask {
         if (!Config.INSTANCE.isReserve() && !Config.INSTANCE.isBeach()) {
             return false;
         }
-        if (TaskCommon.IS_MORNING) {
+        if (TaskCommon.IS_ENERGY_TIME) {
             return false;
         }
 

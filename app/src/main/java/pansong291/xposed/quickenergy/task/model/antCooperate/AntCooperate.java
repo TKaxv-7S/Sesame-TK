@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
+import pansong291.xposed.quickenergy.entity.CooperateUser;
+import pansong291.xposed.quickenergy.entity.KVNode;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.CooperationIdMap;
@@ -25,18 +27,18 @@ public class AntCooperate extends ModelTask {
     }
 
     public static BooleanModelField cooperateWater;
-    public static IdAndNameSelectModelField.CooperateUserAndNameSelectModelField cooperateWaterList;
+    public static IdAndNameSelectModelField cooperateWaterList;
 
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", true));
-        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField.CooperateUserAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new IdAndNameSelectModelField.KVNode<>(new LinkedHashMap<>(), true)));
+        modelFields.addField(cooperateWaterList = new IdAndNameSelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser.getList()));
         return modelFields;
     }
 
     public Boolean check() {
-        return cooperateWater.getValue() && !TaskCommon.IS_MORNING;
+        return cooperateWater.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     public Runnable init() {

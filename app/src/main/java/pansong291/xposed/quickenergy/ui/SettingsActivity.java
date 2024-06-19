@@ -100,7 +100,7 @@ public class SettingsActivity extends Activity {
             Toast.makeText(this, R.string.language_simplified_chinese_need_restart, Toast.LENGTH_SHORT).show();
         });
         Button btn_execAtTimeList = findViewById(R.id.btn_execAtTimeList);
-        btn_execAtTimeList.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new ListModelField.ListJoinCommaToStringModelField(config.getExecAtTimeList()) {
+        btn_execAtTimeList.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new ListModelField.ListJoinCommaToStringModelField(config.getExecAtTimeList(), ConfigV2.DEFAULT_EXEC_AT_TIME_LIST) {
             @Override
             public void setConfigValue(String value) {
                 super.setConfigValue(value);
@@ -108,8 +108,17 @@ public class SettingsActivity extends Activity {
             }
 
         }));
+        Button btn_wakenAtTimeList = findViewById(R.id.btn_wakenAtTimeList);
+        btn_wakenAtTimeList.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new ListModelField.ListJoinCommaToStringModelField(config.getWakenAtTimeList(), ConfigV2.DEFAULT_WAKEN_AT_TIME_LIST) {
+            @Override
+            public void setConfigValue(String value) {
+                super.setConfigValue(value);
+                config.setWakenAtTimeList(getValue());
+            }
+
+        }));
         Button btn_toastOffsetY = findViewById(R.id.btn_toastOffsetY);
-        btn_toastOffsetY.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getToastOffsetY()) {
+        btn_toastOffsetY.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getToastOffsetY()) {
             @Override
             public void setConfigValue(String value) {
                 super.setConfigValue(value);
@@ -118,7 +127,7 @@ public class SettingsActivity extends Activity {
 
         }));
         Button btn_checkInterval = findViewById(R.id.btn_checkInterval);
-        btn_checkInterval.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getCheckInterval()) {
+        btn_checkInterval.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getCheckInterval()) {
             @Override
             public void setConfigValue(String value) {
                 super.setConfigValue(value);
@@ -132,7 +141,7 @@ public class SettingsActivity extends Activity {
             }
         }));
         Button btn_waitWhenException = findViewById(R.id.btn_waitWhenException);
-        btn_waitWhenException.setOnClickListener(v -> EditDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getWaitWhenException()) {
+        btn_waitWhenException.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getWaitWhenException()) {
             @Override
             public void setConfigValue(String value) {
                 super.setConfigValue(value);

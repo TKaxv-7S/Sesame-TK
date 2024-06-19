@@ -3,13 +3,11 @@ package pansong291.xposed.quickenergy.task.model.omegakoiTown;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
-import pansong291.xposed.quickenergy.hook.ApplicationHook;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 
 public class OmegakoiTown extends ModelTask {
@@ -55,16 +53,20 @@ public class OmegakoiTown extends ModelTask {
         return "小镇";
     }
 
+    private BooleanModelField omegakoiTown;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(omegakoiTown = new BooleanModelField("omegakoiTown", "开启小镇", false));
+        return modelFields;
     }
 
     public Boolean check() {
-        if (!Config.INSTANCE.isOmegakoiTown()) {
+        if (!omegakoiTown.getValue()) {
             return false;
         }
-        if (TaskCommon.IS_MORNING) {
+        if (TaskCommon.IS_ENERGY_TIME) {
             return false;
         }
         long executeTime = RuntimeInfo.getInstance().getLong("omegakoiTown", 0);

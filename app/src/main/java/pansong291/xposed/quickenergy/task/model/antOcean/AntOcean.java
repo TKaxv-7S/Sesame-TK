@@ -4,15 +4,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.TaskStatus;
 import pansong291.xposed.quickenergy.task.model.antForest.AntForestRpcCall;
 import pansong291.xposed.quickenergy.task.model.antForest.AntForestV2;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.StringUtil;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
 /**
  * @author Constanline
@@ -26,13 +27,17 @@ public class AntOcean extends ModelTask {
         return "海洋";
     }
 
+    public static BooleanModelField enableOcean;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(enableOcean = new BooleanModelField("enableOcean", "开启海洋", false));
+        return modelFields;
     }
 
     public Boolean check() {
-        return Config.INSTANCE.isAntOcean() && !TaskCommon.IS_MORNING;
+        return enableOcean.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     public Runnable init() {
@@ -44,7 +49,7 @@ public class AntOcean extends ModelTask {
                     if (jo.getBoolean("opened")) {
                         queryHomePage();
                     } else {
-                        Config.INSTANCE.setAntOcean(false);
+                        enableOcean.setValue(false);
                         Log.record("请先开启神奇海洋，并完成引导教程");
                     }
                 } else {

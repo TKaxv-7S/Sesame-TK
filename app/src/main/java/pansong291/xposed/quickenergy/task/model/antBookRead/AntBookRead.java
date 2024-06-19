@@ -5,9 +5,9 @@ import org.json.JSONObject;
 
 import pansong291.xposed.quickenergy.data.ModelFields;
 import pansong291.xposed.quickenergy.data.RuntimeInfo;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.StringUtil;
@@ -20,16 +20,20 @@ public class AntBookRead extends ModelTask {
         return "读书听书";
     }
 
+    private BooleanModelField antBookRead;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(antBookRead = new BooleanModelField("antBookRead", "开启读书听书", false));
+        return modelFields;
     }
 
     public Boolean check() {
-        if (!Config.INSTANCE.isAntBookRead()) {
+        if (!antBookRead.getValue()) {
             return false;
         }
-        if (TaskCommon.IS_MORNING || !TaskCommon.IS_AFTER_8AM) {
+        if (TaskCommon.IS_ENERGY_TIME || !TaskCommon.IS_AFTER_8AM) {
             return false;
         }
         long executeTime = RuntimeInfo.getInstance().getLong("consumeGold", 0);

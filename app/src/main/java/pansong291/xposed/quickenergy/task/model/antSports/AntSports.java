@@ -5,54 +5,81 @@ import org.json.JSONObject;
 
 import java.util.HashSet;
 
-import pansong291.xposed.quickenergy.R;
+import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.Config;
-import pansong291.xposed.quickenergy.util.UserIdMap;
 import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.RandomUtil;
 import pansong291.xposed.quickenergy.util.Statistics;
+import pansong291.xposed.quickenergy.util.TimeUtil;
+import pansong291.xposed.quickenergy.util.UserIdMap;
 
 public class AntSports extends ModelTask {
     private static final String TAG = AntSports.class.getSimpleName();
 
     private static final HashSet<String> waitOpenBoxNos = new HashSet<>();
 
+    private static int tmpStepCount = -1;
+
     @Override
     public String setName() {
         return "运动";
     }
 
+    public BooleanModelField enableSports;
+    public BooleanModelField openTreasureBox;
+    public BooleanModelField receiveCoinAsset;
+    public BooleanModelField donateCharityCoin;
+    public IntegerModelField minExchangeCount;
+    public IntegerModelField latestExchangeTime;
+    public static IntegerModelField syncStepCount;
+    public BooleanModelField tiyubiz;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(enableSports = new BooleanModelField("enableSports", "开启运动", true));
+        modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));
+        modelFields.addField(receiveCoinAsset = new BooleanModelField("receiveCoinAsset", "收运动币", false));
+        modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币", false));
+        modelFields.addField(minExchangeCount = new IntegerModelField("minExchangeCount", "最小捐步步数", 0));
+        modelFields.addField(latestExchangeTime = new IntegerModelField("latestExchangeTime", "最晚捐步时间(24小时制)", 22));
+        modelFields.addField(syncStepCount = new IntegerModelField("syncStepCount", "自定义同步步数", 22000));
+        modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
+        return modelFields;
     }
 
     @Override
     public Boolean check() {
-        return !TaskCommon.IS_MORNING;
+        return enableSports.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     public Runnable init() {
         return () -> {
             try {
+                if (Statistics.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
+                    new StepTask(ApplicationHook.getClassLoader()).start();
+                }
                 ClassLoader loader = ApplicationHook.getClassLoader();
-                if (Config.INSTANCE.isOpenTreasureBox())
+                if (openTreasureBox.getValue())
                     queryMyHomePage(loader);
 
-                if (Config.INSTANCE.isReceiveCoinAsset())
+                if (receiveCoinAsset.getValue())
                     receiveCoinAsset();
 
-                if (Config.INSTANCE.isDonateCharityCoin())
+                if (donateCharityCoin.getValue())
                     queryProjectList(loader);
 
-                if (Config.INSTANCE.getMinExchangeCount() > 0 && Statistics.canExchangeToday(UserIdMap.getCurrentUid()))
+                if (minExchangeCount.getValue() > 0 && Statistics.canExchangeToday(UserIdMap.getCurrentUid()))
                     queryWalkStep(loader);
 
-                if (Config.INSTANCE.isTiyubiz()) {
+                if (tiyubiz.getValue()) {
                     userTaskGroupQuery("SPORTS_DAILY_SIGN_GROUP");
                     userTaskGroupQuery("SPORTS_DAILY_GROUP");
                     userTaskRightsReceive();
@@ -64,6 +91,20 @@ public class AntSports extends ModelTask {
                 Log.printStackTrace(TAG, t);
             }
         };
+    }
+
+    public static int tmpStepCount() {
+        if (tmpStepCount >= 0) {
+            return tmpStepCount;
+        }
+        tmpStepCount = syncStepCount.getValue();
+        if (tmpStepCount > 0) {
+            tmpStepCount = RandomUtil.nextInt(tmpStepCount, tmpStepCount + 2000);
+            if (tmpStepCount > 100000) {
+                tmpStepCount = 100000;
+            }
+        }
+        return tmpStepCount;
     }
 
     private static void receiveCoinAsset() {
@@ -353,7 +394,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void queryWalkStep(ClassLoader loader) {
+    private void queryWalkStep(ClassLoader loader) {
         try {
             String s = AntSportsRpcCall.queryWalkStep();
             JSONObject jo = new JSONObject(s);
@@ -361,7 +402,7 @@ public class AntSports extends ModelTask {
                 jo = jo.getJSONObject("dailyStepModel");
                 int produceQuantity = jo.getInt("produceQuantity");
                 int hour = Integer.parseInt(Log.getFormatTime().split(":")[0]);
-                if (produceQuantity >= Config.INSTANCE.getMinExchangeCount() || hour >= Config.INSTANCE.getLatestExchangeTime()) {
+                if (produceQuantity >= minExchangeCount.getValue() || hour >= latestExchangeTime.getValue()) {
                     s = AntSportsRpcCall.walkDonateSignInfo(produceQuantity);
                     s = AntSportsRpcCall.donateWalkHome(produceQuantity);
                     jo = new JSONObject(s);
@@ -636,6 +677,47 @@ public class AntSports extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "tiyubizGo err:");
             Log.printStackTrace(TAG, t);
+        }
+    }
+
+    /**
+     * The type Step task.
+     */
+    public static class StepTask extends Thread {
+
+        /**
+         * The Loader.
+         */
+        ClassLoader loader;
+
+        /**
+         * Instantiates a new Step task.
+         *
+         * @param cl the cl
+         */
+        public StepTask(ClassLoader cl) {
+            this.loader = cl;
+        }
+
+        @Override
+        public void run() {
+            int step = AntSports.tmpStepCount();
+            try {
+                boolean booleanValue = (Boolean) XposedHelpers.callMethod(
+                        XposedHelpers.callStaticMethod(
+                                loader.loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"),
+                                "a"),
+                        "a", new Object[]{step, Boolean.FALSE, "system"});
+                if (booleanValue) {
+                    Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
+                } else {
+                    Log.record("同步运动步数失败:" + step);
+                }
+                Statistics.SyncStepToday(UserIdMap.getCurrentUid());
+            } catch (Throwable t) {
+                Log.i(TAG, "StepTask.run err:");
+                Log.printStackTrace(TAG, t);
+            }
         }
     }
 }

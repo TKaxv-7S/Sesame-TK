@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
-import pansong291.xposed.quickenergy.util.Config;
+import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm;
 import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.RandomUtil;
@@ -20,8 +22,17 @@ import pansong291.xposed.quickenergy.util.UserIdMap;
 public class AntOrchard extends ModelTask {
     private static final String TAG = AntOrchard.class.getSimpleName();
 
-    private static String userId;
-    private static String treeLevel;
+    private String userId;
+    private String treeLevel;
+
+    private String[] wuaList;
+
+    private Integer executeIntervalInt;
+
+    public static BooleanModelField antOrchard;
+    private static IntegerModelField executeInterval;
+    private static BooleanModelField receiveOrchardTaskAward;
+    private static IntegerModelField orchardSpreadManureCount;
 
     @Override
     public String setName() {
@@ -30,16 +41,22 @@ public class AntOrchard extends ModelTask {
 
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(antOrchard = new BooleanModelField("antOrchard", "开启农场", true));
+        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 500));
+        modelFields.addField(receiveOrchardTaskAward = new BooleanModelField("receiveOrchardTaskAward", "收取农场任务奖励", true));
+        modelFields.addField(orchardSpreadManureCount = new IntegerModelField("orchardSpreadManureCount", "农场每日施肥次数", 0));
+        return modelFields;
     }
 
     public Boolean check() {
-        return Config.INSTANCE.isAntOrchard() && !TaskCommon.IS_MORNING;
+        return antOrchard.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     public Runnable init() {
         return () -> {
             try {
+                executeIntervalInt = Math.max(executeInterval.getValue(), 500);
                 String s = AntOrchardRpcCall.orchardIndex();
                 JSONObject jo = new JSONObject(s);
                 if ("100".equals(jo.getString("resultCode"))) {
@@ -56,17 +73,18 @@ public class AntOrchard extends ModelTask {
                             if (!joo.optBoolean("hireCountOnceLimit", true)
                                     && !joo.optBoolean("hireCountOneDayLimit", true))
                                 batchHireAnimalRecommend();
-                            if (Config.INSTANCE.isReceiveOrchardTaskAward()) {
+                            if (receiveOrchardTaskAward.getValue()) {
                                 doOrchardDailyTask(userId);
                                 triggerTbTask();
                             }
-                            if (Config.INSTANCE.getOrchardSpreadManureCount() > 0 && Statistics.canSpreadManureToday(userId))
+                            Integer orchardSpreadManureCountValue = orchardSpreadManureCount.getValue();
+                            if (orchardSpreadManureCountValue > 0 && Statistics.canSpreadManureToday(userId))
                                 orchardSpreadManure();
 
-                            if (Config.INSTANCE.getOrchardSpreadManureCount() >= 3
-                                    && Config.INSTANCE.getOrchardSpreadManureCount() < 10) {
+                            if (orchardSpreadManureCountValue >= 3
+                                    && orchardSpreadManureCountValue < 10) {
                                 querySubplotsActivity(3);
-                            } else if (Config.INSTANCE.getOrchardSpreadManureCount() >= 10) {
+                            } else if (orchardSpreadManureCountValue >= 10) {
                                 querySubplotsActivity(10);
                             }
 
@@ -75,7 +93,7 @@ public class AntOrchard extends ModelTask {
                             Log.i(jo.toString());
                         }
                     } else {
-                        Config.INSTANCE.setAntOrchard(false);
+                        antOrchard.setValue(false);
                         Log.record("请先开启芭芭农场！");
                     }
                 } else {
@@ -88,9 +106,7 @@ public class AntOrchard extends ModelTask {
         };
     }
 
-    private static String[] wuaList;
-
-    private static String getWua() {
+    private String getWua() {
         if (wuaList == null) {
             try {
                 String content = FileUtil.readFromFile(FileUtil.getWuaFile());
@@ -105,7 +121,7 @@ public class AntOrchard extends ModelTask {
         return "null";
     }
 
-    private static boolean canSpreadManureContinue(String stageBefore, String stageAfter) {
+    private boolean canSpreadManureContinue(String stageBefore, String stageAfter) {
         Double bef = Double.parseDouble(StringUtil.getSubString(stageBefore, "施肥", "%"));
         Double aft = Double.parseDouble(StringUtil.getSubString(stageAfter, "施肥", "%"));
         if (bef - aft != 0.01)
@@ -114,7 +130,7 @@ public class AntOrchard extends ModelTask {
         return false;
     }
 
-    private static void orchardSpreadManure() {
+    private void orchardSpreadManure() {
         try {
             do {
                 JSONObject jo = new JSONObject(AntOrchardRpcCall.orchardIndex());
@@ -154,7 +170,7 @@ public class AntOrchard extends ModelTask {
                 int wateringCost = accountInfo.getInt("wateringCost");
                 int wateringLeftTimes = accountInfo.getInt("wateringLeftTimes");
                 if (happyPoint > wateringCost && wateringLeftTimes > 0
-                        && (200 - wateringLeftTimes < Config.INSTANCE.getOrchardSpreadManureCount())) {
+                        && (200 - wateringLeftTimes < orchardSpreadManureCount.getValue())) {
                     jo = new JSONObject(AntOrchardRpcCall.orchardSpreadManure(getWua()));
                     if (!"100".equals(jo.getString("resultCode"))) {
                         Log.record(jo.getString("resultDesc"));
@@ -169,7 +185,7 @@ public class AntOrchard extends ModelTask {
                         Statistics.spreadManureToday(userId);
                         return;
                     }
-                    Thread.sleep(1500);
+                    Thread.sleep(executeIntervalInt);
                     continue;
                 }
                 break;
@@ -180,7 +196,7 @@ public class AntOrchard extends ModelTask {
         }
     }
 
-    private static void extraInfoGet() {
+    private void extraInfoGet() {
         try {
             String s = AntOrchardRpcCall.extraInfoGet();
             JSONObject jo = new JSONObject(s);
@@ -205,7 +221,7 @@ public class AntOrchard extends ModelTask {
         }
     }
 
-    private static void drawLotteryPlus(JSONObject lotteryPlusInfo) {
+    private void drawLotteryPlus(JSONObject lotteryPlusInfo) {
         try {
             if (!lotteryPlusInfo.has("userSevenDaysGiftsItem"))
                 return;
@@ -243,7 +259,7 @@ public class AntOrchard extends ModelTask {
         }
     }
 
-    private static void doOrchardDailyTask(String userId) {
+    private void doOrchardDailyTask(String userId) {
         try {
             String s = AntOrchardRpcCall.orchardListTask();
             JSONObject jo = new JSONObject(s);
@@ -281,7 +297,7 @@ public class AntOrchard extends ModelTask {
         }
     }
 
-    private static void orchardSign(JSONObject signTaskInfo) {
+    private void orchardSign(JSONObject signTaskInfo) {
         try {
             JSONObject currentSignItem = signTaskInfo.getJSONObject("currentSignItem");
             if (!currentSignItem.getBoolean("signed")) {
@@ -334,7 +350,7 @@ public class AntOrchard extends ModelTask {
         }
     }
 
-    private static void querySubplotsActivity(int taskRequire) {
+    private void querySubplotsActivity(int taskRequire) {
         try {
             String s = AntOrchardRpcCall.querySubplotsActivity(treeLevel);
             JSONObject jo = new JSONObject(s);
@@ -389,7 +405,7 @@ public class AntOrchard extends ModelTask {
         }
     }
 
-    private static void batchHireAnimalRecommend() {
+    private void batchHireAnimalRecommend() {
         try {
             JSONObject jo = new JSONObject(AntOrchardRpcCall.batchHireAnimalRecommend(UserIdMap.getCurrentUid()));
             if ("100".equals(jo.getString("resultCode"))) {
@@ -399,7 +415,7 @@ public class AntOrchard extends ModelTask {
                     for (int i = 0; i < recommendGroupList.length(); i++) {
                         jo = recommendGroupList.getJSONObject(i);
                         String animalUserId = jo.getString("animalUserId");
-                        if (Config.INSTANCE.getDontNotifyFriendList().contains(animalUserId)) {
+                        if (AntFarm.dontNotifyFriendList.getValue().getKey().containsKey(animalUserId)) {
                             continue;
                         }
                         int earnManureCount = jo.getInt("earnManureCount");
