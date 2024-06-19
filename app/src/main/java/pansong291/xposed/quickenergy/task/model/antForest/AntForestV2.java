@@ -38,7 +38,6 @@ import pansong291.xposed.quickenergy.task.common.BaseTask;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antFarm.AntFarm.TaskStatus;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.NotificationUtil;
@@ -97,6 +96,9 @@ public class AntForestV2 extends ModelTask {
     public static IntegerModelField exchangeEnergyDoubleClickCount;
     public static BooleanModelField userPatrol;
     public static BooleanModelField antdodoCollect;
+    public static BooleanModelField totalCertCount;
+    public static BooleanModelField collectGiftBox;
+    public static BooleanModelField animalConsumeProp;
     public static IdAndNameSelectModelField.UserAndNameSelectOneModelField sendFriendCard;
     public static IdAndNameSelectModelField whoYouWantToGiveTo;
     public static BooleanModelField ecoLifeTick;
@@ -138,8 +140,8 @@ public class AntForestV2 extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", true));
-        modelFields.addField(collectInterval = new IntegerModelField("collectInterval", "收取间隔(毫秒)", 350, 350, Integer.MAX_VALUE));
-        modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 5000));
+        modelFields.addField(collectInterval = new IntegerModelField("collectInterval", "收取间隔(毫秒)", 500, 300, Integer.MAX_VALUE));
+        modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 250));
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "浇水10克需收能量(0为关闭)", 0));
         modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "浇水18克需收能量(0为关闭)", 0));
         modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "浇水33克需收能量(0为关闭)", 0));
@@ -153,6 +155,8 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", true));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", true));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", true));
+        modelFields.addField(animalConsumeProp = new BooleanModelField("animalConsumeProp", "派遣动物", false));
+        modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
         modelFields.addField(giveEnergyRainList = new IdAndNameSelectModelField("giveEnergyRainList", "赠送能量雨列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(waterFriendList = new IdAndNameSelectModelField("waterFriendList", "好友浇水列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
         modelFields.addField(waterFriendCount = new IntegerModelField("waterFriendCount", "每次浇水克数(10 18 33 66)", 66));
@@ -160,10 +164,9 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(dontHelpCollectList = new IdAndNameSelectModelField("dontHelpCollectList", "不复活好友能量名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "收取森林任务奖励", true));
         modelFields.addField(dontCollectList = new IdAndNameSelectModelField("dontCollectList", "不收取能量名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
-        modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
         modelFields.addField(antdodoCollect = new BooleanModelField("antdodoCollect", "神奇物种开卡", false));
-
-
+        modelFields.addField(totalCertCount = new BooleanModelField("totalCertCount", "记录证书总数", false));
+        modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(sendFriendCard = new IdAndNameSelectModelField.UserAndNameSelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(whoYouWantToGiveTo = new IdAndNameSelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色行动打卡", false));
@@ -403,7 +406,7 @@ public class AntForestV2 extends ModelTask {
 
             if (!TaskCommon.IS_ENERGY_TIME) {
                 if (isSelf) {
-                    if (Config.INSTANCE.isTotalCertCount()) {
+                    if (totalCertCount.getValue()) {
                         JSONObject userBaseInfo = userHomeObject.getJSONObject("userBaseInfo");
                         int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
                         FileUtil.setCertCount(selfId, Log.getFormatDate(), totalCertCount);
@@ -619,7 +622,7 @@ public class AntForestV2 extends ModelTask {
                                 }
                             }
                         }
-                        if (Config.INSTANCE.isCollectGiftBox()) {
+                        if (collectGiftBox.getValue()) {
                             try {
                                 if (friendsObject.optBoolean("canCollectGiftBox", false)) {
                                     if (userHomeObject == null) {
@@ -1599,11 +1602,16 @@ public class AntForestV2 extends ModelTask {
                             String ecosystem = animal.getString("ecosystem");
                             String name = animal.getString("name");
                             Log.forest("使用道具🎭[" + propName + "]#" + ecosystem + "-" + name);
-                            if (!Config.INSTANCE.getSendFriendCard().isEmpty()
-                                    && !UserIdMap.getCurrentUid().equals(Config.INSTANCE.getSendFriendCard().get(0))) {
-                                int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
-                                if (fantasticStarQuantity == 3) {
-                                    sendCard(animal, Config.INSTANCE.getSendFriendCard().get(0));
+                            Map<String, Integer> map = sendFriendCard.getValue().getKey();
+                            if (!map.isEmpty()) {
+                                for (String userId : map.keySet()) {
+                                    if (!UserIdMap.getCurrentUid().equals(userId)) {
+                                        int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
+                                        if (fantasticStarQuantity == 3) {
+                                            sendCard(animal, userId);
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                             if (holdsNum > 1) {
@@ -1802,7 +1810,7 @@ public class AntForestV2 extends ModelTask {
                     jo = animalProps.getJSONObject(i);
                     JSONObject animal = jo.getJSONObject("animal");
                     int id = animal.getInt("id");
-                    if (canConsumeProp && Config.INSTANCE.isAnimalConsumeProp()) {
+                    if (canConsumeProp && animalConsumeProp.getValue()) {
                         JSONObject main = jo.optJSONObject("main");
                         if (main != null && main.optInt("holdsNum", 0) > 0) {
                             canConsumeProp = !AnimalConsumeProp(id);

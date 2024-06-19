@@ -121,8 +121,8 @@ public class AntFarm extends ModelTask {
         animalSleepTimeList.add("0000-0559");
         modelFields.addField(animalSleepTime = new ListModelField.ListJoinCommaToStringModelField("animalSleepTime", "小鸡睡眠时间(范围)", animalSleepTimeList));
         modelFields.addField(notifyFriend = new BooleanModelField("notifyFriend", "通知好友赶鸡", false));
-        modelFields.addField(dontNotifyFriendList = new IdAndNameSelectModelField("dontNotifyFriendList", "通知好友赶鸡", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
-        modelFields.addField(acceptGift = new BooleanModelField("acceptGift", "通知好友赶鸡", true));
+        modelFields.addField(dontNotifyFriendList = new IdAndNameSelectModelField("dontNotifyFriendList", "不通知赶鸡名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(acceptGift = new BooleanModelField("acceptGift", "收麦子", true));
         modelFields.addField(visitFriendList = new IdAndNameSelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", true));
         modelFields.addField(enableChouchoule = new BooleanModelField("enableChouchoule", "开启小鸡抽抽乐", true));

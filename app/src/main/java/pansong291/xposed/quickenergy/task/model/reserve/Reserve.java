@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import pansong291.xposed.quickenergy.data.ModelFields;
+import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.task.common.ModelTask;
 import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.util.BeachIdMap;
@@ -23,13 +24,17 @@ public class Reserve extends ModelTask {
         return "保护地";
     }
 
+    public static BooleanModelField enableReserve;
+
     @Override
     public ModelFields setFields() {
-        return null;
+        ModelFields modelFields = new ModelFields();
+        modelFields.addField(enableReserve = new BooleanModelField("enableReserve", "开启保护地", false));
+        return modelFields;
     }
 
     public Boolean check() {
-        if (!Config.INSTANCE.isReserve() && !Config.INSTANCE.isBeach()) {
+        if (!enableReserve.getValue() && !Config.INSTANCE.isBeach()) {
             return false;
         }
         if (TaskCommon.IS_ENERGY_TIME) {
@@ -49,7 +54,7 @@ public class Reserve extends ModelTask {
                 Log.record("开始检测保护地");
                 isProtecting = true;
 
-                if (Config.INSTANCE.isReserve()) {
+                if (enableReserve.getValue()) {
                     animalReserve();
                 }
 
