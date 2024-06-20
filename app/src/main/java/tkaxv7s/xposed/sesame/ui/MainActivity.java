@@ -185,7 +185,7 @@ public class MainActivity extends Activity {
                 break;
 
             case R.id.btn_github:
-                data = "https://github.com/TKaxv-7S/XQuickEnergy";
+                data = "https://github.com/TKaxv-7S/Sesame-TK";
                 break;
 
             case R.id.btn_settings:
