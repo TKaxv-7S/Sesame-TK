@@ -4,11 +4,11 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "pansong291.xposed.quickenergy.repair"
+        applicationId "tkaxv7s.xposed.sesame"
         minSdk 21
         //noinspection ExpiredTargetSdkVersion
         targetSdk 31
-        versionCode 71
+        versionCode 80
         versionName "1.2.5-test19-TK"
     }
     buildTypes {
@@ -23,7 +23,7 @@ android {
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 if (variant.buildType.name == 'release') {
-                    outputFileName = "xqe-sesame-v${defaultConfig.versionName}.apk"
+                    outputFileName = "Sesame-TK-v${defaultConfig.versionName}.apk"
                 }
             }
         }

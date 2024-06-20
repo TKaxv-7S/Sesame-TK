@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="pansong291.xposed.quickenergy">
+    package="tkaxv7s.xposed.sesame">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -38,7 +38,7 @@
 
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name="tkaxv7s.xposed.sesame.ui.MainActivity"
             android:resizeableActivity="true"
             android:exported="true">
             <intent-filter>
@@ -50,7 +50,7 @@
         <activity-alias
             android:name=".ui.MainActivityAlias"
             android:enabled="true"
-            android:targetActivity=".ui.MainActivity"
+            android:targetActivity="tkaxv7s.xposed.sesame.ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -59,12 +59,12 @@
         </activity-alias>
 
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name="tkaxv7s.xposed.sesame.ui.SettingsActivity"
             android:resizeableActivity="true"
             tools:targetApi="n" />
 
         <activity
-            android:name=".ui.HtmlViewerActivity"
+            android:name="tkaxv7s.xposed.sesame.ui.HtmlViewerActivity"
             android:resizeableActivity="true"
             tools:targetApi="n" />
 

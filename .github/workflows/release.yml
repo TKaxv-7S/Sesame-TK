@@ -41,7 +41,7 @@ jobs:
       - name: Upload to Release Action
         uses: termux/upload-release-action@v4.1.0
         with:
-          asset_name: xqe-sesame-${{ github.event.release.tag_name }}.apk
+          asset_name: Sesame-TK-${{ github.event.release.tag_name }}.apk
           file: ${{ steps.sign_app.outputs.signedFile }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}

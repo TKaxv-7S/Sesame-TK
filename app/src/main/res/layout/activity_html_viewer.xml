@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <pansong291.xposed.quickenergy.ui.MyWebView
+    <tkaxv7s.xposed.sesame.ui.MyWebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/mwv_webview" />
