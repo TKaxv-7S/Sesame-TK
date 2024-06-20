@@ -212,6 +212,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                             String targetUid = getUserId();
                                             if (targetUid == null) {
                                                 Log.record("用户为空，放弃执行");
+                                                reLogin();
                                                 return;
                                             }
                                             String currentUid = UserIdMap.getCurrentUid();
