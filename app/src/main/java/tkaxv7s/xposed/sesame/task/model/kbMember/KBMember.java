@@ -7,13 +7,14 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.Statistics;
+import tkaxv7s.xposed.sesame.util.LanguageUtil;
 
 public class KBMember extends ModelTask {
     private static final String TAG = KBMember.class.getSimpleName();
 
     @Override
     public String setName() {
-        return "口碑";
+        return LanguageUtil.getString(R.string.koubei);
     }
 
     public BooleanModelField enableKb;
@@ -22,8 +23,8 @@ public class KBMember extends ModelTask {
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableKb = new BooleanModelField("enableKb", "开启口碑", false));
-        modelFields.addField(kbSignIn = new BooleanModelField("kbSignIn", "口碑签到", false));
+        modelFields.addField(enableKb = new BooleanModelField("enableKb", LanguageUtil.getString(R.string.enable_koubei), false));
+        modelFields.addField(kbSignIn = new BooleanModelField("kbSignIn", LanguageUtil.getString(R.string.koubei_sign_in), false));
         return modelFields;
     }
 

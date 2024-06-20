@@ -49,6 +49,7 @@ import tkaxv7s.xposed.sesame.util.StringUtil;
 import tkaxv7s.xposed.sesame.util.ThreadUtil;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.util.LanguageUtil;
 
 /**
  * 蚂蚁森林V2
@@ -99,6 +100,7 @@ public class AntForestV2 extends ModelTask {
     public static ListModelField.ListJoinCommaToStringModelField doubleCardTime;
     public static IntegerModelField doubleCountLimit;
     public static BooleanModelField helpFriendCollect;
+    public static BooleanModelField helpFriendCollectType;
     public static SelectModelField dontHelpCollectList;
     public static IntegerModelField returnWater33;
     public static IntegerModelField returnWater18;
@@ -174,6 +176,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(waterFriendList = new SelectModelField("waterFriendList", "好友浇水列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
         modelFields.addField(waterFriendCount = new IntegerModelField("waterFriendCount", "每次浇水克数(10 18 33 66)", 66));
         modelFields.addField(helpFriendCollect = new BooleanModelField("helpFriendCollect", "复活好友能量", true));
+        modelFields.addField(helpFriendCollectType = new BooleanModelField("helpFriendCollectType", "复活好友能量类型(打开:复活列表/关闭:不复活列表)", false));
         modelFields.addField(dontHelpCollectList = new SelectModelField("dontHelpCollectList", "不复活好友能量名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", true));
@@ -636,7 +639,11 @@ public class AntForestV2 extends ModelTask {
                                                         Statistics.protectBubbleToday(selfId);
                                                     }
                                                     if (wateringBubble.getBoolean("canProtect")) {
-                                                        if (!dontHelpCollectMap.containsKey(userId)) {
+                                                        boolean isHelpCollect = dontHelpCollectMap.containsKey(userId);
+                                                        if (!helpFriendCollectType.getValue()){
+                                                            isHelpCollect = !isHelpCollect;
+                                                        }
+                                                        if (isHelpCollect) {
                                                             JSONObject joProtect = new JSONObject(AntForestRpcCall.protectBubble(userId));
                                                             if ("SUCCESS".equals(joProtect.getString("resultCode"))) {
                                                                 int vitalityAmount = joProtect.optInt("vitalityAmount", 0);
