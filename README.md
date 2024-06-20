@@ -5,7 +5,7 @@
 [![All Releases Download](https://img.shields.io/github/downloads/TKaxv-7S/Sesame-TK/total.svg)](../../releases)
 
 ### 特别感谢这个项目的上一位维护者[@constanline](https://github.com/constanline)，以及更早的维护者[@pansong291](https://github.com/pansong291)与其他维护者们
-### 如果您觉得开发的功能还不错，同时愿意贡献PR，非常欢迎，也非常感谢大家为这个项目的付出！
+### 如果您开发了新功能，觉得开发的功能还不错，同时愿意贡献PR，非常欢迎，也非常感谢大家为这个项目的付出！
 
 ### 旧版本在 [XQuickEnergy](https://github.com/TKaxv-7S/XQuickEnergy)
 
