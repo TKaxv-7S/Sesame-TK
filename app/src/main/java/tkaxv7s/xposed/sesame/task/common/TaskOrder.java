@@ -24,11 +24,11 @@ public class TaskOrder {
             , AntCooperate.class
             , AntFarm.class
             , Reserve.class
+            , AntOrchard.class
             , AncientTree.class
             , AntSports.class
             , AntMember.class
             , AntOcean.class
-            , AntOrchard.class
             , AntStall.class
             , GreenFinance.class
             , KBMember.class

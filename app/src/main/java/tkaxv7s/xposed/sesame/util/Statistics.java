@@ -20,9 +20,9 @@ public class Statistics {
 
     public static final Statistics INSTANCE = new Statistics();
 
-    private TimeStatistics year;
-    private TimeStatistics month;
-    private TimeStatistics day;
+    private TimeStatistics year = new TimeStatistics();
+    private TimeStatistics month = new TimeStatistics();
+    private TimeStatistics day = new TimeStatistics();
 
     // forest
     private ArrayList<WaterFriendLog> waterFriendLogList = new ArrayList<>();
@@ -53,13 +53,6 @@ public class Statistics {
     // other
     private ArrayList<String> memberSignInList = new ArrayList<>();
     private int kbSignIn = 0;
-
-    public Statistics() {
-        Calendar calendar = Calendar.getInstance();
-        year = new TimeStatistics(calendar.get(Calendar.YEAR));
-        month = new TimeStatistics(calendar.get(Calendar.MONTH));
-        day = new TimeStatistics(calendar.get(Calendar.DAY_OF_YEAR));
-    }
 
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
@@ -580,16 +573,16 @@ public class Statistics {
 
     public Boolean resetByCalendar(Calendar calendar) {
         int ye = calendar.get(Calendar.YEAR);
-        int mo = calendar.get(Calendar.MONTH);
+        int mo = calendar.get(Calendar.MONTH) + 1;
         int da = calendar.get(Calendar.DAY_OF_MONTH);
-        if (ye > year.time) {
+        if (ye != year.time) {
             year.reset(ye);
             month.reset(mo);
             day.reset(da);
-        } else if (mo > month.time) {
+        } else if (mo != month.time) {
             month.reset(mo);
             day.reset(da);
-        } else if (da > day.time) {
+        } else if (da != day.time) {
             day.reset(da);
         } else {
             return false;
@@ -642,6 +635,9 @@ public class Statistics {
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, t);
             }
+        }
+        if (INSTANCE.resetByCalendar(Calendar.getInstance())) {
+            return INSTANCE;
         }
         String formatted = JsonUtil.toJsonString(INSTANCE);
         if (formatted != null && !formatted.equals(json)) {

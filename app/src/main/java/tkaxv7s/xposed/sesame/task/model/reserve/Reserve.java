@@ -11,6 +11,7 @@ import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayBeach;
+import tkaxv7s.xposed.sesame.entity.AlipayReserve;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.task.common.TaskCommon;
@@ -31,6 +32,7 @@ public class Reserve extends ModelTask {
     }
 
     public static BooleanModelField enableReserve;
+    public static SelectModelField reserveList;
     public static BooleanModelField beach;
     public static SelectModelField beachList;
 
@@ -38,6 +40,7 @@ public class Reserve extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableReserve = new BooleanModelField("enableReserve", "开启保护地", false));
+        modelFields.addField(reserveList = new SelectModelField("reserveList", "保护地列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayReserve.getList()));
         modelFields.addField(beach = new BooleanModelField("beach", "保护海洋", false));
         modelFields.addField(beachList = new SelectModelField("beachList", "保护海洋列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayBeach.getList()));
         return modelFields;
@@ -101,7 +104,7 @@ public class Reserve extends ModelTask {
                     String itemName = jo.getString("itemName");
                     int energy = jo.getInt("energy");
                     ReserveIdMap.putIdMap(projectId, itemName + "(" + energy + "g)");
-                    Map<String, Integer> map = beachList.getValue().getKey();
+                    Map<String, Integer> map = reserveList.getValue().getKey();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), projectId)) {
                             Integer count = entry.getValue();

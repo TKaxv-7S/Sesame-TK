@@ -141,14 +141,6 @@ public class MainActivity extends Activity {
                 }
             }
             try {
-                if (Statistics.INSTANCE.resetByCalendar(Calendar.getInstance())) {
-                    try {
-                        sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.execute"));
-                    } catch (Throwable th) {
-                        Log.i("view sendBroadcast execute err:");
-                        Log.printStackTrace(th);
-                    }
-                }
                 Statistics.load();
                 tvStatistics.setText(Statistics.getText());
             } catch (Exception e) {

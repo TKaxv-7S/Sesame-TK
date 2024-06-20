@@ -69,8 +69,8 @@ public class OldRpcBridge implements RpcBridge {
         loader = null;
     }
 
-    public String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
-        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, retryInterval);
+    public String requestString(RpcEntity rpcEntity, int tryCount, int sleepTime) {
+        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, sleepTime);
         if (resRpcEntity != null) {
             return resRpcEntity.getResponseString();
         }
@@ -78,7 +78,7 @@ public class OldRpcBridge implements RpcBridge {
     }
 
     @Override
-    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int sleepTime) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -119,15 +119,15 @@ public class OldRpcBridge implements RpcBridge {
                                 NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
-                            if (retryInterval < 0) {
+                            if (sleepTime < 0) {
                                 try {
                                     Thread.sleep(600 + RandomUtil.delay());
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
-                            } else {
+                            } else if (sleepTime > 0) {
                                 try {
-                                    Thread.sleep(retryInterval);
+                                    Thread.sleep(sleepTime);
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
@@ -141,15 +141,15 @@ public class OldRpcBridge implements RpcBridge {
                             } catch (JSONException e) {
                                 Log.printStackTrace(e);
                             }
-                            if (retryInterval < 0) {
+                            if (sleepTime < 0) {
                                 try {
                                     Thread.sleep(600 + RandomUtil.delay());
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
-                            } else {
+                            } else if (sleepTime > 0) {
                                 try {
-                                    Thread.sleep(retryInterval);
+                                    Thread.sleep(sleepTime);
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
