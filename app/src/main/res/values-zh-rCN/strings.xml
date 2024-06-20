@@ -9,8 +9,8 @@
     <string name="timeout_restart">超时重启</string>
     <string name="forest_configuration">森林</string>
     <string name="collect_energy">收集能量</string>
-    <string name="exec_at_time">定时执行(范围)</string>
-    <string name="waken_at_time">定时唤醒(范围)</string>
+    <string name="exec_at_time">定时执行(关闭:-1)</string>
+    <string name="waken_at_time">定时唤醒(关闭:-1)</string>
     <string name="check_interval_minutes">执行间隔(分钟)</string>
     <string name="thread_count">线程数</string>
     <string name="advance_time_milliseconds">提前时间(毫秒)</string>

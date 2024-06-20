@@ -9,17 +9,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import pansong291.xposed.quickenergy.R;
 import pansong291.xposed.quickenergy.data.ModelField;
 import pansong291.xposed.quickenergy.ui.StringDialog;
 
 public class IntegerModelField extends ModelField {
 
-    protected Integer minLimit;
+    private Integer minLimit;
 
-    protected Integer maxLimit;
+    private Integer maxLimit;
 
     public IntegerModelField() {
     }

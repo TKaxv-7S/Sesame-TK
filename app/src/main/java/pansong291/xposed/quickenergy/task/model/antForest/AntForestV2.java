@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,6 +29,7 @@ import pansong291.xposed.quickenergy.data.modelFieldExt.BooleanModelField;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IdAndNameSelectModelField;
 import pansong291.xposed.quickenergy.data.modelFieldExt.IntegerModelField;
 import pansong291.xposed.quickenergy.data.modelFieldExt.ListModelField;
+import pansong291.xposed.quickenergy.data.modelFieldExt.StringModelField;
 import pansong291.xposed.quickenergy.entity.AlipayUser;
 import pansong291.xposed.quickenergy.entity.KVNode;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
@@ -62,7 +64,17 @@ public class AntForestV2 extends ModelTask {
 
     private String selfId;
 
-    private Integer collectIntervalInt;
+    private Integer tryCountInt;
+
+    private Integer retryIntervalInt;
+
+    private Boolean useCollectIntervalInt = true;
+
+    private Integer collectIntervalInt = 500;
+
+    private Integer collectIntervalMin;
+
+    private Integer collectIntervalMax;
 
     private volatile long doubleEndTime = 0;
 
@@ -72,14 +84,17 @@ public class AntForestV2 extends ModelTask {
 
     private final BaseTask timerTask = BaseTask.newInstance("bubbleTimerTask");
 
+    public static BooleanModelField enableAntForest;
     public static BooleanModelField collectEnergy;
     public static BooleanModelField energyRain;
     public static IntegerModelField advanceTime;
+    public static IntegerModelField tryCount;
+    public static IntegerModelField retryInterval;
     public static IdAndNameSelectModelField dontCollectList;
     public static BooleanModelField collectWateringBubble;
     public static BooleanModelField batchRobEnergy;
     public static BooleanModelField collectProp;
-    public static IntegerModelField collectInterval;
+    public static StringModelField collectInterval;
     public static BooleanModelField doubleCard;
     public static ListModelField.ListJoinCommaToStringModelField doubleCardTime;
     public static IntegerModelField doubleCountLimit;
@@ -138,20 +153,23 @@ public class AntForestV2 extends ModelTask {
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
+        modelFields.addField(enableAntForest = new BooleanModelField("enableAntForest", "开启森林", true));
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", true));
-        modelFields.addField(collectInterval = new IntegerModelField("collectInterval", "收取间隔(毫秒)", 500, 300, Integer.MAX_VALUE));
+        modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "500"));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 250));
-        modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "浇水10克需收能量(0为关闭)", 0));
-        modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "浇水18克需收能量(0为关闭)", 0));
-        modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "浇水33克需收能量(0为关闭)", 0));
+        modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 2, 10));
+        modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 500, 0, 6000));
+        modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "浇水10克需收能量(关闭:0)", 0));
+        modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "浇水18克需收能量(关闭:0)", 0));
+        modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "浇水33克需收能量(关闭:0)", 0));
         modelFields.addField(exchangeEnergyDoubleClick = new BooleanModelField("exchangeEnergyDoubleClick", "活力值兑换限时双击卡", true));
         modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "兑换限时双击卡数量", 6));
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "使用双击卡", true));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "使用双击卡次数", 6));
         List<String> doubleCardTimeList = new ArrayList<>();
         doubleCardTimeList.add("0700-0730");
-        modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "使用双击卡时间", doubleCardTimeList));
+        modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "使用双击卡时间(范围)", doubleCardTimeList));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", true));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", true));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", true));
@@ -174,7 +192,7 @@ public class AntForestV2 extends ModelTask {
     }
 
     public Boolean check() {
-        if (RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System.currentTimeMillis()) {
+        if (!enableAntForest.getValue() || RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System.currentTimeMillis()) {
             Log.record("异常等待中，暂不执行检测！");
             return false;
         }
@@ -188,7 +206,35 @@ public class AntForestV2 extends ModelTask {
                 NotificationUtil.setContentTextExec();
 
                 selfId = UserIdMap.getCurrentUid();
-                collectIntervalInt = Math.max(collectInterval.getValue(), 100);
+                tryCountInt = tryCount.getValue();
+                retryIntervalInt = retryInterval.getValue();
+                String collectIntervalStr = collectInterval.getValue();
+                if (collectIntervalStr != null) {
+                    String[] split = collectIntervalStr.split("-");
+                    if (split.length == 2) {
+                        try {
+                            collectIntervalMin = Math.max(Integer.parseInt(split[0]), 500);
+                        } catch (Exception ignored) {
+                            collectIntervalMin = 500;
+                        }
+                        try {
+                            collectIntervalMax = Math.min(Integer.parseInt(split[1]), 30_000) + 1;
+                        } catch (Exception ignored) {
+                            collectIntervalMax = 1001;
+                        }
+                        if (collectIntervalMin >= collectIntervalMax) {
+                            collectIntervalMax = collectIntervalMin + 1;
+                        }
+                        useCollectIntervalInt = false;
+                    } else {
+                        try {
+                            collectIntervalInt = Math.max(Integer.parseInt(collectIntervalStr), 500);
+                        } catch (Exception ignored) {
+                            collectIntervalMin = 500;
+                        }
+                        useCollectIntervalInt = true;
+                    }
+                }
                 dontCollectMap = dontCollectList.getValue().getKey();
                 if (!collectEnergy.getValue()) {
                     Log.record("不收取能量");
@@ -695,7 +741,7 @@ public class AntForestV2 extends ModelTask {
                     String doBizNo = bizNo;
                     do {
                         rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
-                        ApplicationHook.requestObject(rpcEntity, 2);
+                        ApplicationHook.requestObject(rpcEntity, tryCountInt, retryIntervalInt);
                         if (rpcEntity.getHasError()) {
                             break;
                         }
@@ -760,7 +806,7 @@ public class AntForestV2 extends ModelTask {
                     Log.printStackTrace(TAG, t);
                 } finally {
                     try {
-                        Thread.sleep(collectIntervalInt);
+                        Thread.sleep(getCollectInterval());
                     } catch (InterruptedException ignored) {
                     }
                 }
@@ -780,7 +826,7 @@ public class AntForestV2 extends ModelTask {
                     List<Long> doBubbleIdList = bubbleIdList;
                     do {
                         rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIdList);
-                        ApplicationHook.requestObject(rpcEntity, 2);
+                        ApplicationHook.requestObject(rpcEntity, tryCountInt, retryIntervalInt);
                         if (rpcEntity.getHasError()) {
                             break;
                         }
@@ -836,12 +882,19 @@ public class AntForestV2 extends ModelTask {
                     Log.printStackTrace(TAG, e);
                 } finally {
                     try {
-                        Thread.sleep(collectIntervalInt);
+                        Thread.sleep(getCollectInterval());
                     } catch (InterruptedException ignored) {
                     }
                 }
             }
         });
+    }
+
+    private Integer getCollectInterval() {
+        if (useCollectIntervalInt) {
+            return collectIntervalInt;
+        }
+        return ThreadLocalRandom.current().nextInt(collectIntervalMin, collectIntervalMax);
     }
 
     private void updateDoubleTime() throws JSONException {

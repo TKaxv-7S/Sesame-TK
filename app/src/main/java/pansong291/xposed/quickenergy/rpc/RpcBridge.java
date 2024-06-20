@@ -8,32 +8,32 @@ public interface RpcBridge {
 
     void unload();
 
-    String requestString(RpcEntity rpcEntity, int retryCount);
+    String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval);
 
     default String requestString(RpcEntity rpcEntity) {
-        return requestString(rpcEntity, 3);
+        return requestString(rpcEntity, 3, -1);
     }
 
     default String requestString(String method, String data) {
-        return requestString(method, data, 3);
+        return requestString(method, data, 3, -1);
     }
 
-    default String requestString(String method, String data, int retryCount) {
-        return requestString(new RpcEntity(method, data), retryCount);
+    default String requestString(String method, String data, int tryCount, int retryInterval) {
+        return requestString(new RpcEntity(method, data), tryCount, retryInterval);
     }
 
-    RpcEntity requestObject(RpcEntity rpcEntity, int retryCount);
+    RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval);
 
     default RpcEntity requestObject(RpcEntity rpcEntity) {
-        return requestObject(rpcEntity, 3);
+        return requestObject(rpcEntity, 3, -1);
     }
 
     default RpcEntity requestObject(String method, String data) {
-        return requestObject(method, data, 3);
+        return requestObject(method, data, 3, -1);
     }
 
-    default RpcEntity requestObject(String method, String data, int retryCount) {
-        return requestObject(new RpcEntity(method, data), retryCount);
+    default RpcEntity requestObject(String method, String data, int tryCount, int retryInterval) {
+        return requestObject(new RpcEntity(method, data), tryCount, retryInterval);
     }
 
 }

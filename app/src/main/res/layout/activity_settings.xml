@@ -102,24 +102,6 @@
                         android:textAllCaps="false" />
 
                     <Switch
-                        android:id="@+id/sw_startAt0"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/start_at_0_o_clock" />
-
-                    <Switch
-                        android:id="@+id/sw_startAt7"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/start_at_7_o_clock" />
-
-                    <Switch
                         android:id="@+id/sw_timeoutRestart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

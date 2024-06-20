@@ -44,8 +44,6 @@ public class ConfigV2 {
     private List<String> execAtTimeList = new ArrayList<>(DEFAULT_EXEC_AT_TIME_LIST);
     private List<String> wakenAtTimeList = new ArrayList<>(DEFAULT_WAKEN_AT_TIME_LIST);
     private boolean timeoutRestart = true;
-    private boolean startAt0 = true;
-    private boolean startAt7 = true;
     private boolean enableOnGoing = false;
     private boolean batteryPerm = true;
     private boolean newRpc = true;

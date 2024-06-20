@@ -43,7 +43,6 @@ import pansong291.xposed.quickenergy.task.common.TaskCommon;
 import pansong291.xposed.quickenergy.task.model.antMember.AntMemberRpcCall;
 import pansong291.xposed.quickenergy.task.model.antSports.AntSports;
 import pansong291.xposed.quickenergy.util.ClassUtil;
-import pansong291.xposed.quickenergy.util.Config;
 import pansong291.xposed.quickenergy.util.FileUtil;
 import pansong291.xposed.quickenergy.util.Log;
 import pansong291.xposed.quickenergy.util.NotificationUtil;
@@ -339,27 +338,24 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         try {
             unsetWakenAtTimeAlarm();
             ConfigV2 config = ConfigV2.INSTANCE;
-            List<String> wakenAtTimeList = config.getWakenAtTimeList();
-            boolean hasWakenAtTime = wakenAtTimeList != null && !wakenAtTimeList.isEmpty();
-            if (config.isStartAt0() || hasWakenAtTime) {
-                try {
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.add(Calendar.DAY_OF_MONTH, 1);
-                    calendar.set(Calendar.HOUR_OF_DAY, 0);
-                    calendar.set(Calendar.MINUTE, 0);
-                    calendar.set(Calendar.SECOND, 0);
-                    calendar.set(Calendar.MILLISECOND, 0);
-                    if (setAlarmTask(calendar.getTimeInMillis(), pendingIntent)) {
-                        alarm0Pi = pendingIntent;
-                        Log.record("设置定时唤醒:0|000000");
-                    }
-                } catch (Exception e) {
-                    Log.i(TAG, "setWakenAt0 err:");
-                    Log.printStackTrace(TAG, e);
+            try {
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.xqe.execute"), getPendingIntentFlag());
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                if (setAlarmTask(calendar.getTimeInMillis(), pendingIntent)) {
+                    alarm0Pi = pendingIntent;
+                    Log.record("设置定时唤醒:0|000000");
                 }
+            } catch (Exception e) {
+                Log.i(TAG, "setWakenAt0 err:");
+                Log.printStackTrace(TAG, e);
             }
-            if (hasWakenAtTime) {
+            List<String> wakenAtTimeList = config.getWakenAtTimeList();
+            if (wakenAtTimeList != null && !wakenAtTimeList.isEmpty()) {
                 Calendar nowCalendar = Calendar.getInstance();
                 for (int i = 1, len = wakenAtTimeList.size(); i < len; i++) {
                     try {
@@ -655,35 +651,35 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     }
 
     public static String requestString(RpcEntity rpcEntity) {
-        return rpcBridge.requestString(rpcEntity, 3);
+        return rpcBridge.requestString(rpcEntity, 3, -1);
     }
 
-    public static String requestString(RpcEntity rpcEntity, int retryCount) {
-        return rpcBridge.requestString(rpcEntity, retryCount);
+    public static String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        return rpcBridge.requestString(rpcEntity, tryCount, retryInterval);
     }
 
     public static String requestString(String method, String data) {
         return rpcBridge.requestString(method, data);
     }
 
-    public static String requestString(String method, String data, int retryCount) {
-        return rpcBridge.requestString(method, data, retryCount);
+    public static String requestString(String method, String data, int tryCount, int retryInterval) {
+        return rpcBridge.requestString(method, data, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(RpcEntity rpcEntity) {
-        return rpcBridge.requestObject(rpcEntity, 3);
+        return rpcBridge.requestObject(rpcEntity, 3, -1);
     }
 
-    public static RpcEntity requestObject(RpcEntity rpcEntity, int retryCount) {
-        return rpcBridge.requestObject(rpcEntity, retryCount);
+    public static RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        return rpcBridge.requestObject(rpcEntity, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(String method, String data) {
         return rpcBridge.requestObject(method, data);
     }
 
-    public static RpcEntity requestObject(String method, String data, int retryCount) {
-        return rpcBridge.requestObject(method, data, retryCount);
+    public static RpcEntity requestObject(String method, String data, int tryCount, int retryInterval) {
+        return rpcBridge.requestObject(method, data, tryCount, retryInterval);
     }
 
     public static void reLoginByBroadcast() {

@@ -74,12 +74,6 @@ public class SettingsActivity extends Activity {
         Switch sw_timeoutRestart = findViewById(R.id.sw_timeoutRestart);
         sw_timeoutRestart.setChecked(config.isTimeoutRestart());
         sw_timeoutRestart.setOnClickListener(v -> config.setTimeoutRestart(((Switch) v).isChecked()));
-        Switch sw_startAt0 = findViewById(R.id.sw_startAt0);
-        sw_startAt0.setChecked(config.isStartAt0());
-        sw_startAt0.setOnClickListener(v -> config.setStartAt0(((Switch) v).isChecked()));
-        Switch sw_startAt7 = findViewById(R.id.sw_startAt7);
-        sw_startAt7.setChecked(config.isStartAt7());
-        sw_startAt7.setOnClickListener(v -> config.setStartAt7(((Switch) v).isChecked()));
         Switch sw_enableOnGoing = findViewById(R.id.sw_enableOnGoing);
         sw_enableOnGoing.setChecked(config.isEnableOnGoing());
         sw_enableOnGoing.setOnClickListener(v -> config.setEnableOnGoing(((Switch) v).isChecked()));

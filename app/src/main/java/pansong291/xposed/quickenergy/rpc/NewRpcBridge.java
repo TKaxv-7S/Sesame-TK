@@ -9,9 +9,9 @@ import de.robv.android.xposed.XposedHelpers;
 import pansong291.xposed.quickenergy.data.ConfigV2;
 import pansong291.xposed.quickenergy.entity.RpcEntity;
 import pansong291.xposed.quickenergy.hook.ApplicationHook;
-import pansong291.xposed.quickenergy.util.NotificationUtil;
 import pansong291.xposed.quickenergy.util.ClassUtil;
 import pansong291.xposed.quickenergy.util.Log;
+import pansong291.xposed.quickenergy.util.NotificationUtil;
 import pansong291.xposed.quickenergy.util.RandomUtil;
 
 /**
@@ -98,8 +98,8 @@ public class NewRpcBridge implements RpcBridge {
         loader = null;
     }
 
-    public String requestString(RpcEntity rpcEntity, int retryCount) {
-        RpcEntity resRpcEntity = requestObject(rpcEntity, retryCount);
+    public String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, retryInterval);
         if (resRpcEntity != null) {
             return resRpcEntity.getResponseString();
         }
@@ -107,7 +107,7 @@ public class NewRpcBridge implements RpcBridge {
     }
 
     @Override
-    public RpcEntity requestObject(RpcEntity rpcEntity, int retryCount) {
+    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -165,25 +165,41 @@ public class NewRpcBridge implements RpcBridge {
                     Log.i(TAG, "new rpc response [" + method + "] get err:");
                     Log.printStackTrace(TAG, e);
                 }
-                try {
-                    Thread.sleep(600 + RandomUtil.delay());
-                } catch (InterruptedException e) {
-                    Log.printStackTrace(e);
+                if (retryInterval < 0) {
+                    try {
+                        Thread.sleep(600 + RandomUtil.delay());
+                    } catch (InterruptedException e) {
+                        Log.printStackTrace(e);
+                    }
+                } else {
+                    try {
+                        Thread.sleep(retryInterval);
+                    } catch (InterruptedException e) {
+                        Log.printStackTrace(e);
+                    }
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "new rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
-                try {
-                    Thread.sleep(600 + RandomUtil.delay());
-                } catch (InterruptedException e) {
-                    Log.printStackTrace(e);
+                if (retryInterval < 0) {
+                    try {
+                        Thread.sleep(600 + RandomUtil.delay());
+                    } catch (InterruptedException e) {
+                        Log.printStackTrace(e);
+                    }
+                } else {
+                    try {
+                        Thread.sleep(retryInterval);
+                    } catch (InterruptedException e) {
+                        Log.printStackTrace(e);
+                    }
                 }
             }
-        } while (count < retryCount);
+        } while (count < tryCount);
         return null;
     }
 
-    public RpcEntity newAsyncRequest(RpcEntity rpcEntity, int retryCount) {
+    public RpcEntity newAsyncRequest(RpcEntity rpcEntity, int tryCount) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -270,7 +286,7 @@ public class NewRpcBridge implements RpcBridge {
                     Log.printStackTrace(e);
                 }
             }
-        } while (count < retryCount);
+        } while (count < tryCount);
         return null;
     }
 
