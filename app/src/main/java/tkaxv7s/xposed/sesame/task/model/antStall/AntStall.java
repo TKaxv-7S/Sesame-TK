@@ -81,7 +81,7 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
         modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
         modelFields.addField(stallOpenType = new BooleanModelField("stallOpenType", "摊位类型(打开:摆摊列表/关闭:不摆列表)", false));
-        modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摊位类型(打开:摆摊列表/关闭:不摆列表)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摊位列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "不请走列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "禁摆摊列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "允许他人摆摊时长", 121));

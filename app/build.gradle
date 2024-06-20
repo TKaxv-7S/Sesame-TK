@@ -9,7 +9,7 @@ android {
         //noinspection ExpiredTargetSdkVersion
         targetSdk 31
         versionCode 80
-        versionName "1.2.5-test20-TK"
+        versionName "1.2.5-TK"
     }
     buildTypes {
         release {
