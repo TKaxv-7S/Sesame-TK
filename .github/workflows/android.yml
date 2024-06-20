@@ -31,7 +31,7 @@ jobs:
         uses: termux/upload-release-action@v4.1.0
         with:
           asset_name: Sesame-TK-${{ github.event.release.tag_name }}.apk
-          file: ${{ steps.sign_app.outputs.signedFile }}
+          file: app/build/outputs/apk/release/Sesame-TK-${{ github.event.release.tag_name }}.apk
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
           overwrite: true
