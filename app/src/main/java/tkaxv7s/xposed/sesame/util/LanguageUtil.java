@@ -18,14 +18,14 @@ public class LanguageUtil {
     }
 
 
-    public static void setLocale() {
+    public static void setLocale(Context context) {
         if (ConfigV2.INSTANCE.isLanguageSimplifiedChinese()) {
             // 忽略系统语言，强制使用简体中文
             Locale locale = new Locale("zh", "CN"); // 简体中文的区域代码
             Locale.setDefault(locale);
             Configuration config = new Configuration();
             config.locale = locale;
-            mContext.getResources().updateConfiguration(config, mContext.getResources().getDisplayMetrics());
+            context.getResources().updateConfiguration(config, context.getResources().getDisplayMetrics());
         }
     }
 
