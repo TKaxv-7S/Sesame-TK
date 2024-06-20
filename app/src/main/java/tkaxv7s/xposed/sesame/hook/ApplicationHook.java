@@ -424,7 +424,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             nowCalendar.set(Calendar.MINUTE, 0);
             nowCalendar.set(Calendar.SECOND, 0);
             dayCalendar = nowCalendar;
-            Log.record("日期更新为：" + nowYear + "-" + nowMonth + "-" + nowDay);
+            Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
             try {
                 setWakenAtTimeAlarm();
             } catch (Exception e) {
