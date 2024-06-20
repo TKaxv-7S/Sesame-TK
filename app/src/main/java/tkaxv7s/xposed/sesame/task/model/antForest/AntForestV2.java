@@ -158,7 +158,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", true));
         modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "500"));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 250));
-        modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 2, 10));
+        modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 500, 0, 6000));
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "浇水10克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "浇水18克需收能量(关闭:0)", 0));
@@ -237,12 +237,12 @@ public class AntForestV2 extends ModelTask {
                         useCollectIntervalInt = true;
                     }
                 }
-                if (!collectEnergy.getValue()) {
+                if (collectEnergy.getValue()) {
+                    collectUserEnergy(selfId);
+                } else {
                     Log.record("不收取能量");
-                    return;
                 }
 
-                collectUserEnergy(selfId);
                 try {
                     JSONObject friendsObject = new JSONObject(AntForestRpcCall.queryEnergyRanking());
                     if ("SUCCESS".equals(friendsObject.getString("resultCode"))) {
@@ -611,12 +611,12 @@ public class AntForestV2 extends ModelTask {
                     String userId = friendsObject.getString("userId");
                     JSONObject userHomeObject = null;
                     boolean isNotSelfId = !userId.equals(selfId);
-                    if (collectEnergy.getValue() && optBoolean && isNotSelfId) {
-                        if (dontCollectMap.containsKey(userId)) {
-                            //Log.i("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
-                            return;
-                        }
-                        userHomeObject = collectUserEnergy(userId);
+                    if (optBoolean && collectEnergy.getValue() && isNotSelfId) {
+                        if (!dontCollectMap.containsKey(userId)) {
+                            userHomeObject = collectUserEnergy(userId);
+                        }/* else {
+                            Log.i("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
+                        }*/
                     }
                     if (!TaskCommon.IS_ENERGY_TIME && isNotSelfId) {
                         if (helpFriendCollect.getValue()) {
