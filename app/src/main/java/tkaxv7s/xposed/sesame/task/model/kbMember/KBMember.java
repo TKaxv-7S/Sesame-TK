@@ -8,6 +8,7 @@ import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.Statistics;
 import tkaxv7s.xposed.sesame.util.LanguageUtil;
+import tkaxv7s.xposed.sesame.R;
 
 public class KBMember extends ModelTask {
     private static final String TAG = KBMember.class.getSimpleName();
