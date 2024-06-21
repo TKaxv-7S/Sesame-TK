@@ -52,7 +52,7 @@ jobs:
       - name: Upload Normal to Release
         uses: termux/upload-release-action@v4.1.0
         with:
-          #asset_name: Sesame-TK-Normal-${{ github.event.release.tag_name }}.apk
+          asset_name: Sesame-Normal-${{ github.event.release.tag_name }}.apk
           file: ${{ steps.sign_normal_apk.outputs.signedFile }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
@@ -62,7 +62,7 @@ jobs:
       - name: Upload Compatible to Release
         uses: termux/upload-release-action@v4.1.0
         with:
-          #asset_name: Sesame-TK-Compatible-${{ github.event.release.tag_name }}.apk
+          asset_name: Sesame-Compatible-${{ github.event.release.tag_name }}.apk
           file: ${{ steps.sign_compatible_apk.outputs.signedFile }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
