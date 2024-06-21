@@ -66,5 +66,5 @@ jobs:
           file: ${{ steps.sign_compatible_apk.outputs.signedFile }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
-          overwrite: true
+          overwrite: false
           checksums: sha256
