@@ -237,7 +237,7 @@ public class AntForestV2 extends ModelTask {
                         useCollectIntervalInt = true;
                     }
                 }
-                if (collectEnergy.getValue()) {
+                if (collectEnergy.getValue() && !dontCollectMap.containsKey(selfId)) {
                     collectUserEnergy(selfId);
                 } else {
                     Log.record("不收取能量");
