@@ -121,7 +121,7 @@ public class SettingsActivity extends Activity {
 
         }));
         Button btn_checkInterval = findViewById(R.id.btn_checkInterval);
-        btn_checkInterval.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getCheckInterval(), 60_000, Integer.MAX_VALUE) {
+        btn_checkInterval.setOnClickListener(v -> StringDialog.showEditDialog(this, ((Button) v).getText(), new IntegerModelField(config.getCheckInterval(), 1, Integer.MAX_VALUE) {
             @Override
             public void setConfigValue(String value) {
                 super.setConfigValue(value);
