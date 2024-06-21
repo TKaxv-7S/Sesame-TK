@@ -87,6 +87,7 @@
     <string name="last">Last</string>
     <string name="next">Next</string>
     <string name="ok">OK</string>
+    <string name="clear_file">Clear file</string>
     <string name="open_with_other_browser">Open with other browser</string>
     <string name="export_file">Export file</string>
     <string name="copy_the_url">Copy the url</string>

@@ -15,16 +15,20 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.util.FileUtil;
 import tkaxv7s.xposed.sesame.util.LanguageUtil;
+import tkaxv7s.xposed.sesame.util.Log;
 
 public class HtmlViewerActivity extends Activity {
     MyWebView mWebView;
     ProgressBar pgb;
     Uri uri;
+    Boolean canClear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +53,24 @@ public class HtmlViewerActivity extends Activity {
                         }
                     }
                 });
-        uri = getIntent().getData();
+        Intent intent = getIntent();
+        uri = intent.getData();
         if (uri != null) {
             mWebView.loadUrl(uri.toString());
         }
+        canClear = intent.getBooleanExtra("canClear", false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 1, 0, getString(R.string.export_file));
-        menu.add(0, 2, 0, getString(R.string.open_with_other_browser));
-        menu.add(0, 3, 0, getString(R.string.copy_the_url));
-        menu.add(0, 4, 0, getString(R.string.scroll_to_top));
-        menu.add(0, 5, 0, getString(R.string.scroll_to_bottom));
+        menu.add(0, 1, 1, getString(R.string.export_file));
+        if (canClear) {
+            menu.add(0, 2, 2, getString(R.string.clear_file));
+        }
+        menu.add(0, 3, 3, getString(R.string.open_with_other_browser));
+        menu.add(0, 4, 4, getString(R.string.copy_the_url));
+        menu.add(0, 5, 5, getString(R.string.scroll_to_top));
+        menu.add(0, 6, 6, getString(R.string.scroll_to_bottom));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -82,6 +91,36 @@ public class HtmlViewerActivity extends Activity {
 
             case 2:
                 if (uri != null) {
+                    String path = uri.getPath();
+                    if (path != null) {
+                        File file = new File(path);
+                        if (file.exists()) {
+                            FileWriter fileWriter = null;
+                            try {
+                                fileWriter = new FileWriter(file);
+                                fileWriter.write("");
+                                fileWriter.flush();
+                                Toast.makeText(this, "文件已清空", Toast.LENGTH_SHORT).show();
+                                mWebView.reload();
+                                break;
+                            } catch (IOException e) {
+                                Log.printStackTrace(e);
+                            } finally {
+                                try {
+                                    if (fileWriter != null) {
+                                        fileWriter.close();
+                                    }
+                                } catch (IOException e) {
+                                    Log.printStackTrace(e);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 3:
+                if (uri != null) {
                     String scheme = uri.getScheme();
                     if ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)) {
                         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -94,17 +133,17 @@ public class HtmlViewerActivity extends Activity {
                 }
                 break;
 
-            case 3:
+            case 4:
                 ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 cm.setPrimaryClip(ClipData.newPlainText(null, mWebView.getUrl()));
                 Toast.makeText(this, getString(R.string.copy_success), Toast.LENGTH_SHORT).show();
                 break;
 
-            case 4:
+            case 5:
                 mWebView.scrollTo(0, 0);
                 break;
 
-            case 5:
+            case 6:
                 mWebView.scrollToBottom();
                 break;
         }

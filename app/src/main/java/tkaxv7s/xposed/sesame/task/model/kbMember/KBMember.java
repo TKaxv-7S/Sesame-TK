@@ -40,7 +40,7 @@ public class KBMember extends ModelTask {
             try {
                 String s = KBMemberRpcCall.rpcCall_signIn();
                 JSONObject jo = new JSONObject(s);
-                if (jo.getBoolean("success")) {
+                if (jo.optBoolean("success", false)) {
                     jo = jo.getJSONObject("data");
                     Log.other("口碑签到📅[第" + jo.getString("dayNo") + "天]#获得" + jo.getString("value") + "积分");
                     Statistics.KbSignInToday();

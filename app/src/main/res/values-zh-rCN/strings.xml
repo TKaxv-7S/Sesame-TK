@@ -84,6 +84,7 @@
     <string name="last">上一个</string>
     <string name="next">下一个</string>
     <string name="ok">确认</string>
+    <string name="clear_file">清空文件</string>
     <string name="open_with_other_browser">用浏览器打开</string>
     <string name="export_file">导出文件</string>
     <string name="copy_the_url">复制链接</string>

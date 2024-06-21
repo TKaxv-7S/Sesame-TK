@@ -33,7 +33,7 @@ public final class ViewAppInfo {
         appTitle = context.getString(R.string.app_name);
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            appVersion = " v" + packageInfo.versionName;
+            appVersion = " " + packageInfo.versionName;
             appTitle += appVersion;
         } catch (PackageManager.NameNotFoundException ignored) {
         }

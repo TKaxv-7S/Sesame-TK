@@ -533,16 +533,18 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     @Override
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         Object[] args = param.args;
-                                        rpcHookMap.put(args[15], true);
-                                        Log.debug("record request | method: " + args[0] + " | args: " + args[4]);
+                                        Object object = args[15];
+                                        rpcHookMap.put(object, true);
+                                        Log.debug("record request | id: " + object.hashCode() + "  | method: " + args[0] + " | args: " + args[4]);
                                     }
 
                                     @SuppressLint("WakelockTimeout")
                                     @Override
                                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                                        if (rpcHookMap.containsKey(param.args[15])) {
-                                            rpcHookMap.remove(param.args[15]);
-                                            Log.debug("record request removed");
+                                        Object object = param.args[15];
+                                        if (rpcHookMap.containsKey(object)) {
+                                            rpcHookMap.remove(object);
+                                            Log.debug("record request removed id: " + object.hashCode());
                                         }
                                     }
 
@@ -562,8 +564,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     @SuppressLint("WakelockTimeout")
                                     @Override
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                        if (Boolean.TRUE.equals(rpcHookMap.remove(param.thisObject))) {
-                                            Log.debug("record response | data: " + param.args[0]);
+                                        Object object = param.thisObject;
+                                        if (Boolean.TRUE.equals(rpcHookMap.remove(object))) {
+                                            Log.debug("record response  | id: " + object.hashCode() + " | data: " + param.args[0]);
                                         }
                                     }
 
