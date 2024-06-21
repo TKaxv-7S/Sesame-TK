@@ -383,7 +383,7 @@ public class AntForestV2 extends ModelTask {
 
             if (isSelf) {
                 String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                if ("CAN_PLAY".equals(whackMoleStatus)) {
                     whackMole();
                 }
                 updateDoubleTime(userHomeObject);
@@ -799,7 +799,7 @@ public class AntForestV2 extends ModelTask {
                         }
                         NotificationUtil.setContentText(Log.getFormatTime() + "  收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
-                    } while (thisTryCount < tryCountInt);
+                    } while (isDouble || thisTryCount < tryCountInt);
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
                         if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
@@ -877,7 +877,7 @@ public class AntForestV2 extends ModelTask {
                         }
                         NotificationUtil.setContentText(Log.getFormatTime() + "  收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
-                    } while (thisTryCount < tryCountInt);
+                    } while (isDouble || thisTryCount < tryCountInt);
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
                         if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
