@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 
 import tkaxv7s.xposed.sesame.R;
@@ -210,6 +209,11 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if (hasPermissions) {
+            if (!ConfigV2.INSTANCE.isInit()) {
+                ConfigV2.load();
+            }
+        }
         if (ConfigV2.INSTANCE.isDebugMode()) {
             MenuItem item = menu.findItem(7);
             if (item == null) {
@@ -272,6 +276,7 @@ public class MainActivity extends Activity {
                 debugData += FileUtil.getDebugLogFile().getAbsolutePath();
                 Intent debugIt = new Intent(this, HtmlViewerActivity.class);
                 debugIt.setData(Uri.parse(debugData));
+                debugIt.putExtra("canClear", true);
                 startActivity(debugIt);
                 break;
 

@@ -26,6 +26,12 @@ public class IntegerModelField extends ModelField {
         super(value);
     }
 
+    public IntegerModelField(Object value, Integer minLimit, Integer maxLimit) {
+        super(value);
+        this.minLimit = minLimit;
+        this.maxLimit = maxLimit;
+    }
+
     public IntegerModelField(String code, String name, Integer value) {
         super(code, name, value);
     }

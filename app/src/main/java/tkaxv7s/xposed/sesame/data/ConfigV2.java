@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.data;
 
 import android.os.Build;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
@@ -13,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.Data;
-import lombok.Getter;
 import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.util.FileUtil;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
@@ -32,8 +32,8 @@ public class ConfigV2 {
 
     public static final ConfigV2 INSTANCE = new ConfigV2();
 
-    @Getter
-    private static volatile boolean init;
+    @JsonIgnore
+    private boolean init;
 
     private boolean immediateEffect = true;
     private boolean recordLog = true;
@@ -284,7 +284,7 @@ public class ConfigV2 {
             Log.system(TAG, "重新格式化 config_v2.json");
             FileUtil.write2File(formatted, FileUtil.getConfigV2File());
         }
-        init = true;
+        INSTANCE.setInit(true);
         Log.i(TAG, "加载配置成功");
         return INSTANCE;
     }
