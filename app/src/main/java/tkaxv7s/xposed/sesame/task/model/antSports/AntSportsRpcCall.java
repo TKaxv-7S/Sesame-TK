@@ -178,4 +178,25 @@ public class AntSportsRpcCall {
                         + userPathRewardId + "\"}]");
     }
 
+    /* 抢好友大战 */
+    public static String queryClubHome() {
+        return ApplicationHook.requestString("alipay.antsports.club.home.queryClubHome",
+                "[{\"chInfo\":\"healthstep\",\"timeZone\":\"Asia/Shanghai\"}]");
+    }
+
+    public static String collectBubble(String bubbleId) {
+        return ApplicationHook.requestString("alipay.antsports.club.home.collectBubble",
+                "[{\"bubbleId\":\"" + bubbleId + "\",\"chInfo\":\"healthstep\"}]");
+    }
+
+    public static String queryTrainItem() {
+        return ApplicationHook.requestString("alipay.antsports.club.train.queryTrainItem",
+                "[{\"chInfo\":\"healthstep\"}]");
+    }
+
+    public static String trainMember(String itemType, String memberId, String originBossId) {
+        return ApplicationHook.requestString("alipay.antsports.club.train.trainMember",
+                "[{\"chInfo\":\"healthstep\",\"itemType\":\"" + itemType + "\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\"}]");
+    }
+
 }
