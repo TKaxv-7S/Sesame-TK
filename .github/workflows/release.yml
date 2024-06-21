@@ -25,7 +25,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease -P version=${{ github.ref }}
+        run: ./gradlew assembleRelease -P version=${{ github.ref_name }}
 
       - name: Sign Normal APK
         id: sign_normal_apk
