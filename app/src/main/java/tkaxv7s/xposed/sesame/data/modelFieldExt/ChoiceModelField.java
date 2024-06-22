@@ -59,6 +59,7 @@ public class ChoiceModelField extends ModelField {
         btn.setBackground(context.getResources().getDrawable(R.drawable.button));
         btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         btn.setMinHeight(150);
+        btn.setMaxHeight(180);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
         btn.setOnClickListener(v -> ChoiceDialog.show(v.getContext(), ((Button) v).getText(), this));
