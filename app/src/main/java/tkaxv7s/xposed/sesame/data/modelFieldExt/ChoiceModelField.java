@@ -20,9 +20,6 @@ public class ChoiceModelField extends ModelField {
 
     private CharSequence[] choiceArray;
 
-    public ChoiceModelField() {
-    }
-
     public ChoiceModelField(String code, String name, Integer value) {
         super(code, name, value);
     }

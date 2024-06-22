@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
@@ -19,19 +18,6 @@ public class IntegerModelField extends ModelField {
     private Integer minLimit;
 
     private Integer maxLimit;
-
-    public IntegerModelField() {
-    }
-
-    public IntegerModelField(Object value) {
-        super(value);
-    }
-
-    public IntegerModelField(Object value, Integer minLimit, Integer maxLimit) {
-        super(value);
-        this.minLimit = minLimit;
-        this.maxLimit = maxLimit;
-    }
 
     public IntegerModelField(String code, String name, Integer value) {
         super(code, name, value);
@@ -83,10 +69,7 @@ public class IntegerModelField extends ModelField {
 
     public static class MultiplyIntegerModelField extends IntegerModelField {
 
-        private Integer multiple;
-
-        public MultiplyIntegerModelField() {
-        }
+        private final Integer multiple;
 
         public MultiplyIntegerModelField(String code, String name, Integer value, Integer minLimit, Integer maxLimit, Integer multiple) {
             super(code, name, value, minLimit, maxLimit);
@@ -111,31 +94,6 @@ public class IntegerModelField extends ModelField {
         public String getConfigValue() {
             return String.valueOf(getValue() / multiple);
         }
-    }
-
-    public static class Limit0To100000IntegerModelField extends IntegerModelField {
-
-        public Limit0To100000IntegerModelField() {
-        }
-
-        public Limit0To100000IntegerModelField(String code, String name, Integer value) {
-            super(code, name, value);
-        }
-
-        @Override
-        public void setConfigValue(String value) {
-            if (value == null) {
-                setValue(null);
-                return;
-            }
-            int setNewValue = Integer.parseInt(value);
-            if (setNewValue < 0) {
-                setValue(0);
-            } else if (setNewValue > 100000) {
-                setValue(100000);
-            }
-        }
-
     }
 
 }

@@ -1,19 +1,15 @@
 package tkaxv7s.xposed.sesame.data.modelFieldExt;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
-import java.util.Map;
-
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
+
+import java.util.Map;
 
 public class MapModelField extends ModelField {
 
     private static final TypeReference<Map<String, Integer>> typeReference = new TypeReference<Map<String, Integer>>() {
     };
-
-    public MapModelField() {
-    }
 
     public MapModelField(String code, String name, Map<String, Integer> value) {
         super(code, name, value);
