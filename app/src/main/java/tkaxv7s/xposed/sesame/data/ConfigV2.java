@@ -1,15 +1,10 @@
 package tkaxv7s.xposed.sesame.data;
 
-import android.os.Build;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,7 +12,6 @@ import lombok.Data;
 import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.util.FileUtil;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
-import tkaxv7s.xposed.sesame.util.ListUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
@@ -26,30 +20,10 @@ public class ConfigV2 {
 
     private static final String TAG = ConfigV2.class.getSimpleName();
 
-    public static final List<String> DEFAULT_EXEC_AT_TIME_LIST = Collections.unmodifiableList(ListUtil.newArrayList("065530", "2359", "24"));
-
-    public static final List<String> DEFAULT_WAKEN_AT_TIME_LIST = Collections.unmodifiableList(ListUtil.newArrayList("0650", "2350"));
-
     public static final ConfigV2 INSTANCE = new ConfigV2();
 
     @JsonIgnore
     private boolean init;
-
-    private boolean immediateEffect = true;
-    private boolean recordLog = true;
-    private boolean showToast = true;
-    private int toastOffsetY = 0;
-    private int checkInterval = 1800_000;
-    private boolean stayAwake = true;
-    private List<String> execAtTimeList = new ArrayList<>(DEFAULT_EXEC_AT_TIME_LIST);
-    private List<String> wakenAtTimeList = new ArrayList<>(DEFAULT_WAKEN_AT_TIME_LIST);
-    private boolean timeoutRestart = true;
-    private boolean enableOnGoing = false;
-    private boolean batteryPerm = true;
-    private boolean newRpc = true;
-    private boolean debugMode = false;
-    private boolean languageSimplifiedChinese = false;
-    private int waitWhenException = 60 * 60 * 1000;
 
     private final Map<String, ModelFields> modelFieldsMap = new ConcurrentHashMap<>();
 
@@ -116,39 +90,9 @@ public class ConfigV2 {
         return modelFieldsMap.containsKey(modelCode);
     }
 
-    public ModelFields getModelFields(String modelCode) {
-        return getModelFields(modelCode, false);
-    }
-
-    public ModelFields getModelFields(String modelCode, Boolean isCreate) {
-        if (isCreate) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                return modelFieldsMap.compute(modelCode, (key, value) -> {
-                    if (value == null) {
-                        ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
-                        if (modelConfig != null) {
-                            value = new ModelFields();
-                            value.putAll(modelConfig.getFields());
-                        }
-                    }
-                    return value;
-                });
-            } else {
-                ModelFields modelFields = modelFieldsMap.get(modelCode);
-                if (modelFields == null) {
-                    ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
-                    if (modelConfig != null) {
-                        modelFields = new ModelFields();
-                        modelFields.putAll(modelConfig.getFields());
-                        modelFieldsMap.put(modelCode, modelFields);
-                    }
-                }
-                return modelFields;
-            }
-        } else {
-            return modelFieldsMap.get(modelCode);
-        }
-    }
+    /*public ModelFields getModelFields(String modelCode) {
+        return modelFieldsMap.get(modelCode);
+    }*/
 
     /*public void removeModelFields(String modelCode) {
         modelFieldsMap.remove(modelCode);
@@ -159,64 +103,20 @@ public class ConfigV2 {
     }*/
 
     public Boolean hasModelField(String modelCode, String fieldCode) {
-        ModelFields modelFields = getModelFields(modelCode);
+        ModelFields modelFields = modelFieldsMap.get(modelCode);
         if (modelFields == null) {
             return false;
         }
         return modelFields.containsKey(fieldCode);
     }
 
-    public ModelField getModelField(String modelCode, String fieldCode) {
-        return getModelField(modelCode, fieldCode, false);
-    }
-
-    public ModelField getModelField(String modelCode, String fieldCode, Boolean isCreate) {
-        ModelFields modelFields = getModelFields(modelCode, isCreate);
+    /*public ModelField getModelField(String modelCode, String fieldCode) {
+        ModelFields modelFields = modelFieldsMap.get(modelCode);
         if (modelFields == null) {
             return null;
         }
-        if (isCreate) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                return modelFields.compute(fieldCode, (key, value)-> {
-                    if (value == null) {
-                        ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
-                        if (modelConfig != null) {
-                            ModelField modelField = modelConfig.getFields().get(fieldCode);
-                            if (modelField != null) {
-                                value = modelField.clone();
-                            }
-                        }
-                    }
-                    return value;
-                });
-            } else {
-                ModelField modelField = modelFields.get(fieldCode);
-                if (modelField == null) {
-                    ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
-                    if (modelConfig != null) {
-                        modelField = modelConfig.getFields().get(fieldCode);
-                        if (modelField != null) {
-                            modelField = modelField.clone();
-                            modelFields.put(fieldCode, modelField);
-                        }
-                    }
-                }
-                return modelField;
-            }
-        } else {
-            return modelFields.get(fieldCode);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends ModelField> T getModelFieldExt(String modelCode, String fieldCode) {
-        return getModelFieldExt(modelCode, fieldCode, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends ModelField> T getModelFieldExt(String modelCode, String fieldCode, Boolean isCreate) {
-        return (T) getModelField(modelCode, fieldCode, isCreate);
-    }
+        return modelFields.get(fieldCode);
+    }*/
 
     /*public void removeModelField(String modelCode, String fieldCode) {
         ModelFields modelFields = getModelFields(modelCode);
@@ -233,6 +133,11 @@ public class ConfigV2 {
         }
         modelFields.put(modelCode, modelField);
         return true;
+    }*/
+
+    /*@SuppressWarnings("unchecked")
+    public <T extends ModelField> T getModelFieldExt(String modelCode, String fieldCode) {
+        return (T) getModelField(modelCode, fieldCode);
     }*/
 
     public static Boolean isModify() {

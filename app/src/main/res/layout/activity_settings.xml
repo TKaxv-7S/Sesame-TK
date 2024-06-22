@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:padding="12dp">
                 <!--基础设置-->
-                <LinearLayout
+                <!--<LinearLayout
                     android:id="@+id/tab_base"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -213,7 +213,7 @@
                         android:paddingEnd="@dimen/setting_item_padding"
                         android:text="@string/toast_vertical_offset"
                         android:textAllCaps="false" />
-                </LinearLayout>
+                </LinearLayout>-->
                 <!--其他-->
                 <!--
                                 <LinearLayout

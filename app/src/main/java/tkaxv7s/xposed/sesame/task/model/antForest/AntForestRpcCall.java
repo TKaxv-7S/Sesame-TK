@@ -2,10 +2,6 @@ package tkaxv7s.xposed.sesame.task.model.antForest;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
@@ -15,18 +11,6 @@ import tkaxv7s.xposed.sesame.util.StringUtil;
 public class AntForestRpcCall {
 
     private static final String VERSION = "20240403";
-
-    private static final Object collectEnergyLockObj = new Object();
-
-    private static final ThreadPoolExecutor collectEnergyThreadPoolExecutor = new ThreadPoolExecutor(
-            1,
-            3,
-            TimeUnit.SECONDS.toNanos(30)
-            , TimeUnit.NANOSECONDS,
-            new ArrayBlockingQueue<>(10000),
-            Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.AbortPolicy()
-    );
 
     private static String getUniqueId() {
         return String.valueOf(System.currentTimeMillis()) + RandomUtil.nextLong();

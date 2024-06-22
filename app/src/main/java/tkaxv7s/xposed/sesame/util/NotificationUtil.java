@@ -13,6 +13,7 @@ import android.os.Build;
 import java.text.DateFormat;
 
 import lombok.Getter;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
@@ -74,7 +75,7 @@ public class NotificationUtil {
                         .setContentTitle("芝麻粒")
                         .setAutoCancel(false)
                         .setContentIntent(pi);
-                if (ConfigV2.INSTANCE.isEnableOnGoing()) {
+                if (BaseModel.getEnableOnGoing().getValue()) {
                     builder.setOngoing(true);
                 }
                 mNotification = builder.build();
