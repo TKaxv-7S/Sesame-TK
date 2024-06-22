@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 
 import de.robv.android.xposed.XposedHelpers;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
@@ -278,7 +279,7 @@ public class AntSports extends ModelTask {
                 long now = Long.parseLong(rankCacheKey);
                 long delay = cot - now;
                 Log.record("还有 " + delay + "ms 才能开宝箱");
-                if (delay < ConfigV2.INSTANCE.getCheckInterval()) {
+                if (delay < BaseModel.getCheckInterval().getValue()) {
                     if (waitOpenBoxNos.contains(boxNo)) {
                         return;
                     }

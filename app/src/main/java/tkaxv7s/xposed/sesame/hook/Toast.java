@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.hook;
 import android.content.Context;
 import android.os.Handler;
 
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.util.Log;
 
@@ -15,7 +16,7 @@ public class Toast {
 
     public static void show(CharSequence cs, boolean force) {
         Context context = ApplicationHook.getContext();
-        if (context != null && (force || ConfigV2.INSTANCE.isShowToast())) {
+        if (context != null && (force || BaseModel.getShowToast().getValue())) {
             show(context, ApplicationHook.getMainHandler(), cs);
         }
     }
@@ -25,7 +26,7 @@ public class Toast {
             handler.post(() -> {
                 try {
                     android.widget.Toast toast = android.widget.Toast.makeText(context, cs, android.widget.Toast.LENGTH_SHORT);
-                    toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
+                    toast.setGravity(toast.getGravity(), toast.getXOffset(), BaseModel.getToastOffsetY().getValue());
                     toast.show();
                 } catch (Throwable t) {
                     Log.i(TAG, "show.run err:");

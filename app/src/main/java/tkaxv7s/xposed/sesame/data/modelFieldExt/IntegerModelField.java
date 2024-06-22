@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
+import tkaxv7s.xposed.sesame.util.Log;
 
 public class IntegerModelField extends ModelField {
 
@@ -80,13 +81,16 @@ public class IntegerModelField extends ModelField {
         return btn;
     }
 
-    public static class Multiply1000IntegerModelField extends IntegerModelField {
+    public static class MultiplyIntegerModelField extends IntegerModelField {
 
-        public Multiply1000IntegerModelField() {
+        private Integer multiple;
+
+        public MultiplyIntegerModelField() {
         }
 
-        public Multiply1000IntegerModelField(String code, String name, Integer value) {
-            super(code, name, value);
+        public MultiplyIntegerModelField(String code, String name, Integer value, Integer minLimit, Integer maxLimit, Integer multiple) {
+            super(code, name, value, minLimit, maxLimit);
+            this.multiple = multiple;
         }
 
         @Override
@@ -95,12 +99,17 @@ public class IntegerModelField extends ModelField {
                 setValue(null);
                 return;
             }
-            setValue(Integer.parseInt(value) * 1_000);
+            try {
+                setValue(Integer.parseInt(value) * multiple);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                setValue(null);
+            }
         }
 
         @Override
         public String getConfigValue() {
-            return String.valueOf(getValue() / 1_000);
+            return String.valueOf(getValue() / multiple);
         }
     }
 

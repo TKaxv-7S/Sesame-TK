@@ -17,11 +17,13 @@ import tkaxv7s.xposed.sesame.task.model.greenFinance.GreenFinance;
 import tkaxv7s.xposed.sesame.task.model.kbMember.KBMember;
 import tkaxv7s.xposed.sesame.task.model.reserve.Reserve;
 import tkaxv7s.xposed.sesame.task.model.welfareCenter.WelfareCenter;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 
 public class TaskOrder {
 
     private static final Class<ModelTask>[] array = new Class[]{
-            AntForestV2.class
+            BaseModel.class
+            , AntForestV2.class
             , AntCooperate.class
             , AntFarm.class
             , Reserve.class
@@ -37,10 +39,6 @@ public class TaskOrder {
     };
 
     private static final List<Class<ModelTask>> readOnlyClazzList = Collections.unmodifiableList(Arrays.asList(array));
-
-    public static Integer getClazzSize() {
-        return array.length;
-    }
 
     public static List<Class<ModelTask>> getClazzList() {
         return readOnlyClazzList;

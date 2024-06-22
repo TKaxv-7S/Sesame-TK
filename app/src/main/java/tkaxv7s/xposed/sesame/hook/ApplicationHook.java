@@ -3,12 +3,14 @@ package tkaxv7s.xposed.sesame.hook;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AndroidAppHelper;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -31,6 +33,7 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.ModelType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
@@ -38,6 +41,7 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.RpcBridge;
+import tkaxv7s.xposed.sesame.task.common.BaseTask;
 import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.task.common.TaskCommon;
 import tkaxv7s.xposed.sesame.task.model.antMember.AntMemberRpcCall;
@@ -58,6 +62,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private static final Map<Object, Boolean> rpcHookMap = new ConcurrentHashMap<>();
 
     private static final Map<String, PendingIntent> wakenAtTimeAlarmMap = new ConcurrentHashMap<>();
+
+    @Getter
+    private static String modelVersion = "";
 
     @Getter
     private static volatile boolean hooked = false;
@@ -85,7 +92,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     @Getter
     private static Handler mainHandler;
 
-    private static Runnable mainRunner;
+    private static BaseTask mainTask;
 
     private static RpcBridge rpcBridge;
 
@@ -108,6 +115,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 XposedHelpers.callStaticMethod(lpparam.classLoader.loadClass(ViewAppInfo.class.getName()), "setModelTypeByCode", ModelType.MODEL.getCode());
             } catch (ClassNotFoundException e) {
                 Log.printStackTrace(e);
+            }
+            try {
+                Context applicationContext = AndroidAppHelper.currentApplication().getApplicationContext();
+                modelVersion = applicationContext.getPackageManager().getPackageInfo(applicationContext.getPackageName(), 0).versionName;
+            } catch (PackageManager.NameNotFoundException ignored) {
             }
         } else if (ClassUtil.PACKAGE_NAME.equals(lpparam.packageName) && ClassUtil.PACKAGE_NAME.equals(lpparam.processName)) {
             if (hooked) {
@@ -157,13 +169,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 if (!targetUid.equals(currentUid)) {
                                     UserIdMap.setCurrentUid(targetUid);
                                     if (currentUid != null) {
-                                        Toast.show("芝麻粒切换用户");
                                         initHandler(true);
-                                        Log.i(TAG, "Activity changeUser");
+                                        Log.record("用户已切换");
+                                        Toast.show("用户已切换");
                                         return;
                                     }
                                 }
                                 if (offline) {
+                                    offline = false;
                                     execHandler();
                                     ((Activity) param.thisObject).finish();
                                     Log.i(TAG, "Activity reLogin");
@@ -190,7 +203,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 context = appService.getApplicationContext();
                                 service = appService;
                                 mainHandler = new Handler();
-                                mainRunner = new Runnable() {
+                                mainTask = BaseTask.newInstance("MAIN_TASK", new Runnable() {
 
                                     private volatile long lastExecTime = 0;
 
@@ -202,7 +215,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                         Log.record("开始执行");
                                         try {
                                             ConfigV2 config = ConfigV2.INSTANCE;
-                                            int checkInterval = Math.max(config.getCheckInterval(), 180_000);
+                                            int checkInterval = BaseModel.getCheckInterval().getValue();
                                             if (lastExecTime + 5000 > System.currentTimeMillis()) {
                                                 Log.record("执行间隔较短，跳过执行");
                                                 execDelayedHandler(checkInterval);
@@ -218,28 +231,30 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                             String currentUid = UserIdMap.getCurrentUid();
                                             if (!targetUid.equals(currentUid)) {
                                                 if (currentUid != null) {
+                                                    Log.record("开始切换用户");
+                                                    Toast.show("开始切换用户");
                                                     reLogin();
                                                     return;
                                                 }
+                                                UserIdMap.setCurrentUid(targetUid);
                                             }
-                                            UserIdMap.setCurrentUid(targetUid);
-
                                             try {
                                                 FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
                                                 Thread checkThread = new Thread(checkTask);
                                                 checkThread.start();
-                                                if (!checkTask.get(2, TimeUnit.SECONDS)) {
+                                                if (!checkTask.get(10, TimeUnit.SECONDS)) {
+                                                    Log.record("执行失败：检查超时");
                                                     reLogin();
                                                     return;
                                                 }
                                             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                                                Log.i(TAG, "check timeout");
-                                                execDelayedHandler(checkInterval);
+                                                Log.record("执行失败：检查中断");
+                                                reLogin();
                                                 return;
                                             } catch (Exception e) {
-                                                Log.i(TAG, "check err:");
+                                                Log.record("执行失败：检查异常");
+                                                reLogin();
                                                 Log.printStackTrace(TAG, e);
-                                                execDelayedHandler(checkInterval);
                                                 return;
                                             }
                                             TaskCommon.update();
@@ -247,7 +262,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                             lastExecTime = System.currentTimeMillis();
 
                                             try {
-                                                List<String> execAtTimeList = config.getExecAtTimeList();
+                                                List<String> execAtTimeList = BaseModel.getExecAtTimeList().getValue();
                                                 if (execAtTimeList != null) {
                                                     Calendar lastExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(lastExecTime);
                                                     Calendar nextExecTimeCalendar = TimeUtil.getCalendarByTimeMillis(lastExecTime + checkInterval);
@@ -273,7 +288,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                             Log.printStackTrace(e);
                                         }
                                     }
-                                };
+                                });
                                 registerBroadcastReceiver(appService);
                                 initHandler(true);
                             }
@@ -355,7 +370,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Log.i(TAG, "setWakenAt0 err:");
                 Log.printStackTrace(TAG, e);
             }
-            List<String> wakenAtTimeList = config.getWakenAtTimeList();
+            List<String> wakenAtTimeList = BaseModel.getWakenAtTimeList().getValue();
             if (wakenAtTimeList != null && !wakenAtTimeList.isEmpty()) {
                 Calendar nowCalendar = Calendar.getInstance();
                 for (int i = 1, len = wakenAtTimeList.size(); i < len; i++) {
@@ -442,14 +457,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static void execHandler() {
         if (context != null) {
-            mainHandler.removeCallbacks(mainRunner);
-            mainHandler.post(mainRunner);
+            mainTask.startTask(false);
         }
     }
 
     private static void execDelayedHandler(long delayMillis) {
         if (context != null) {
-            mainHandler.postDelayed(mainRunner, delayMillis);
+            mainHandler.postDelayed(() -> mainTask.startTask(false), delayMillis);
             try {
                 NotificationUtil.setNextExecTime(System.currentTimeMillis() + delayMillis);
             } catch (Exception e) {
@@ -477,12 +491,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 Log.record("开始加载");
                 ConfigV2 config = ConfigV2.load();
-                if (!config.isImmediateEffect()) {
+                if (!BaseModel.getEnable().getValue()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");
                     return;
                 }
-                if (config.isBatteryPerm() && !init && !PermissionUtil.checkBatteryPermissions()) {
+                if (BaseModel.getBatteryPerm().getValue() && !init && !PermissionUtil.checkBatteryPermissions()) {
                     Log.record("支付宝无始终在后台运行权限");
                     mainHandler.postDelayed(() -> {
                         if (!PermissionUtil.checkOrRequestBatteryPermissions(context)) {
@@ -490,13 +504,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         }
                     }, 2000);
                 }
-                if (config.isNewRpc()) {
+                if (BaseModel.getNewRpc().getValue()) {
                     rpcBridge = new NewRpcBridge();
                 } else {
                     rpcBridge = new OldRpcBridge();
                 }
                 rpcBridge.load();
-                if (config.isStayAwake()) {
+                if (BaseModel.getStayAwake().getValue()) {
                     try {
                         PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
                         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
@@ -521,7 +535,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
                 setWakenAtTimeAlarm();
 
-                if (config.isNewRpc() && config.isDebugMode()) {
+                if (BaseModel.getNewRpc().getValue() && BaseModel.getDebugMode().getValue()) {
                     try {
                         rpcRequestUnhook = XposedHelpers.findAndHookMethod(
                                 "com.alibaba.ariver.commonability.network.rpc.RpcBridgeExtension", classLoader
@@ -597,7 +611,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             if (force) {
                 if (context != null) {
                     NotificationUtil.stop(service, false);
-                    mainHandler.removeCallbacks(mainRunner);
+                    mainTask.stopTask();
                 }
                 if (rpcResponseUnhook != null) {
                     rpcResponseUnhook.unhook();
@@ -734,17 +748,21 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     }
 
     public static void reLogin() {
-        if (reLoginCount.get() < 5) {
-            int andIncrement = reLoginCount.getAndIncrement();
-            execDelayedHandler(andIncrement * 5000L);
-        } else {
-            execDelayedHandler(Math.max(ConfigV2.INSTANCE.getCheckInterval(), 180_000));
+        if (context != null) {
+            mainHandler.post(() -> {
+                if (reLoginCount.get() < 5) {
+                    int andIncrement = reLoginCount.getAndIncrement();
+                    execDelayedHandler(andIncrement * 5000L);
+                } else {
+                    execDelayedHandler(Math.max(BaseModel.getCheckInterval().getValue(), 180_000));
+                }
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                offline = true;
+                context.startActivity(intent);
+            });
         }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_ACTIVITY);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        offline = true;
-        context.startActivity(intent);
     }
 
     /*public static Boolean reLogin() {

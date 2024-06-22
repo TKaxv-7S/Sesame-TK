@@ -160,4 +160,23 @@ public abstract class BaseTask {
         };
     }
 
+    public static BaseTask newInstance(String id, Runnable runnable) {
+        return new BaseTask() {
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public Runnable init() {
+                return runnable;
+            }
+
+            @Override
+            public Boolean check() {
+                return true;
+            }
+        };
+    }
+
 }

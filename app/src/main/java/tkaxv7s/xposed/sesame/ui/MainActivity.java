@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.LinkedHashMap;
 
 import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.ModelType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
@@ -72,7 +73,7 @@ public class MainActivity extends Activity {
                             viewHandler.removeCallbacks(titleRunner);
                             if (isClick) {
                                 Toast toast = Toast.makeText(context, "芝麻粒加载状态正常", Toast.LENGTH_SHORT);
-                                toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
+                                toast.setGravity(toast.getGravity(), toast.getXOffset(), BaseModel.getToastOffsetY().getValue());
                                 toast.show();
                                 isClick = false;
                             }
@@ -213,14 +214,14 @@ public class MainActivity extends Activity {
             if (!ConfigV2.INSTANCE.isInit()) {
                 ConfigV2.load();
             }
-        }
-        if (ConfigV2.INSTANCE.isDebugMode()) {
-            MenuItem item = menu.findItem(7);
-            if (item == null) {
-                menu.add(0, 7, 7, R.string.view_debug);
+            if (BaseModel.getDebugMode().getValue()) {
+                MenuItem item = menu.findItem(7);
+                if (item == null) {
+                    menu.add(0, 7, 7, R.string.view_debug);
+                }
+            } else {
+                menu.removeItem(7);
             }
-        } else {
-            menu.removeItem(7);
         }
         return super.onPrepareOptionsMenu(menu);
     }

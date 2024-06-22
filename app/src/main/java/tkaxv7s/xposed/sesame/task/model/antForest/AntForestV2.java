@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import de.robv.android.xposed.XposedHelpers;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
@@ -158,7 +158,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(enableAntForest = new BooleanModelField("enableAntForest", "开启森林", true));
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", true));
-        modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "500"));
+        modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "500-1000"));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 500, 0, 6000));
@@ -421,7 +421,7 @@ public class AntForestV2 extends ModelTask {
                             break;
                         case WAITING:
                             long produceTime = bubble.getLong("produceTime");
-                            if (ConfigV2.INSTANCE.getCheckInterval() > produceTime - serverTime) {
+                            if (BaseModel.getCheckInterval().getValue() > produceTime - serverTime) {
                                 String tid = AntForestV2.getTid(userId, bubbleId);
                                 if (timerTask.hasChildTask(tid)) {
                                     break;
@@ -618,7 +618,7 @@ public class AntForestV2 extends ModelTask {
                     if ((
                             friendsObject.getBoolean("canCollectEnergy")
                                     || (
-                                    friendsObject.getLong("canCollectLaterTime") > 0 && friendsObject.getLong("canCollectLaterTime") - System.currentTimeMillis() < ConfigV2.INSTANCE.getCheckInterval()
+                                    friendsObject.getLong("canCollectLaterTime") > 0 && friendsObject.getLong("canCollectLaterTime") - System.currentTimeMillis() < BaseModel.getCheckInterval().getValue()
                             )
                     )
                             && collectEnergy.getValue()
@@ -810,8 +810,8 @@ public class AntForestV2 extends ModelTask {
                     } while (isDouble || thisTryCount < tryCountInt);
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
-                        if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
-                            long waitTime = System.currentTimeMillis() + ConfigV2.INSTANCE.getWaitWhenException();
+                        if (BaseModel.getWaitWhenException().getValue() > 0) {
+                            long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
                             RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
                             NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
@@ -889,8 +889,8 @@ public class AntForestV2 extends ModelTask {
                     } while (isDouble || thisTryCount < tryCountInt);
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
-                        if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
-                            long waitTime = System.currentTimeMillis() + ConfigV2.INSTANCE.getWaitWhenException();
+                        if (BaseModel.getWaitWhenException().getValue() > 0) {
+                            long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
                             RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
                             NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
