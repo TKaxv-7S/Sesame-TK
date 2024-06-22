@@ -40,6 +40,7 @@ public class AntSports extends ModelTask {
     public IntegerModelField latestExchangeTime;
     public static IntegerModelField syncStepCount;
     public BooleanModelField tiyubiz;
+    public BooleanModelField battleforfriends;
 
     @Override
     public ModelFields setFields() {
@@ -52,6 +53,7 @@ public class AntSports extends ModelTask {
         modelFields.addField(latestExchangeTime = new IntegerModelField("latestExchangeTime", "最晚捐步时间(24小时制)", 22));
         modelFields.addField(syncStepCount = new IntegerModelField("syncStepCount", "自定义同步步数", 22000));
         modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
+        modelFields.addField(battleforfriends = new BooleanModelField("battleforfriends", "抢好友大战", false));
         return modelFields;
     }
 
@@ -85,6 +87,11 @@ public class AntSports extends ModelTask {
                     userTaskRightsReceive();
                     pathFeatureQuery();
                     participate();
+                }
+
+                if (battleforfriends.getValue()) {
+                    queryClubHome();
+                    queryTrainItem();
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "start.run err:");
@@ -676,6 +683,121 @@ public class AntSports extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "tiyubizGo err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    /* 抢好友大战 */
+    private static void queryClubHome() {
+        try {
+            // 发送 RPC 请求获取 club home 数据
+            JSONObject clubHomeData = new JSONObject(AntSportsRpcCall.queryClubHome());
+            // 检查是否存在 bubbleList
+            if (clubHomeData.has("roomList")) {
+                JSONArray roomList = clubHomeData.getJSONArray("roomList");
+                // 遍历 roomList
+                for (int i = 0; i < roomList.length(); i++) {
+                    JSONObject room = roomList.getJSONObject(i);
+                    // 检查是否存在 bubbleList
+                    if (room.has("bubbleList")) {
+                        JSONArray bubbleList = room.getJSONArray("bubbleList");
+                        // 遍历 bubbleList
+                        for (int j = 0; j < bubbleList.length(); j++) {
+                            JSONObject bubble = bubbleList.getJSONObject(j);
+                            // 获取 bubbleId
+                            String bubbleId = bubble.optString("bubbleId");
+                            // 调用 collectBubble 方法
+                            AntSportsRpcCall.collectBubble(bubbleId);
+                            // 输出日志信息
+                            int fullCoin = bubble.optInt("fullCoin");
+                            Log.other("训练好友💰️[领取:" + fullCoin + "金币]");
+                            // 添加 1 秒的等待时间
+                            Thread.sleep(1000);
+                        }
+                    }
+                }
+            } else {
+                return;
+            }
+        } catch (Throwable t) {
+            // 输出错误日志信息
+            Log.i(TAG, "queryClubHome err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private static void queryTrainItem() {
+        try {
+            // 发送 RPC 请求获取 club home 数据
+            JSONObject clubHomeData = new JSONObject(AntSportsRpcCall.queryClubHome());
+            // 检查是否存在 roomList
+            if (clubHomeData.has("roomList")) {
+                JSONArray roomList = clubHomeData.getJSONArray("roomList");
+                // 遍历 roomList
+                for (int i = 0; i < roomList.length(); i++) {
+                    JSONObject room = roomList.getJSONObject(i);
+                    // 获取 roomId
+                    String roomId = room.getString("roomId");
+                    // 获取 memberList
+                    JSONArray memberList = room.getJSONArray("memberList");
+                    // 遍历 memberList
+                    for (int j = 0; j < memberList.length(); j++) {
+                        JSONObject member = memberList.getJSONObject(j);
+                        // 提取 memberId 和 originBossId
+                        String memberId = member.getString("memberId");
+                        String originBossId = member.getString("originBossId");
+                        // 获取用户名称
+                        String userName = UserIdMap.getNameById(originBossId);
+                        // 检查训练状态
+                        JSONObject trainInfo = member.optJSONObject("trainInfo");
+                        if (trainInfo != null && trainInfo.optBoolean("training", false)) {
+                            // 如果正在训练，则直接返回，不再继续执行后续代码
+                            return;
+                        }
+                        // 发送 RPC 请求获取 train item 数据
+                        String responseData = AntSportsRpcCall.queryTrainItem();
+                        // 解析 JSON 数据
+                        JSONObject responseJson = new JSONObject(responseData);
+                        // 检查请求是否成功
+                        boolean success = responseJson.getBoolean("success");
+                        if (!success) {
+                            return;
+                        }
+                        // 获取 trainItemList
+                        JSONArray trainItemList = responseJson.getJSONArray("trainItemList");
+                        // 遍历 trainItemList
+                        for (int k = 0; k < trainItemList.length(); k++) {
+                            JSONObject trainItem = trainItemList.getJSONObject(k);
+                            // 提取训练项目的相关信息
+                            String itemType = trainItem.getString("itemType");
+                            // 如果找到了 itemType 为 "barbell" 的训练项目，则调用 trainMember 方法并传递 itemType、memberId 和 originBossId 值
+                            if ("barbell".equals(itemType)) {
+                                // 调用 trainMember 方法并传递 itemType、memberId 和 originBossId 值
+                                String trainMemberResponse = AntSportsRpcCall.trainMember(itemType, memberId, originBossId);
+                                // 解析 trainMember 响应数据
+                                JSONObject trainMemberResponseJson = new JSONObject(trainMemberResponse);
+                                // 检查 trainMember 响应是否成功
+                                boolean trainMemberSuccess = trainMemberResponseJson.getBoolean("success");
+                                if (!trainMemberSuccess) {
+                                    Log.i(TAG, "trainMember request failed");
+                                    continue; // 如果 trainMember 请求失败，继续处理下一个训练项目
+                                }
+                                // 获取训练项目的名称
+                                String trainItemName = trainItem.getString("name");
+                                // 将用户名称和训练项目的名称添加到日志输出
+                                Log.other("训练好友🥋[训练:" + userName + "" + trainItemName + "]");
+                            }
+                        }
+                    }
+                    // 添加 1 秒的间隔
+                    Thread.sleep(1000);
+                }
+            } else {
+                Log.i(TAG, "roomList not found in club home data");
+                return;
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "queryTrainItem err:");
             Log.printStackTrace(TAG, t);
         }
     }
