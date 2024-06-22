@@ -159,7 +159,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", true));
         modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "500"));
-        modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 250));
+        modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 500, 0, 6000));
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "浇水10克需收能量(关闭:0)", 0));
@@ -386,7 +386,7 @@ public class AntForestV2 extends ModelTask {
 
             if (isSelf) {
                 String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                if ("CAN_PLAY".equals(whackMoleStatus)) {
                     whackMole();
                 }
                 updateDoubleTime(userHomeObject);
@@ -760,6 +760,7 @@ public class AntForestV2 extends ModelTask {
                     int thisTryCount = 0;
                     do {
                         thisTryCount++;
+                        isDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
                         ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
                         if (rpcEntity.getHasError()) {
@@ -806,7 +807,7 @@ public class AntForestV2 extends ModelTask {
                         }
                         NotificationUtil.setContentText(Log.getFormatTime() + "  收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
-                    } while (thisTryCount < tryCountInt);
+                    } while (isDouble || thisTryCount < tryCountInt);
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
                         if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
@@ -847,6 +848,7 @@ public class AntForestV2 extends ModelTask {
                     int thisTryCount = 0;
                     do {
                         thisTryCount++;
+                        isDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIdList);
                         ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
                         if (rpcEntity.getHasError()) {
@@ -884,7 +886,7 @@ public class AntForestV2 extends ModelTask {
                         }
                         NotificationUtil.setContentText(Log.getFormatTime() + "  收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
-                    } while (thisTryCount < tryCountInt);
+                    } while (isDouble || thisTryCount < tryCountInt);
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
                         if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
