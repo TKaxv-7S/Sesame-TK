@@ -1,12 +1,11 @@
-package tkaxv7s.xposed.sesame.task.model.greenFinance;
+package tkaxv7s.xposed.sesame.task.model.gameCenter;
 
 import org.json.JSONArray;
-
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.task.model.BaseRpcCall;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.task.model.BaseRpcCall;
 
-public class GreenFinanceRpcCall extends BaseRpcCall {
+public class GameCenterRpcCall extends BaseRpcCall {
 
     public static String greenFinanceIndex() {
         return ApplicationHook.requestString(
@@ -25,14 +24,9 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
                 "[{\"cycleCount\":7,\"cycleType\":\"d\",\"extInfo\":{},\"needContinuous\":1,\"sceneId\":\"" + sceneId + "\"}]");
     }
 
-    public static String queryUserTickItem() {
-        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.signin.query",
-                "[{\"custType\":\"MERCHANT\",\"firstBehaviorType\":\"lsxd\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
-    }
-
-    public static String submitTick(String behaviorCode) {
-        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceTickService.submitTick",
-                "[{\"custType\":\"MERCHANT\",\"firstBehaviorType\":\"lsxd\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\",\"behaviorCode\":\"" + behaviorCode + "\"}]");
+    public static String signInTrigger(String sceneId) {
+        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.signin.trigger",
+                "[{\"extInfo\":{},\"sceneId\":\"" + sceneId + "\"}]");
     }
 
 }
