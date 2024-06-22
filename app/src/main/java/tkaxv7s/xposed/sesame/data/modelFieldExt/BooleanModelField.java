@@ -6,14 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Switch;
-
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 
 public class BooleanModelField extends ModelField {
-
-    public BooleanModelField() {
-    }
 
     public BooleanModelField(String code, String name, Boolean value) {
         super(code, name, value);

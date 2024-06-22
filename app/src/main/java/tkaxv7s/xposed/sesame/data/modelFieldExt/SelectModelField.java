@@ -8,24 +8,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
-import tkaxv7s.xposed.sesame.entity.AlipayBeach;
-import tkaxv7s.xposed.sesame.entity.AlipayReserve;
-import tkaxv7s.xposed.sesame.entity.AreaCode;
-import tkaxv7s.xposed.sesame.entity.CooperateUser;
 import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.ui.ListDialog;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据结构说明
@@ -40,9 +34,6 @@ public class SelectModelField extends ModelField {
     };
 
     private List<? extends IdAndName> idAndNameList;
-
-    public SelectModelField() {
-    }
 
     public SelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> idAndNameList) {
         super(code, name, value);
@@ -83,58 +74,7 @@ public class SelectModelField extends ModelField {
         return btn;
     }
 
-    public static class BeachAndNameSelectModelField extends SelectModelField {
-
-        public BeachAndNameSelectModelField() {
-        }
-
-        @Override
-        @JsonIgnore
-        public List<? extends IdAndName> getIdAndNameList() {
-            return AlipayBeach.getList();
-        }
-    }
-
-    public static class CooperateUserAndNameSelectModelField extends SelectModelField {
-
-        public CooperateUserAndNameSelectModelField() {
-        }
-
-        @Override
-        @JsonIgnore
-        public List<? extends IdAndName> getIdAndNameList() {
-            return CooperateUser.getList();
-        }
-    }
-
-    public static class AreaCodeAndNameSelectModelField extends SelectModelField {
-
-        public AreaCodeAndNameSelectModelField() {
-        }
-
-        @Override
-        @JsonIgnore
-        public List<? extends IdAndName> getIdAndNameList() {
-            return AreaCode.getList();
-        }
-    }
-
-    public static class ReserveAndNameSelectModelField extends SelectModelField {
-
-        public ReserveAndNameSelectModelField() {
-        }
-
-        @Override
-        @JsonIgnore
-        public List<? extends IdAndName> getIdAndNameList() {
-            return AlipayReserve.getList();
-        }
-    }
-
     public static class SelectOneModelField extends SelectModelField {
-
-        public SelectOneModelField() {
-        }
 
         public SelectOneModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> idAndNameList) {
             super(code, name, value, idAndNameList);
