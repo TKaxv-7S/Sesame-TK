@@ -1,5 +1,6 @@
 package tkaxv7s.xposed.sesame.task.model.antMember;
 
+import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 
@@ -10,8 +11,8 @@ public class AntMemberRpcCall {
     }
 
     public static Boolean check() {
-        String str = ApplicationHook.requestString("alipay.antmember.biz.rpc.member.h5.queryPointCert", "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]");
-        return str != null && !str.isEmpty();
+        RpcEntity rpcEntity = ApplicationHook.requestObject("alipay.antmember.biz.rpc.member.h5.queryPointCert", "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]", 1, 0);
+        return rpcEntity != null && !rpcEntity.getHasError();
     }
 
     /* ant member point */

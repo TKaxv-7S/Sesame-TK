@@ -626,6 +626,15 @@ public class Statistics {
                 json = FileUtil.readFromFile(statisticsFile);
             }
             JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
+            if (INSTANCE.resetByCalendar(Calendar.getInstance())) {
+                return INSTANCE;
+            }
+            String formatted = JsonUtil.toJsonString(INSTANCE);
+            if (formatted != null && !formatted.equals(json)) {
+                Log.i(TAG, "重新格式化 statistics.json");
+                Log.system(TAG, "重新格式化 statistics.json");
+                FileUtil.write2File(formatted, FileUtil.getStatisticsFile());
+            }
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
             Log.i(TAG, "统计文件格式有误，已重置统计文件");
@@ -635,15 +644,6 @@ public class Statistics {
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, t);
             }
-        }
-        if (INSTANCE.resetByCalendar(Calendar.getInstance())) {
-            return INSTANCE;
-        }
-        String formatted = JsonUtil.toJsonString(INSTANCE);
-        if (formatted != null && !formatted.equals(json)) {
-            Log.i(TAG, "重新格式化 statistics.json");
-            Log.system(TAG, "重新格式化 statistics.json");
-            FileUtil.write2File(formatted, FileUtil.getStatisticsFile());
         }
         return INSTANCE;
     }

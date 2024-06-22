@@ -20,7 +20,9 @@ public abstract class ModelTask extends BaseTask {
 
     private static final Map<Class<? extends ModelTask>, ModelTask> taskMap = new ConcurrentHashMap<>();
 
-    private static final ModelTask[] taskArray = new ModelTask[TaskOrder.getClazzSize()];
+    private static final List<Class<ModelTask>> taskClazzList = TaskOrder.getClazzList();
+
+    private static final ModelTask[] taskArray = new ModelTask[taskClazzList.size()];
 
     private static final List<ModelTask> taskList = new LinkedList<>(Arrays.asList(taskArray));
 
@@ -49,7 +51,6 @@ public abstract class ModelTask extends BaseTask {
 
     public static synchronized void initAllModel() {
         destroyAllTask();
-        List<Class<ModelTask>> taskClazzList = TaskOrder.getClazzList();
         for (int i = 0, len = taskClazzList.size(); i < len; i++) {
             Class<ModelTask> taskClazz = taskClazzList.get(i);
             try {

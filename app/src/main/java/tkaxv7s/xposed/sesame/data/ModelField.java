@@ -21,6 +21,7 @@ public class ModelField implements Serializable {
 
     private static final String extPackage = "tkaxv7s.xposed.sesame.data.modelFieldExt.";
 
+    @JsonIgnore
     private String type;
 
     @JsonIgnore
@@ -80,33 +81,9 @@ public class ModelField implements Serializable {
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
         btn.setOnClickListener(v -> {
-            Toast toast = Toast.makeText(context, "无配置项", Toast.LENGTH_SHORT);
-            toast.setGravity(toast.getGravity(), toast.getXOffset(), ConfigV2.INSTANCE.getToastOffsetY());
-            toast.show();
+            Toast.makeText(context, "无配置项", Toast.LENGTH_SHORT).show();
         });
         return btn;
-    }
-
-    @JsonIgnore
-    @SuppressWarnings("unchecked")
-    public Class<? extends ModelField> getClazz() {
-        try {
-            return (Class<? extends ModelField>) Class.forName(extPackage + type);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public ModelField clone() {
-        try {
-            ModelField modelField = getClazz().newInstance();
-            modelField.setCode(code);
-            modelField.setName(name);
-            modelField.setValue(value);
-            return modelField;
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

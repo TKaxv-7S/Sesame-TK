@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 
 public class Log {
 
@@ -123,7 +123,7 @@ public class Log {
 
     public static void record(String str) {
         runtimeLogger.i(str);
-        if (!ConfigV2.INSTANCE.isRecordLog()) {
+        if (!BaseModel.getRecordLog().getValue()) {
             return;
         }
         recordLogger.i(str);

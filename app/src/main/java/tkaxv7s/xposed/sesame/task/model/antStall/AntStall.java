@@ -374,7 +374,7 @@ public class AntStall extends ModelTask {
             String s = AntStallRpcCall.friendHome(userId);
             try {
                 JSONObject jo = new JSONObject(s);
-                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                if ("SUCCESS".equals(jo.optString("resultCode"))) {
                     JSONObject seatsMap = jo.getJSONObject("seatsMap");
                     JSONObject guest = seatsMap.getJSONObject("GUEST_01");
                     if (guest.getBoolean("canOpenShop")) {

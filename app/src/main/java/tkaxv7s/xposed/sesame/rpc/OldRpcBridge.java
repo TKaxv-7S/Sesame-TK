@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
@@ -107,14 +108,14 @@ public class OldRpcBridge implements RpcBridge {
                             if (!ApplicationHook.isOffline()) {
                                 ApplicationHook.setOffline(true);
                                 NotificationUtil.setContentText("登录超时");
-                                if (ConfigV2.INSTANCE.isTimeoutRestart()) {
+                                if (BaseModel.getTimeoutRestart().getValue()) {
                                     Log.record("尝试重新登录");
                                     ApplicationHook.reLoginByBroadcast();
                                 }
                             }
                         } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(method)) {
-                            if (ConfigV2.INSTANCE.getWaitWhenException() > 0) {
-                                long waitTime = System.currentTimeMillis() + ConfigV2.INSTANCE.getWaitWhenException();
+                            if (BaseModel.getWaitWhenException().getValue() > 0) {
+                                long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
                                 RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
                                 NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));

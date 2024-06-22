@@ -6,6 +6,7 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 
 import de.robv.android.xposed.XposedHelpers;
+import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
@@ -153,7 +154,7 @@ public class NewRpcBridge implements RpcBridge {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
                             NotificationUtil.setContentText("登录超时");
-                            if (ConfigV2.INSTANCE.isTimeoutRestart()) {
+                            if (BaseModel.getTimeoutRestart().getValue()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();
                             }
@@ -260,7 +261,7 @@ public class NewRpcBridge implements RpcBridge {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
                             NotificationUtil.setContentText("登录超时");
-                            if (ConfigV2.INSTANCE.isTimeoutRestart()) {
+                            if (BaseModel.getTimeoutRestart().getValue()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();
                             }
