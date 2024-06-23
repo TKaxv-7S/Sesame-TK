@@ -58,6 +58,8 @@
     <string name="donate_charity_coin">Donate charity coin</string>
     <string name="min_exchange_count">Min exchange count</string>
     <string name="latest_exchange_time_24_hour_system">Latest exchange time (24-hour system)</string>
+    <string name="koubei">Koubei</string>
+    <string name="enable_koubei">Enable Koubei</string>
     <string name="koubei_sign_in">Koubei sign in</string>
     <string name="more">MORE</string>
     <string name="forest_log">Forest log</string>

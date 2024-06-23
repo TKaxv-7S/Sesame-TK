@@ -13,9 +13,11 @@ import tkaxv7s.xposed.sesame.task.model.antOcean.AntOcean;
 import tkaxv7s.xposed.sesame.task.model.antOrchard.AntOrchard;
 import tkaxv7s.xposed.sesame.task.model.antSports.AntSports;
 import tkaxv7s.xposed.sesame.task.model.antStall.AntStall;
+import tkaxv7s.xposed.sesame.task.model.gameCenter.GameCenter;
 import tkaxv7s.xposed.sesame.task.model.greenFinance.GreenFinance;
 import tkaxv7s.xposed.sesame.task.model.kbMember.KBMember;
 import tkaxv7s.xposed.sesame.task.model.reserve.Reserve;
+import tkaxv7s.xposed.sesame.task.model.welfareCenter.WelfareCenter;
 import tkaxv7s.xposed.sesame.data.BaseModel;
 
 public class TaskOrder {
@@ -34,6 +36,8 @@ public class TaskOrder {
             , AntStall.class
             , GreenFinance.class
             , KBMember.class
+            , WelfareCenter.class
+            , GameCenter.class
     };
 
     private static final List<Class<ModelTask>> readOnlyClazzList = Collections.unmodifiableList(Arrays.asList(array));
