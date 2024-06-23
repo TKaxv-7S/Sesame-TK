@@ -7,20 +7,10 @@ import tkaxv7s.xposed.sesame.task.model.BaseRpcCall;
 public class WelfareCenterRpcCall extends BaseRpcCall {
 
     /**
-     * 请求福利金首页
-     * @param
-     * @return
-     */
-    public static String welfareIndex() {
-        return ApplicationHook.requestString(
-                "mybank.bkpromoweb.mybankHome.enterprise.index",
-                "[{\"apiVersion\":690,\"isFromOtherChannel\":\"false\",\"sceneCodeParams\":[{\"busiCode\":\"720_home_busi_v720\",\"busiFlowCode\":\"520_home_busi_unopened_v520\",\"userLevel\":\"L4\"}]}]");
-    }
-
-    /**
      * 查询待领取的福利金、签到
-     * @param signInSceneId
-     * @return
+     *
+     * @param signInSceneId signInSceneId
+     * @return 结果
      */
     public static String queryEnableVirtualProfitV2(String signInSceneId) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.virtualProfit.queryEnableVirtualProfitV2",
@@ -37,18 +27,20 @@ public class WelfareCenterRpcCall extends BaseRpcCall {
 
     /**
      * 批量领取福利金
-     * @param vpIds
-     * @return
+     *
+     * @param vpIds Ids
+     * @return 结果
      */
     public static String batchUseVirtualProfit(JSONArray vpIds) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.virtualProfit.batchUseVirtualProfit",
-                "[{\"virtualProfitIdList\":" + vpIds + "｝]");
+                "[{\"virtualProfitIdList\":" + vpIds + "}]");
     }
 
     /**
      * 签到
-     * @param sceneId
-     * @return
+     *
+     * @param sceneId sceneId
+     * @return 结果
      */
     public static String signInTrigger(String sceneId) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.signin.trigger",

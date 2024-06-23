@@ -11,32 +11,10 @@ import tkaxv7s.xposed.sesame.util.Log;
 public class BaseRpcCall {
 
     /**
-     * 任务处理状态
-     */
-    public enum TaskProcessStatusEnum {
-        /**
-         * 已报名，待完成
-         */
-        SIGNUP_COMPLETE,
-        /**
-         * 没有报名的
-         */
-        NONE_SIGNUP,
-        /**
-         * 一次性已完成的
-         */
-        RECEIVE_SUCCESS,
-        /**
-         * 领取奖品
-         */
-        TO_RECEIVE
-    }
-
-    /**
      * 查询任务
      *
      * @param appletId appletId
-     * @return
+     * @return 结果
      */
     public static String taskQuery(String appletId) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.task.taskQuery",
@@ -49,7 +27,7 @@ public class BaseRpcCall {
      * @param appletId  appletId
      * @param stageCode stageCode
      * @param taskCenId 任务ID
-     * @return
+     * @return 结果
      */
     public static String taskTrigger(String appletId, String stageCode, String taskCenId) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.task.taskTrigger",
@@ -67,7 +45,9 @@ public class BaseRpcCall {
      * 公共做任务
      * 使用taskQuery查询任务，taskTrigger触发任务（根据taskProcessStatus状态，报名signup->完成send->领奖receive）
      *
-     * @param appletId
+     * @param appletId appletId
+     * @param tag 类名
+     * @param name 中文说明
      */
     public static void doTask(String appletId, String tag, String name) {
         try {
@@ -111,7 +91,7 @@ public class BaseRpcCall {
                     s = taskTrigger(taskId, "send", appletId);
                     jo = new JSONObject(s);
                     if (!jo.getBoolean("success")) {
-                        Log.i(tag + ".doTask.receive", jo.optString("resultDesc"));
+                        Log.i(tag + ".doTask.send", jo.optString("resultDesc"));
                         continue;
                     }
                 } else if (!"TO_RECEIVE".equals(status)) {

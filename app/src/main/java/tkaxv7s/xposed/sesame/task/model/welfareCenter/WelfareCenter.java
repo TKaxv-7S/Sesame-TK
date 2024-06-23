@@ -80,12 +80,12 @@ public class WelfareCenter extends ModelTask {
             JSONArray virtualProfitList = result.getJSONArray("virtualProfitList");
             for (int i = 0; i < virtualProfitList.length(); i++) {
                 JSONObject object = virtualProfitList.getJSONObject(i);
-                if("signin".equals(object.getString("type"))){
+                if ("signin".equals(object.getString("type"))) {
                     signIn(signInSceneId);
                     continue;
                 }
                 JSONArray virtualProfitIds = object.optJSONArray("virtualProfitIds");
-                if (virtualProfitIds==null ||virtualProfitIds.length() <= 0) {
+                if (virtualProfitIds == null || virtualProfitIds.length() <= 0) {
                     continue;
                 }
                 str = WelfareCenterRpcCall.batchUseVirtualProfit(virtualProfitIds);
@@ -110,7 +110,8 @@ public class WelfareCenter extends ModelTask {
 
     /**
      * 签到
-     * @param sceneId
+     *
+     * @param sceneId sceneId
      */
     private void signIn(String sceneId) {
         try {

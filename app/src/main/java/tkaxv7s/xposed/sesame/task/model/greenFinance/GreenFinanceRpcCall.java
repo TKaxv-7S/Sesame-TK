@@ -11,7 +11,7 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
     /**
      * 绿色经营首页
      *
-     * @return
+     * @return 结果
      */
     public static String greenFinanceIndex() {
         return ApplicationHook.requestString(
@@ -22,8 +22,8 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
     /**
      * 批量收取
      *
-     * @param bsnIds
-     * @return
+     * @param bsnIds bsnIds
+     * @return 结果
      */
     public static String batchSelfCollect(JSONArray bsnIds) {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinancePointCollectService.batchSelfCollect",
@@ -34,8 +34,8 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
     /**
      * 签到查询
      *
-     * @param sceneId
-     * @return
+     * @param sceneId sceneId
+     * @return 结果
      */
     public static String signInQuery(String sceneId) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.signin.query",
@@ -45,7 +45,7 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
     /**
      * 查询打卡记录
      *
-     * @return
+     * @return 结果
      */
     public static String queryUserTickItem(String firstBehaviorType) {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceTickService.queryUserTickItem",
@@ -55,8 +55,8 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
     /**
      * 提交打卡
      *
-     * @param behaviorCode
-     * @return
+     * @param behaviorCode behaviorCode
+     * @return 结果
      */
     public static String submitTick(String firstBehaviorType, String behaviorCode) {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceTickService.submitTick",
@@ -67,7 +67,7 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
      * 查询要过期了的金币
      *
      * @param day 多少天后
-     * @return
+     * @return 结果
      */
     public static String queryExpireMcaPoint(long day) {
         //{"ariverRpcTraceId":"client`ZWBWO+Zb5kQDAHgksDyLs/tHP11O+Xc_283027","result":{"expirePoint":{"amount":"6762.00","amountInt":"6762","cent":"676200"}},"resultView":"处理成功","success":true}
@@ -80,7 +80,7 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
     /**
      * 查询可捐助的项目、
      *
-     * @return
+     * @return 结果
      */
     public static String queryAllDonationProjectNew() {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceDonationService.queryAllDonationProjectNew",
@@ -91,7 +91,7 @@ public class GreenFinanceRpcCall extends BaseRpcCall {
      * 查询要过期了的金币
      *
      * @param projectId CLEAN_ENERGY_00001、WELFARE_PV_0000
-     * @return
+     * @return 结果
      */
     public static String donation(String projectId, String amount) {
         //{"ariverRpcTraceId":"client`ZWBWO+Zb5kQDAHgksDyLs/tHP11fNHg_230398","result":{"amount":200,"bsnId":"202406231073250005003700277823650280","certificateId":"MBKO1043330320","custType":"MERCHANT","donateElectricityRatio":2,"donateTime":1719088281085,"gmtCreate":1652176865000,"gmtModify":32487667200000,"outBizNo":"1719088280762","projectId":"CLEAN_ENERGY_00001","projectName":"朝阳县光伏发电项目","showFlag":"Y","targetAmount":1162,"uid":"2088302146583284"},"resultView":"处理成功","success":true}
