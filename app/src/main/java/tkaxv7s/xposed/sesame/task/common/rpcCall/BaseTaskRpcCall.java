@@ -116,7 +116,8 @@ public class BaseTaskRpcCall {
      */
     public static String getValueByPath(JSONObject jsonObject, String path) {
         // 使用正斜杠/作为Token分隔符号来直接跳过数组下标的解析逻辑部分并直接取嵌套属性
-        String[] parts = path.split("\\."); // 使用正则表达式分割，但保留[]内的内容
+        // 使用正则表达式分割，但保留[]内的内容
+        String[] parts = path.split("\\.");
         try {
             Object current = jsonObject;
             for (String part : parts) {
@@ -127,13 +128,13 @@ public class BaseTaskRpcCall {
                     //数组取索引
                     JSONArray array = (JSONArray) current;
                     String p = part.replaceAll("\\D", "");
-                    int index = Integer.parseInt(p); // 处理可能抛出NumberFormatException例外情况
+                    int index = Integer.parseInt(p);
                     current = array.get(index);
                 } else if (part.contains("[")) {
                     //不是对象、数组，当成字符串重新解析，如果字符串是数组
                     JSONArray array = new JSONArray(current.toString());
                     String p = part.replaceAll("\\D", "");
-                    int index = Integer.parseInt(p); // 处理可能抛出NumberFormatException例外情况
+                    int index = Integer.parseInt(p);
                     current = array.get(index);
                 } else {
                     //不是对象、数组，当成字符串重新解析，再取属性
@@ -143,7 +144,8 @@ public class BaseTaskRpcCall {
             }
             // 返回结果时检查是否确实找到了相应的值且非null，并转换成字符串形式返回
             return (current != null) ? String.valueOf(current) : null;
-        } catch (Exception e) { // JSONException、NumberFormatException等异常都被捕获，并默认行为是返回null.
+        } catch (Exception e) {
+            // JSONException、NumberFormatException等异常都被捕获，并默认行为是返回null.
             return null;
         }
     }

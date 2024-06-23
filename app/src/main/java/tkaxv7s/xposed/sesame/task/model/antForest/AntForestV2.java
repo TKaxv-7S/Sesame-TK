@@ -13,6 +13,7 @@ import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.hook.FriendManager;
 import tkaxv7s.xposed.sesame.hook.Toast;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
+import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 import tkaxv7s.xposed.sesame.task.model.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.util.*;
 
@@ -89,6 +90,7 @@ public class AntForestV2 extends ModelTask {
     public static SelectModelField.SelectOneModelField sendFriendCard;
     public static SelectModelField whoYouWantToGiveTo;
     public static BooleanModelField ecoLifeTick;
+    public static BooleanModelField photoGuangPan;
 
     public static Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
 
@@ -161,6 +163,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(sendFriendCard = new SelectModelField.SelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色行动打卡", false));
+        modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "光盘行动", false));
         return modelFields;
     }
 
@@ -293,6 +296,10 @@ public class AntForestV2 extends ModelTask {
                     /* 森林集市 */
                     sendEnergyByAction("GREEN_LIFE");
                     sendEnergyByAction("ANTFOREST");
+
+                    if (photoGuangPan.getValue()) {
+                        photoGuangPan();
+                    }
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "checkEnergyRanking.run err:");
@@ -623,7 +630,7 @@ public class AntForestV2 extends ModelTask {
                                                     }
                                                     if (wateringBubble.getBoolean("canProtect")) {
                                                         boolean isHelpCollect = dontHelpCollectMap.containsKey(userId);
-                                                        if (!helpFriendCollectType.getValue()){
+                                                        if (!helpFriendCollectType.getValue()) {
                                                             isHelpCollect = !isHelpCollect;
                                                         }
                                                         if (isHelpCollect) {
@@ -684,7 +691,7 @@ public class AntForestV2 extends ModelTask {
                                                 }
                                             }
                                         }
-                                    }else {
+                                    } else {
                                         Log.record(userHomeObject.getString("resultDesc"));
                                     }
                                 }
@@ -971,11 +978,11 @@ public class AntForestV2 extends ModelTask {
             JSONObject jo = new JSONObject(AntForestRpcCall.consultForSendEnergyByAction(sourceType));
             if (jo.getBoolean("success")) {
                 JSONObject data = jo.getJSONObject("data");
-                if(data.optBoolean("canSendEnergy",false)){
+                if (data.optBoolean("canSendEnergy", false)) {
                     jo = new JSONObject(AntForestRpcCall.sendEnergyByAction(sourceType));
                     if (jo.getBoolean("success")) {
                         data = jo.getJSONObject("data");
-                        if(data.optBoolean("canSendEnergy",false)){
+                        if (data.optBoolean("canSendEnergy", false)) {
                             int receivedEnergyAmount = data.getInt("receivedEnergyAmount");
                             Log.forest("集市逛街👀[获得:能量" + receivedEnergyAmount + "g]");
                         }
@@ -2002,6 +2009,50 @@ public class AntForestV2 extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
         return helped;
+    }
+
+    /**
+     * 光盘行动
+     */
+    private static void photoGuangPan() {
+        try {
+            //检查今日任务状态
+            String str = AntForestRpcCall.ecolifeQueryDish();
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.ecolifeQueryDish", jsonObject.optString("resultDesc"));
+                return;
+            }
+            if ("SUCCESS".equals(BaseTaskRpcCall.getValueByPath(jsonObject, "data.status"))) {
+                //今日已完成
+                return;
+            }
+            //上传餐前照片
+            str = AntForestRpcCall.ecolifeUploadDishImage("BEFORE_MEALS", "A*jjWgQYUcTtoAAAAAAAAAAAAAAQAAAQ", 0.16571736, 0.07448776, 0.7597949);
+            jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.ecolifeUploadDishImage", jsonObject.optString("resultDesc"));
+                return;
+            }
+            //上传餐后照片
+            str = AntForestRpcCall.ecolifeUploadDishImage("AFTER_MEALS", "A*Sc4PSp3kLXUAAAAAAAAAAAAAAQAAAQ", 0.00040030346, 0.99891376, 0.0006858421);
+            jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.ecolifeUploadDishImage", jsonObject.optString("resultDesc"));
+                return;
+            }
+            //提交
+            str = AntForestRpcCall.ecolifeTick();
+            jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.ecolifeTick", jsonObject.optString("resultDesc"));
+                return;
+            }
+            Log.forest("光盘行动💿已完成");
+        } catch (Throwable t) {
+            Log.i(TAG, "photoGuangPan err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     /**

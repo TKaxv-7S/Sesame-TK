@@ -12,6 +12,7 @@ import tkaxv7s.xposed.sesame.util.Log;
 
 /**
  * 福利金
+ *
  * @author xiong
  */
 public class WelfareCenter extends ModelTask {
@@ -98,7 +99,7 @@ public class WelfareCenter extends ModelTask {
                     Log.i(TAG + ".batchUseVirtualProfit", result.optString("resultDesc"));
                     continue;
                 }
-                Log.other("福利金🤑" + object.getString("sceneDesc") + object.getString("reward") + "×" + virtualProfitIds.length());
+                Log.other("福利金🤑领取成功[" + object.getString("sceneDesc") + "]" + object.getString("reward") + "×" + virtualProfitIds.length());
             }
         } catch (Throwable th) {
             Log.i(TAG, "batchUseVirtualProfit err:");
