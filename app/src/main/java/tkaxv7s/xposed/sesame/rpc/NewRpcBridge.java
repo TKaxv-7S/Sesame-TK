@@ -99,8 +99,8 @@ public class NewRpcBridge implements RpcBridge {
         loader = null;
     }
 
-    public String requestString(RpcEntity rpcEntity, int tryCount, int sleepTime) {
-        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, sleepTime);
+    public String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, retryInterval);
         if (resRpcEntity != null) {
             return resRpcEntity.getResponseString();
         }
@@ -108,7 +108,7 @@ public class NewRpcBridge implements RpcBridge {
     }
 
     @Override
-    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int sleepTime) {
+    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -166,15 +166,15 @@ public class NewRpcBridge implements RpcBridge {
                     Log.i(TAG, "new rpc response [" + method + "] get err:");
                     Log.printStackTrace(TAG, e);
                 }
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
@@ -182,15 +182,15 @@ public class NewRpcBridge implements RpcBridge {
             } catch (Throwable t) {
                 Log.i(TAG, "new rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
@@ -200,7 +200,7 @@ public class NewRpcBridge implements RpcBridge {
         return null;
     }
 
-    public RpcEntity newAsyncRequest(RpcEntity rpcEntity, int tryCount, int sleepTime) {
+    public RpcEntity newAsyncRequest(RpcEntity rpcEntity, int tryCount, int retryInterval) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
@@ -273,15 +273,15 @@ public class NewRpcBridge implements RpcBridge {
                     Log.i(TAG, "new rpc response [" + method + "] get err:");
                     Log.printStackTrace(TAG, e);
                 }
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
@@ -289,15 +289,15 @@ public class NewRpcBridge implements RpcBridge {
             } catch (Throwable t) {
                 Log.i(TAG, "new rpc request [" + method + "] err:");
                 Log.printStackTrace(TAG, t);
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }

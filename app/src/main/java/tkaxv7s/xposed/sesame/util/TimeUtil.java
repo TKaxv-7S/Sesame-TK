@@ -98,10 +98,8 @@ public class TimeUtil {
 
     public static Calendar getCalendarByTimeStr(Long timeMillis, String timeStr) {
         try {
-            Calendar timeCalendar = Calendar.getInstance();
-            if (timeMillis != null) {
-                timeCalendar.setTimeInMillis(timeMillis);
-            }
+            Calendar timeCalendar = getCalendarByTimeMillis(timeMillis);
+            timeCalendar.set(Calendar.MILLISECOND, 0);
             int length = timeStr.length();
             switch (length) {
                 case 6:

@@ -1,35 +1,13 @@
 package tkaxv7s.xposed.sesame.task.model.antForest;
 
+import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
-
-import de.robv.android.xposed.XposedHelpers;
 import tkaxv7s.xposed.sesame.data.BaseModel;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.ListModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.StringModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
@@ -40,15 +18,12 @@ import tkaxv7s.xposed.sesame.task.common.BaseTask;
 import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.task.common.TaskCommon;
 import tkaxv7s.xposed.sesame.task.model.antFarm.AntFarm.TaskStatus;
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.NotificationUtil;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.Statistics;
-import tkaxv7s.xposed.sesame.util.StringUtil;
-import tkaxv7s.xposed.sesame.util.ThreadUtil;
-import tkaxv7s.xposed.sesame.util.TimeUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.util.*;
+
+import java.text.DateFormat;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 蚂蚁森林V2
@@ -340,8 +315,8 @@ public class AntForestV2 extends ModelTask {
     private JSONObject collectUserEnergy(String userId) {
         try {
             boolean isSelf = Objects.equals(selfId, userId);
-            long start = System.currentTimeMillis();
             JSONObject userHomeObject;
+            long start = System.currentTimeMillis();
             if (isSelf) {
                 userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
             } else {
@@ -349,8 +324,9 @@ public class AntForestV2 extends ModelTask {
             }
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            offsetTime.set((start + end) / 2 - serverTime);
+            offsetTime.set(Math.min((start + end) / 2 - serverTime, -3000));
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
+            Thread.sleep(100L);
             if (!"SUCCESS".equals(userHomeObject.getString("resultCode"))) {
                 Log.record(userHomeObject.getString("resultDesc"));
                 return userHomeObject;
@@ -382,8 +358,7 @@ public class AntForestV2 extends ModelTask {
             boolean isCollectEnergy = collectEnergy.getValue() && !dontCollectMap.containsKey(userId);
 
             if (isSelf) {
-                String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                if ("CAN_PLAY".equals(whackMoleStatus)) {
+                if ("CAN_PLAY".equals(userHomeObject.optString("whackMoleStatus"))) {
                     whackMole();
                 }
                 updateDoubleTime(userHomeObject);
@@ -457,6 +432,10 @@ public class AntForestV2 extends ModelTask {
 
             if (!TaskCommon.IS_ENERGY_TIME) {
                 if (isSelf) {
+                    String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
+                    if ("CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                        whackMole();
+                    }
                     if (totalCertCount.getValue()) {
                         JSONObject userBaseInfo = userHomeObject.getJSONObject("userBaseInfo");
                         int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
@@ -744,24 +723,45 @@ public class AntForestV2 extends ModelTask {
         collectEnergyThreadPoolExecutor.execute(() -> {
             synchronized (collectEnergyLockObj) {
                 try {
-                    boolean isDouble = false;
                     if (doubleCard.getValue() && !Objects.equals(selfId, userId) && doubleEndTime < System.currentTimeMillis()) {
                         useDoubleCard();
                     }
                     RpcEntity rpcEntity;
+                    boolean isDouble = false;
                     String doBizNo = bizNo;
+                    boolean needDouble;
                     int thisTryCount = 0;
                     do {
                         thisTryCount++;
-                        isDouble = false;
+                        needDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
                         ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
                         if (rpcEntity.getHasError()) {
+                            String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
+                            if ("1004".equals(errorCode)) {
+                                if (BaseModel.getWaitWhenException().getValue() > 0) {
+                                    long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
+                                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                    NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    return;
+                                }
+                                try {
+                                    Thread.sleep(600 + RandomUtil.delay());
+                                } catch (InterruptedException e) {
+                                    Log.printStackTrace(e);
+                                }
+                            }
                             continue;
                         }
                         int collected = 0;
                         JSONObject jo = new JSONObject(rpcEntity.getResponseString());
-                        if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                        String resultCode = jo.getString("resultCode");
+                        if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
+                            if ("PARAM_ILLEGAL2".equals(resultCode)) {
+                                Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误信息:" + jo.getString("resultDesc"));
+                                return;
+                            }
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
                             continue;
                         }
@@ -782,6 +782,8 @@ public class AntForestV2 extends ModelTask {
                         if (jo.getBoolean("canBeRobbedAgain")) {
                             doBizNo = null;
                             isDouble = true;
+                            needDouble = true;
+                            thisTryCount = 0;
                             continue;
                         }
                         if (doBizNo == null || doBizNo.isEmpty()) {
@@ -800,21 +802,7 @@ public class AntForestV2 extends ModelTask {
                         }
                         NotificationUtil.setContentText(Log.getFormatTime() + "  收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
-                    } while (isDouble || thisTryCount < tryCountInt);
-                    String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
-                    if ("1004".equals(errorCode)) {
-                        if (BaseModel.getWaitWhenException().getValue() > 0) {
-                            long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
-                            RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                            NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                            Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                        }
-                        try {
-                            Thread.sleep(600 + RandomUtil.delay());
-                        } catch (InterruptedException e) {
-                            Log.printStackTrace(e);
-                        }
-                    }
+                    } while (needDouble || thisTryCount < tryCountInt);
                 } catch (Throwable t) {
                     Log.i(TAG, "collectUserEnergy err:");
                     Log.printStackTrace(TAG, t);
@@ -832,24 +820,45 @@ public class AntForestV2 extends ModelTask {
         collectEnergyThreadPoolExecutor.execute(() -> {
             synchronized (collectEnergyLockObj) {
                 try {
-                    boolean isDouble = false;
                     if (doubleCard.getValue() && !Objects.equals(selfId, userId) && doubleEndTime < System.currentTimeMillis()) {
                         useDoubleCard();
                     }
                     RpcEntity rpcEntity;
+                    boolean isDouble = false;
                     List<Long> doBubbleIdList = bubbleIdList;
+                    boolean needDouble;
                     int thisTryCount = 0;
                     do {
                         thisTryCount++;
-                        isDouble = false;
+                        needDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIdList);
                         ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
                         if (rpcEntity.getHasError()) {
+                            String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
+                            if ("1004".equals(errorCode)) {
+                                if (BaseModel.getWaitWhenException().getValue() > 0) {
+                                    long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
+                                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                    NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    return;
+                                }
+                                try {
+                                    Thread.sleep(600 + RandomUtil.delay());
+                                } catch (InterruptedException e) {
+                                    Log.printStackTrace(e);
+                                }
+                            }
                             continue;
                         }
                         int collected = 0;
                         JSONObject jo = new JSONObject(rpcEntity.getResponseString());
-                        if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                        String resultCode = jo.getString("resultCode");
+                        if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
+                            if ("PARAM_ILLEGAL2".equals(resultCode)) {
+                                Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误信息:" + jo.getString("resultDesc"));
+                                return;
+                            }
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
                             continue;
                         }
@@ -875,25 +884,13 @@ public class AntForestV2 extends ModelTask {
                         if (!newBubbleIdList.isEmpty()) {
                             doBubbleIdList = newBubbleIdList;
                             isDouble = true;
+                            needDouble = true;
+                            thisTryCount = 0;
                             continue;
                         }
                         NotificationUtil.setContentText(Log.getFormatTime() + "  收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
-                    } while (isDouble || thisTryCount < tryCountInt);
-                    String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
-                    if ("1004".equals(errorCode)) {
-                        if (BaseModel.getWaitWhenException().getValue() > 0) {
-                            long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
-                            RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                            NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                            Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                        }
-                        try {
-                            Thread.sleep(600 + RandomUtil.delay());
-                        } catch (InterruptedException e) {
-                            Log.printStackTrace(e);
-                        }
-                    }
+                    } while (needDouble || thisTryCount < tryCountInt);
                 } catch (Exception e) {
                     Log.i(TAG, "collectUserBatchEnergy err:");
                     Log.printStackTrace(TAG, e);
@@ -2067,21 +2064,29 @@ public class AntForestV2 extends ModelTask {
                 String userName = null;
                 try {
                     userName = UserIdMap.getNameById(userId);
-                    long sleep = produceTime + offsetTime.get() - System.currentTimeMillis() - advanceTime.getValue();
+                    long sleep = produceTime - 3000 - System.currentTimeMillis() - advanceTime.getValue();
                     Log.record("添加[" + userName + "]蹲点收取任务, 在[" + sleep / 1000 + "]秒后执行");
                     if (sleep < -5000) {
                         return;
                     }
-                    try {
-                        Thread.sleep(sleep);
-                    } catch (Exception e) {
-                        Log.i("终止[" + userName + "]蹲点收取任务, 任务ID[" + id + "]");
-                        return;
+                    if (sleep > 3000) {
+                        try {
+                            Thread.sleep(sleep);
+                        } catch (InterruptedException e) {
+                            Log.i("终止[" + userName + "]蹲点收取任务, 任务ID[" + id + "]");
+                            return;
+                        }
+                    }
+                    long readyTime = produceTime + offsetTime.get() - System.currentTimeMillis() - advanceTime.getValue();
+                    if (readyTime > 0) {
+                        try {
+                            Thread.sleep(sleep);
+                        } catch (InterruptedException e) {
+                            Log.i("终止[" + userName + "]蹲点收取任务, 任务ID[" + id + "]");
+                            return;
+                        }
                     }
                     Log.record("执行[" + userName + "]蹲点收取任务, 剩[" + (timerTask.countChildTask() - 1) + "]个任务");
-                    // 20230725收取失败不再继续尝试
-                    //collectEnergy(userId, bubbleId, bizNo);
-
                     collectUserEnergy(userId, bubbleId, null);
                 } catch (Throwable t) {
                     Log.i(TAG, "bubbleTimerTask err:");

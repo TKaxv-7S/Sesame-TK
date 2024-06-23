@@ -1,20 +1,15 @@
 package tkaxv7s.xposed.sesame.util;
 
 import android.os.Environment;
-
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.hook.Toast;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import tkaxv7s.xposed.sesame.hook.Toast;
 
 public class FileUtil {
     private static final String TAG = FileUtil.class.getSimpleName();
@@ -423,11 +418,7 @@ public class FileUtil {
                     continue;
                 }
             }
-            try {
-                file.delete();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
+            clearFile(file);
         }
     }
 
@@ -554,4 +545,26 @@ public class FileUtil {
         }
     }
 
+    public static Boolean clearFile(File file) {
+        if (file.exists()) {
+            FileWriter fileWriter = null;
+            try {
+                fileWriter = new FileWriter(file);
+                fileWriter.write("");
+                fileWriter.flush();
+                return true;
+            } catch (IOException e) {
+                Log.printStackTrace(e);
+            } finally {
+                try {
+                    if (fileWriter != null) {
+                        fileWriter.close();
+                    }
+                } catch (IOException e) {
+                    Log.printStackTrace(e);
+                }
+            }
+        }
+        return false;
+    }
 }
