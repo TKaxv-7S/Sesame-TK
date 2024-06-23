@@ -5,8 +5,8 @@ import org.json.JSONObject;
 
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.task.common.ModelTask;
-import tkaxv7s.xposed.sesame.task.common.TaskCommon;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.task.base.TaskCommon;
 import tkaxv7s.xposed.sesame.task.model.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.task.model.antForest.AntForestRpcCall;
 import tkaxv7s.xposed.sesame.task.model.antForest.AntForestV2;

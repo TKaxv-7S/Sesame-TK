@@ -1,11 +1,7 @@
 package tkaxv7s.xposed.sesame.hook;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.AndroidAppHelper;
-import android.app.PendingIntent;
-import android.app.Service;
+import android.app.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,19 +10,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -41,19 +24,20 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.RpcBridge;
-import tkaxv7s.xposed.sesame.task.common.BaseTask;
-import tkaxv7s.xposed.sesame.task.common.ModelTask;
-import tkaxv7s.xposed.sesame.task.common.TaskCommon;
+import tkaxv7s.xposed.sesame.data.BaseTask;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.task.base.TaskCommon;
 import tkaxv7s.xposed.sesame.task.model.antMember.AntMemberRpcCall;
 import tkaxv7s.xposed.sesame.task.model.antSports.AntSports;
-import tkaxv7s.xposed.sesame.util.ClassUtil;
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.NotificationUtil;
-import tkaxv7s.xposed.sesame.util.PermissionUtil;
-import tkaxv7s.xposed.sesame.util.Statistics;
-import tkaxv7s.xposed.sesame.util.TimeUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.util.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ApplicationHook implements IXposedHookLoadPackage {
 
@@ -353,7 +337,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private static void setWakenAtTimeAlarm() {
         try {
             unsetWakenAtTimeAlarm();
-            ConfigV2 config = ConfigV2.INSTANCE;
             try {
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, new Intent("com.eg.android.AlipayGphone.sesame.execute"), getPendingIntentFlag());
                 Calendar calendar = Calendar.getInstance();
@@ -401,15 +384,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static void unsetWakenAtTimeAlarm() {
         try {
-            try {
-                if (unsetAlarmTask(alarm0Pi)) {
-                    alarm0Pi = null;
-                    Log.record("取消定时唤醒:0|000000");
-                }
-            } catch (Exception e) {
-                Log.i(TAG, "unsetWakenAt0 err:");
-                Log.printStackTrace(TAG, e);
-            }
             for (Map.Entry<String, PendingIntent> entry : wakenAtTimeAlarmMap.entrySet()) {
                 try {
                     String wakenAtTimeKey = entry.getKey();
@@ -422,6 +396,15 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     Log.i(TAG, "unsetWakenAtTime err:");
                     Log.printStackTrace(TAG, e);
                 }
+            }
+            try {
+                if (unsetAlarmTask(alarm0Pi)) {
+                    alarm0Pi = null;
+                    Log.record("取消定时唤醒:0|000000");
+                }
+            } catch (Exception e) {
+                Log.i(TAG, "unsetWakenAt0 err:");
+                Log.printStackTrace(TAG, e);
             }
         } catch (Exception e) {
             Log.i(TAG, "unsetWakenAtTimeAlarm err:");
@@ -580,7 +563,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         Object object = param.thisObject;
                                         if (Boolean.TRUE.equals(rpcHookMap.remove(object))) {
-                                            Log.debug("record response  | id: " + object.hashCode() + " | data: " + param.args[0]);
+                                            Log.debug("record response | id: " + object.hashCode() + " | data: " + param.args[0]);
                                         }
                                     }
 
@@ -672,32 +655,32 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return rpcBridge.requestString(rpcEntity, 3, -1);
     }
 
-    public static String requestString(RpcEntity rpcEntity, int tryCount, int sleepTime) {
-        return rpcBridge.requestString(rpcEntity, tryCount, sleepTime);
+    public static String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        return rpcBridge.requestString(rpcEntity, tryCount, retryInterval);
     }
 
     public static String requestString(String method, String data) {
         return rpcBridge.requestString(method, data);
     }
 
-    public static String requestString(String method, String data, int tryCount, int sleepTime) {
-        return rpcBridge.requestString(method, data, tryCount, sleepTime);
+    public static String requestString(String method, String data, int tryCount, int retryInterval) {
+        return rpcBridge.requestString(method, data, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(RpcEntity rpcEntity) {
         return rpcBridge.requestObject(rpcEntity, 3, -1);
     }
 
-    public static RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int sleepTime) {
-        return rpcBridge.requestObject(rpcEntity, tryCount, sleepTime);
+    public static RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        return rpcBridge.requestObject(rpcEntity, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(String method, String data) {
         return rpcBridge.requestObject(method, data);
     }
 
-    public static RpcEntity requestObject(String method, String data, int tryCount, int sleepTime) {
-        return rpcBridge.requestObject(method, data, tryCount, sleepTime);
+    public static RpcEntity requestObject(String method, String data, int tryCount, int retryInterval) {
+        return rpcBridge.requestObject(method, data, tryCount, retryInterval);
     }
 
     public static void reLoginByBroadcast() {

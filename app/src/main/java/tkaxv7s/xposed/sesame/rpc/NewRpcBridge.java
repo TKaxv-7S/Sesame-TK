@@ -1,19 +1,18 @@
 package tkaxv7s.xposed.sesame.rpc;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Map;
-
 import de.robv.android.xposed.XposedHelpers;
 import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.ClassUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.NotificationUtil;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Map;
 
 /**
  * 新版rpc接口 支持最低支付宝版本v10.3.96.8100
@@ -99,8 +98,8 @@ public class NewRpcBridge implements RpcBridge {
         loader = null;
     }
 
-    public String requestString(RpcEntity rpcEntity, int tryCount, int sleepTime) {
-        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, sleepTime);
+    public String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, retryInterval);
         if (resRpcEntity != null) {
             return resRpcEntity.getResponseString();
         }
@@ -108,17 +107,18 @@ public class NewRpcBridge implements RpcBridge {
     }
 
     @Override
-    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int sleepTime) {
+    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
+        int id = rpcEntity.hashCode();
         String method = rpcEntity.getRequestMethod();
         String data = rpcEntity.getRequestData();
         int count = 0;
         do {
             count++;
             try {
-                Log.i(TAG, "new rpc request: " + method + ", " + data);
+                Log.i(TAG, "new rpc request | id: " + id + " | method: " + method + " | data: " + data);
                 newRpcCallMethod.invoke(
                         newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                             @Override
@@ -131,10 +131,10 @@ public class NewRpcBridge implements RpcBridge {
                                         }
                                         String result = (String) XposedHelpers.callMethod(obj, "toJSONString");
                                         rpcEntity.setResponseObject(obj, result);
-                                        Log.i(TAG, "new rpc response: " + result);
+                                        Log.i(TAG, "new rpc response | id: " + id + " | data: " + result);
                                     } catch (Exception e) {
                                         rpcEntity.setError();
-                                        Log.i(TAG, "new rpc response [" + method + "] err:");
+                                        Log.i(TAG, "new rpc response | id: " + id + " | method: " + method + " err:");
                                         Log.printStackTrace(TAG, e);
                                     }
                                 }
@@ -163,34 +163,34 @@ public class NewRpcBridge implements RpcBridge {
                     }
                     return rpcEntity;
                 } catch (Exception e) {
-                    Log.i(TAG, "new rpc response [" + method + "] get err:");
+                    Log.i(TAG, "new rpc response | id: " + id + " | method: " + method + " get err:");
                     Log.printStackTrace(TAG, e);
                 }
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
                 }
             } catch (Throwable t) {
-                Log.i(TAG, "new rpc request [" + method + "] err:");
+                Log.i(TAG, "new rpc request | id: " + id + " | method: " + method + " err:");
                 Log.printStackTrace(TAG, t);
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
@@ -200,10 +200,11 @@ public class NewRpcBridge implements RpcBridge {
         return null;
     }
 
-    public RpcEntity newAsyncRequest(RpcEntity rpcEntity, int tryCount, int sleepTime) {
+    public RpcEntity newAsyncRequest(RpcEntity rpcEntity, int tryCount, int retryInterval) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
+        int id = rpcEntity.hashCode();
         String method = rpcEntity.getRequestMethod();
         String data = rpcEntity.getRequestData();
         int count = 0;
@@ -211,7 +212,7 @@ public class NewRpcBridge implements RpcBridge {
             count++;
             try {
                 synchronized (rpcEntity) {
-                    Log.i(TAG, "new rpc request: " + method + ", " + data);
+                    Log.i(TAG, "new rpc request | id: " + id + " | method: " + method + " | data: " + data);
                     newRpcCallMethod.invoke(
                             newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                                 @Override
@@ -225,7 +226,7 @@ public class NewRpcBridge implements RpcBridge {
                                                 }
                                                 String result = (String) XposedHelpers.callMethod(obj, "toJSONString");
                                                 rpcEntity.setResponseObject(obj, result);
-                                                Log.i(TAG, "new rpc response: " + result);
+                                                Log.i(TAG, "new rpc response | id: " + id + " | data: " + result);
                                                 Thread thread = rpcEntity.getRequestThread();
                                                 if (thread != null) {
                                                     rpcEntity.notifyAll();
@@ -233,7 +234,7 @@ public class NewRpcBridge implements RpcBridge {
                                             }
                                         } catch (Exception e) {
                                             rpcEntity.setError();
-                                            Log.i(TAG, "new rpc response [" + method + "] err:");
+                                            Log.i(TAG, "new rpc response | id: " + id + " | method: " + method + " err:");
                                             Log.printStackTrace(TAG, e);
                                             synchronized (rpcEntity) {
                                                 Thread thread = rpcEntity.getRequestThread();
@@ -270,34 +271,34 @@ public class NewRpcBridge implements RpcBridge {
                     }
                     return rpcEntity;
                 } catch (Exception e) {
-                    Log.i(TAG, "new rpc response [" + method + "] get err:");
+                    Log.i(TAG, "new rpc response | id: " + id + " | method: " + method + " get err:");
                     Log.printStackTrace(TAG, e);
                 }
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
                 }
             } catch (Throwable t) {
-                Log.i(TAG, "new rpc request [" + method + "] err:");
+                Log.i(TAG, "new rpc request | id: " + id + " | method: " + method + " err:");
                 Log.printStackTrace(TAG, t);
-                if (sleepTime < 0) {
+                if (retryInterval < 0) {
                     try {
                         Thread.sleep(600 + RandomUtil.delay());
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }
-                } else if (sleepTime > 0) {
+                } else if (retryInterval > 0) {
                     try {
-                        Thread.sleep(sleepTime);
+                        Thread.sleep(retryInterval);
                     } catch (InterruptedException e) {
                         Log.printStackTrace(e);
                     }

@@ -2,21 +2,15 @@ package tkaxv7s.xposed.sesame.rpc;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.data.BaseModel;
+import tkaxv7s.xposed.sesame.data.RuntimeInfo;
+import tkaxv7s.xposed.sesame.entity.RpcEntity;
+import tkaxv7s.xposed.sesame.hook.ApplicationHook;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
-
-import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
-import tkaxv7s.xposed.sesame.data.RuntimeInfo;
-import tkaxv7s.xposed.sesame.entity.RpcEntity;
-import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.util.NotificationUtil;
-import tkaxv7s.xposed.sesame.util.ClassUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.StringUtil;
 
 public class OldRpcBridge implements RpcBridge {
 
@@ -70,8 +64,8 @@ public class OldRpcBridge implements RpcBridge {
         loader = null;
     }
 
-    public String requestString(RpcEntity rpcEntity, int tryCount, int sleepTime) {
-        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, sleepTime);
+    public String requestString(RpcEntity rpcEntity, int tryCount, int retryInterval) {
+        RpcEntity resRpcEntity = requestObject(rpcEntity, tryCount, retryInterval);
         if (resRpcEntity != null) {
             return resRpcEntity.getResponseString();
         }
@@ -79,10 +73,11 @@ public class OldRpcBridge implements RpcBridge {
     }
 
     @Override
-    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int sleepTime) {
+    public RpcEntity requestObject(RpcEntity rpcEntity, int tryCount, int retryInterval) {
         if (ApplicationHook.isOffline()) {
             return null;
         }
+        int id = rpcEntity.hashCode();
         String method = rpcEntity.getRequestMethod();
         String data = rpcEntity.getRequestData();
         int count = 0;
@@ -97,9 +92,9 @@ public class OldRpcBridge implements RpcBridge {
                     resp = rpcCallMethod.invoke(
                             null, method, data, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
                 }
-                Log.i(TAG, "old rpc argument: " + method + ", " + data);
+                Log.i(TAG, "old rpc request | id: " + id + " | method: " + method + " | data: " + data);
             } catch (Throwable t) {
-                Log.i(TAG, "old rpc request [" + method + "] err:");
+                Log.i(TAG, "old rpc request | id: " + id + " | method: " + method + " err:");
                 Log.printStackTrace(TAG, t);
                 if (t instanceof InvocationTargetException) {
                     String msg = t.getCause().getMessage();
@@ -120,15 +115,15 @@ public class OldRpcBridge implements RpcBridge {
                                 NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
-                            if (sleepTime < 0) {
+                            if (retryInterval < 0) {
                                 try {
                                     Thread.sleep(600 + RandomUtil.delay());
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
-                            } else if (sleepTime > 0) {
+                            } else if (retryInterval > 0) {
                                 try {
-                                    Thread.sleep(sleepTime);
+                                    Thread.sleep(retryInterval);
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
@@ -142,15 +137,15 @@ public class OldRpcBridge implements RpcBridge {
                             } catch (JSONException e) {
                                 Log.printStackTrace(e);
                             }
-                            if (sleepTime < 0) {
+                            if (retryInterval < 0) {
                                 try {
                                     Thread.sleep(600 + RandomUtil.delay());
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
-                            } else if (sleepTime > 0) {
+                            } else if (retryInterval > 0) {
                                 try {
-                                    Thread.sleep(sleepTime);
+                                    Thread.sleep(retryInterval);
                                 } catch (InterruptedException e) {
                                     Log.printStackTrace(e);
                                 }
@@ -163,7 +158,7 @@ public class OldRpcBridge implements RpcBridge {
             }
             try {
                 String resultStr = (String) getResponseMethod.invoke(resp);
-                Log.i(TAG, "old rpc response: " + resultStr);
+                Log.i(TAG, "old rpc response | id: " + id + " | data: " + resultStr);
                 JSONObject resultObject = new JSONObject(resultStr);
                 if (resultObject.optString("memo", "").contains("系统繁忙")) {
                     ApplicationHook.setOffline(true);
@@ -174,7 +169,7 @@ public class OldRpcBridge implements RpcBridge {
                 rpcEntity.setResponseObject(resultObject, resultStr);
                 return rpcEntity;
             } catch (Throwable t) {
-                Log.i(TAG, "old rpc response [" + method + "] get err:");
+                Log.i(TAG, "old rpc response | id: " + id + " | method: " + method + " get err:");
             }
             return null;
         } while (count < tryCount);
