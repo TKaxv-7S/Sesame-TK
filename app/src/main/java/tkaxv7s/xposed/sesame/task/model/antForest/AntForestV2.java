@@ -322,7 +322,7 @@ public class AntForestV2 extends ModelTask {
             }
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            offsetTime.set(Math.min((start + end) / 2 - serverTime, -3000));
+            offsetTime.set(Math.max((start + end) / 2 - serverTime, -3000));
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
             Thread.sleep(100L);
             if (!"SUCCESS".equals(userHomeObject.getString("resultCode"))) {
