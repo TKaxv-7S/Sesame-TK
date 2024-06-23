@@ -20,8 +20,6 @@ public class AntMember extends ModelTask {
         return "会员";
     }
     public BooleanModelField receivePoint;
-    public BooleanModelField insBlueBeanExchange;
-    public BooleanModelField collectSesame;
     public BooleanModelField zcjSignIn;
     public BooleanModelField merchantKmdk;
 
@@ -29,8 +27,6 @@ public class AntMember extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(receivePoint = new BooleanModelField("receivePoint", "开启会员", false));
-        modelFields.addField(insBlueBeanExchange = new BooleanModelField("insBlueBeanExchange", "安心豆兑换时光加速器", false));
-        modelFields.addField(collectSesame = new BooleanModelField("collectSesame", "收芝麻粒", false));
         modelFields.addField(zcjSignIn = new BooleanModelField("zcjSignIn", "招财金签到", false));
         modelFields.addField(merchantKmdk = new BooleanModelField("merchantKmdk", "商户开门打卡", false));
         return modelFields;
@@ -58,12 +54,7 @@ public class AntMember extends ModelTask {
 
                 queryPointCert(1, 8);
 
-                insBlueBean();
-
                 signPageTaskList();
-
-                if (collectSesame.getValue())
-                    zmxy();
 
                 if (merchantKmdk.getValue() || zcjSignIn.getValue()) {
                     JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
@@ -121,137 +112,6 @@ public class AntMember extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryPointCert err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private void insBlueBean() {
-        try {
-            String s = AntMemberRpcCall.pageRender();
-            JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                JSONObject result = jo.getJSONObject("result");
-                JSONArray modules = result.getJSONArray("modules");
-                for (int i = 0; i < modules.length(); i++) {
-                    jo = modules.getJSONObject(i);
-                    if ("签到配置".equals(jo.getString("name"))) {
-                        String appletId = jo.getJSONObject("content").getJSONObject("signConfig")
-                                .getString("appletId");
-                        insBlueBeanSign(appletId);
-                    } else if ("兑换时光加速器".equals(jo.getString("name"))) {
-                        String oneStopId = jo.getJSONObject("content").getJSONObject("beanDeductBanner")
-                                .getString("oneStopId");
-                        if (insBlueBeanExchange.getValue())
-                            insBlueBeanExchange(oneStopId);
-                    }
-                }
-            } else {
-                Log.record("pageRender" + " " + s);
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "anXinDou err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private static void insBlueBeanSign(String appletId) {
-        try {
-            String s = AntMemberRpcCall.taskProcess(appletId);
-            JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                JSONObject result = jo.getJSONObject("result");
-                if (result.getBoolean("canPush")) {
-                    s = AntMemberRpcCall.taskTrigger(appletId, "insportal-marketing");
-                    JSONObject joTrigger = new JSONObject(s);
-                    if (joTrigger.getBoolean("success")) {
-                        Log.other("安心豆🥔[签到成功]");
-                    }
-                }
-            } else {
-                Log.record("taskProcess" + " " + s);
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "insBlueBeanSign err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private static void insBlueBeanExchange(String itemId) {
-        try {
-            String s = AntMemberRpcCall.queryUserAccountInfo();
-            JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                JSONObject result = jo.getJSONObject("result");
-                int userCurrentPoint = result.optInt("userCurrentPoint", 0);
-                if (userCurrentPoint > 0) {
-                    jo = new JSONObject(AntMemberRpcCall.exchangeDetail(itemId));
-                    if (jo.getBoolean("success")) {
-                        JSONObject exchangeDetail = jo.getJSONObject("result").getJSONObject("rspContext")
-                                .getJSONObject("params").getJSONObject("exchangeDetail");
-                        if ("ITEM_GOING".equals(exchangeDetail.getString("status"))) {
-                            JSONObject itemExchangeConsultDTO = exchangeDetail.getJSONObject("itemExchangeConsultDTO");
-                            int pointAmount = itemExchangeConsultDTO.getInt("realConsumePointAmount");
-                            if (itemExchangeConsultDTO.getBoolean("canExchange") && userCurrentPoint >= pointAmount) {
-                                jo = new JSONObject(AntMemberRpcCall.exchange(itemId, pointAmount));
-                                if (jo.getBoolean("success")) {
-                                    Log.other("安心豆🥔[兑换" + exchangeDetail.getString("itemName") + "]");
-                                } else {
-                                    Log.record("exchange");
-                                    Log.i(jo.toString());
-                                }
-                            }
-                        }
-                    } else {
-                        Log.record("exchangeDetail");
-                        Log.i(jo.toString());
-                    }
-                }
-            } else {
-                Log.record("queryUserAccountInfo" + " " + s);
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "insBlueBeanExchange err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private static void zmxy() {
-        try {
-            String s = AntMemberRpcCall.queryHome();
-            JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                JSONObject entrance = jo.getJSONObject("entrance");
-                if (entrance.optBoolean("openApp")) {
-                    jo = new JSONObject(AntMemberRpcCall.queryCreditFeedback());
-                    if (jo.getBoolean("success")) {
-                        JSONArray creditFeedbackVOS = jo.getJSONArray("creditFeedbackVOS");
-                        for (int i = 0; i < creditFeedbackVOS.length(); i++) {
-                            jo = creditFeedbackVOS.getJSONObject(i);
-                            if ("UNCLAIMED".equals(jo.getString("status"))) {
-                                String title = jo.getString("title");
-                                String creditFeedbackId = jo.getString("creditFeedbackId");
-                                String potentialSize = jo.getString("potentialSize");
-                                jo = new JSONObject(AntMemberRpcCall.collectCreditFeedback(creditFeedbackId));
-                                if (jo.getBoolean("success")) {
-                                    Log.other("收芝麻粒🙇🏻‍♂️[" + title + "]#" + potentialSize + "粒");
-                                } else {
-                                    Log.record(jo.getString("resultView"));
-                                    Log.i(jo.toString());
-                                }
-                            }
-                        }
-                    } else {
-                        Log.record(jo.getString("resultView"));
-                        Log.i(jo.toString());
-                    }
-                } else {
-                    Log.record("芝麻信用未开通！");
-                }
-            } else {
-                Log.record("zmxy" + " " + s);
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "zmxy err:");
             Log.printStackTrace(TAG, t);
         }
     }
@@ -504,4 +364,5 @@ public class AntMember extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
     }
+
 }

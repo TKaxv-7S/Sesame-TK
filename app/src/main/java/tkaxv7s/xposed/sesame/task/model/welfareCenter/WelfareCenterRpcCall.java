@@ -4,6 +4,10 @@ import org.json.JSONArray;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.task.model.BaseRpcCall;
 
+/**
+ * 福利金RpcCall类
+ * @author xiong 
+ */
 public class WelfareCenterRpcCall extends BaseRpcCall {
 
     /**

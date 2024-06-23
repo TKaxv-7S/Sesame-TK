@@ -9,8 +9,10 @@ import tkaxv7s.xposed.sesame.task.common.ModelTask;
 import tkaxv7s.xposed.sesame.task.common.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
 
+
 /**
  * 福利金
+ * @author xiong
  */
 public class WelfareCenter extends ModelTask {
     private static final String TAG = WelfareCenter.class.getSimpleName();
@@ -32,10 +34,12 @@ public class WelfareCenter extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return welfareCenter.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
+    @Override
     public Runnable init() {
         return () -> {
             executeIntervalInt = Math.max(executeInterval.getValue(), 2000);
@@ -49,7 +53,7 @@ public class WelfareCenter extends ModelTask {
 //                }
 //                JSONArray result = jo.getJSONArray("sections");
 //                if (result.length()==0) {
-//                    Log.other("福利金💰未开通");
+//                    Log.other("福利金🤑未开通");
 //                    return;
 //                }
 //            } catch (Throwable th) {
@@ -60,7 +64,7 @@ public class WelfareCenter extends ModelTask {
             //2.不会报错，taskDetailList无数据
             batchUseVirtualProfit();
             //赚福利金
-            WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金💰");
+            WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
         };
     }
 
@@ -94,7 +98,7 @@ public class WelfareCenter extends ModelTask {
                     Log.i(TAG + ".batchUseVirtualProfit", result.optString("resultDesc"));
                     continue;
                 }
-                Log.other("福利金💰" + object.getString("sceneDesc") + object.getString("reward") + "×" + virtualProfitIds.length());
+                Log.other("福利金🤑" + object.getString("sceneDesc") + object.getString("reward") + "×" + virtualProfitIds.length());
             }
         } catch (Throwable th) {
             Log.i(TAG, "batchUseVirtualProfit err:");
@@ -121,7 +125,7 @@ public class WelfareCenter extends ModelTask {
                 Log.i(TAG + ".signIn", jsonObject.optString("resultDesc"));
                 return;
             }
-            Log.other("福利金💰签到成功" + WelfareCenterRpcCall.getValueByPath(jsonObject, "result.prizeOrderDTOList.[0].price"));
+            Log.other("福利金🤑签到成功" + WelfareCenterRpcCall.getValueByPath(jsonObject, "result.prizeOrderDTOList.[0].price"));
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
             Log.printStackTrace(TAG, th);

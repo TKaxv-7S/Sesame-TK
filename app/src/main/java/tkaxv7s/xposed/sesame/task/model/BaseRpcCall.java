@@ -7,6 +7,7 @@ import tkaxv7s.xposed.sesame.util.Log;
 
 /**
  * 公共任务处理
+ * @author xiong
  */
 public class BaseRpcCall {
 
