@@ -13,16 +13,12 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.util.FileUtil;
 import tkaxv7s.xposed.sesame.util.LanguageUtil;
-import tkaxv7s.xposed.sesame.util.Log;
+
+import java.io.File;
 
 public class HtmlViewerActivity extends Activity {
     MyWebView mWebView;
@@ -94,26 +90,9 @@ public class HtmlViewerActivity extends Activity {
                     String path = uri.getPath();
                     if (path != null) {
                         File file = new File(path);
-                        if (file.exists()) {
-                            FileWriter fileWriter = null;
-                            try {
-                                fileWriter = new FileWriter(file);
-                                fileWriter.write("");
-                                fileWriter.flush();
-                                Toast.makeText(this, "文件已清空", Toast.LENGTH_SHORT).show();
-                                mWebView.reload();
-                                break;
-                            } catch (IOException e) {
-                                Log.printStackTrace(e);
-                            } finally {
-                                try {
-                                    if (fileWriter != null) {
-                                        fileWriter.close();
-                                    }
-                                } catch (IOException e) {
-                                    Log.printStackTrace(e);
-                                }
-                            }
+                        if (FileUtil.clearFile(file)) {
+                            android.widget.Toast.makeText(this, "文件已清空", android.widget.Toast.LENGTH_SHORT).show();
+                            mWebView.reload();
                         }
                     }
                 }

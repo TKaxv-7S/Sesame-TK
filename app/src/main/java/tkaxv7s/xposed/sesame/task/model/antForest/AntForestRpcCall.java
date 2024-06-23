@@ -1,12 +1,12 @@
 package tkaxv7s.xposed.sesame.task.model.antForest;
 
-import java.util.List;
-import java.util.UUID;
-
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 import tkaxv7s.xposed.sesame.util.StringUtil;
+
+import java.util.List;
+import java.util.UUID;
 
 public class AntForestRpcCall {
 
@@ -30,13 +30,13 @@ public class AntForestRpcCall {
     public static String queryHomePage() {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.queryHomePage",
                 "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
-                        + VERSION + "\"}]");
+                        + VERSION + "\"}]", 3, 1000);
     }
 
     public static String queryFriendHomePage(String userId) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.queryFriendHomePage",
                 "[{\"canRobFlags\":\"F,F,F,F,F\",\"configVersionMap\":{\"redPacketConfig\":0,\"wateringBubbleConfig\":\"10\"},\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\""
-                        + userId + "\",\"version\":\"" + VERSION + "\"}]");
+                        + userId + "\",\"version\":\"" + VERSION + "\"}]", 3, 1000);
     }
 
     public static RpcEntity getCollectEnergyRpcEntity(String bizType, String userId, long bubbleId) {
