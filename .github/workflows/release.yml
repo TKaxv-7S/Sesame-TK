@@ -58,6 +58,7 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           checksums: sha256
+          checksums_file_name: CHECKSUMS-Sesame-Normal-${{ github.event.release.tag_name }}.%algo%
 
       - name: Upload Compatible to Release
         uses: termux/upload-release-action@v4.2.0
@@ -68,3 +69,4 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           checksums: sha256
+          checksums_file_name: CHECKSUMS-Sesame-Compatible-${{ github.event.release.tag_name }}.%algo%

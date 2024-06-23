@@ -2066,8 +2066,8 @@ public class AntForestV2 extends ModelTask {
                 String userName = null;
                 try {
                     userName = UserIdMap.getNameById(userId);
+                    Log.record("添加[" + userName + "]蹲点收取任务, 在[" + DateFormat.getDateTimeInstance().format(produceTime) + "]执行");
                     long sleep = produceTime - 3000 - System.currentTimeMillis() - advanceTime.getValue();
-                    Log.record("添加[" + userName + "]蹲点收取任务, 在[" + sleep / 1000 + "]秒后执行");
                     if (sleep < -5000) {
                         return;
                     }
@@ -2082,7 +2082,7 @@ public class AntForestV2 extends ModelTask {
                     long readyTime = produceTime + offsetTime.get() - System.currentTimeMillis() - advanceTime.getValue();
                     if (readyTime > 0) {
                         try {
-                            Thread.sleep(sleep);
+                            Thread.sleep(readyTime);
                         } catch (InterruptedException e) {
                             Log.i("终止[" + userName + "]蹲点收取任务, 任务ID[" + id + "]");
                             return;
