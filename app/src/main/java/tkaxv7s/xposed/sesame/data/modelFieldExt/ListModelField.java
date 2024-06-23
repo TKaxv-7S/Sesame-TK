@@ -7,32 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ListModelField extends ModelField {
 
     private static final TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {
     };
-
-    public ListModelField() {
-    }
-
-    public ListModelField(Object value) {
-        super(value);
-    }
-
-    public ListModelField(Object value, Object defaultValue) {
-        super(value, defaultValue);
-    }
 
     public ListModelField(String code, String name, List<String> value) {
         super(code, name, value);
@@ -68,17 +55,6 @@ public class ListModelField extends ModelField {
     }
 
     public static class ListJoinCommaToStringModelField extends ListModelField {
-
-        public ListJoinCommaToStringModelField() {
-        }
-
-        public ListJoinCommaToStringModelField(List<String> value) {
-            super(value);
-        }
-
-        public ListJoinCommaToStringModelField(List<String> value, List<String> defaultValue) {
-            super(value, defaultValue);
-        }
 
         public ListJoinCommaToStringModelField(String code, String name, List<String> value) {
             super(code, name, value);

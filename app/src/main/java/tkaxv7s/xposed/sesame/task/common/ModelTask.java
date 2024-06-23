@@ -1,16 +1,11 @@
 package tkaxv7s.xposed.sesame.task.common;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import tkaxv7s.xposed.sesame.data.ModelConfig;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.util.Log;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class ModelTask extends BaseTask {
 

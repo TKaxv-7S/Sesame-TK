@@ -8,15 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
 
 public class StringModelField extends ModelField {
-
-    public StringModelField() {
-    }
 
     public StringModelField(String code, String name, String value) {
         super(code, name, value);
