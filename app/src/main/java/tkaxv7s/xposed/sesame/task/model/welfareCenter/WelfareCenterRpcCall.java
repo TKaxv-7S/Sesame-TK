@@ -2,9 +2,9 @@ package tkaxv7s.xposed.sesame.task.model.welfareCenter;
 
 import org.json.JSONArray;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.task.model.BaseRpcCall;
+import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 
-public class WelfareCenterRpcCall extends BaseRpcCall {
+public class WelfareCenterRpcCall extends BaseTaskRpcCall {
 
     /**
      * 查询待领取的福利金、签到

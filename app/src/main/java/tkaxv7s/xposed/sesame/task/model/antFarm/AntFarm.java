@@ -9,8 +9,8 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.ListModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
-import tkaxv7s.xposed.sesame.task.common.ModelTask;
-import tkaxv7s.xposed.sesame.task.common.TaskCommon;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.task.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.*;

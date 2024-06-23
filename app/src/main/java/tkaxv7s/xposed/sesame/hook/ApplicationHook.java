@@ -24,9 +24,9 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.RpcBridge;
-import tkaxv7s.xposed.sesame.task.common.BaseTask;
-import tkaxv7s.xposed.sesame.task.common.ModelTask;
-import tkaxv7s.xposed.sesame.task.common.TaskCommon;
+import tkaxv7s.xposed.sesame.data.BaseTask;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.task.base.TaskCommon;
 import tkaxv7s.xposed.sesame.task.model.antMember.AntMemberRpcCall;
 import tkaxv7s.xposed.sesame.task.model.antSports.AntSports;
 import tkaxv7s.xposed.sesame.util.*;
@@ -563,7 +563,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         Object object = param.thisObject;
                                         if (Boolean.TRUE.equals(rpcHookMap.remove(object))) {
-                                            Log.debug("record response  | id: " + object.hashCode() + " | data: " + param.args[0]);
+                                            Log.debug("record response | id: " + object.hashCode() + " | data: " + param.args[0]);
                                         }
                                     }
 

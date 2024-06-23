@@ -1,24 +1,19 @@
 package tkaxv7s.xposed.sesame.task.model.antSports;
 
+import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.HashSet;
-
-import de.robv.android.xposed.XposedHelpers;
 import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.data.BaseTask;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.task.common.ModelTask;
-import tkaxv7s.xposed.sesame.task.common.TaskCommon;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.Statistics;
-import tkaxv7s.xposed.sesame.util.TimeUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.task.base.TaskCommon;
+import tkaxv7s.xposed.sesame.util.*;
+
+import java.util.HashSet;
 
 public class AntSports extends ModelTask {
     private static final String TAG = AntSports.class.getSimpleName();
@@ -40,7 +35,7 @@ public class AntSports extends ModelTask {
     public IntegerModelField latestExchangeTime;
     public static IntegerModelField syncStepCount;
     public BooleanModelField tiyubiz;
-    public BooleanModelField battleforfriends;
+    public BooleanModelField battleForFriends;
 
     @Override
     public ModelFields setFields() {
@@ -53,7 +48,7 @@ public class AntSports extends ModelTask {
         modelFields.addField(latestExchangeTime = new IntegerModelField("latestExchangeTime", "最晚捐步时间(24小时制)", 22));
         modelFields.addField(syncStepCount = new IntegerModelField("syncStepCount", "自定义同步步数", 22000));
         modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
-        modelFields.addField(battleforfriends = new BooleanModelField("battleforfriends", "抢好友大战", false));
+        modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友大战", false));
         return modelFields;
     }
 
@@ -66,7 +61,24 @@ public class AntSports extends ModelTask {
         return () -> {
             try {
                 if (Statistics.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
-                    new StepTask(ApplicationHook.getClassLoader()).start();
+                    addChildTask(BaseTask.newInstance("syncStep", () -> {
+                        int step = AntSports.tmpStepCount();
+                        try {
+                            if ((Boolean) XposedHelpers.callMethod(
+                                    XposedHelpers.callStaticMethod(
+                                            ApplicationHook.getClassLoader().loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"),
+                                            "a"),
+                                    "a", new Object[]{step, Boolean.FALSE, "system"})) {
+                                Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
+                            } else {
+                                Log.record("同步运动步数失败:" + step);
+                            }
+                            Statistics.SyncStepToday(UserIdMap.getCurrentUid());
+                        } catch (Throwable t) {
+                            Log.i(TAG, "StepTask.run err:");
+                            Log.printStackTrace(TAG, t);
+                        }
+                    }));
                 }
                 ClassLoader loader = ApplicationHook.getClassLoader();
                 if (openTreasureBox.getValue())
@@ -89,7 +101,7 @@ public class AntSports extends ModelTask {
                     participate();
                 }
 
-                if (battleforfriends.getValue()) {
+                if (battleForFriends.getValue()) {
                     queryClubHome();
                     queryTrainItem();
                 }
@@ -716,8 +728,6 @@ public class AntSports extends ModelTask {
                         }
                     }
                 }
-            } else {
-                return;
             }
         } catch (Throwable t) {
             // 输出错误日志信息
@@ -736,8 +746,6 @@ public class AntSports extends ModelTask {
                 // 遍历 roomList
                 for (int i = 0; i < roomList.length(); i++) {
                     JSONObject room = roomList.getJSONObject(i);
-                    // 获取 roomId
-                    String roomId = room.getString("roomId");
                     // 获取 memberList
                     JSONArray memberList = room.getJSONArray("memberList");
                     // 遍历 memberList
@@ -785,16 +793,13 @@ public class AntSports extends ModelTask {
                                 // 获取训练项目的名称
                                 String trainItemName = trainItem.getString("name");
                                 // 将用户名称和训练项目的名称添加到日志输出
-                                Log.other("训练好友🥋[训练:" + userName + "" + trainItemName + "]");
+                                Log.other("训练好友🥋[训练:" + userName + " " + trainItemName + "]");
                             }
                         }
                     }
                     // 添加 1 秒的间隔
                     Thread.sleep(1000);
                 }
-            } else {
-                Log.i(TAG, "roomList not found in club home data");
-                return;
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryTrainItem err:");
@@ -802,44 +807,4 @@ public class AntSports extends ModelTask {
         }
     }
 
-    /**
-     * The type Step task.
-     */
-    public static class StepTask extends Thread {
-
-        /**
-         * The Loader.
-         */
-        ClassLoader loader;
-
-        /**
-         * Instantiates a new Step task.
-         *
-         * @param cl the cl
-         */
-        public StepTask(ClassLoader cl) {
-            this.loader = cl;
-        }
-
-        @Override
-        public void run() {
-            int step = AntSports.tmpStepCount();
-            try {
-                boolean booleanValue = (Boolean) XposedHelpers.callMethod(
-                        XposedHelpers.callStaticMethod(
-                                loader.loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"),
-                                "a"),
-                        "a", new Object[]{step, Boolean.FALSE, "system"});
-                if (booleanValue) {
-                    Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
-                } else {
-                    Log.record("同步运动步数失败:" + step);
-                }
-                Statistics.SyncStepToday(UserIdMap.getCurrentUid());
-            } catch (Throwable t) {
-                Log.i(TAG, "StepTask.run err:");
-                Log.printStackTrace(TAG, t);
-            }
-        }
-    }
 }

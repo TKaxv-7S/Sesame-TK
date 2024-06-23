@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 import lombok.Data;
-import tkaxv7s.xposed.sesame.task.common.ModelTask;
 
 @Data
 public final class ModelConfig implements Serializable {

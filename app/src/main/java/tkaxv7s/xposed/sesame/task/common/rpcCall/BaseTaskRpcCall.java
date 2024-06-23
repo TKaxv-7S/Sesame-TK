@@ -1,4 +1,4 @@
-package tkaxv7s.xposed.sesame.task.model;
+package tkaxv7s.xposed.sesame.task.common.rpcCall;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,7 +8,7 @@ import tkaxv7s.xposed.sesame.util.Log;
 /**
  * 公共任务处理
  */
-public class BaseRpcCall {
+public class BaseTaskRpcCall {
 
     /**
      * 查询任务

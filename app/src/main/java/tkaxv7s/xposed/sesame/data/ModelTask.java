@@ -1,7 +1,6 @@
-package tkaxv7s.xposed.sesame.task.common;
+package tkaxv7s.xposed.sesame.data;
 
-import tkaxv7s.xposed.sesame.data.ModelConfig;
-import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.task.base.TaskOrder;
 import tkaxv7s.xposed.sesame.util.Log;
 
 import java.util.*;

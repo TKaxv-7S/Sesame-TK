@@ -3,10 +3,10 @@ package tkaxv7s.xposed.sesame.task.model.greenFinance;
 import org.json.JSONArray;
 
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.task.model.BaseRpcCall;
+import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
-public class GreenFinanceRpcCall extends BaseRpcCall {
+public class GreenFinanceRpcCall extends BaseTaskRpcCall {
 
     /**
      * 绿色经营首页

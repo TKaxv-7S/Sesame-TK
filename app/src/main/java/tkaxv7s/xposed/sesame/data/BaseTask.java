@@ -1,4 +1,4 @@
-package tkaxv7s.xposed.sesame.task.common;
+package tkaxv7s.xposed.sesame.data;
 
 import android.os.Build;
 

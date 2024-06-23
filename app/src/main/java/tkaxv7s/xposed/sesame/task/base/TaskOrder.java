@@ -1,9 +1,10 @@
-package tkaxv7s.xposed.sesame.task.common;
+package tkaxv7s.xposed.sesame.task.base;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.task.model.ancientTree.AncientTree;
 import tkaxv7s.xposed.sesame.task.model.antCooperate.AntCooperate;
 import tkaxv7s.xposed.sesame.task.model.antFarm.AntFarm;
