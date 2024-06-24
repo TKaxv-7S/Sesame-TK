@@ -36,6 +36,7 @@ public class Statistics {
     private ArrayList<String> protectBubbleList = new ArrayList<>();
     private int exchangeDoubleCard = 0;
     private int exchangeTimes = 0;
+    private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
 
     // farm
@@ -551,6 +552,26 @@ public class Statistics {
         save();
     }
 
+    public static boolean canExchangeDoubleCardTodayLongTime() {
+        Statistics stat = INSTANCE;
+        if (stat.exchangeDoubleCard < stat.day.time) {
+            return true;
+        } else return stat.exchangeTimesLongTime < AntForestV2.exchangeEnergyDoubleClickCountLongTime.getValue();
+    }
+
+    public static void exchangeDoubleCardTodayLongTime(boolean isSuccess) {
+        Statistics stat = INSTANCE;
+        if (stat.exchangeDoubleCard != stat.day.time) {
+            stat.exchangeDoubleCard = stat.day.time;
+        }
+        if (isSuccess) {
+            stat.exchangeTimesLongTime += 1;
+        } /*else {
+            stat.exchangeTimesLongTime = AntForestV2.exchangeEnergyDoubleClickCountLongTime.getValue();
+        }*/
+        save();
+    }
+
     public static boolean canDoubleToday() {
         return INSTANCE.doubleTimes < AntForestV2.doubleCountLimit.getValue();
     }
@@ -638,6 +659,7 @@ public class Statistics {
         stat.kbSignIn = 0;
         stat.exchangeDoubleCard = 0;
         stat.exchangeTimes = 0;
+        stat.exchangeTimesLongTime = 0;
         stat.doubleTimes = 0;
         save();
     }
