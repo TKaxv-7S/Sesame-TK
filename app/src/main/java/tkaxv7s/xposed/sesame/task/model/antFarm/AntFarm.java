@@ -86,10 +86,10 @@ public class AntFarm extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableFarm = new BooleanModelField("enableFarm", "开启庄园", true));
         modelFields.addField(rewardFriend = new BooleanModelField("rewardFriend", "打赏好友", true));
-        modelFields.addField(sendBackAnimal = new BooleanModelField("sendBackAnimal", "遣返小鸡", true));
-        modelFields.addField(sendType = new ChoiceModelField("sendType", "遣返方式", SendType.NORMAL, AntFarm.SendType.nickNames));
-        modelFields.addField(dontSendFriendList = new SelectModelField("dontSendFriendList", "不遣返小鸡名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
-        modelFields.addField(recallAnimalType = new ChoiceModelField("recallAnimalType", "召回类型", RecallAnimalType.ALWAYS, RecallAnimalType.nickNames));
+        modelFields.addField(sendBackAnimal = new BooleanModelField("sendBackAnimal", "遣返 | 开启", true));
+        modelFields.addField(sendType = new ChoiceModelField("sendType", "遣返 | 方式", SendType.NORMAL, AntFarm.SendType.nickNames));
+        modelFields.addField(dontSendFriendList = new SelectModelField("dontSendFriendList", "遣返 | 不遣返小鸡好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(recallAnimalType = new ChoiceModelField("recallAnimalType", "召回小鸡", RecallAnimalType.ALWAYS, RecallAnimalType.nickNames));
         modelFields.addField(receiveFarmToolReward = new BooleanModelField("receiveFarmToolReward", "收取道具奖励", true));
         modelFields.addField(recordFarmGame = new BooleanModelField("recordFarmGame", "游戏改分(星星球、登山赛)", true));
         List<String> farmGameTimeList = new ArrayList<>();
@@ -109,8 +109,8 @@ public class AntFarm extends ModelTask {
         animalSleepTimeList.add("2300-2400");
         animalSleepTimeList.add("0000-0559");
         modelFields.addField(animalSleepTime = new ListModelField.ListJoinCommaToStringModelField("animalSleepTime", "小鸡睡眠时间(范围)", animalSleepTimeList));
-        modelFields.addField(notifyFriend = new BooleanModelField("notifyFriend", "通知好友赶鸡", false));
-        modelFields.addField(dontNotifyFriendList = new SelectModelField("dontNotifyFriendList", "不通知赶鸡名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(notifyFriend = new BooleanModelField("notifyFriend", "赶鸡 | 通知好友", false));
+        modelFields.addField(dontNotifyFriendList = new SelectModelField("dontNotifyFriendList", "赶鸡 | 不通知好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(acceptGift = new BooleanModelField("acceptGift", "收麦子", true));
         modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", true));
