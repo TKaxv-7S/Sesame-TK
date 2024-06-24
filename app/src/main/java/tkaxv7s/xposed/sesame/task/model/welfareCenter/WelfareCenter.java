@@ -30,7 +30,7 @@ public class WelfareCenter extends ModelTask {
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(welfareCenter = new BooleanModelField("welfareCenter", "开启福利金", true));
+        modelFields.addField(welfareCenter = new BooleanModelField("welfareCenter", "开启福利金", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000));
         return modelFields;
     }
