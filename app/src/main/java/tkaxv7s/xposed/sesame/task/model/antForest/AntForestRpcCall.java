@@ -5,6 +5,8 @@ import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 import tkaxv7s.xposed.sesame.util.StringUtil;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -358,7 +360,7 @@ public class AntForestRpcCall {
                 "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
     }
 
-    public static String settlementWhackMole(String token, List < String > moleIdList) {
+    public static String settlementWhackMole(String token, List<String> moleIdList) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.settlementWhackMole",
                 "[{\"moleIdList\":[" + String.join(",", moleIdList)
                         + "],\"settlementScene\":\"NORMAL\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"token\":\"" + token + "\",\"version\":\"" + VERSION + "\"}]");

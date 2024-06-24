@@ -49,10 +49,12 @@ public class GreenFinance extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return greenFinance.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
+    @Override
     public Runnable init() {
         return () -> {
             executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
@@ -91,7 +93,7 @@ public class GreenFinance extends ModelTask {
             }
 
             signIn("PLAY102632271");
-            signIn("PLAY102932217");
+//            signIn("PLAY102932217");
             signIn("PLAY102232206");
 
             //执行打卡
@@ -108,7 +110,7 @@ public class GreenFinance extends ModelTask {
      *
      * @param bsnIds Ids
      */
-    private void batchSelfCollect(JSONArray bsnIds) {
+    private void batchSelfCollect(final JSONArray bsnIds) {
         String s = GreenFinanceRpcCall.batchSelfCollect(bsnIds);
         try {
             JSONObject joSelfCollect = new JSONObject(s);
@@ -135,7 +137,7 @@ public class GreenFinance extends ModelTask {
      *
      * @param sceneId sceneId
      */
-    private void signIn(String sceneId) {
+    private void signIn(final String sceneId) {
         try {
             String s = GreenFinanceRpcCall.signInQuery(sceneId);
             JSONObject jo = new JSONObject(s);
@@ -194,8 +196,10 @@ public class GreenFinance extends ModelTask {
 
     /**
      * 打卡绿色行为
+     *
+     * @param type 打开类型
      */
-    private void doTick(String type) {
+    private void doTick(final String type) {
         try {
             String str = GreenFinanceRpcCall.queryUserTickItem(type);
             JSONObject jsonObject = new JSONObject(str);
@@ -211,8 +215,8 @@ public class GreenFinance extends ModelTask {
                 }
                 str = GreenFinanceRpcCall.submitTick(type, jsonObject.getString("behaviorCode"));
                 JSONObject object = new JSONObject(str);
-                if (!object.getBoolean("success") ||
-                        !String.valueOf(true).equals(GreenFinanceRpcCall.getValueByPath(object, "result.result"))) {
+                if (!object.getBoolean("success")
+                        || !String.valueOf(true).equals(GreenFinanceRpcCall.getValueByPath(object, "result.result"))) {
                     Log.i(TAG + ".doTick.submitTick", object.optString("resultDesc"));
                     continue;
                 }
@@ -311,7 +315,7 @@ public class GreenFinance extends ModelTask {
      * @param maxDeductions 最大次数
      * @return [次数，最后一次的金额]
      */
-    private int[] calculateDeductions(int amount, int maxDeductions) {
+    private int[] calculateDeductions(final int amount, final int maxDeductions) {
         if (amount < 200) {
             return new int[]{1, 200}; // 小于 200 时特殊处理
         }

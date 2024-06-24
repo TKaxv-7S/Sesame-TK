@@ -4,6 +4,10 @@ import org.json.JSONArray;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 
+/**
+ * 福利金RpcCall类
+ * @author xiong
+ */
 public class WelfareCenterRpcCall extends BaseTaskRpcCall {
 
     /**
@@ -35,16 +39,4 @@ public class WelfareCenterRpcCall extends BaseTaskRpcCall {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.virtualProfit.batchUseVirtualProfit",
                 "[{\"virtualProfitIdList\":" + vpIds + "}]");
     }
-
-    /**
-     * 签到
-     *
-     * @param sceneId sceneId
-     * @return 结果
-     */
-    public static String signInTrigger(String sceneId) {
-        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.signin.trigger",
-                "[{\"extInfo\":{},\"sceneId\":\"" + sceneId + "\"}]");
-    }
-
 }

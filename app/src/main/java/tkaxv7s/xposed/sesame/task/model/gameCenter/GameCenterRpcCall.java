@@ -3,7 +3,7 @@ package tkaxv7s.xposed.sesame.task.model.gameCenter;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 
-public class GameCenterRpcCall extends BaseTaskRpcCall {
+public class GameCenterRpcCall {
 
     /**
      * 全部领取

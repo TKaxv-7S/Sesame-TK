@@ -30,56 +30,7 @@ public class AntMemberRpcCall {
         return ApplicationHook.requestString("com.alipay.amic.biz.rpc.signin.h5.queryMemberSigninCalendar",
                 "[{\"autoSignIn\":true,\"invitorUserId\":\"\",\"sceneCode\":\"QUERY\"}]");
     }
-    /* 安心豆 */
 
-    public static String pageRender() {
-        return ApplicationHook.requestString("com.alipay.insplatformbff.common.insiopService.pageRender",
-                "[\"INS_PLATFORM_BLUEBEAN\",{\"channelType\":\"insplatform_mobilesearch_anxindou\"}]");
-    }
-
-    public static String taskProcess(String appletId) {
-        return ApplicationHook.requestString("com.alipay.insmarketingbff.task.taskProcess", "[{\"appletId\":\"" + appletId + "\"}]");
-    }
-
-    public static String taskTrigger(String appletId, String scene) {
-        return ApplicationHook.requestString("com.alipay.insmarketingbff.task.taskTrigger",
-                "[{\"appletId\":\"" + appletId + "\",\"scene\":\"" + scene + "\"}]");
-    }
-
-    public static String queryUserAccountInfo() {
-        return ApplicationHook.requestString("com.alipay.insmarketingbff.point.queryUserAccountInfo",
-                "[{\"channel\":\"insplatform_mobilesearch_anxindou\",\"pointProdCode\":\"INS_BLUE_BEAN\",\"pointUnitType\":\"COUNT\"}]");
-    }
-
-    public static String exchangeDetail(String itemId) {
-        return ApplicationHook.requestString("com.alipay.insmarketingbff.onestop.planTrigger",
-                "[{\"extParams\":{\"itemId\":\"" + itemId
-                        + "\"},\"planCode\":\"bluebean_onestop\",\"planOperateCode\":\"exchangeDetail\"}]");
-    }
-
-    public static String exchange(String itemId, int pointAmount) {
-        return ApplicationHook.requestString("com.alipay.insmarketingbff.onestop.planTrigger",
-                "[{\"extParams\":{\"itemId\":\"" + itemId + "\",\"pointAmount\":\"" + pointAmount
-                        + "\"},\"planCode\":\"bluebean_onestop\",\"planOperateCode\":\"exchange\"}]");
-    }
-
-    /* 芝麻信用 */
-    public static String queryHome() {
-        return ApplicationHook.requestString("com.antgroup.zmxy.zmcustprod.biz.rpc.home.api.HomeV6RpcManager.queryHome",
-                "[{\"miniZmGrayInside\":\"\"}]");
-    }
-
-    public static String queryCreditFeedback() {
-        return ApplicationHook.requestString(
-                "com.antgroup.zmxy.zmcustprod.biz.rpc.home.creditaccumulate.api.CreditAccumulateRpcManager.queryCreditFeedback",
-                "[{\"queryPotential\":false,\"size\":20,\"status\":\"UNCLAIMED\"}]");
-    }
-
-    public static String collectCreditFeedback(String creditFeedbackId) {
-        return ApplicationHook.requestString(
-                "com.antgroup.zmxy.zmcustprod.biz.rpc.home.creditaccumulate.api.CreditAccumulateRpcManager.collectCreditFeedback",
-                "[{\"collectAll\":false,\"creditFeedbackId\":\"" + creditFeedbackId + "\",\"status\":\"UNCLAIMED\"}]");
-    }
 
     /* 商家服务 */
     public static String transcodeCheck() {

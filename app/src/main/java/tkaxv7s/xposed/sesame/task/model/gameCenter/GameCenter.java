@@ -7,11 +7,23 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
+import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 import tkaxv7s.xposed.sesame.util.Log;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 游戏中心
+ *
+ * @author xiong
+ */
 public class GameCenter extends ModelTask {
 
     private static final String TAG = GameCenter.class.getSimpleName();
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private Integer executeIntervalInt;
     /**
@@ -36,10 +48,12 @@ public class GameCenter extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return gameCenter.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
+    @Override
     public Runnable init() {
         return () -> {
             executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
@@ -60,7 +74,7 @@ public class GameCenter extends ModelTask {
                 Log.i(TAG + ".signIn.querySignInBall", jsonObject.optString("resultDesc"));
                 return;
             }
-            str = GameCenterRpcCall.getValueByPath(jsonObject, "data.signInBallModule.signInStatus");
+            str = BaseTaskRpcCall.getValueByPath(jsonObject, "data.signInBallModule.signInStatus");
             if (String.valueOf(true).equals(str)) {
                 return;
             }
@@ -94,14 +108,14 @@ public class GameCenter extends ModelTask {
                 Log.i(TAG + ".batchReceive.queryPointBallList", jsonObject.optString("resultDesc"));
                 return;
             }
-            str = GameCenterRpcCall.getValueByPath(jsonObject, "data.pointBallList");
+            str = BaseTaskRpcCall.getValueByPath(jsonObject, "data.pointBallList");
             if (str == null || str.isEmpty() || new JSONArray(str).length() == 0) {
                 return;
             }
             str = GameCenterRpcCall.batchReceivePointBall();
             jsonObject = new JSONObject(str);
             if (jsonObject.getBoolean("success")) {
-                Log.other("游戏中心🎮全部领取成功[" + GameCenterRpcCall.getValueByPath(jsonObject, "data.totalAmount") + "]乐豆");
+                Log.other("游戏中心🎮全部领取成功[" + BaseTaskRpcCall.getValueByPath(jsonObject, "data.totalAmount") + "]乐豆");
             } else {
                 Log.i(TAG + ".batchReceive.batchReceivePointBall", jsonObject.optString("resultDesc"));
             }
@@ -128,33 +142,54 @@ public class GameCenter extends ModelTask {
                 Log.i(TAG + ".doTask.queryModularTaskList", jsonObject.optString("resultDesc"));
                 return;
             }
-            JSONObject result = jsonObject.getJSONObject("data");
-            JSONArray taskModuleList = result.getJSONArray("taskModuleList");
+            JSONObject object = jsonObject.getJSONObject("data");
+            JSONArray taskModuleList = object.getJSONArray("taskModuleList");
             for (int i = 0; i < taskModuleList.length(); i++) {
                 JSONObject taskDetail = taskModuleList.getJSONObject(i);
                 JSONArray taskList = taskDetail.getJSONArray("taskList");
-                for (int j = 0; j < taskList.length(); j++) {
-                    result = taskList.getJSONObject(j);
-                    String status = result.getString("taskStatus");
-                    String taskId = result.getString("taskId");
-                    //NOT_DONE
-                    if (result.getBoolean("needSignUp") &&!"SIGNUP_COMPLETE".equals(status)) {
-                        str = GameCenterRpcCall.doTaskSignup(taskId);
-                        jsonObject = new JSONObject(str);
-                        if (!jsonObject.getBoolean("success")) {
-                            Log.i(TAG + ".doTask.doTaskSignup", jsonObject.optString("errorMsg"));
-//                            continue; //不做跳过，尝试直接完成
+                int length = taskList.length();
+                // 使用 ScheduledExecutorService 循环执行任务
+                for (int j = 0; j < length; j++) {
+                    // 需要将 j 声明为 final 或 effectively final
+                    final int finalJ = j;
+                    scheduler.schedule(() -> {
+                        try {
+                            JSONObject result = taskList.getJSONObject(finalJ);
+                            String status = result.getString("taskStatus");
+                            String taskId = result.getString("taskId");
+                            if (result.getBoolean("needSignUp") && !"SIGNUP_COMPLETE".equals(status)) {
+                                String signUpResult = GameCenterRpcCall.doTaskSignup(taskId);
+                                JSONObject signUpJson = new JSONObject(signUpResult);
+                                if (!signUpJson.getBoolean("success")) {
+                                    Log.i(TAG + ".doTask.doTaskSignup", signUpJson.optString("errorMsg"));
+                                }
+                            }
+
+                            String sendResult = GameCenterRpcCall.doTaskSend(taskId);
+                            JSONObject sendJson = new JSONObject(sendResult);
+                            if (!sendJson.getBoolean("success")) {
+                                Log.i(TAG + ".doTask.doTaskSend", sendJson.optString("errorMsg"));
+                                // 跳过本次迭代
+                                return;
+                            }
+                            Log.other("游戏中心🎮[" + result.getString("subTitle") + "-" + result.getString("title") + "]任务完成");
+                        } catch (Throwable th) {
+                            Log.i(TAG, "doTask err:");
+                            Log.printStackTrace(TAG, th);
                         }
-                    }
-                    str = GameCenterRpcCall.doTaskSend(taskId);
-                    jsonObject = new JSONObject(str);
-                    if (!jsonObject.getBoolean("success")) {
-                        Log.i(TAG + ".doTask.doTaskSend", jsonObject.optString("errorMsg"));
-                        continue;
-                    }
-                    Log.other("游戏中心🎮[" + result.getString("subTitle") + "-" + result.getString("title") + "]任务完成");
+                    }, ((long) i * (j + length) + j) * executeIntervalInt, TimeUnit.MILLISECONDS);
                 }
             }
+            // 关闭线程池，可以使用 awaitTermination 方法等待任务执行完毕
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                    Log.i(TAG, "doTask err:线程池超时关闭");
+                }
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+
         } catch (Throwable th) {
             Log.i(TAG, "doTask err:");
             Log.printStackTrace(TAG, th);
