@@ -2,17 +2,16 @@ package tkaxv7s.xposed.sesame.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonMappingException;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import lombok.Data;
 import tkaxv7s.xposed.sesame.util.FileUtil;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class ConfigV2 {
@@ -58,30 +57,6 @@ public class ConfigV2 {
                 }
             }
             modelFieldsMap.put(modelCode, newModelFields);
-        }
-        for (Map.Entry<String, ModelFields> modelFieldsEntry : newModels.entrySet()) {
-            ModelFields newModelFields = modelFieldsEntry.getValue();
-            if (newModelFields != null) {
-                String modelCode = modelFieldsEntry.getKey();
-                ModelConfig modelConfig = modelConfigMap.get(modelCode);
-                if (modelConfig != null) {
-                    ModelFields configModelFields = modelConfig.getFields();
-                    for (Map.Entry<String, ModelField> modelFieldEntry : newModelFields.entrySet()) {
-                        ModelField modelField = modelFieldEntry.getValue();
-                        if (modelField != null) {
-                            ModelField configModelField = configModelFields.get(modelFieldEntry.getKey());
-                            if (configModelField != null) {
-                                try {
-                                    configModelField.setValue(modelField.getValue());
-                                } catch (Exception e) {
-                                    Log.printStackTrace(e);
-                                }
-                            }
-                        }
-                    }
-                    modelFieldsMap.put(modelCode, configModelFields);
-                }
-            }
         }
     }
 

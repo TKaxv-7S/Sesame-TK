@@ -2,24 +2,19 @@ package tkaxv7s.xposed.sesame.task.model.reserve;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayBeach;
 import tkaxv7s.xposed.sesame.entity.AlipayReserve;
 import tkaxv7s.xposed.sesame.entity.KVNode;
-import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
-import tkaxv7s.xposed.sesame.util.BeachIdMap;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.ReserveIdMap;
-import tkaxv7s.xposed.sesame.util.Statistics;
+import tkaxv7s.xposed.sesame.util.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class Reserve extends ModelTask {
     private static final String TAG = Reserve.class.getSimpleName();
@@ -41,8 +36,8 @@ public class Reserve extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableReserve = new BooleanModelField("enableReserve", "开启保护地", false));
         modelFields.addField(reserveList = new SelectModelField("reserveList", "保护地列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayReserve.getList()));
-        modelFields.addField(beach = new BooleanModelField("beach", "保护海洋", false));
-        modelFields.addField(beachList = new SelectModelField("beachList", "保护海洋列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayBeach.getList()));
+        modelFields.addField(beach = new BooleanModelField("beach", "海洋 | 保护", false));
+        modelFields.addField(beachList = new SelectModelField("beachList", "海洋 | 列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayBeach.getList()));
         return modelFields;
     }
 

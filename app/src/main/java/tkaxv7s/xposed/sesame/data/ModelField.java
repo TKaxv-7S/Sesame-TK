@@ -5,24 +5,17 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.io.Serializable;
-
 import lombok.Data;
 import tkaxv7s.xposed.sesame.R;
 
+import java.io.Serializable;
+
 @Data
 public class ModelField implements Serializable {
-
-    private static final String extPackage = "tkaxv7s.xposed.sesame.data.modelFieldExt.";
-
-    @JsonIgnore
-    private String type;
 
     @JsonIgnore
     private String code;
@@ -36,23 +29,19 @@ public class ModelField implements Serializable {
     protected Object defaultValue;
 
     public ModelField() {
-        this.type = this.getClass().getName().replace(extPackage, "");
     }
 
     public ModelField(Object value) {
-        this();
         this.defaultValue = value;
         setValue(value);
     }
 
     public ModelField(Object value, Object defaultValue) {
-        this();
         this.defaultValue = defaultValue;
         setValue(value);
     }
 
     public ModelField(String code, String name, Object value) {
-        this();
         this.code = code;
         this.name = name;
         this.defaultValue = value;
@@ -70,7 +59,7 @@ public class ModelField implements Serializable {
 
     @JsonIgnore
     public View getView(Context context) {
-        Button btn = new Button(context);
+        TextView btn = new TextView(context);
         btn.setText(getName());
         btn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         btn.setTextColor(Color.parseColor("#008175"));
@@ -80,9 +69,7 @@ public class ModelField implements Serializable {
         btn.setMaxHeight(180);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> {
-            Toast.makeText(context, "无配置项", Toast.LENGTH_SHORT).show();
-        });
+        btn.setOnClickListener(v -> Toast.makeText(context, "无配置项", Toast.LENGTH_SHORT).show());
         return btn;
     }
 
