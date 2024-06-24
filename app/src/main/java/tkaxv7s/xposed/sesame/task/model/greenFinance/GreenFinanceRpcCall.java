@@ -44,7 +44,7 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
 
     /**
      * 查询打卡记录
-     *
+     * @param firstBehaviorType 打卡类型
      * @return 结果
      */
     public static String queryUserTickItem(String firstBehaviorType) {
@@ -54,8 +54,8 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
 
     /**
      * 提交打卡
-     *
-     * @param behaviorCode behaviorCode
+     * @param firstBehaviorType  打卡类型
+     * @param behaviorCode 记录编码
      * @return 结果
      */
     public static String submitTick(String firstBehaviorType, String behaviorCode) {
@@ -88,9 +88,10 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
     }
 
     /**
-     * 查询要过期了的金币
+     * 捐助
      *
-     * @param projectId CLEAN_ENERGY_00001、WELFARE_PV_0000
+     * @param projectId 项目id
+     * @param amount 金额
      * @return 结果
      */
     public static String donation(String projectId, String amount) {

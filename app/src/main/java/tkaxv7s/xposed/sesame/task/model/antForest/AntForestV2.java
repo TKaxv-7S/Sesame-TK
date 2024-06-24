@@ -253,8 +253,8 @@ public class AntForestV2 extends ModelTask {
                     if (receiveForestTaskAward.getValue()) {
                         receiveTaskAward();
                     }
-                    if (ecoLifeTick.getValue()) {
-                        ecoLifeTick();
+                    if (ecoLifeTick.getValue() || photoGuangPan.getValue()) {
+                        ecoLife();
                     }
                     KVNode<Map<String, Integer>, Boolean> waterFriendListValue = waterFriendList.getValue();
                     Map<String, Integer> friendMap = waterFriendListValue.getKey();
@@ -296,10 +296,6 @@ public class AntForestV2 extends ModelTask {
                     /* 森林集市 */
                     sendEnergyByAction("GREEN_LIFE");
                     sendEnergyByAction("ANTFOREST");
-
-                    if (photoGuangPan.getValue()) {
-                        photoGuangPan();
-                    }
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "checkEnergyRanking.run err:");
@@ -1463,47 +1459,115 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
-    /* 绿色行动打卡 */
-
-    private static void ecoLifeTick() {
+    /**
+     * 绿色行动
+     */
+    private static void ecoLife() {
         try {
             JSONObject jo = new JSONObject(EcoLifeRpcCall.queryHomePage());
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONObject data = jo.getJSONObject("data");
-                if (!data.has("dayPoint")) {
-                    Log.record("绿色打卡失败, dayPoint不存在");
-                    return;
-                }
-                String dayPoint = data.getString("dayPoint");
-                JSONArray actionListVO = data.getJSONArray("actionListVO");
-                for (int i = 0; i < actionListVO.length(); i++) {
-                    JSONObject actionVO = actionListVO.getJSONObject(i);
-                    JSONArray actionItemList = actionVO.getJSONArray("actionItemList");
-                    for (int j = 0; j < actionItemList.length(); j++) {
-                        JSONObject actionItem = actionItemList.getJSONObject(j);
-                        if (!actionItem.has("actionId"))
-                            continue;
-                        if (actionItem.getBoolean("actionStatus"))
-                            continue;
-                        String actionId = actionItem.getString("actionId");
-                        String actionName = actionItem.getString("actionName");
-                        boolean isGuangpan = false;
-                        if ("photoguangpan".equals(actionId))
-                            continue;
-                        jo = new JSONObject(EcoLifeRpcCall.tick(actionId, "ALIPAY", dayPoint, isGuangpan));
-                        if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                            Log.forest("绿色打卡🍀[" + actionName + "]");
-                        } else {
-                            Log.record(jo.getString("resultDesc"));
-                            Log.i(jo.toString());
-                        }
-                        Thread.sleep(500);
+            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                return;
+            }
+            JSONObject data = jo.getJSONObject("data");
+            if (!data.has("dayPoint")) {
+                Log.record("绿色任务失败, dayPoint不存在");
+                return;
+            }
+            String dayPoint = data.getString("dayPoint");
+            JSONArray actionListVO = data.getJSONArray("actionListVO");
+            if (ecoLifeTick.getValue()) {
+                ecoLifeTick(actionListVO, dayPoint);
+            }
+            if (photoGuangPan.getValue()) {
+                photoGuangPan(dayPoint);
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "ecoLifeTick err:");
+            Log.printStackTrace(TAG, th);
+        }
+    }
+
+    /* 绿色行动打卡 */
+
+    private static void ecoLifeTick(JSONArray actionListVO, String dayPoint) {
+        try {
+            String source = "source";
+            for (int i = 0; i < actionListVO.length(); i++) {
+                JSONObject actionVO = actionListVO.getJSONObject(i);
+                JSONArray actionItemList = actionVO.getJSONArray("actionItemList");
+                for (int j = 0; j < actionItemList.length(); j++) {
+                    JSONObject actionItem = actionItemList.getJSONObject(j);
+                    if (!actionItem.has("actionId")) {
+                        continue;
                     }
+                    if (actionItem.getBoolean("actionStatus")) {
+                        continue;
+                    }
+                    String actionId = actionItem.getString("actionId");
+                    String actionName = actionItem.getString("actionName");
+                    if ("photoguangpan".equals(actionId)) {
+                        continue;
+                    }
+                    JSONObject jo = new JSONObject(EcoLifeRpcCall.tick(actionId, dayPoint, source));
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                        Log.forest("绿色打卡🍀[" + actionName + "]");
+                    } else {
+                        Log.record(jo.getString("resultDesc"));
+                        Log.i(jo.toString());
+                    }
+                    Thread.sleep(500);
                 }
             }
         } catch (Throwable th) {
             Log.i(TAG, "ecoLifeTick err:");
             Log.printStackTrace(TAG, th);
+        }
+    }
+
+    /**
+     * 光盘行动
+     */
+    private static void photoGuangPan(String dayPoint) {
+        try {
+            String source = "renwuGD";
+            //检查今日任务状态
+            String str = EcoLifeRpcCall.queryDish(source, dayPoint);
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.ecolifeQueryDish", jsonObject.optString("resultDesc"));
+                return;
+            }
+            if ("SUCCESS".equals(BaseTaskRpcCall.getValueByPath(jsonObject, "data.status"))) {
+                //今日已完成
+                return;
+            }
+            //上传餐前照片
+            str = EcoLifeRpcCall.uploadDishImage("BEFORE_MEALS",
+                    "A*jjWgQYUcTtoAAAAAAAAAAAAAAQAAAQ", 0.16571736, 0.07448776, 0.7597949, dayPoint);
+            jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.uploadDishImage", jsonObject.optString("resultDesc"));
+                return;
+            }
+            //上传餐后照片
+            str = EcoLifeRpcCall.uploadDishImage("AFTER_MEALS",
+                    "A*Sc4PSp3kLXUAAAAAAAAAAAAAAQAAAQ", 0.00040030346, 0.99891376, 0.0006858421, dayPoint);
+            jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.uploadDishImage", jsonObject.optString("resultDesc"));
+                return;
+            }
+            //提交
+            str = EcoLifeRpcCall.tick("photoguangpan", dayPoint, source);
+            jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".photoGuangPan.tick", jsonObject.optString("resultDesc"));
+                return;
+            }
+            Log.forest("光盘行动💿任务完成");
+        } catch (Throwable t) {
+            Log.i(TAG, "photoGuangPan err:");
+            Log.printStackTrace(TAG, t);
         }
     }
 
@@ -2009,50 +2073,6 @@ public class AntForestV2 extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
         return helped;
-    }
-
-    /**
-     * 光盘行动
-     */
-    private static void photoGuangPan() {
-        try {
-            //检查今日任务状态
-            String str = AntForestRpcCall.ecolifeQueryDish();
-            JSONObject jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
-                Log.i(TAG + ".photoGuangPan.ecolifeQueryDish", jsonObject.optString("resultDesc"));
-                return;
-            }
-            if ("SUCCESS".equals(BaseTaskRpcCall.getValueByPath(jsonObject, "data.status"))) {
-                //今日已完成
-                return;
-            }
-            //上传餐前照片
-            str = AntForestRpcCall.ecolifeUploadDishImage("BEFORE_MEALS", "A*jjWgQYUcTtoAAAAAAAAAAAAAAQAAAQ", 0.16571736, 0.07448776, 0.7597949);
-            jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
-                Log.i(TAG + ".photoGuangPan.ecolifeUploadDishImage", jsonObject.optString("resultDesc"));
-                return;
-            }
-            //上传餐后照片
-            str = AntForestRpcCall.ecolifeUploadDishImage("AFTER_MEALS", "A*Sc4PSp3kLXUAAAAAAAAAAAAAAQAAAQ", 0.00040030346, 0.99891376, 0.0006858421);
-            jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
-                Log.i(TAG + ".photoGuangPan.ecolifeUploadDishImage", jsonObject.optString("resultDesc"));
-                return;
-            }
-            //提交
-            str = AntForestRpcCall.ecolifeTick();
-            jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
-                Log.i(TAG + ".photoGuangPan.ecolifeTick", jsonObject.optString("resultDesc"));
-                return;
-            }
-            Log.forest("光盘行动💿已完成");
-        } catch (Throwable t) {
-            Log.i(TAG, "photoGuangPan err:");
-            Log.printStackTrace(TAG, t);
-        }
     }
 
     /**

@@ -39,16 +39,4 @@ public class WelfareCenterRpcCall extends BaseTaskRpcCall {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.virtualProfit.batchUseVirtualProfit",
                 "[{\"virtualProfitIdList\":" + vpIds + "}]");
     }
-
-    /**
-     * 签到
-     *
-     * @param sceneId sceneId
-     * @return 结果
-     */
-    public static String signInTrigger(String sceneId) {
-        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.signin.trigger",
-                "[{\"extInfo\":{},\"sceneId\":\"" + sceneId + "\"}]");
-    }
-
 }

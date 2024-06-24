@@ -376,47 +376,4 @@ public class AntForestRpcCall {
         return ApplicationHook.requestString("alipay.bizfmcg.greenlife.sendEnergyByAction",
                 "[{\"actionType\":\"GOODS_BROWSE\",\"requestId\":\"" + RandomUtil.getRandomString(8) + "\",\"sourceType\":\"" + sourceType + "\"}]");
     }
-
-    /**
-     * 查询任务信息
-     *
-     * @return 结果
-     */
-    public static String ecolifeQueryDish() {
-        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.queryDish",
-                String.format("[{\"channel\":\"ALIPAY\",\"dayPoint\":\"%s\",\"source\":\"renwuGD\"}]",
-                        new SimpleDateFormat("yyyyMMdd").format(new Date())));
-    }
-
-    /**
-     * 上传照片
-     * @param operateType 类型：餐前、餐后
-     * @param imageId 图片id
-     * @param conf1 位移值？
-     * @param conf2 conf2
-     * @param conf3 conf3
-     * @return 结果
-     */
-    public static String ecolifeUploadDishImage(String operateType, String imageId, double conf1, double conf2, double conf3) {
-        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.uploadDishImage",
-                "[{\"channel\":\"ALIPAY\",\"dayPoint\":\"" + new SimpleDateFormat("yyyyMMdd").format(new Date()) +
-                        "\",\"source\":\"photo-comparison\",\"uploadParamMap\":{\"AIResult\":[{\"conf\":" + conf1 + ",\"kvPair\":false," +
-                        "\"label\":\"other\",\"pos\":[1.0002995,0.22104378,0.0011976048,0.77727276],\"value\":\"\"}," +
-                        "{\"conf\":" + conf2 + ",\"kvPair\":false,\"label\":\"guangpan\",\"pos\":[1.0002995,0.22104378,0.0011976048,0.77727276]," +
-                        "\"value\":\"\"},{\"conf\":" + conf3 + ",\"kvPair\":false,\"label\":\"feiguangpan\"," +
-                        "\"pos\":[1.0002995,0.22104378,0.0011976048,0.77727276],\"value\":\"\"}],\"existAIResult\":true,\"imageId\":\"" +
-                        imageId + "\",\"imageUrl\":\"https://mdn.alipayobjects.com/afts/img/" + imageId +
-                        "/original?bz=APM_20000067\",\"operateType\":\"" + operateType + "\"}}]");
-    }
-
-    /**
-     * 光盘行动执行任务
-     *
-     * @return 结果
-     */
-    public static String ecolifeTick() {
-        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.tick",
-                String.format("[{\"actionId\":\"photoguangpan\",\"channel\":\"ALIPAY\",\"dayPoint\":\"%s\",\"source\":\"renwuGD\"}]",
-                        new SimpleDateFormat("yyyyMMdd").format(new Date())));
-    }
 }
