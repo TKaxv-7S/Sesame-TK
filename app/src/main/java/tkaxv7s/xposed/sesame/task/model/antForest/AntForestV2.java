@@ -615,32 +615,27 @@ public class AntForestV2 extends ModelTask {
                             }/* else {
                             Log.i("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
                         }*/
-                    }
-                    if (!TaskCommon.IS_ENERGY_TIME && isNotSelfId) {
-                        if (helpFriendCollect.getValue()) {
-                            try {
-                                if (friendsObject.optBoolean("canProtectBubble", false)) {
-                                    if (userHomeObject == null) {
-                                        userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
-                                    }
-                                    if ("SUCCESS".equals(userHomeObject.getString("resultCode"))) {
-                                        Map<String, Integer> dontHelpCollectMap = dontHelpCollectList.getValue().getKey();
-                                        JSONArray wateringBubbles = userHomeObject.optJSONArray("wateringBubbles");
-                                        if (wateringBubbles != null && wateringBubbles.length() > 0) {
-                                            for (int j = 0; j < wateringBubbles.length(); j++) {
-                                                JSONObject wateringBubble = wateringBubbles.getJSONObject(j);
-                                                if ("fuhuo".equals(wateringBubble.getString("bizType"))) {
-                                                    if (wateringBubble.getJSONObject("extInfo").optInt("restTimes", 0) == 0) {
-                                                        Statistics.protectBubbleToday(selfId);
-                                                    }
-                                                    if (wateringBubble.getBoolean("canProtect")) {
-                                                        boolean isHelpCollect = dontHelpCollectMap.containsKey(userId);
-                                                        if (!helpFriendCollectType.getValue()) {
-                                                            isHelpCollect = !isHelpCollect;
+                        }
+                        if (!TaskCommon.IS_ENERGY_TIME && isNotSelfId) {
+                            if (helpFriendCollect.getValue()) {
+                                try {
+                                    if (friendsObject.optBoolean("canProtectBubble", false)) {
+                                        if (userHomeObject == null) {
+                                            userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
+                                        }
+                                        if ("SUCCESS".equals(userHomeObject.getString("resultCode"))) {
+                                            Map<String, Integer> dontHelpCollectMap = dontHelpCollectList.getValue().getKey();
+                                            JSONArray wateringBubbles = userHomeObject.optJSONArray("wateringBubbles");
+                                            if (wateringBubbles != null && wateringBubbles.length() > 0) {
+                                                for (int j = 0; j < wateringBubbles.length(); j++) {
+                                                    JSONObject wateringBubble = wateringBubbles.getJSONObject(j);
+                                                    if ("fuhuo".equals(wateringBubble.getString("bizType"))) {
+                                                        if (wateringBubble.getJSONObject("extInfo").optInt("restTimes", 0) == 0) {
+                                                            Statistics.protectBubbleToday(selfId);
                                                         }
                                                         if (wateringBubble.getBoolean("canProtect")) {
                                                             boolean isHelpCollect = dontHelpCollectMap.containsKey(userId);
-                                                            if (!helpFriendCollectType.getValue()){
+                                                            if (!helpFriendCollectType.getValue()) {
                                                                 isHelpCollect = !isHelpCollect;
                                                             }
                                                             if (isHelpCollect) {
@@ -701,7 +696,7 @@ public class AntForestV2 extends ModelTask {
                                                     }
                                                 }
                                             }
-                                        }else {
+                                        } else {
                                             Log.record(userHomeObject.getString("resultDesc"));
                                         }
                                     } else {
@@ -715,7 +710,9 @@ public class AntForestV2 extends ModelTask {
                                     } catch (Exception e) {
                                         Log.printStackTrace(e);
                                     }
+
                                 }
+
                             }
                         }
                     } catch (Exception t) {
