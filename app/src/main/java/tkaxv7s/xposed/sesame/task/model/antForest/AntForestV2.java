@@ -136,24 +136,24 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 1000, 0, 6000));
-        modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "浇水10克需收能量(关闭:0)", 0));
-        modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "浇水18克需收能量(关闭:0)", 0));
-        modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "浇水33克需收能量(关闭:0)", 0));
-        modelFields.addField(exchangeEnergyDoubleClick = new BooleanModelField("exchangeEnergyDoubleClick", "活力值兑换限时双击卡", false));
-        modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "兑换限时双击卡数量", 6));
-        modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值兑换永久双击卡", false));
-        modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "兑换永久双击卡数量", 6));
-        modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "使用双击卡", true));
-        modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "使用双击卡次数", 6));
+        modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "双击卡 | 使用", true));
+        modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡 | 使用次数", 6));
         List<String> doubleCardTimeList = new ArrayList<>();
         doubleCardTimeList.add("0700-0730");
-        modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "使用双击卡时间(范围)", doubleCardTimeList));
+        modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "双击卡 | 使用时间(范围)", doubleCardTimeList));
+        modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "返水 | 10克需收能量(关闭:0)", 0));
+        modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "返水 | 18克需收能量(关闭:0)", 0));
+        modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "返水 | 33克需收能量(关闭:0)", 0));
+        modelFields.addField(waterFriendList = new SelectModelField("waterFriendList", "浇水 | 好友列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
+        modelFields.addField(waterFriendCount = new IntegerModelField("waterFriendCount", "浇水 | 克数(10 18 33 66)", 66));
+        modelFields.addField(helpFriendCollect = new BooleanModelField("helpFriendCollect", "复活能量 | 开启", true));
+        modelFields.addField(helpFriendCollectType = new BooleanModelField("helpFriendCollectType", "复活能量 | 动作(复活:开，不复活:关)", false));
+        modelFields.addField(dontHelpCollectList = new SelectModelField("dontHelpCollectList", "复活能量 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(exchangeEnergyDoubleClick = new BooleanModelField("exchangeEnergyDoubleClick", "活力值 | 兑换限时双击卡", false));
+        modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "活力值 | 兑换限时双击卡数量", 6));
+        modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
+        modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "活力值 | 兑换永久双击卡数量", 6));
         modelFields.addField(giveEnergyRainList = new SelectModelField("giveEnergyRainList", "赠送能量雨列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
-        modelFields.addField(waterFriendList = new SelectModelField("waterFriendList", "好友浇水列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
-        modelFields.addField(waterFriendCount = new IntegerModelField("waterFriendCount", "每次浇水克数(10 18 33 66)", 66));
-        modelFields.addField(helpFriendCollect = new BooleanModelField("helpFriendCollect", "复活好友能量", true));
-        modelFields.addField(helpFriendCollectType = new BooleanModelField("helpFriendCollectType", "复活好友能量类型(打开:复活列表/关闭:不复活列表)", false));
-        modelFields.addField(dontHelpCollectList = new SelectModelField("dontHelpCollectList", "不复活好友能量名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量名单", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", true));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", true));
@@ -615,32 +615,27 @@ public class AntForestV2 extends ModelTask {
                             }/* else {
                             Log.i("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
                         }*/
-                    }
-                    if (!TaskCommon.IS_ENERGY_TIME && isNotSelfId) {
-                        if (helpFriendCollect.getValue()) {
-                            try {
-                                if (friendsObject.optBoolean("canProtectBubble", false)) {
-                                    if (userHomeObject == null) {
-                                        userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
-                                    }
-                                    if ("SUCCESS".equals(userHomeObject.getString("resultCode"))) {
-                                        Map<String, Integer> dontHelpCollectMap = dontHelpCollectList.getValue().getKey();
-                                        JSONArray wateringBubbles = userHomeObject.optJSONArray("wateringBubbles");
-                                        if (wateringBubbles != null && wateringBubbles.length() > 0) {
-                                            for (int j = 0; j < wateringBubbles.length(); j++) {
-                                                JSONObject wateringBubble = wateringBubbles.getJSONObject(j);
-                                                if ("fuhuo".equals(wateringBubble.getString("bizType"))) {
-                                                    if (wateringBubble.getJSONObject("extInfo").optInt("restTimes", 0) == 0) {
-                                                        Statistics.protectBubbleToday(selfId);
-                                                    }
-                                                    if (wateringBubble.getBoolean("canProtect")) {
-                                                        boolean isHelpCollect = dontHelpCollectMap.containsKey(userId);
-                                                        if (!helpFriendCollectType.getValue()) {
-                                                            isHelpCollect = !isHelpCollect;
+                        }
+                        if (!TaskCommon.IS_ENERGY_TIME && isNotSelfId) {
+                            if (helpFriendCollect.getValue()) {
+                                try {
+                                    if (friendsObject.optBoolean("canProtectBubble", false)) {
+                                        if (userHomeObject == null) {
+                                            userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
+                                        }
+                                        if ("SUCCESS".equals(userHomeObject.getString("resultCode"))) {
+                                            Map<String, Integer> dontHelpCollectMap = dontHelpCollectList.getValue().getKey();
+                                            JSONArray wateringBubbles = userHomeObject.optJSONArray("wateringBubbles");
+                                            if (wateringBubbles != null && wateringBubbles.length() > 0) {
+                                                for (int j = 0; j < wateringBubbles.length(); j++) {
+                                                    JSONObject wateringBubble = wateringBubbles.getJSONObject(j);
+                                                    if ("fuhuo".equals(wateringBubble.getString("bizType"))) {
+                                                        if (wateringBubble.getJSONObject("extInfo").optInt("restTimes", 0) == 0) {
+                                                            Statistics.protectBubbleToday(selfId);
                                                         }
                                                         if (wateringBubble.getBoolean("canProtect")) {
                                                             boolean isHelpCollect = dontHelpCollectMap.containsKey(userId);
-                                                            if (!helpFriendCollectType.getValue()){
+                                                            if (!helpFriendCollectType.getValue()) {
                                                                 isHelpCollect = !isHelpCollect;
                                                             }
                                                             if (isHelpCollect) {
@@ -701,7 +696,7 @@ public class AntForestV2 extends ModelTask {
                                                     }
                                                 }
                                             }
-                                        }else {
+                                        } else {
                                             Log.record(userHomeObject.getString("resultDesc"));
                                         }
                                     } else {
@@ -715,7 +710,9 @@ public class AntForestV2 extends ModelTask {
                                     } catch (Exception e) {
                                         Log.printStackTrace(e);
                                     }
+
                                 }
+
                             }
                         }
                     } catch (Exception t) {
