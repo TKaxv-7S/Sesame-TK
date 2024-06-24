@@ -409,7 +409,7 @@ public class AntForestV2 extends ModelTask {
                                 }
                                 timerTask.addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
                             } else {
-                                Log.i(TAG, "用户[" + UserIdMap.getNameById(userId) + "]能量成熟时间: " + produceTime);
+                                Log.i(TAG, "用户[" + UserIdMap.getNameById(userId) + "]能量成熟时间: " + DateFormat.getDateTimeInstance().format(produceTime));
                             }
                             break;
                     }
