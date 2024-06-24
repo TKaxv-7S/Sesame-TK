@@ -1,5 +1,6 @@
 package tkaxv7s.xposed.sesame.task.model.antStall;
 
+import android.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -56,6 +57,7 @@ public class AntStall extends ModelTask {
     public String setName() {
         return "新村";
     }
+
     public BooleanModelField enableStall;
     public BooleanModelField stallAutoClose;
     public BooleanModelField stallAutoOpen;
@@ -71,6 +73,14 @@ public class AntStall extends ModelTask {
     public BooleanModelField stallInviteRegister;
     public BooleanModelField stallThrowManure;
     public SelectModelField stallInviteShopList;
+    /**
+     * 邀请好友开通新村列表
+     */
+    public SelectModelField stallInviteRegisterList;
+    /**
+     * 助力好友列表
+     */
+    public SelectModelField assistFriendList;
 
     @Override
     public ModelFields setFields() {
@@ -88,6 +98,8 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallSelfOpenTime = new IntegerModelField("stallSelfOpenTime", "自己收摊时长", 120));
         modelFields.addField(stallDonate = new BooleanModelField("stallDonate", "新村自动捐赠", false));
         modelFields.addField(stallInviteRegister = new BooleanModelField("stallInviteRegister", "邀请好友开通新村", false));
+        modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请好友开通新村列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(assistFriendList = new SelectModelField("assistFriendList", "助力好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(stallThrowManure = new BooleanModelField("stallThrowManure", "新村丢肥料", false));
         modelFields.addField(stallInviteShopList = new SelectModelField("stallInviteShopList", "新村邀请摆摊列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         return modelFields;
@@ -136,12 +148,12 @@ public class AntStall extends ModelTask {
                     if (stallAutoTask.getValue()) {
                         taskList();
                     }
-                    achieveBeShareP2P();
+//                    achieveBeShareP2P();
 
                     if (stallDonate.getValue()) {
                         roadmap();
                     }
-
+                    assistFriend();
                 } else {
                     Log.record("home err:" + " " + s);
                 }
@@ -456,7 +468,7 @@ public class AntStall extends ModelTask {
                                     continue;
                                 }
                             } else if ("ANTSTALL_P2P_DAILY_SHARER".equals(taskType)) {
-                                shareP2P();
+//                                shareP2P();
                             }
                         }
                         Thread.sleep(200L);
@@ -530,26 +542,32 @@ public class AntStall extends ModelTask {
         try {
             String s = AntStallRpcCall.rankInviteRegister();
             JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray friendRankList = jo.optJSONArray("friendRankList");
-                if (friendRankList != null && friendRankList.length() > 0) {
-                    for (int i = 0; i < friendRankList.length(); i++) {
-                        JSONObject friend = friendRankList.getJSONObject(i);
-                        if (friend.optBoolean("canInviteRegister", false)
-                                && "UNREGISTER".equals(friend.getString("userStatus"))) {/* 是否加名单筛选 */
-                            String userId = friend.getString("userId");
-                            jo = new JSONObject(AntStallRpcCall.friendInviteRegister(userId));
-                            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                                Log.farm("邀请好友[" + UserIdMap.getNameById(userId) + "]#开通新村");
-                                return true;
-                            } else {
-                                Log.record("friendInviteRegister err:" + " " + jo);
-                            }
-                        }
-                    }
-                }
-            } else {
+            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.record("rankInviteRegister err:" + " " + s);
+                return false;
+            }
+            JSONArray friendRankList = jo.optJSONArray("friendRankList");
+            if (friendRankList == null || friendRankList.length() <= 0) {
+                return false;
+            }
+            for (int i = 0; i < friendRankList.length(); i++) {
+                JSONObject friend = friendRankList.getJSONObject(i);
+                if (!friend.optBoolean("canInviteRegister", false)
+                        || !"UNREGISTER".equals(friend.getString("userStatus"))) {
+                    continue;
+                }
+                /* 名单筛选 */
+                String userId = friend.getString("userId");
+                if (!stallInviteRegisterList.getValue().getKey().containsKey(userId)) {
+                    continue;
+                }
+                jo = new JSONObject(AntStallRpcCall.friendInviteRegister(userId));
+                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                    Log.farm("邀请好友[" + UserIdMap.getNameById(userId) + "]#开通新村");
+                    return true;
+                } else {
+                    Log.record("friendInviteRegister err:" + " " + jo);
+                }
             }
         } catch (Throwable t) {
             Log.i(TAG, "InviteRegister err:");
@@ -572,6 +590,42 @@ public class AntStall extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "shareP2P err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    /**
+     * 助力好友
+     */
+    private void assistFriend() {
+        try {
+            if (!Statistics.canAntStallAssistFriendToday()){
+                Log.record("新村助力🎈今日助力他人次数上限");
+                return;
+            }
+            Map<String, Integer> friendList = assistFriendList.getValue().getKey();
+            for (String uid : friendList.keySet()) {
+                String shareId = Base64.encodeToString((uid + "-m5o3bANUTSALTML_2PA_SHARE").getBytes(), Base64.NO_WRAP);
+                String str = AntStallRpcCall.achieveBeShareP2P(shareId);
+                JSONObject jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    String code = jsonObject.getString("code");
+                    if ("600000028".equals(code)) {
+                        Log.record("被助力次数上限: " + UserIdMap.getNameById(uid));
+                        continue;
+                    }
+                    if ("600000027".equals(code)) {
+                        Log.record("今日助力他人次数上限");
+                        Statistics.antStallAssistFriendToday();
+                        return;
+                    }
+                    Log.record("助力失败:" + jsonObject.optString("message"));
+                    continue;
+                }
+                Log.farm("新村助力🎈[" + UserIdMap.getNameById(uid) + "]成功");
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "assistFriend err:");
             Log.printStackTrace(TAG, t);
         }
     }

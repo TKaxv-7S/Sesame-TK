@@ -100,6 +100,7 @@ public class GreenFinance extends ModelTask {
             behaviorTick();
             //捐助
             donation();
+            //CP14664674
             //绿色经营
             GreenFinanceRpcCall.doTask("AP13159535", TAG, "绿色经营📊");
         };

@@ -49,6 +49,10 @@ public class Statistics {
     private ArrayList<String> donationEggList = new ArrayList<>();
     private ArrayList<String> spreadManureList = new ArrayList<>();
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
+    /**
+     * 新村助力好友
+     */
+    private int antStallAssistFriend = 0;
 
     // other
     private ArrayList<String> memberSignInList = new ArrayList<>();
@@ -479,6 +483,26 @@ public class Statistics {
         Statistics stat = INSTANCE;
         if (!stat.stallP2PHelpedList.contains(uid)) {
             stat.stallP2PHelpedList.add(uid);
+            save();
+        }
+    }
+
+    /**
+     * 是否新村助力已到上限
+     * @return
+     */
+    public static boolean canAntStallAssistFriendToday() {
+        Statistics stat = INSTANCE;
+        return stat.antStallAssistFriend < stat.day.time;
+    }
+
+    /**
+     * 设置新村助力已到上限
+     */
+    public static void antStallAssistFriendToday() {
+        Statistics stat = INSTANCE;
+        if (stat.antStallAssistFriend != stat.day.time) {
+            stat.antStallAssistFriend = stat.day.time;
             save();
         }
     }

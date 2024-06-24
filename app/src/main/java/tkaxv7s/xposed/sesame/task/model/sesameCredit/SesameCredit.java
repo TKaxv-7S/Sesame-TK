@@ -264,7 +264,7 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".collectSesame.queryCreditFeedback", jo.optString("resultView"));
                 return;
             }
-            JSONArray ojbect = jo.getJSONArray("ojbect");
+            JSONArray ojbect = jo.getJSONArray("creditFeedbackVOS");
             for (int i = 0; i < ojbect.length(); i++) {
                 jo = ojbect.getJSONObject(i);
                 if (!"UNCLAIMED".equals(jo.getString("status"))) {
