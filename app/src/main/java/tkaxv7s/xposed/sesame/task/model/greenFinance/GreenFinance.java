@@ -13,6 +13,7 @@ import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.Statistics;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -109,7 +110,10 @@ public class GreenFinance extends ModelTask {
             donation();
             //收好友金币
             batchStealFriend();
-            //CP14664674
+            //评级任务
+            doProveTask();
+            //评级奖品
+            prizes();
             //绿色经营
             GreenFinanceRpcCall.doTask("AP13159535", TAG, "绿色经营📊");
         };
@@ -318,17 +322,91 @@ public class GreenFinance extends ModelTask {
     }
 
     /**
-     * 评级
+     * 评级奖品
      */
     private void prizes() {
         try {
-            String str = GreenFinanceRpcCall.campTrigger("CP14664674");
+            if (Statistics.canGreenFinancePrizesMap()) {
+                return;
+            }
+            String campId = "CP14664674";
+            String str = GreenFinanceRpcCall.queryPrizes(campId);
             JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".prizes.queryPrizes", jsonObject.optString("resultDesc"));
+                return;
+            }
+            JSONArray prizes = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.prizes");
+            if (prizes != null) {
+                for (int i = 0; i < prizes.length(); i++) {
+                    jsonObject = prizes.getJSONObject(i);
+                    String bizTime = jsonObject.getString("bizTime");
+                    // 使用 SimpleDateFormat 解析字符串
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH);
+                    Date dateTime = formatter.parse(bizTime);
+                    if (TimeUtil.getWeekNumber(dateTime) == TimeUtil.getWeekNumber(new Date())) {
+                        //本周已完成
+                        Statistics.greenFinancePrizesMap();
+                        return;
+                    }
+                }
+            }
+            str = GreenFinanceRpcCall.campTrigger(campId);
+            jsonObject = new JSONObject(str);
             if (!jsonObject.getBoolean("success")) {
                 Log.i(TAG + ".prizes.campTrigger", jsonObject.optString("resultDesc"));
                 return;
             }
-            Log.other("绿色经营📊绿色评级");
+            JSONObject object = (JSONObject) JsonUtil.getValueByPathObject(jsonObject, "result.prizes.[0]");
+            if (object == null) {
+                return;
+            }
+            Log.other("绿色经营🍬评级奖品[" + object.getString("prizeName") + "]" + object.getString("price"));
+        } catch (Throwable th) {
+            Log.i(TAG, "prizes err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    private void doProveTask() {
+        try {
+            String str = GreenFinanceRpcCall.consultProveTaskList();
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".doProveTask.consultProveTaskList", jsonObject.optString("resultDesc"));
+                return;
+            }
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONArray jsonArray = result.getJSONArray("proveTasks");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                jsonObject = jsonArray.getJSONObject(i);
+                if (!"CAN_RECEIVE".equals(jsonObject.optString("status"))) {
+                    continue;
+                }
+                String bizType = jsonObject.getString("bizType");
+                String url = "";
+                switch (bizType) {
+                    case "classifyTrashCanProve":
+                        url = "biz/screditgrowup/upload/1fac-2d0b8b67-385b-46da-b0c7-2446f025cd28.jpg";
+                        break;
+                    case "ECO_FRIENDLY_BAG_PROVE":
+                        url = "biz/screditgrowup/upload/1fac-fd0ab983-4e5e-412f-b882-d0c096c7ddaf.jpg";
+                        break;
+                    default:
+                        Log.other("绿色经营⛔评级任务[" + jsonObject.getString("templateName") + "]未适配");
+                        break;
+                }
+                if (!proveTask(bizType, url)) {
+                    continue;
+                }
+                Log.other("绿色经营📊评级任务[" + jsonObject.getString("templateName") + "]完成");
+            }
         } catch (Throwable th) {
             Log.i(TAG, "prizes err:");
             Log.printStackTrace(TAG, th);
@@ -344,18 +422,17 @@ public class GreenFinance extends ModelTask {
     /**
      * 评级任务
      */
-    private void prizesTask() {
+    private boolean proveTask(String bizType, String imageUrl) {
         try {
-            //biz/screditgrowup/upload/1fac-fd0ab983-4e5e-412f-b882-d0c096c7ddaf.jpg
-            String str = GreenFinanceRpcCall.proveTask("classifyTrashCanProve", "biz/screditgrowup/upload/1fac-fd0ab983-4e5e-412f-b882-d0c096c7ddaf.jpg");
+            String str = GreenFinanceRpcCall.proveTask(bizType, imageUrl);
             JSONObject jsonObject = new JSONObject(str);
             if (!jsonObject.getBoolean("success")) {
                 Log.i(TAG + ".prizesTask.proveTask", jsonObject.optString("resultDesc"));
-                return;
+                return false;
             }
             String taskId = JsonUtil.getValueByPath(jsonObject, "result.taskId");
             if (taskId.isEmpty()) {
-                return;
+                return false;
             }
             TimeUtil.sleep(2000);
             while (true) {
@@ -366,12 +443,14 @@ public class GreenFinance extends ModelTask {
                     continue;
                 }
                 String status = JsonUtil.getValueByPath(jsonObject, "result.status");
-                if ("FAIL".equals(status) || "SUCCESS".equals(status)) {
-                    break;
+                if ("FAIL".equals(status)) {
+                    return false;
+                }
+                if ("FINISH".equals(status)) {
+                    return true;
                 }
                 TimeUtil.sleep(2000);
             }
-            Log.other("绿色经营📊绿色评级任务");
         } catch (Throwable th) {
             Log.i(TAG, "prizesTask err:");
             Log.printStackTrace(TAG, th);
@@ -382,6 +461,7 @@ public class GreenFinance extends ModelTask {
                 Log.printStackTrace(e);
             }
         }
+        return false;
     }
 
     /**
@@ -389,7 +469,7 @@ public class GreenFinance extends ModelTask {
      */
     private void batchStealFriend() {
         try {
-            if (Statistics.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()){
+            if (Statistics.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
                 return;
             }
             int n = 0;
@@ -410,7 +490,7 @@ public class GreenFinance extends ModelTask {
                 JSONArray list = result.getJSONArray("rankingList");
                 for (int i = 0; i < list.length(); i++) {
                     JSONObject object = list.getJSONObject(i);
-                    if (!object.getBoolean("collectFlag")){
+                    if (!object.getBoolean("collectFlag")) {
                         continue;
                     }
                     String friendId = object.optString("uid");

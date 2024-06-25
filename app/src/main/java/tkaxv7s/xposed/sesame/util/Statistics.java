@@ -3,11 +3,7 @@ package tkaxv7s.xposed.sesame.util;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import lombok.Data;
 import tkaxv7s.xposed.sesame.task.model.antForest.AntForestV2;
@@ -65,6 +61,11 @@ public class Statistics {
      * 绿色经营，收取好友金币已完成用户
      */
     private List<String> greenFinancePointFriend = new ArrayList<>();
+
+    /**
+     * 绿色经营，评级领奖已完成用户
+     */
+    private Map<String, Integer> greenFinancePrizesMap = new HashMap<String, Integer>();
 
 
     public static void addData(DataType dt, int i) {
@@ -583,6 +584,7 @@ public class Statistics {
 
     /**
      * 罚单是否贴完
+     *
      * @return true是，false否
      */
     public static boolean canPasteTicketTime() {
@@ -645,7 +647,8 @@ public class Statistics {
     }
 
     /**
-     * 绿色经营-收好友金币是否贴完
+     * 绿色经营-收好友金币是否做完
+     *
      * @return true是，false否
      */
     public static boolean canGreenFinancePointFriend() {
@@ -656,10 +659,36 @@ public class Statistics {
      * 绿色经营-收好友金币完了
      */
     public static void greenFinancePointFriend() {
-        if (INSTANCE.greenFinancePointFriend.contains(UserIdMap.getCurrentUid())) {
+        if (canGreenFinancePointFriend()) {
             return;
         }
         INSTANCE.greenFinancePointFriend.add(UserIdMap.getCurrentUid());
+        save();
+    }
+
+    /**
+     * 绿色经营-评级任务是否做完
+     *
+     * @return true是，false否
+     */
+    public static boolean canGreenFinancePrizesMap() {
+        int week = TimeUtil.getWeekNumber(new Date());
+        String currentUid = UserIdMap.getCurrentUid();
+        if (INSTANCE.greenFinancePrizesMap.containsKey(currentUid)) {
+            Integer storedWeek = INSTANCE.greenFinancePrizesMap.get(currentUid);
+            return storedWeek != null && storedWeek == week;
+        }
+        return false;
+    }
+
+    /**
+     * 绿色经营-评级任务完了
+     */
+    public static void greenFinancePrizesMap() {
+        if (canGreenFinancePrizesMap()) {
+            return;
+        }
+        INSTANCE.greenFinancePrizesMap.put(UserIdMap.getCurrentUid(), TimeUtil.getWeekNumber(new Date()));
         save();
     }
 

@@ -13,7 +13,6 @@ import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.hook.FriendManager;
 import tkaxv7s.xposed.sesame.hook.Toast;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
-import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 import tkaxv7s.xposed.sesame.task.model.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.util.*;
 
@@ -93,6 +92,7 @@ public class AntForestV2 extends ModelTask {
     public static SelectModelField whoYouWantToGiveTo;
     public static BooleanModelField ecoLifeTick;
     public static BooleanModelField photoGuangPan;
+    public static BooleanModelField ecoLifeOpen;
 
     public static Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
 
@@ -166,8 +166,9 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(sendFriendCard = new SelectModelField.SelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
-        modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色行动打卡", false));
-        modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "光盘行动", false));
+        modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
+        modelFields.addField(ecoLifeOpen = new BooleanModelField("ecoLifeOpen", "绿色 | 自动开通", false));
+        modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "绿色 | 光盘行动", false));
         return modelFields;
     }
 
@@ -605,7 +606,7 @@ public class AntForestV2 extends ModelTask {
                     boolean isNotSelfId = !userId.equals(selfId);
                     if ((friendsObject.getBoolean("canCollectEnergy")
                             || (friendsObject.getLong("canCollectLaterTime") > 0 &&
-                                friendsObject.getLong("canCollectLaterTime") - System.currentTimeMillis() < BaseModel.getCheckInterval().getValue()))
+                            friendsObject.getLong("canCollectLaterTime") - System.currentTimeMillis() < BaseModel.getCheckInterval().getValue()))
                             && collectEnergy.getValue()
                             && isNotSelfId) {
                         if (!dontCollectMap.containsKey(userId)) {
@@ -1553,14 +1554,27 @@ public class AntForestV2 extends ModelTask {
      */
     private static void ecoLife() {
         try {
-            JSONObject jo = new JSONObject(EcoLifeRpcCall.queryHomePage());
-            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+            JSONObject jsonObject = new JSONObject(EcoLifeRpcCall.queryHomePage());
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".ecoLife.queryHomePage", jsonObject.optString("resultDesc"));
                 return;
             }
-            JSONObject data = jo.getJSONObject("data");
-            if (!data.has("dayPoint")) {
-                Log.record("绿色任务失败, dayPoint不存在");
+            JSONObject data = jsonObject.getJSONObject("data");
+            if (!data.getBoolean("openStatus") && ecoLifeOpen.getValue()) {
+                Log.forest("绿色任务☘未开通");
                 return;
+            } else if (!data.getBoolean("openStatus")) {
+                jsonObject = new JSONObject(EcoLifeRpcCall.openEcolife());
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".ecoLife.openEcolife", jsonObject.optString("resultDesc"));
+                    return;
+                }
+                if (!String.valueOf(true).equals(JsonUtil.getValueByPath(jsonObject, "data.opResult"))) {
+                    return;
+                }
+                Log.forest("绿色任务🍀开通成功(～￣▽￣)～");
+                jsonObject = new JSONObject(EcoLifeRpcCall.queryHomePage());
+                data = jsonObject.getJSONObject("data");
             }
             String dayPoint = data.getString("dayPoint");
             JSONArray actionListVO = data.getJSONArray("actionListVO");
@@ -1571,7 +1585,7 @@ public class AntForestV2 extends ModelTask {
                 photoGuangPan(dayPoint);
             }
         } catch (Throwable th) {
-            Log.i(TAG, "ecoLifeTick err:");
+            Log.i(TAG, "ecoLife err:");
             Log.printStackTrace(TAG, th);
         }
     }

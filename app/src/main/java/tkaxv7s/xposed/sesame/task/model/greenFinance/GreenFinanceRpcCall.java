@@ -109,7 +109,28 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
     }
 
     /**
-     * 绿色评级
+     * 查询评级任务列表
+     *
+     * @return 结果
+     */
+    public static String consultProveTaskList() {
+        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceProveTaskService.consultProveTaskList",
+                "[{\"custType\":\"MERCHANT\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
+    }
+
+    /**
+     * 查询绿色特权奖品
+     *
+     * @param campId campId
+     * @return 结果
+     */
+    public static String queryPrizes(String campId) {
+        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.camp.queryPrizes",
+                "[{\"campIds\":[\"" + campId + "\"]}]");
+    }
+
+    /**
+     * 绿色特权奖品领取
      *
      * @param campId campId
      * @return 结果
@@ -146,7 +167,7 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
     /**
      * 查询好友列表
      *
-     * @return
+     * @return 结果
      */
     public static String queryRankingList(int startIndex) {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinanceUserInteractionQueryService.queryRankingList",
@@ -158,7 +179,7 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
     /**
      * 查询一个可以收金币的好友
      *
-     * @return
+     * @return 结果
      */
     public static String queryGuestIndexPoints(String guestId) {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinanceUserInteractionQueryService.queryGuestIndexPoints",
