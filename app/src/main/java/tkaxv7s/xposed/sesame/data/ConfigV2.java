@@ -161,7 +161,7 @@ public class ConfigV2 {
         if (formatted != null && !formatted.equals(json)) {
             Log.i(TAG, "重新格式化 config_v2.json");
             Log.system(TAG, "重新格式化 config_v2.json");
-            FileUtil.write2File(formatted, FileUtil.getConfigV2File());
+            FileUtil.write2File(formatted, FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
         }
         INSTANCE.setInit(true);
         Log.i(TAG, "加载配置成功");
