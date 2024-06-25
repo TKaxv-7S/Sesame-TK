@@ -32,6 +32,7 @@ public class AntOrchard extends ModelTask {
     private static IntegerModelField executeInterval;
     private static BooleanModelField receiveOrchardTaskAward;
     private static IntegerModelField orchardSpreadManureCount;
+    private static BooleanModelField batchHireAnimal;
 
     @Override
     public String setName() {
@@ -45,6 +46,7 @@ public class AntOrchard extends ModelTask {
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 500));
         modelFields.addField(receiveOrchardTaskAward = new BooleanModelField("receiveOrchardTaskAward", "收取农场任务奖励", true));
         modelFields.addField(orchardSpreadManureCount = new IntegerModelField("orchardSpreadManureCount", "农场每日施肥次数", 0));
+        modelFields.addField(batchHireAnimal = new BooleanModelField("batchHireAnimal", "一键捉鸡除草", false));
         return modelFields;
     }
 
@@ -69,9 +71,11 @@ public class AntOrchard extends ModelTask {
                             if (jo.has("lotteryPlusInfo"))
                                 drawLotteryPlus(jo.getJSONObject("lotteryPlusInfo"));
                             extraInfoGet();
-                            if (!joo.optBoolean("hireCountOnceLimit", true)
-                                    && !joo.optBoolean("hireCountOneDayLimit", true))
-                                batchHireAnimalRecommend();
+                            if (batchHireAnimal.getValue()) {
+                                if (!joo.optBoolean("hireCountOnceLimit", true)
+                                        && !joo.optBoolean("hireCountOneDayLimit", true))
+                                    batchHireAnimalRecommend();
+                            }
                             if (receiveOrchardTaskAward.getValue()) {
                                 doOrchardDailyTask(userId);
                                 triggerTbTask();
