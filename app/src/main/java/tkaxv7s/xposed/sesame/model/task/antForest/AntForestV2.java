@@ -1647,14 +1647,14 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG + ".photoGuangPan.ecolifeQueryDish", jsonObject.optString("resultDesc"));
                 return;
             }
+            boolean isDone = false;
             if ("SUCCESS".equals(JsonUtil.getValueByPath(jsonObject, "data.status"))) {
                 Log.forest("光盘行动💿今日已完成");
-                return;
+                isDone = true;
             }
             String photoGuangPanBeforeStr = photoGuangPanBefore.getValue();
             String photoGuangPanAfterStr = photoGuangPanAfter.getValue();
             if (StringUtil.isEmpty(photoGuangPanBeforeStr) || StringUtil.isEmpty(photoGuangPanAfterStr)) {
-                boolean isDone = false;
                 JSONObject data = jsonObject.optJSONObject("data");
                 if (data != null) {
                     String beforeMealsImageUrl = jsonObject.optString("beforeMealsImageUrl");
@@ -1675,10 +1675,10 @@ public class AntForestV2 extends ModelTask {
                         isDone = true;
                     }
                 }
-                if (!isDone) {
-                    Log.forest("光盘行动💿请先完成一次光盘打卡");
-                    return;
-                }
+            }
+            if (!isDone) {
+                Log.forest("光盘行动💿请先完成一次光盘打卡");
+                return;
             }
             //上传餐前照片
             str = EcoLifeRpcCall.uploadDishImage("BEFORE_MEALS",
