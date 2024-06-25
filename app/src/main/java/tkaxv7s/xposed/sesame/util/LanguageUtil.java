@@ -5,8 +5,7 @@ import android.content.res.Configuration;
 
 import java.util.Locale;
 
-import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 
 
 public class LanguageUtil {

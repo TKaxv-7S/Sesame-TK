@@ -139,7 +139,7 @@ public class ConfigV2 {
 
     public static synchronized ConfigV2 load() {
         Log.i(TAG, "开始加载配置");
-        ModelTask.initAllModel();
+        Model.initAllModel();
         String json = null;
         try {
             File configV2File = FileUtil.getConfigV2File(UserIdMap.getCurrentUid());

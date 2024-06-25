@@ -54,6 +54,7 @@ dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.32'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.32'
     implementation 'com.elvishew:xlog:1.11.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     normalImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.17.1'
     normalImplementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.17.1'

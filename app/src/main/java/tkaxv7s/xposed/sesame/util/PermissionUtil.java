@@ -13,7 +13,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.task.model.antForest.AntForestRpcCall;
+import tkaxv7s.xposed.sesame.model.task.antForest.AntForestRpcCall;
 
 public class PermissionUtil {
     private static final String TAG = AntForestRpcCall.class.getSimpleName();

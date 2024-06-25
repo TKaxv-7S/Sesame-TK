@@ -13,8 +13,7 @@ import android.os.Build;
 import java.text.DateFormat;
 
 import lombok.Getter;
-import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 

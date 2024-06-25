@@ -1,17 +1,14 @@
 package tkaxv7s.xposed.sesame.util;
 
 import android.annotation.SuppressLint;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
@@ -269,6 +266,67 @@ public class JsonUtil {
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * 根据给定的点分隔符路径从JSONObject中获取值。
+     *
+     * @param jsonObject JSONObject对象
+     * @param path       点分隔符或包含嵌套属性的形式的路径，例如 "taskExtProps.TASK_MORPHO_DETAIL.[0].title"
+     * @return 找到值的话返回其String表现形式；如果任何层级键不存在或不是预期类型，则返回 null。
+     */
+    public static String getValueByPath(JSONObject jsonObject, String path) {
+        Object object = getValueByPathObject(jsonObject, path);
+        return object == null ? "" : String.valueOf(object);
+    }
+
+    public static Object getValueByPathObject(JSONObject jsonObject, String path) {
+        // 使用正斜杠/作为Token分隔符号来直接跳过数组下标的解析逻辑部分并直接取嵌套属性
+        // 使用正则表达式分割，但保留[]内的内容
+        String[] parts = path.split("\\.");
+        try {
+            Object current = jsonObject;
+            for (String part : parts) {
+                if (current instanceof JSONObject) {
+                    //对象取属性
+                    current = ((JSONObject) current).get(part);
+                } else if (current instanceof JSONArray) {
+                    //数组取索引
+                    JSONArray array = (JSONArray) current;
+                    String p = part.replaceAll("\\D", "");
+                    int index = Integer.parseInt(p);
+                    current = array.get(index);
+                } else if (part.contains("[")) {
+                    //不是对象、数组，当成字符串重新解析，如果字符串是数组
+                    JSONArray array = new JSONArray(current.toString());
+                    String p = part.replaceAll("\\D", "");
+                    int index = Integer.parseInt(p);
+                    current = array.get(index);
+                } else {
+                    //不是对象、数组，当成字符串重新解析，再取属性
+                    JSONObject object = new JSONObject(current.toString());
+                    current = object.get(part);
+                }
+            }
+            // 返回结果时检查是否确实找到了相应的值且非null，并转换成字符串形式返回
+            return current;
+        } catch (Exception e) {
+            // JSONException、NumberFormatException等异常都被捕获，并默认行为是返回null.
+            return null;
+        }
+    }
+
+    public static List<String> jsonArrayToList(JSONArray jsonArray) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0, len = jsonArray.length(); i < len; i++) {
+            try {
+                list.add(jsonArray.getString(i));
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                list.add("");
+            }
+        }
+        return list;
     }
 
 }

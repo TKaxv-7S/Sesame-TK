@@ -3,16 +3,11 @@ package tkaxv7s.xposed.sesame.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.Getter;
-
-@Getter
 public enum ModelType {
 
-    DISABLE(0, "已关闭"),
+    NORMAL(0, "普通模块"),
 
-    MODEL(1, "已激活"),
-
-    PACKAGE(2, "已加载"),
+    TASK(1, "任务模块"),
 
     ;
 
@@ -38,5 +33,6 @@ public enum ModelType {
     public static ModelType getByCode(Integer code) {
         return MAP.get(code);
     }
+
 
 }

@@ -1,83 +1,133 @@
 package tkaxv7s.xposed.sesame.data;
 
-import tkaxv7s.xposed.sesame.task.base.TaskOrder;
+import android.os.Build;
+import lombok.Getter;
 import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
-public abstract class ModelTask extends BaseTask {
+public abstract class ModelTask extends Model {
 
-    private static final Map<String, ModelConfig> modelConfigMap = new LinkedHashMap<>();
+    @Getter
+    private final Runnable runnable;
 
-    private static final Map<String, ModelConfig> readOnlyModelConfigMap = Collections.unmodifiableMap(modelConfigMap);
+    @Getter
+    private volatile Thread thread;
 
-    private static final Map<Class<? extends ModelTask>, ModelTask> taskMap = new ConcurrentHashMap<>();
+    private final Map<String, BaseTask> childTaskMap = new ConcurrentHashMap<>();
 
-    private static final List<Class<ModelTask>> taskClazzList = TaskOrder.getClazzList();
+    public ModelTask() {
+        this.runnable = init();
+        this.thread = null;
+    }
 
-    private static final ModelTask[] taskArray = new ModelTask[taskClazzList.size()];
+    public String getId() {
+        return toString();
+    }
 
-    private static final List<ModelTask> taskList = new LinkedList<>(Arrays.asList(taskArray));
-
-    private static final List<ModelTask> readOnlyTaskList = Collections.unmodifiableList(taskList);
+    public ModelType getType() {
+        return ModelType.TASK;
+    }
 
     public abstract String setName();
 
     public abstract ModelFields setFields();
 
-    public static Map<String, ModelConfig> getModelConfigMap() {
-        return readOnlyModelConfigMap;
+    public abstract Boolean check();
+
+    public abstract Runnable init();
+
+    public synchronized Boolean hasChildTask(String childId) {
+        return childTaskMap.containsKey(childId);
     }
 
-    public static Boolean hasTask(Class<? extends ModelTask> taskClazz) {
-        return taskMap.containsKey(taskClazz);
+    public synchronized BaseTask getChildTask(String childId) {
+        return childTaskMap.get(childId);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends ModelTask> T getTask(Class<T> taskClazz) {
-        return (T) taskMap.get(taskClazz);
-    }
-
-    public static List<ModelTask> getTaskList() {
-        return readOnlyTaskList;
-    }
-
-    public static synchronized void initAllModel() {
-        destroyAllTask();
-        for (int i = 0, len = taskClazzList.size(); i < len; i++) {
-            Class<ModelTask> taskClazz = taskClazzList.get(i);
-            try {
-                ModelTask task = taskClazz.newInstance();
-                ModelConfig modelConfig = new ModelConfig(task);
-                taskArray[i] = task;
-                taskMap.put(taskClazz, task);
-                modelConfigMap.put(modelConfig.getCode(), modelConfig);
-            } catch (IllegalAccessException | InstantiationException e) {
-                Log.printStackTrace(e);
+    public synchronized void addChildTask(BaseTask childTask) {
+        String childId = childTask.getId();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            childTaskMap.compute(childId, (key, value) -> {
+                if (value != null) {
+                    value.stopTask();
+                }
+                childTask.startTask();
+                return childTask;
+            });
+        } else {
+            BaseTask oldTask = childTaskMap.get(childId);
+            if (oldTask != null) {
+                oldTask.stopTask();
             }
+            childTask.startTask();
+            childTaskMap.put(childId, childTask);
         }
     }
 
-    public static synchronized void destroyAllTask() {
-        for (int i = 0, len = taskArray.length; i < len; i++) {
-            ModelTask task = taskArray[i];
-            if (task != null) {
-                try {
-                    task.stopTask();
-                } catch (Exception e) {
-                    Log.printStackTrace(e);
+    public synchronized void removeChildTask(String childId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            childTaskMap.compute(childId, (key, value) -> {
+                if (value != null) {
+                    ThreadUtil.shutdownAndWait(value.getThread(), -1, TimeUnit.SECONDS);
                 }
-                try {
-                    task.destroy();
-                } catch (Exception e) {
-                    Log.printStackTrace(e);
-                }
-                taskArray[i] = null;
+                return null;
+            });
+        } else {
+            BaseTask oldTask = childTaskMap.get(childId);
+            if (oldTask != null) {
+                ThreadUtil.shutdownAndWait(oldTask.getThread(), -1, TimeUnit.SECONDS);
             }
-            taskMap.clear();
-            modelConfigMap.clear();
+            childTaskMap.remove(childId);
         }
+    }
+
+    public synchronized Integer countChildTask() {
+        return childTaskMap.size();
+    }
+
+    public Boolean startTask() {
+        return startTask(false);
+    }
+
+    public synchronized Boolean startTask(Boolean force) {
+        if (thread != null && thread.isAlive()) {
+            if (!force) {
+                return false;
+            }
+            stopTask();
+        }
+        thread = new Thread(runnable);
+        try {
+            if (check()) {
+                thread.start();
+                for (BaseTask childTask : childTaskMap.values()) {
+                    if (childTask != null) {
+                        childTask.startTask();
+                    }
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+        return false;
+    }
+
+    public synchronized void stopTask() {
+        if (thread != null && thread.isAlive()) {
+            ThreadUtil.shutdownAndWait(thread, 5, TimeUnit.SECONDS);
+        }
+        for (BaseTask childTask : childTaskMap.values()) {
+            if (childTask != null) {
+                ThreadUtil.shutdownAndWait(childTask.getThread(), -1, TimeUnit.SECONDS);
+            }
+        }
+        thread = null;
+        childTaskMap.clear();
     }
 
     public static void startAllTask() {
@@ -85,13 +135,15 @@ public abstract class ModelTask extends BaseTask {
     }
 
     public static void startAllTask(Boolean force) {
-        for (ModelTask task : taskArray) {
-            if (task != null) {
-                if (task.startTask(force)) {
-                    try {
-                        Thread.sleep(80);
-                    } catch (InterruptedException e) {
-                        Log.printStackTrace(e);
+        for (Model model : getModelArray()) {
+            if (model != null) {
+                if (ModelType.TASK == model.getType()) {
+                    if (((ModelTask) model).startTask(force)) {
+                        try {
+                            Thread.sleep(80);
+                        } catch (InterruptedException e) {
+                            Log.printStackTrace(e);
+                        }
                     }
                 }
             }
@@ -99,9 +151,11 @@ public abstract class ModelTask extends BaseTask {
     }
 
     public static void stopAllTask() {
-        for (ModelTask task : taskArray) {
-            if (task != null) {
-                task.stopTask();
+        for (Model model : getModelArray()) {
+            if (model != null) {
+                if (ModelType.TASK == model.getType()) {
+                    ((ModelTask) model).stopTask();
+                }
             }
         }
     }

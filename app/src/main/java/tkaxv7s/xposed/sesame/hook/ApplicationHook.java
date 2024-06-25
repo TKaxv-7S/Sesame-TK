@@ -16,19 +16,15 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
-import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
-import tkaxv7s.xposed.sesame.data.ModelType;
-import tkaxv7s.xposed.sesame.data.ViewAppInfo;
+import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
+import tkaxv7s.xposed.sesame.model.base.TaskCommon;
+import tkaxv7s.xposed.sesame.model.task.antMember.AntMemberRpcCall;
+import tkaxv7s.xposed.sesame.model.task.antSports.AntSports;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.RpcBridge;
-import tkaxv7s.xposed.sesame.data.BaseTask;
-import tkaxv7s.xposed.sesame.data.ModelTask;
-import tkaxv7s.xposed.sesame.task.base.TaskCommon;
-import tkaxv7s.xposed.sesame.task.model.antMember.AntMemberRpcCall;
-import tkaxv7s.xposed.sesame.task.model.antSports.AntSports;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.text.SimpleDateFormat;
@@ -96,7 +92,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
         if ("tkaxv7s.xposed.sesame".equals(lpparam.packageName)) {
             try {
-                XposedHelpers.callStaticMethod(lpparam.classLoader.loadClass(ViewAppInfo.class.getName()), "setModelTypeByCode", ModelType.MODEL.getCode());
+                XposedHelpers.callStaticMethod(lpparam.classLoader.loadClass(ViewAppInfo.class.getName()), "setRunTypeByCode", RunType.MODEL.getCode());
             } catch (ClassNotFoundException e) {
                 Log.printStackTrace(e);
             }
@@ -473,7 +469,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     return;
                 }
                 Log.record("开始加载");
-                ConfigV2 config = ConfigV2.load();
+                ConfigV2.load();
                 if (!BaseModel.getEnable().getValue()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");
@@ -610,7 +606,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     rpcBridge.unload();
                     rpcBridge = null;
                 }
-                ModelTask.destroyAllTask();
+                ModelTask.destroyAllModel();
             } else {
                 ModelTask.stopAllTask();
             }

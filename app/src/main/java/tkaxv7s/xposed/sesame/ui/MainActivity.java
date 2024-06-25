@@ -23,9 +23,9 @@ import java.io.File;
 import java.util.LinkedHashMap;
 
 import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.BaseModel;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
-import tkaxv7s.xposed.sesame.data.ModelType;
+import tkaxv7s.xposed.sesame.data.RunType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
 import tkaxv7s.xposed.sesame.util.FileUtil;
@@ -56,9 +56,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
         ViewAppInfo.init(getApplicationContext());
-        updateTitle(ViewAppInfo.getModelType());
+        updateTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
-        titleRunner = () -> updateTitle(ModelType.DISABLE);
+        titleRunner = () -> updateTitle(RunType.DISABLE);
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -67,8 +67,8 @@ public class MainActivity extends Activity {
                 if (action != null) {
                     switch (action) {
                         case "tkaxv7s.xposed.sesame.status":
-                            if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
-                                updateTitle(ModelType.PACKAGE);
+                            if (RunType.DISABLE == ViewAppInfo.getRunType()) {
+                                updateTitle(RunType.PACKAGE);
                             }
                             viewHandler.removeCallbacks(titleRunner);
                             if (isClick) {
@@ -131,7 +131,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (hasPermissions) {
-            if (ModelType.DISABLE == ViewAppInfo.getModelType()) {
+            if (RunType.DISABLE == ViewAppInfo.getRunType()) {
                 viewHandler.postDelayed(titleRunner, 3000);
                 try {
                     sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.status"));
@@ -288,8 +288,8 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateTitle(ModelType modelType) {
-        setTitle(ViewAppInfo.getAppTitle() + "【" + modelType.getName() + "】");
+    private void updateTitle(RunType runType) {
+        setTitle(ViewAppInfo.getAppTitle() + "【" + runType.getName() + "】");
     }
 
 }

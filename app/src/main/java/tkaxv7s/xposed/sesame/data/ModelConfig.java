@@ -1,9 +1,9 @@
 package tkaxv7s.xposed.sesame.data;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import lombok.Data;
 
 @Data
 public final class ModelConfig implements Serializable {
@@ -22,11 +22,11 @@ public final class ModelConfig implements Serializable {
         //dataType = TypeUtil.getTypeArgument(this.getClass().getGenericSuperclass(), 0);
     }
 
-    public ModelConfig(ModelTask modelTask) {
+    public ModelConfig(Model model) {
         this();
-        this.code = modelTask.getClass().getSimpleName();
-        this.name = modelTask.setName();
-        addFields(modelTask.setFields());
+        this.code = model.getClass().getSimpleName();
+        this.name = model.setName();
+        addFields(model.setFields());
     }
 
     public void addFields(ModelFields newFields) {
