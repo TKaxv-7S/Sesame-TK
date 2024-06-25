@@ -3,14 +3,9 @@ package tkaxv7s.xposed.sesame.util;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import lombok.Data;
-import tkaxv7s.xposed.sesame.task.model.antCooperate.AntCooperate;
 import tkaxv7s.xposed.sesame.task.model.antForest.AntForestV2;
 
 @Data
@@ -38,6 +33,10 @@ public class Statistics {
     private int exchangeTimes = 0;
     private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
+    /**
+     * 新村-罚单已贴完的用户
+     */
+    private ArrayList<String> canPasteTicketTime = new ArrayList<>();
 
     // farm
     private ArrayList<String> answerQuestionList = new ArrayList<>();
@@ -50,10 +49,24 @@ public class Statistics {
     private ArrayList<String> donationEggList = new ArrayList<>();
     private ArrayList<String> spreadManureList = new ArrayList<>();
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
+    /**
+     * 新村助力好友，已上限的用户
+     */
+    private List<String> antStallAssistFriend = new ArrayList<>();
 
     // other
     private ArrayList<String> memberSignInList = new ArrayList<>();
     private int kbSignIn = 0;
+    /**
+     * 绿色经营，收取好友金币已完成用户
+     */
+    private List<String> greenFinancePointFriend = new ArrayList<>();
+
+    /**
+     * 绿色经营，评级领奖已完成用户
+     */
+    private Map<String, Integer> greenFinancePrizesMap = new HashMap<String, Integer>();
+
 
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
@@ -484,6 +497,27 @@ public class Statistics {
         }
     }
 
+    /**
+     * 是否新村助力已到上限
+     *
+     * @return true是，false否
+     */
+    public static boolean canAntStallAssistFriendToday() {
+        return INSTANCE.antStallAssistFriend.contains(UserIdMap.getCurrentUid());
+    }
+
+    /**
+     * 设置新村助力已到上限
+     */
+    public static void antStallAssistFriendToday() {
+        Statistics stat = INSTANCE;
+        String uid = UserIdMap.getCurrentUid();
+        if (!stat.antStallAssistFriend.contains(uid)) {
+            stat.antStallAssistFriend.add(uid);
+            save();
+        }
+    }
+
     public static boolean canExchangeToday(String uid) {
         return !INSTANCE.exchangeList.contains(uid);
     }
@@ -548,6 +582,26 @@ public class Statistics {
         save();
     }
 
+    /**
+     * 罚单是否贴完
+     *
+     * @return true是，false否
+     */
+    public static boolean canPasteTicketTime() {
+        return INSTANCE.canPasteTicketTime.contains(UserIdMap.getCurrentUid());
+    }
+
+    /**
+     * 罚单贴完了
+     */
+    public static void pasteTicketTime() {
+        if (INSTANCE.canPasteTicketTime.contains(UserIdMap.getCurrentUid())) {
+            return;
+        }
+        INSTANCE.canPasteTicketTime.add(UserIdMap.getCurrentUid());
+        save();
+    }
+
     public static boolean canDoubleToday() {
         return INSTANCE.doubleTimes < AntForestV2.doubleCountLimit.getValue();
     }
@@ -590,6 +644,52 @@ public class Statistics {
             stat.syncStepList.add(uid);
             save();
         }
+    }
+
+    /**
+     * 绿色经营-收好友金币是否做完
+     *
+     * @return true是，false否
+     */
+    public static boolean canGreenFinancePointFriend() {
+        return INSTANCE.greenFinancePointFriend.contains(UserIdMap.getCurrentUid());
+    }
+
+    /**
+     * 绿色经营-收好友金币完了
+     */
+    public static void greenFinancePointFriend() {
+        if (canGreenFinancePointFriend()) {
+            return;
+        }
+        INSTANCE.greenFinancePointFriend.add(UserIdMap.getCurrentUid());
+        save();
+    }
+
+    /**
+     * 绿色经营-评级任务是否做完
+     *
+     * @return true是，false否
+     */
+    public static boolean canGreenFinancePrizesMap() {
+        int week = TimeUtil.getWeekNumber(new Date());
+        String currentUid = UserIdMap.getCurrentUid();
+        if (INSTANCE.greenFinancePrizesMap.containsKey(currentUid)) {
+            Integer storedWeek = INSTANCE.greenFinancePrizesMap.get(currentUid);
+            return storedWeek != null && storedWeek == week;
+        }
+        return false;
+    }
+
+    /**
+     * 绿色经营-评级任务完了
+     */
+    public static void greenFinancePrizesMap() {
+        if (canGreenFinancePrizesMap()) {
+            return;
+        }
+        INSTANCE.greenFinancePrizesMap.put(UserIdMap.getCurrentUid(), TimeUtil.getWeekNumber(new Date()));
+        save();
     }
 
     public Boolean resetByCalendar(Calendar calendar) {
@@ -637,6 +737,9 @@ public class Statistics {
         stat.exchangeTimes = 0;
         stat.exchangeTimesLongTime = 0;
         stat.doubleTimes = 0;
+        stat.antStallAssistFriend.clear();
+        stat.canPasteTicketTime.clear();
+        stat.greenFinancePointFriend.clear();
         save();
     }
 

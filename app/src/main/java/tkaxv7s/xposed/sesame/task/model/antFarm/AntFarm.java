@@ -634,7 +634,10 @@ public class AntFarm extends ModelTask {
                                         existsResult = true;
                                     }
                                     if (!existsResult) {
-                                        answer = labels.getString(0);
+                                        answer = GeminiUtil.getInstance().getAnswer(question.getString("title"), labels);
+                                        if (answer == null || answer.isEmpty()) {
+                                            answer = labels.getString(0);
+                                        }
                                         anotherAnswer = labels.getString(1);
                                     }
 

@@ -7,6 +7,7 @@ import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 
 
@@ -75,8 +76,10 @@ public class OtherTask extends ModelTask {
                     //我的黄金票
                 } else if ("H5_GOLDBILL_TASK".equals(cardTypeId)) {
                     //任务列表，待完成的
-                    str = OtherTaskRpcCall.getValueByPath(object, "dataModel.jsonResult.tasks.todo");
-                    JSONArray jsonArray2 = new JSONArray(str);
+                    JSONArray jsonArray2 = (JSONArray) JsonUtil.getValueByPathObject(object, "dataModel.jsonResult.tasks.todo");
+                    if (jsonArray2 == null) {
+                        continue;
+                    }
                     for (int j = 0; j < jsonArray2.length(); j++) {
                         JSONObject object2 = jsonArray2.getJSONObject(j);
                         String title = object2.getString("title");
@@ -128,7 +131,7 @@ public class OtherTask extends ModelTask {
             for (int i = 0; i < length; i++) {
                 Log.other("黄金票🏦[" + jsonArray.getString(i) + "]");
             }
-            Log.other("黄金票🏦本次总共获得[" + OtherTaskRpcCall.getValueByPath(object, "collectedCamp.amount") + "]");
+            Log.other("黄金票🏦本次总共获得[" + JsonUtil.getValueByPath(object, "collectedCamp.amount") + "]");
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
             Log.printStackTrace(TAG, th);

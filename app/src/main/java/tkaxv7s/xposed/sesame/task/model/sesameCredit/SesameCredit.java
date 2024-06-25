@@ -8,6 +8,7 @@ import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 
 import java.util.Iterator;
@@ -51,12 +52,12 @@ public class SesameCredit extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(sesameCredit = new BooleanModelField("sesameCredit", "开启芝麻信用", false));
-        modelFields.addField(collectSecurityFund = new BooleanModelField("collectSecurityFund", "收保障金(可开启持续做)", false));
-        modelFields.addField(promiseSportsRoute = new BooleanModelField("promiseSportsRoute", "坚持锻炼，走运动路线(自动加入任务)", false));
-        modelFields.addField(promiseAddComment = new BooleanModelField("promiseAddComment", "坚持陪伴爱宠并记录(自动发布记录)", false));
-        modelFields.addField(insBlueBeanExchange = new BooleanModelField("insBlueBeanExchange", "安心豆兑换时光加速器", false));
-        modelFields.addField(insBlueBeanExchangeGoldTicket = new BooleanModelField("insBlueBeanExchangeGoldTicket", "安心豆兑换黄金票", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
+        modelFields.addField(collectSecurityFund = new BooleanModelField("collectSecurityFund", "记录 | 坚持攒保障金(可开启持续做)", false));
+        modelFields.addField(promiseSportsRoute = new BooleanModelField("promiseSportsRoute", "记录 | 坚持锻炼，走运动路线(只自动加入任务)", false));
+        modelFields.addField(promiseAddComment = new BooleanModelField("promiseAddComment", "记录 | 坚持陪伴爱宠并记录(只自动发布记录)", false));
+        modelFields.addField(insBlueBeanExchange = new BooleanModelField("insBlueBeanExchange", "安心豆 | 兑换时光加速器", false));
+        modelFields.addField(insBlueBeanExchangeGoldTicket = new BooleanModelField("insBlueBeanExchangeGoldTicket", "安心豆 | 兑换黄金票", false));
         return modelFields;
     }
 
@@ -107,8 +108,10 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".doPromise.promiseQueryHome", jsonObject.optString("errorMsg"));
                 return;
             }
-            str = SesameCreditRpcCall.getValueByPath(jsonObject, "data.processingPromises");
-            JSONArray jsonArray = new JSONArray(str);
+            JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "data.processingPromises");
+            if (jsonArray == null) {
+                return;
+            }
             boolean isSportsRoute = true;
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
@@ -127,7 +130,7 @@ public class SesameCredit extends ModelTask {
                     isSportsRoute = false;
                 } else if ("坚持陪伴爱宠并记录".equals(promiseName) && promiseAddComment.getValue()) {
                     jsonObject = promiseQueryDetail(recordId);
-                    if (jsonObject == null || "FINISH".equals(SesameCreditRpcCall.getValueByPath(jsonObject, "data.subRecordStatus"))) {
+                    if (jsonObject == null || "FINISH".equals(JsonUtil.getValueByPath(jsonObject, "data.subRecordStatus"))) {
                         continue;
                     }
                     str = SesameCreditRpcCall.promiseAddComment("🌈ᑋᵉᑊᑊᵒ ᵕ✨ ◡ 解锁新的一年",
@@ -151,8 +154,8 @@ public class SesameCredit extends ModelTask {
                     Log.i(TAG + ".doPromise.promiseJoin", jsonObject.optString("errorMsg"));
                     return;
                 }
-                Log.other("生活记录👟已加入[" + SesameCreditRpcCall.getValueByPath(jsonObject, "data.promiseName") + "]" +
-                        SesameCreditRpcCall.getValueByPath(jsonObject, "data.dynamicContent.subTitle"));
+                Log.other("生活记录👟已加入[" + JsonUtil.getValueByPath(jsonObject, "data.promiseName") + "]" +
+                        JsonUtil.getValueByPath(jsonObject, "data.dynamicContent.subTitle"));
             }
         } catch (Throwable t) {
             Log.i(TAG, "doPromise err:");
@@ -230,7 +233,7 @@ public class SesameCredit extends ModelTask {
             Log.i(TAG + ".gainMyAndFamilySumInsured", jo.optString("errorMsg"));
             return true;
         }
-        Log.other("领取保障金💰[" + SesameCreditRpcCall.getValueByPath(jo, "data.gainSumInsuredDTO.gainSumInsuredYuan") + "]" + "元");
+        Log.other("生活记录💰领取保障金[" + JsonUtil.getValueByPath(jo, "data.gainSumInsuredDTO.gainSumInsuredYuan") + "]" + "元");
         if (isRepeat) {
             promiseQueryDetail(recordId);
             promiseQueryDetail(recordId);
@@ -264,7 +267,7 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".collectSesame.queryCreditFeedback", jo.optString("resultView"));
                 return;
             }
-            JSONArray ojbect = jo.getJSONArray("ojbect");
+            JSONArray ojbect = jo.getJSONArray("creditFeedbackVOS");
             for (int i = 0; i < ojbect.length(); i++) {
                 jo = ojbect.getJSONObject(i);
                 if (!"UNCLAIMED".equals(jo.getString("status"))) {
@@ -309,16 +312,15 @@ public class SesameCredit extends ModelTask {
                 jo = modules.getJSONObject(i);
                 String name = jo.getString("name");
                 if ("签到配置".equals(name)) {
-                    insBlueBeanTask(SesameCreditRpcCall.getValueByPath(jo, "content.signConfig.appletId"));
+                    insBlueBeanTask(JsonUtil.getValueByPath(jo, "content.signConfig.appletId"));
                 } else if (("兑换时光加速器".equals(name) && insBlueBeanExchange.getValue())
                         || ("10份黄金票".equals(name) && insBlueBeanExchangeGoldTicket.getValue())) {
-                    insBlueBeanExchange(SesameCreditRpcCall.getValueByPath(jo, "content.beanDeductBanner.oneStopId"));
+                    insBlueBeanExchange(JsonUtil.getValueByPath(jo, "content.beanDeductBanner.oneStopId"));
                 } else if ("任务分类".equals(name)) {
-                    String str = SesameCreditRpcCall.getValueByPath(jo, "content.taskClassification");
-                    if (str == null) {
-                        return;
+                    JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jo, "content.taskClassification");
+                    if (jsonArray == null) {
+                        continue;
                     }
-                    JSONArray jsonArray = new JSONArray(str);
                     for (int j = 0; j < jsonArray.length(); j++) {
                         jo = jsonArray.getJSONObject(j);
                         JSONArray ja = jo.getJSONArray("taskAppletIdList");
@@ -354,8 +356,10 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".insBlueBeanPlanConsult.planConsult", jsonObject.optString("resultView"));
                 return;
             }
-            str = SesameCreditRpcCall.getValueByPath(jsonObject, "result.rspContext.params.taskAppletResult");
-            JSONArray jsonArray = new JSONArray(str);
+            JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.rspContext.params.taskAppletResult");
+            if (jsonArray == null) {
+                return;
+            }
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
                 insBlueBeanTask(jsonObject.optString("appletId"));
@@ -398,7 +402,7 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".insBlueBeanTask.taskTrigger", joTrigger.optString("resultView"));
                 return;
             }
-            Log.other("安心豆🥔[" + SesameCreditRpcCall.getValueByPath(joTrigger, "result.prizeSendOrderDTOList.[0].prizeName") + "]完成");
+            Log.other("安心豆🥔[" + JsonUtil.getValueByPath(joTrigger, "result.prizeSendOrderDTOList.[0].prizeName") + "]完成");
         } catch (Throwable t) {
             Log.i(TAG, "insBlueBeanTask err:");
             Log.printStackTrace(TAG, t);

@@ -7,9 +7,24 @@ import tkaxv7s.xposed.sesame.hook.ApplicationHook;
  */
 public class EcoLifeRpcCall {
 
+    /**
+     * 查询绿色行动
+     *
+     * @return 结果
+     */
     public static String queryHomePage() {
         return ApplicationHook.requestString("alipay.ecolife.rpc.h5.queryHomePage",
                 "[{\"channel\":\"ALIPAY\",\"source\":\"search_brandbox\"}]");
+    }
+
+    /**
+     * 开通绿色行动
+     *
+     * @return 结果
+     */
+    public static String openEcolife() {
+        return ApplicationHook.requestString("alipay.ecolife.rpc.h5.openEcolife",
+                "[{\"channel\":\"ALIPAY\",\"source\":\"renwuGD\"}]");
     }
 
     /**
@@ -17,7 +32,7 @@ public class EcoLifeRpcCall {
      *
      * @param actionId actionId
      * @param dayPoint 当前日期
-     * @param source 来源renwuGD,photo-comparison,search_brandbox
+     * @param source   来源renwuGD,photo-comparison,search_brandbox
      * @return 结果
      */
     public static String tick(String actionId, String dayPoint, String source) {
@@ -36,7 +51,7 @@ public class EcoLifeRpcCall {
     public static String queryDish(String source, String dayPoint) {
         return ApplicationHook.requestString("alipay.ecolife.rpc.h5.queryDish",
                 "[{\"channel\":\"ALIPAY\",\"dayPoint\":\"" + dayPoint
-                        + "\",\"source\":\"photo-comparison\"}]");
+                        + "\",\"source\":\"" + source + "\"}]");
     }
 
     /**

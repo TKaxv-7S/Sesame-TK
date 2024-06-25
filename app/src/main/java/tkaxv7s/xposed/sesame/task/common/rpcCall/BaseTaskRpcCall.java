@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.task.common.rpcCall;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 
 /**
@@ -99,7 +100,7 @@ public class BaseTaskRpcCall {
                     continue;
                 }
                 //RECEIVE_SUCCESS一次性已完成的
-                Log.other(name + "[" + getValueByPath(taskDetail, "taskExtProps.TASK_MORPHO_DETAIL.title") + "]任务完成");
+                Log.other(name + "[" + JsonUtil.getValueByPath(taskDetail, "taskExtProps.TASK_MORPHO_DETAIL.title") + "]任务完成");
             }
         } catch (Throwable th) {
             Log.i(tag, "doTask err:");
@@ -107,46 +108,4 @@ public class BaseTaskRpcCall {
         }
     }
 
-    /**
-     * 根据给定的点分隔符路径从JSONObject中获取值。
-     *
-     * @param jsonObject JSONObject对象
-     * @param path       点分隔符或包含嵌套属性的形式的路径，例如 "taskExtProps.TASK_MORPHO_DETAIL.[0].title"
-     * @return 找到值的话返回其String表现形式；如果任何层级键不存在或不是预期类型，则返回 null。
-     */
-    public static String getValueByPath(JSONObject jsonObject, String path) {
-        // 使用正斜杠/作为Token分隔符号来直接跳过数组下标的解析逻辑部分并直接取嵌套属性
-        // 使用正则表达式分割，但保留[]内的内容
-        String[] parts = path.split("\\.");
-        try {
-            Object current = jsonObject;
-            for (String part : parts) {
-                if (current instanceof JSONObject) {
-                    //对象取属性
-                    current = ((JSONObject) current).get(part);
-                } else if (current instanceof JSONArray) {
-                    //数组取索引
-                    JSONArray array = (JSONArray) current;
-                    String p = part.replaceAll("\\D", "");
-                    int index = Integer.parseInt(p);
-                    current = array.get(index);
-                } else if (part.contains("[")) {
-                    //不是对象、数组，当成字符串重新解析，如果字符串是数组
-                    JSONArray array = new JSONArray(current.toString());
-                    String p = part.replaceAll("\\D", "");
-                    int index = Integer.parseInt(p);
-                    current = array.get(index);
-                } else {
-                    //不是对象、数组，当成字符串重新解析，再取属性
-                    JSONObject object = new JSONObject(current.toString());
-                    current = object.get(part);
-                }
-            }
-            // 返回结果时检查是否确实找到了相应的值且非null，并转换成字符串形式返回
-            return (current != null) ? String.valueOf(current) : null;
-        } catch (Exception e) {
-            // JSONException、NumberFormatException等异常都被捕获，并默认行为是返回null.
-            return null;
-        }
-    }
 }

@@ -4,6 +4,7 @@ import org.json.JSONArray;
 
 import java.util.UUID;
 
+import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 
 /**
@@ -11,6 +12,7 @@ import tkaxv7s.xposed.sesame.hook.ApplicationHook;
  * @since 2023/08/22
  */
 public class AntStallRpcCall {
+    //0.1.2406171355.5
     private static final String VERSION = "0.1.2312271038.27";
 
     public static String home() {
@@ -72,10 +74,10 @@ public class AntStallRpcCall {
                 "[{\"source\":\"ANTFARM\",\"systemType\":\"android\",\"version\":\"" + VERSION + "\"}]");
     }
 
-    public static String friendHome(String userId) {
+    public static String friendHome(String userId, String source) {
         return ApplicationHook.requestString("com.alipay.antstall.friend.home",
                 "[{\"arouseAppParams\":{},\"friendUserId\":\"" + userId +
-                        "\",\"source\":\"ANTFARM\",\"systemType\":\"android\",\"version\":\"" + VERSION + "\"}]");
+                        "\",\"source\":\"" + source + "\",\"systemType\":\"android\",\"version\":\"" + VERSION + "\"}]");
     }
 
 
@@ -96,6 +98,29 @@ public class AntStallRpcCall {
                 "[{\"outBizNo\":\"" + outBizNo +
                         "\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTSTALL_TASK\",\"source\":\"AST\",\"systemType\":\"android\",\"taskType\":\"" +
                         taskType + "\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    public static String xlightPlugin() {
+        return ApplicationHook.requestString("com.alipay.adexchange.ad.facade.xlightPlugin",
+                "[{\"positionRequest\":{\"extMap\":{\"xlightPlayInstanceId\":\"300004\"},\"referInfo\":{}," +
+                        "\"spaceCode\":\"ANT_FARM_NEW_VILLAGE\"},\"sdkPageInfo\":{\"adComponentType\":\"FEEDS\"," +
+                        "\"adComponentVersion\":\"4.11.13\",\"enableFusion\":true,\"networkType\":\"WIFI\"," +
+                        "\"pageFrom\":\"ch_url-https://68687809.h5app.alipay.com/www/game.html\",\"pageNo\":1," +
+                        "\"pageUrl\":\"https://render.alipay.com/p/yuyan/180020010001256918/multi-stage-task.html?caprMode=sync&spaceCodeFeeds=ANT_FARM_NEW_VILLAGE&usePlayLink=true&xlightPlayInstanceId=300004\"," +
+                        "\"session\":\"u_54b721d9fffd6_1904b8eba8f\",\"unionAppId\":\"2060090000304921\"," +
+                        "\"usePlayLink\":\"true\",\"xlightSDKType\":\"h5\",\"xlightSDKVersion\":\"4.11.13\"}}]");
+    }
+
+    public static String finish(String playBizId, JSONObject jsonObject) {
+        return ApplicationHook.requestString("com.alipay.adtask.biz.mobilegw.service.interaction.finish",
+                "[{\"extendInfo\":{\"iepTaskSceneCode\":\"ANTSTALL_TASK\",\"iepTaskType\":" +
+                        "\"ANTSTALL_XLIGHT_VARIABLE_AWARD\"},\"playBizId\":\"" + playBizId +
+                        "\",\"playEventInfo\":" + jsonObject + ",\"source\":\"adx\" }]");
+    }
+
+    public static String queryCallAppSchema(String sceneCode) {
+        return ApplicationHook.requestString("alipay.antmember.callApp.queryCallAppSchema",
+                "[{\"sceneCode\":\"" + sceneCode + "\" }]");
     }
 
     public static String receiveTaskAward(String taskType) {
@@ -233,6 +258,30 @@ public class AntStallRpcCall {
     public static String settleReceivable() {
         return ApplicationHook.requestString("com.alipay.antstall.self.settle.receivable",
                 "[{\"source\":\"ch_appcenter__chsub_9patch\",\"systemType\":\"android\",\"version\":\""
+                        + VERSION + "\"}]");
+    }
+
+    /**
+     * 查找下一个可以贴罚单的好友
+     *
+     * @return
+     */
+    public static String nextTicketFriend() {
+        return ApplicationHook.requestString("com.alipay.antstall.friend.nextTicketFriend",
+                "[{\"source\":\"ch_appcenter__chsub_9patch\",\"systemType\":\"android\",\"version\":\""
+                        + VERSION + "\"}]");
+    }
+
+    /**
+     * 贴罚单
+     *
+     * @return
+     */
+    public static String ticket(String billNo, String seatId, String shopId, String shopUserId, String seatUserId) {
+        return ApplicationHook.requestString("com.alipay.antstall.friend.paste.ticket",
+                "[{\"billNo\":\"" + billNo + "\",\"seatId\":\"" + seatId + "\",\"shopId\":\"" + shopId
+                        + "\",\"shopUserId\":\"" + shopUserId + "\",\"seatUserId\": \"" + seatUserId + "\","
+                        + "\"source\":\"ch_appcenter__chsub_9patch\",\"systemType\":\"android\",\"version\":\""
                         + VERSION + "\"}]");
     }
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ListModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.StringModelField;
 import tkaxv7s.xposed.sesame.util.ListUtil;
 
 /**
@@ -41,6 +42,10 @@ public class BaseModel extends ModelTask {
     private static final BooleanModelField showToast = new BooleanModelField("showToast", "气泡提示", true);
     @Getter
     private static final IntegerModelField toastOffsetY = new IntegerModelField("toastOffsetY", "气泡纵向偏移", 0);
+    @Getter
+    private static final StringModelField geminiKey = new StringModelField("geminiKey", "Gemini Key(默认能用就用,不要填)", "");
+    @Getter
+    private static final StringModelField geminiUrl = new StringModelField("geminiUrl", "Gemini地址", "");
 
     @Override
     public String setName() {
@@ -65,6 +70,8 @@ public class BaseModel extends ModelTask {
         modelFields.addField(languageSimplifiedChinese);
         modelFields.addField(showToast);
         modelFields.addField(toastOffsetY);
+        modelFields.addField(geminiKey);
+        modelFields.addField(geminiUrl);
         return modelFields;
     }
 

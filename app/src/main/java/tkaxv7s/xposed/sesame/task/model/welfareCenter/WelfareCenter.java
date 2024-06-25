@@ -7,6 +7,7 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 
 
@@ -126,7 +127,7 @@ public class WelfareCenter extends ModelTask {
                 Log.i(TAG + ".signIn", jsonObject.optString("resultDesc"));
                 return;
             }
-            Log.other("福利金🤑签到成功" + WelfareCenterRpcCall.getValueByPath(jsonObject, "result.prizeOrderDTOList.[0].price"));
+            Log.other("福利金🤑签到成功" + JsonUtil.getValueByPath(jsonObject, "result.prizeOrderDTOList.[0].price"));
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
             Log.printStackTrace(TAG, th);

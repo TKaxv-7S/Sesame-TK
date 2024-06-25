@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.util;
 
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author Constanline
@@ -165,4 +166,18 @@ public class TimeUtil {
             Log.printStackTrace(e);
         }
     }
+
+    /**
+     * 获取指定时间的周数
+     * @param dateTime 时间
+     * @return 当前年的第几周
+     */
+    public static int getWeekNumber(Date dateTime) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateTime);
+        // 设置周的第一天为周一
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        return calendar.get(Calendar.WEEK_OF_YEAR);
+    }
+
 }
