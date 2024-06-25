@@ -95,8 +95,8 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "允许他人摆摊时长", 121));
         modelFields.addField(stallSelfOpenTime = new IntegerModelField("stallSelfOpenTime", "自己收摊时长", 120));
         modelFields.addField(stallDonate = new BooleanModelField("stallDonate", "新村自动捐赠", false));
-        modelFields.addField(stallInviteRegister = new BooleanModelField("stallInviteRegister", "邀请好友开通新村", false));
-        modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请好友开通新村列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(stallInviteRegister = new BooleanModelField("stallInviteRegister", "邀请 | 邀请好友开通新村", false));
+        modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(assistFriendList = new SelectModelField("assistFriendList", "助力好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(stallThrowManure = new BooleanModelField("stallThrowManure", "新村丢肥料", false));
         modelFields.addField(stallInviteShopList = new SelectModelField("stallInviteShopList", "新村邀请摆摊列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
