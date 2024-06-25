@@ -1,12 +1,12 @@
 package tkaxv7s.xposed.sesame.util;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import lombok.Data;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
 
 import java.io.File;
 import java.util.*;
-
-import lombok.Data;
-import tkaxv7s.xposed.sesame.task.model.antForest.AntForestV2;
 
 @Data
 public class Statistics {
@@ -546,7 +546,12 @@ public class Statistics {
         Statistics stat = INSTANCE;
         if (stat.exchangeDoubleCard < stat.day.time) {
             return true;
-        } else return stat.exchangeTimes < AntForestV2.exchangeEnergyDoubleClickCount.getValue();
+        }
+        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+        if (task == null) {
+            return false;
+        }
+        return stat.exchangeTimes < task.getExchangeEnergyDoubleClickCount().getValue();
     }
 
     public static void exchangeDoubleCardToday(boolean isSuccess) {
@@ -557,7 +562,12 @@ public class Statistics {
         if (isSuccess) {
             stat.exchangeTimes += 1;
         } else {
-            stat.exchangeTimes = AntForestV2.exchangeEnergyDoubleClickCount.getValue();
+            AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+            if (task == null) {
+                stat.exchangeTimes = 0;
+            } else {
+                stat.exchangeTimes = task.getExchangeEnergyDoubleClickCount().getValue();
+            }
         }
         save();
     }
@@ -566,7 +576,12 @@ public class Statistics {
         Statistics stat = INSTANCE;
         if (stat.exchangeDoubleCard < stat.day.time) {
             return true;
-        } else return stat.exchangeTimesLongTime < AntForestV2.exchangeEnergyDoubleClickCountLongTime.getValue();
+        }
+        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+        if (task == null) {
+            return false;
+        }
+        return stat.exchangeTimesLongTime < task.getExchangeEnergyDoubleClickCountLongTime().getValue();
     }
 
     public static void exchangeDoubleCardTodayLongTime(boolean isSuccess) {
@@ -603,7 +618,11 @@ public class Statistics {
     }
 
     public static boolean canDoubleToday() {
-        return INSTANCE.doubleTimes < AntForestV2.doubleCountLimit.getValue();
+        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+        if (task == null) {
+            return false;
+        }
+        return INSTANCE.doubleTimes < task.getDoubleCountLimit().getValue();
     }
 
     public static void DoubleToday() {

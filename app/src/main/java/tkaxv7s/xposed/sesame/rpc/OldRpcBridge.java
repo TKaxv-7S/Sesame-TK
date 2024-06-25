@@ -2,7 +2,7 @@ package tkaxv7s.xposed.sesame.rpc;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import tkaxv7s.xposed.sesame.data.BaseModel;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;

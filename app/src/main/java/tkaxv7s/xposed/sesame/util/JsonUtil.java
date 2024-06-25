@@ -1,16 +1,11 @@
 package tkaxv7s.xposed.sesame.util;
 
 import android.annotation.SuppressLint;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -320,4 +315,18 @@ public class JsonUtil {
             return null;
         }
     }
+
+    public static List<String> jsonArrayToList(JSONArray jsonArray) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0, len = jsonArray.length(); i < len; i++) {
+            try {
+                list.add(jsonArray.getString(i));
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                list.add("");
+            }
+        }
+        return list;
+    }
+
 }

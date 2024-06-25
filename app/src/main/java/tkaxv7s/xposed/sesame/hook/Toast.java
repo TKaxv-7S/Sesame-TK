@@ -3,8 +3,7 @@ package tkaxv7s.xposed.sesame.hook;
 import android.content.Context;
 import android.os.Handler;
 
-import tkaxv7s.xposed.sesame.data.BaseModel;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.Log;
 
 public class Toast {

@@ -1,14 +1,13 @@
 package tkaxv7s.xposed.sesame.data;
 
 import android.os.Build;
+import lombok.Getter;
+import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
-import lombok.Getter;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
 public abstract class BaseTask {
 
@@ -32,10 +31,6 @@ public abstract class BaseTask {
     public abstract Boolean check();
 
     public abstract Runnable init();
-
-    public synchronized void destroy() {
-
-    }
 
     public synchronized Boolean hasChildTask(String childId) {
         return childTaskMap.containsKey(childId);

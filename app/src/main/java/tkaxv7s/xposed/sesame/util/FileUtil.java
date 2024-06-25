@@ -418,7 +418,11 @@ public class FileUtil {
                     continue;
                 }
             }
-            clearFile(file);
+            try {
+                file.delete();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 

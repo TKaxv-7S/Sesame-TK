@@ -1,7 +1,7 @@
 package tkaxv7s.xposed.sesame.rpc;
 
 import de.robv.android.xposed.XposedHelpers;
-import tkaxv7s.xposed.sesame.data.BaseModel;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.ClassUtil;
