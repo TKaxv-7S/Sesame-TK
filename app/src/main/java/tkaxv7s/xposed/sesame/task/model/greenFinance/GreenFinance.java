@@ -8,8 +8,9 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
-import tkaxv7s.xposed.sesame.task.model.welfareCenter.WelfareCenterRpcCall;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.TimeUtil;
 
 import java.util.*;
 
@@ -217,7 +218,7 @@ public class GreenFinance extends ModelTask {
                 str = GreenFinanceRpcCall.submitTick(type, jsonObject.getString("behaviorCode"));
                 JSONObject object = new JSONObject(str);
                 if (!object.getBoolean("success")
-                        || !String.valueOf(true).equals(GreenFinanceRpcCall.getValueByPath(object, "result.result"))) {
+                        || !String.valueOf(true).equals(JsonUtil.getValueByPath(object, "result.result"))) {
                     Log.i(TAG + ".doTick.submitTick", object.optString("resultDesc"));
                     continue;
                 }
@@ -250,7 +251,7 @@ public class GreenFinance extends ModelTask {
                 Log.i(TAG + ".donation.queryExpireMcaPoint", jsonObject.optString("resultDesc"));
                 return;
             }
-            String strAmount = WelfareCenterRpcCall.getValueByPath(jsonObject, "result.expirePoint.amount");
+            String strAmount = JsonUtil.getValueByPath(jsonObject, "result.expirePoint.amount");
             if (strAmount == null || strAmount.isEmpty() || !strAmount.matches("-?\\d+(\\.\\d+)?")) {
                 return;
             }
@@ -270,7 +271,7 @@ public class GreenFinance extends ModelTask {
             TreeMap<String, String> dicId = new TreeMap<>();
             for (int i = 0; i < result.length(); i++) {
                 jsonObject = result.getJSONObject(i);
-                str = GreenFinanceRpcCall.getValueByPath(jsonObject, "mcaDonationProjectResult.[0]");
+                str = JsonUtil.getValueByPath(jsonObject, "mcaDonationProjectResult.[0]");
                 if (str == null || str.isEmpty()) {
                     continue;
                 }
@@ -310,21 +311,92 @@ public class GreenFinance extends ModelTask {
     }
 
     /**
+     * 评级
+     */
+    private void prizes() {
+        try {
+            String str = GreenFinanceRpcCall.campTrigger("CP14664674");
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".prizes.campTrigger", jsonObject.optString("resultDesc"));
+                return;
+            }
+            Log.other("绿色经营📊绿色评级");
+        } catch (Throwable th) {
+            Log.i(TAG, "prizes err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    /**
+     * 评级任务
+     */
+    private void prizesTask() {
+        try {
+            //biz/screditgrowup/upload/1fac-fd0ab983-4e5e-412f-b882-d0c096c7ddaf.jpg
+            String str = GreenFinanceRpcCall.proveTask("classifyTrashCanProve", "biz/screditgrowup/upload/1fac-fd0ab983-4e5e-412f-b882-d0c096c7ddaf.jpg");
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".prizesTask.proveTask", jsonObject.optString("resultDesc"));
+                return;
+            }
+            String taskId = JsonUtil.getValueByPath(jsonObject, "result.taskId");
+            if (taskId == null) {
+                return;
+            }
+            TimeUtil.sleep(2000);
+            while (true) {
+                str = GreenFinanceRpcCall.queryProveTaskStatus(taskId);
+                jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".prizesTask.proveTask", jsonObject.optString("resultDesc"));
+                    continue;
+                }
+                String status = JsonUtil.getValueByPath(jsonObject, "result.status");
+                if ("FAIL".equals(status)|| "SUCCESS".equals(status)) {
+                    break;
+                }
+                TimeUtil.sleep(2000);
+            }
+            Log.other("绿色经营📊绿色评级任务");
+        } catch (Throwable th) {
+            Log.i(TAG, "prizesTask err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    /**
      * 计算次数和金额
      *
      * @param amount        最小金额
      * @param maxDeductions 最大次数
      * @return [次数，最后一次的金额]
      */
-    private int[] calculateDeductions(final int amount, final int maxDeductions) {
+    private int[] calculateDeductions(int amount, int maxDeductions) {
         if (amount < 200) {
-            return new int[]{1, 200}; // 小于 200 时特殊处理
+            // 小于 200 时特殊处理
+            return new int[]{1, 200};
         }
-        int actualDeductions = Math.min(maxDeductions, (int) Math.ceil((double) (amount) / 200)); // 实际扣款次数，不能超过最大次数
-        int remainingAmount = amount - actualDeductions * 200; // 剩余金额
+        // 实际扣款次数，不能超过最大次数
+        int actualDeductions = Math.min(maxDeductions, (int) Math.ceil((double) (amount) / 200));
+        // 剩余金额
+        int remainingAmount = amount - actualDeductions * 200;
         // 调整剩余金额为 100 的倍数，且不小于 200
         if (remainingAmount % 100 != 0) {
-            remainingAmount = ((remainingAmount + 99) / 100) * 100; // 向上取整到最近的 100 倍数
+            // 向上取整到最近的 100 倍数
+            remainingAmount = ((remainingAmount + 99) / 100) * 100;
         }
         if (remainingAmount < 200) {
             remainingAmount = 200;

@@ -46,11 +46,18 @@ public class AntStall extends ModelTask {
 
     static {
         taskTypeList = new ArrayList<>();
-        taskTypeList.add("ANTSTALL_NORMAL_OPEN_NOTICE");// 开启收新村收益提醒
-        taskTypeList.add("tianjiashouye");// 添加首页
-        taskTypeList.add("SHANGYEHUA_ceshi");// 【木兰市集】逛精选好物
-        taskTypeList.add("ANTSTALL_ELEME_VISIT");// 去饿了么果园逛一逛
-        taskTypeList.add("ANTSTALL_TASK_diantao202311");// 去点淘赚元宝提现
+        // 开启收新村收益提醒
+        taskTypeList.add("ANTSTALL_NORMAL_OPEN_NOTICE");
+        // 添加首页
+        taskTypeList.add("tianjiashouye");
+        // 【木兰市集】逛精选好物
+        taskTypeList.add("ANTSTALL_XLIGHT_VARIABLE_AWARD");
+        // 去饿了么果园逛一逛
+        taskTypeList.add("ANTSTALL_ELEME_VISIT");
+        // 去点淘赚元宝提现
+        taskTypeList.add("ANTSTALL_TASK_diantao202311");
+        taskTypeList.add("ANTSTALL_TASK_nongchangleyuan");
+        taskTypeList.add("ANTSTALL_TASK_taojinbihuanduan");
     }
 
     @Override
@@ -111,8 +118,8 @@ public class AntStall extends ModelTask {
 
     public Runnable init() {
         return () -> {
-            String s = AntStallRpcCall.home();
             try {
+                String s = AntStallRpcCall.home();
                 JSONObject jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     if (!jo.getBoolean("hasRegister") || jo.getBoolean("hasQuit")) {
@@ -143,23 +150,21 @@ public class AntStall extends ModelTask {
                     if (stallAutoOpen.getValue()) {
                         openShop();
                     }
-
-
                     if (stallAutoTask.getValue()) {
                         taskList();
                     }
-//                    achieveBeShareP2P();
-
                     if (stallDonate.getValue()) {
                         roadmap();
                     }
-                    assistFriend();
                 } else {
                     Log.record("home err:" + " " + s);
                 }
             } catch (Throwable t) {
                 Log.i(TAG, "home err:");
                 Log.printStackTrace(TAG, t);
+            }finally {
+                //不受没有开通的影响
+                assistFriend();
             }
         };
     }
@@ -264,7 +269,7 @@ public class AntStall extends ModelTask {
                 if (fullShow || settleCoin > 100) {
                     String s = AntStallRpcCall.settle(assetId, settleCoin);
                     JSONObject jo = new JSONObject(s);
-                    if (jo.getString("resultCode").equals("SUCCESS")) {
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
                         Log.farm("蚂蚁新村⛪[收取金币]#" + settleCoin);
                     } else {
                         Log.record("settle err:" + " " + s);
@@ -599,7 +604,7 @@ public class AntStall extends ModelTask {
      */
     private void assistFriend() {
         try {
-            if (!Statistics.canAntStallAssistFriendToday()){
+            if (Statistics.canAntStallAssistFriendToday()) {
                 Log.record("新村助力🎈今日助力他人次数上限");
                 return;
             }
@@ -608,21 +613,27 @@ public class AntStall extends ModelTask {
                 String shareId = Base64.encodeToString((uid + "-m5o3bANUTSALTML_2PA_SHARE").getBytes(), Base64.NO_WRAP);
                 String str = AntStallRpcCall.achieveBeShareP2P(shareId);
                 JSONObject jsonObject = new JSONObject(str);
+                Thread.sleep(5000);
+                String name = UserIdMap.getNameById(uid);
                 if (!jsonObject.getBoolean("success")) {
                     String code = jsonObject.getString("code");
                     if ("600000028".equals(code)) {
-                        Log.record("被助力次数上限: " + UserIdMap.getNameById(uid));
+                        Log.record("新村助力🎈被助力次数上限[" + name+"]");
                         continue;
                     }
                     if ("600000027".equals(code)) {
-                        Log.record("今日助力他人次数上限");
+                        Log.record("新村助力🎈今日助力他人次数上限");
                         Statistics.antStallAssistFriendToday();
                         return;
                     }
-                    Log.record("助力失败:" + jsonObject.optString("message"));
+                    //600000010 人传人邀请关系不存在
+                    //600000015 人传人完成邀请，菲方用户
+                    //600000031 人传人完成邀请过于频繁
+                    //600000029 人传人分享一对一接受邀请达到限制
+                    Log.record("新村助力🎈失败[" + name + "]" + jsonObject.optString("desc"));
                     continue;
                 }
-                Log.farm("新村助力🎈[" + UserIdMap.getNameById(uid) + "]成功");
+                Log.farm("新村助力🎈成功[" + name + "]");
             }
         } catch (Throwable t) {
             Log.i(TAG, "assistFriend err:");

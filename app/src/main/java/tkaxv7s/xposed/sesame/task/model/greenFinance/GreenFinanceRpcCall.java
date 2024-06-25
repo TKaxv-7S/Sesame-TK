@@ -44,6 +44,7 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
 
     /**
      * 查询打卡记录
+     *
      * @param firstBehaviorType 打卡类型
      * @return 结果
      */
@@ -54,8 +55,9 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
 
     /**
      * 提交打卡
-     * @param firstBehaviorType  打卡类型
-     * @param behaviorCode 记录编码
+     *
+     * @param firstBehaviorType 打卡类型
+     * @param behaviorCode      记录编码
      * @return 结果
      */
     public static String submitTick(String firstBehaviorType, String behaviorCode) {
@@ -91,7 +93,7 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
      * 捐助
      *
      * @param projectId 项目id
-     * @param amount 金额
+     * @param amount    金额
      * @return 结果
      */
     public static String donation(String projectId, String amount) {
@@ -101,4 +103,38 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
                         "\",\"outbizNo\":\"" + System.currentTimeMillis() + "\",\"projectId\":\"" + projectId + "\"}]");
     }
 
+    /**
+     * 绿色评级
+     *
+     * @param campId campId
+     * @return 结果
+     */
+    public static String campTrigger(String campId) {
+        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.camp.trigger",
+                "[{\"campId\":\"" + campId + "\"}]");
+    }
+
+    /**
+     * 绿色评级
+     *
+     * @param bizType  类型ECO_FRIENDLY_BAG_PROVE、classifyTrashCanProve
+     * @param imageUrl 图片路径
+     * @return 结果
+     */
+    public static String proveTask(String bizType, String imageUrl) {
+        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceProveTaskService.proveTask",
+                "[{\"bizType\":\"" + bizType + "\",\"custType\":\"MERCHANT\",\"imageUrl\":\"" + imageUrl +
+                        "\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
+    }
+
+    /**
+     * 绿色评级
+     *
+     * @param taskId 任务ID
+     * @return 结果
+     */
+    public static String queryProveTaskStatus(String taskId) {
+        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceProveTaskService.queryProveTaskStatus",
+                "[{\"taskId\":\"" + taskId + "\",\"custType\":\"MERCHANT\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
+    }
 }

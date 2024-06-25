@@ -4,6 +4,7 @@ import org.json.JSONArray;
 
 import java.util.UUID;
 
+import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 
 /**
@@ -97,6 +98,19 @@ public class AntStallRpcCall {
                         "\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTSTALL_TASK\",\"source\":\"AST\",\"systemType\":\"android\",\"taskType\":\"" +
                         taskType + "\",\"version\":\"" + VERSION + "\"}]");
     }
+
+    public static String xlightPlugin() {
+        return ApplicationHook.requestString("com.alipay.adexchange.ad.facade.xlightPlugin",
+                "[{\"positionRequest\":{\"extMap\":{\"xlightPlayInstanceId\":\"300004\"},\"referInfo\":{},\"spaceCode\":\"ANT_FARM_NEW_VILLAGE\"},\"sdkPageInfo\":{\"adComponentType\":\"FEEDS\",\"adComponentVersion\":\"4.11.13\",\"enableFusion\":true,\"networkType\":\"WIFI\",\"pageFrom\":\"ch_url-https://68687809.h5app.alipay.com/www/game.html\",\"pageNo\":1,\"pageUrl\":\"https://render.alipay.com/p/yuyan/180020010001256918/multi-stage-task.html?caprMode=sync&spaceCodeFeeds=ANT_FARM_NEW_VILLAGE&usePlayLink=true&xlightPlayInstanceId=300004\",\"session\":\"u_54b721d9fffd6_1904b8eba8f\",\"unionAppId\":\"2060090000304921\",\"usePlayLink\":\"true\",\"xlightSDKType\":\"h5\",\"xlightSDKVersion\":\"4.11.13\"}}]");
+    }
+
+    public static String finish(String playBizId, JSONObject jsonObject) {
+        return ApplicationHook.requestString("com.alipay.adtask.biz.mobilegw.service.interaction.finish",
+                "[{\"extendInfo\":{\"iepTaskSceneCode\":\"ANTSTALL_TASK\",\"iepTaskType\":" +
+                        "\"ANTSTALL_XLIGHT_VARIABLE_AWARD\"},\"playBizId\":\"" + playBizId +
+                        "\",\"playEventInfo\":" + jsonObject + ",\"source\":\"adx\" }]");
+    }
+
 
     public static String receiveTaskAward(String taskType) {
         return ApplicationHook.requestString("com.alipay.antiep.receiveTaskAward",

@@ -1,7 +1,9 @@
 package tkaxv7s.xposed.sesame.task.model.readingDada;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import tkaxv7s.xposed.sesame.util.GeminiUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
 
@@ -28,7 +30,12 @@ public class ReadingDada {
             String s = ReadingDadaRpcCall.getQuestion(activityId);
             JSONObject jo = new JSONObject(s);
             if ("200".equals(jo.getString("resultCode"))) {
-                String answer = jo.getJSONArray("options").getString(0);
+                JSONArray jsonArray = jo.getJSONArray("options");
+                String question = jo.getString("title");
+                String answer = GeminiUtil.getInstance().getAnswer(question, jsonArray);
+                if (answer == null || answer.isEmpty()) {
+                    answer = jsonArray.getString(0);
+                }
                 s = ReadingDadaRpcCall.submitAnswer(activityId, outBizId, jo.getString("questionId"), answer);
                 jo = new JSONObject(s);
                 if ("200".equals(jo.getString("resultCode"))) {

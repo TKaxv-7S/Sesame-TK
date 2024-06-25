@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.Data;
-import tkaxv7s.xposed.sesame.task.model.antCooperate.AntCooperate;
 import tkaxv7s.xposed.sesame.task.model.antForest.AntForestV2;
 
 @Data
@@ -51,9 +50,9 @@ public class Statistics {
     private ArrayList<String> spreadManureList = new ArrayList<>();
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
     /**
-     * 新村助力好友
+     * 新村助力好友，已上限的用户
      */
-    private int antStallAssistFriend = 0;
+    private List<String> antStallAssistFriend = new ArrayList<>();
 
     // other
     private ArrayList<String> memberSignInList = new ArrayList<>();
@@ -490,11 +489,10 @@ public class Statistics {
 
     /**
      * 是否新村助力已到上限
-     * @return
+     * @return true是，false否
      */
     public static boolean canAntStallAssistFriendToday() {
-        Statistics stat = INSTANCE;
-        return stat.antStallAssistFriend < stat.day.time;
+        return INSTANCE.antStallAssistFriend.contains(UserIdMap.getCurrentUid());
     }
 
     /**
@@ -502,8 +500,9 @@ public class Statistics {
      */
     public static void antStallAssistFriendToday() {
         Statistics stat = INSTANCE;
-        if (stat.antStallAssistFriend != stat.day.time) {
-            stat.antStallAssistFriend = stat.day.time;
+        String uid = UserIdMap.getCurrentUid();
+        if (!stat.antStallAssistFriend.contains(uid)) {
+            stat.antStallAssistFriend.add(uid);
             save();
         }
     }
@@ -661,6 +660,7 @@ public class Statistics {
         stat.exchangeTimes = 0;
         stat.exchangeTimesLongTime = 0;
         stat.doubleTimes = 0;
+        stat.antStallAssistFriend.clear();
         save();
     }
 
