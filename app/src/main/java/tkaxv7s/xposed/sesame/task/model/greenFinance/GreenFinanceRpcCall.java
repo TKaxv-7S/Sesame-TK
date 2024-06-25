@@ -6,6 +6,11 @@ import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.task.common.rpcCall.BaseTaskRpcCall;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
+/**
+ * 绿色经营Rpc请求类
+ *
+ * @author xiong
+ */
 public class GreenFinanceRpcCall extends BaseTaskRpcCall {
 
     /**
@@ -137,4 +142,34 @@ public class GreenFinanceRpcCall extends BaseTaskRpcCall {
         return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.newservice.GreenFinanceProveTaskService.queryProveTaskStatus",
                 "[{\"taskId\":\"" + taskId + "\",\"custType\":\"MERCHANT\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
     }
+
+    /**
+     * 查询好友列表
+     *
+     * @return
+     */
+    public static String queryRankingList(int startIndex) {
+        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinanceUserInteractionQueryService.queryRankingList",
+                "[{\"clientVersion\":\"VERSION2\",\"custType\":\"MERCHANT\",\"includeMe\":true," +
+                        "\"onlyRealFriend\":true,\"pageLimit\":10,\"rankingScene\":\"FRIEND\"," +
+                        "\"rankingType\":\"OVERALL\",\"startIndex\":" + startIndex + ",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
+    }
+
+    /**
+     * 查询一个可以收金币的好友
+     *
+     * @return
+     */
+    public static String queryGuestIndexPoints(String guestId) {
+        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinanceUserInteractionQueryService.queryGuestIndexPoints",
+                "[{\"clientVersion\":\"VERSION2\",\"custType\":\"MERCHANT\",\"guestCustType\":\"MERCHANT\",\"guestUid\":\"" +
+                        guestId + "\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
+    }
+
+    public static String batchSteal(JSONArray bsnIds, String collectedUid) {
+        return ApplicationHook.requestString("com.alipay.mcaplatformunit.common.mobile.service.GreenFinancePointCollectService.batchSteal",
+                "[{\"bsnIds\":" + bsnIds + ",\"clientVersion\":\"VERSION2\",\"collectedCustType\":\"MERCHANT\"," +
+                        "\"collectedUid\":\"" + collectedUid + "\",\"custType\":\"MERCHANT\",\"uid\":\"" + UserIdMap.getCurrentUid() + "\"}]");
+    }
+
 }

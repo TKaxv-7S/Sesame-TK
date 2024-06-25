@@ -103,8 +103,8 @@ public class GameCenter extends ModelTask {
                 Log.i(TAG + ".batchReceive.queryPointBallList", jsonObject.optString("resultDesc"));
                 return;
             }
-            str = JsonUtil.getValueByPath(jsonObject, "data.pointBallList");
-            if (str == null || str.isEmpty() || new JSONArray(str).length() == 0) {
+            JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "data.pointBallList");
+            if (jsonArray == null || jsonArray.length() == 0) {
                 return;
             }
             str = GameCenterRpcCall.batchReceivePointBall();

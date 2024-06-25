@@ -10,6 +10,7 @@ import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.task.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.Statistics;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 
 import java.util.*;
@@ -30,6 +31,10 @@ public class GreenFinance extends ModelTask {
     private BooleanModelField greenFinanceLswl;
     private BooleanModelField greenFinanceWdxd;
     private BooleanModelField greenFinanceDonation;
+    /**
+     * 是否收取好友金币
+     */
+    private BooleanModelField greenFinancePointFriend;
 
     @Override
     public String setName() {
@@ -41,12 +46,13 @@ public class GreenFinance extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(greenFinance = new BooleanModelField("greenFinance", "开启绿色经营", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
-        modelFields.addField(greenFinanceLsxd = new BooleanModelField("greenFinanceLsxd", "绿色行动打卡(前3次有奖励)", false));
-        modelFields.addField(greenFinanceLscg = new BooleanModelField("greenFinanceLscg", "绿色采购打卡", false));
-        modelFields.addField(greenFinanceLsbg = new BooleanModelField("greenFinanceLsbg", "绿色办公打卡", false));
-        modelFields.addField(greenFinanceWdxd = new BooleanModelField("greenFinanceWdxd", "绿色销售打卡", false));
-        modelFields.addField(greenFinanceLswl = new BooleanModelField("greenFinanceLswl", "绿色物流打卡", false));
-        modelFields.addField(greenFinanceDonation = new BooleanModelField("greenFinanceDonation", "1天内过期金币自动捐助", false));
+        modelFields.addField(greenFinanceLsxd = new BooleanModelField("greenFinanceLsxd", "打卡 | 绿色行动", false));
+        modelFields.addField(greenFinanceLscg = new BooleanModelField("greenFinanceLscg", "打卡 | 绿色采购", false));
+        modelFields.addField(greenFinanceLsbg = new BooleanModelField("greenFinanceLsbg", "打卡 | 绿色办公", false));
+        modelFields.addField(greenFinanceWdxd = new BooleanModelField("greenFinanceWdxd", "打卡 | 绿色销售", false));
+        modelFields.addField(greenFinanceLswl = new BooleanModelField("greenFinanceLswl", "打卡 | 绿色物流", false));
+        modelFields.addField(greenFinancePointFriend = new BooleanModelField("greenFinancePointFriend", "收取 | 好友金币", false));
+        modelFields.addField(greenFinanceDonation = new BooleanModelField("greenFinanceDonation", "捐助 | 快过期金币", false));
         return modelFields;
     }
 
@@ -101,6 +107,8 @@ public class GreenFinance extends ModelTask {
             behaviorTick();
             //捐助
             donation();
+            //收好友金币
+            batchStealFriend();
             //CP14664674
             //绿色经营
             GreenFinanceRpcCall.doTask("AP13159535", TAG, "绿色经营📊");
@@ -252,7 +260,7 @@ public class GreenFinance extends ModelTask {
                 return;
             }
             String strAmount = JsonUtil.getValueByPath(jsonObject, "result.expirePoint.amount");
-            if (strAmount == null || strAmount.isEmpty() || !strAmount.matches("-?\\d+(\\.\\d+)?")) {
+            if (strAmount.isEmpty() || !strAmount.matches("-?\\d+(\\.\\d+)?")) {
                 return;
             }
             double amount = Double.parseDouble(strAmount);
@@ -270,12 +278,11 @@ public class GreenFinance extends ModelTask {
             JSONArray result = jsonObject.getJSONArray("result");
             TreeMap<String, String> dicId = new TreeMap<>();
             for (int i = 0; i < result.length(); i++) {
-                jsonObject = result.getJSONObject(i);
-                str = JsonUtil.getValueByPath(jsonObject, "mcaDonationProjectResult.[0]");
-                if (str == null || str.isEmpty()) {
+                jsonObject = (JSONObject) JsonUtil.getValueByPathObject(result.getJSONObject(i),
+                        "mcaDonationProjectResult.[0]");
+                if (jsonObject == null) {
                     continue;
                 }
-                jsonObject = new JSONObject(str);
                 String pId = jsonObject.optString("projectId");
                 if (pId.isEmpty()) {
                     continue;
@@ -347,7 +354,7 @@ public class GreenFinance extends ModelTask {
                 return;
             }
             String taskId = JsonUtil.getValueByPath(jsonObject, "result.taskId");
-            if (taskId == null) {
+            if (taskId.isEmpty()) {
                 return;
             }
             TimeUtil.sleep(2000);
@@ -359,7 +366,7 @@ public class GreenFinance extends ModelTask {
                     continue;
                 }
                 String status = JsonUtil.getValueByPath(jsonObject, "result.status");
-                if ("FAIL".equals(status)|| "SUCCESS".equals(status)) {
+                if ("FAIL".equals(status) || "SUCCESS".equals(status)) {
                     break;
                 }
                 TimeUtil.sleep(2000);
@@ -367,6 +374,82 @@ public class GreenFinance extends ModelTask {
             Log.other("绿色经营📊绿色评级任务");
         } catch (Throwable th) {
             Log.i(TAG, "prizesTask err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    /**
+     * 收好友金币
+     */
+    private void batchStealFriend() {
+        try {
+            if (Statistics.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()){
+                return;
+            }
+            int n = 0;
+            while (true) {
+                String str = GreenFinanceRpcCall.queryRankingList(n);
+                JSONObject jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".batchStealFriend.queryRankingList", jsonObject.optString("resultDesc"));
+                    continue;
+                }
+                JSONObject result = jsonObject.getJSONObject("result");
+                if (result.getBoolean("lastPage")) {
+                    Log.other("绿色经营🙋报告大人，好友的金币已全部巡查完毕~");
+                    Statistics.greenFinancePointFriend();
+                    return;
+                }
+                n = result.getInt("nextStartIndex");
+                JSONArray list = result.getJSONArray("rankingList");
+                for (int i = 0; i < list.length(); i++) {
+                    JSONObject object = list.getJSONObject(i);
+                    if (!object.getBoolean("collectFlag")){
+                        continue;
+                    }
+                    String friendId = object.optString("uid");
+                    if (friendId.isEmpty()) {
+                        continue;
+                    }
+                    str = GreenFinanceRpcCall.queryGuestIndexPoints(friendId);
+                    jsonObject = new JSONObject(str);
+                    if (!jsonObject.getBoolean("success")) {
+                        Log.i(TAG + ".batchStealFriend.queryGuestIndexPoints", jsonObject.optString("resultDesc"));
+                        continue;
+                    }
+                    JSONArray points = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.pointDetailList");
+                    if (points == null) {
+                        continue;
+                    }
+                    JSONArray jsonArray = new JSONArray();
+                    for (int j = 0; j < points.length(); j++) {
+                        jsonObject = points.getJSONObject(j);
+                        if (!jsonObject.getBoolean("collectFlag")) {
+                            jsonArray.put(jsonObject.getString("bsnId"));
+                        }
+                    }
+                    if (jsonArray.length() == 0) {
+                        continue;
+                    }
+                    str = GreenFinanceRpcCall.batchSteal(jsonArray, friendId);
+                    jsonObject = new JSONObject(str);
+                    if (!jsonObject.getBoolean("success")) {
+                        Log.i(TAG + ".batchStealFriend.batchSteal", jsonObject.optString("resultDesc"));
+                        continue;
+                    }
+                    Log.other("绿色经营🤩收[" + object.optString("nickName") + "]" +
+                            JsonUtil.getValueByPath(jsonObject, "result.totalCollectPoint") + "金币");
+                    TimeUtil.sleep(500);
+                }
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "batchStealFriend err:");
             Log.printStackTrace(TAG, th);
         } finally {
             try {

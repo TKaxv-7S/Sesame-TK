@@ -37,6 +37,10 @@ public class Statistics {
     private int exchangeTimes = 0;
     private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
+    /**
+     * 新村-罚单已贴完的用户
+     */
+    private ArrayList<String> canPasteTicketTime = new ArrayList<>();
 
     // farm
     private ArrayList<String> answerQuestionList = new ArrayList<>();
@@ -57,6 +61,11 @@ public class Statistics {
     // other
     private ArrayList<String> memberSignInList = new ArrayList<>();
     private int kbSignIn = 0;
+    /**
+     * 绿色经营，收取好友金币已完成用户
+     */
+    private List<String> greenFinancePointFriend = new ArrayList<>();
+
 
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
@@ -489,6 +498,7 @@ public class Statistics {
 
     /**
      * 是否新村助力已到上限
+     *
      * @return true是，false否
      */
     public static boolean canAntStallAssistFriendToday() {
@@ -571,6 +581,25 @@ public class Statistics {
         save();
     }
 
+    /**
+     * 罚单是否贴完
+     * @return true是，false否
+     */
+    public static boolean canPasteTicketTime() {
+        return INSTANCE.canPasteTicketTime.contains(UserIdMap.getCurrentUid());
+    }
+
+    /**
+     * 罚单贴完了
+     */
+    public static void pasteTicketTime() {
+        if (INSTANCE.canPasteTicketTime.contains(UserIdMap.getCurrentUid())) {
+            return;
+        }
+        INSTANCE.canPasteTicketTime.add(UserIdMap.getCurrentUid());
+        save();
+    }
+
     public static boolean canDoubleToday() {
         return INSTANCE.doubleTimes < AntForestV2.doubleCountLimit.getValue();
     }
@@ -613,6 +642,25 @@ public class Statistics {
             stat.syncStepList.add(uid);
             save();
         }
+    }
+
+    /**
+     * 绿色经营-收好友金币是否贴完
+     * @return true是，false否
+     */
+    public static boolean canGreenFinancePointFriend() {
+        return INSTANCE.greenFinancePointFriend.contains(UserIdMap.getCurrentUid());
+    }
+
+    /**
+     * 绿色经营-收好友金币完了
+     */
+    public static void greenFinancePointFriend() {
+        if (INSTANCE.greenFinancePointFriend.contains(UserIdMap.getCurrentUid())) {
+            return;
+        }
+        INSTANCE.greenFinancePointFriend.add(UserIdMap.getCurrentUid());
+        save();
     }
 
     public Boolean resetByCalendar(Calendar calendar) {
@@ -661,6 +709,8 @@ public class Statistics {
         stat.exchangeTimesLongTime = 0;
         stat.doubleTimes = 0;
         stat.antStallAssistFriend.clear();
+        stat.canPasteTicketTime.clear();
+        stat.greenFinancePointFriend.clear();
         save();
     }
 

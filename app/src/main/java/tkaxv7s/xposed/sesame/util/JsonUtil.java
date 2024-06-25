@@ -282,7 +282,7 @@ public class JsonUtil {
      */
     public static String getValueByPath(JSONObject jsonObject, String path) {
         Object object = getValueByPathObject(jsonObject, path);
-        return object == null ? null : String.valueOf(object);
+        return object == null ? "" : String.valueOf(object);
     }
 
     public static Object getValueByPathObject(JSONObject jsonObject, String path) {

@@ -683,7 +683,7 @@ public class AntForestV2 extends ModelTask {
                     }
                     try {
                         if (!friendsObject.optBoolean("canCollectGiftBox", false)) {
-                            Log.record(friendsObject.getString("resultDesc"));
+//                            Log.record(userHomeObject.getString("resultDesc"));
                             continue;
                         }
                         if (userHomeObject == null) {

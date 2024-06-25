@@ -76,8 +76,10 @@ public class OtherTask extends ModelTask {
                     //我的黄金票
                 } else if ("H5_GOLDBILL_TASK".equals(cardTypeId)) {
                     //任务列表，待完成的
-                    str = JsonUtil.getValueByPath(object, "dataModel.jsonResult.tasks.todo");
-                    JSONArray jsonArray2 = new JSONArray(str);
+                    JSONArray jsonArray2 = (JSONArray) JsonUtil.getValueByPathObject(object, "dataModel.jsonResult.tasks.todo");
+                    if (jsonArray2 == null) {
+                        continue;
+                    }
                     for (int j = 0; j < jsonArray2.length(); j++) {
                         JSONObject object2 = jsonArray2.getJSONObject(j);
                         String title = object2.getString("title");

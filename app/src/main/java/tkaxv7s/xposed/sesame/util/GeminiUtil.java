@@ -100,7 +100,7 @@ public class GeminiUtil {
             String answer = GeminiUtil.getInstance().getContentText(title + "\n" +
                     jsonArray.toString().replaceAll("\"", ""));
             if (answer != null && !answer.isEmpty()) {
-                Log.record("AI回答：" + answer);
+                Log.record("AI🧠回答：" + answer);
                 for (int i = 0; i < jsonArray.length(); i++) {
                     String str = jsonArray.getString(i);
                     if (answer.contains(str)) {

@@ -52,12 +52,12 @@ public class SesameCredit extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(sesameCredit = new BooleanModelField("sesameCredit", "开启芝麻信用", false));
-        modelFields.addField(collectSecurityFund = new BooleanModelField("collectSecurityFund", "收保障金(可开启持续做)", false));
-        modelFields.addField(promiseSportsRoute = new BooleanModelField("promiseSportsRoute", "坚持锻炼，走运动路线(自动加入任务)", false));
-        modelFields.addField(promiseAddComment = new BooleanModelField("promiseAddComment", "坚持陪伴爱宠并记录(自动发布记录)", false));
-        modelFields.addField(insBlueBeanExchange = new BooleanModelField("insBlueBeanExchange", "安心豆兑换时光加速器", false));
-        modelFields.addField(insBlueBeanExchangeGoldTicket = new BooleanModelField("insBlueBeanExchangeGoldTicket", "安心豆兑换黄金票", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
+        modelFields.addField(collectSecurityFund = new BooleanModelField("collectSecurityFund", "记录 | 坚持攒保障金(可开启持续做)", false));
+        modelFields.addField(promiseSportsRoute = new BooleanModelField("promiseSportsRoute", "记录 | 坚持锻炼，走运动路线(只自动加入任务)", false));
+        modelFields.addField(promiseAddComment = new BooleanModelField("promiseAddComment", "记录 | 坚持陪伴爱宠并记录(只自动发布记录)", false));
+        modelFields.addField(insBlueBeanExchange = new BooleanModelField("insBlueBeanExchange", "安心豆 | 兑换时光加速器", false));
+        modelFields.addField(insBlueBeanExchangeGoldTicket = new BooleanModelField("insBlueBeanExchangeGoldTicket", "安心豆 | 兑换黄金票", false));
         return modelFields;
     }
 
@@ -108,8 +108,10 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".doPromise.promiseQueryHome", jsonObject.optString("errorMsg"));
                 return;
             }
-            str = JsonUtil.getValueByPath(jsonObject, "data.processingPromises");
-            JSONArray jsonArray = new JSONArray(str);
+            JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "data.processingPromises");
+            if (jsonArray == null) {
+                return;
+            }
             boolean isSportsRoute = true;
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
@@ -231,7 +233,7 @@ public class SesameCredit extends ModelTask {
             Log.i(TAG + ".gainMyAndFamilySumInsured", jo.optString("errorMsg"));
             return true;
         }
-        Log.other("领取保障金💰[" + JsonUtil.getValueByPath(jo, "data.gainSumInsuredDTO.gainSumInsuredYuan") + "]" + "元");
+        Log.other("生活记录💰领取保障金[" + JsonUtil.getValueByPath(jo, "data.gainSumInsuredDTO.gainSumInsuredYuan") + "]" + "元");
         if (isRepeat) {
             promiseQueryDetail(recordId);
             promiseQueryDetail(recordId);
@@ -315,11 +317,10 @@ public class SesameCredit extends ModelTask {
                         || ("10份黄金票".equals(name) && insBlueBeanExchangeGoldTicket.getValue())) {
                     insBlueBeanExchange(JsonUtil.getValueByPath(jo, "content.beanDeductBanner.oneStopId"));
                 } else if ("任务分类".equals(name)) {
-                    String str = JsonUtil.getValueByPath(jo, "content.taskClassification");
-                    if (str == null) {
-                        return;
+                    JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jo, "content.taskClassification");
+                    if (jsonArray == null) {
+                        continue;
                     }
-                    JSONArray jsonArray = new JSONArray(str);
                     for (int j = 0; j < jsonArray.length(); j++) {
                         jo = jsonArray.getJSONObject(j);
                         JSONArray ja = jo.getJSONArray("taskAppletIdList");
@@ -355,8 +356,10 @@ public class SesameCredit extends ModelTask {
                 Log.i(TAG + ".insBlueBeanPlanConsult.planConsult", jsonObject.optString("resultView"));
                 return;
             }
-            str = JsonUtil.getValueByPath(jsonObject, "result.rspContext.params.taskAppletResult");
-            JSONArray jsonArray = new JSONArray(str);
+            JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.rspContext.params.taskAppletResult");
+            if (jsonArray == null) {
+                return;
+            }
             for (int i = 0; i < jsonArray.length(); i++) {
                 jsonObject = jsonArray.getJSONObject(i);
                 insBlueBeanTask(jsonObject.optString("appletId"));
