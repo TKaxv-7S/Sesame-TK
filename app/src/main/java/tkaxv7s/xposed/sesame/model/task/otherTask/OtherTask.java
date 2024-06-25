@@ -9,6 +9,7 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.TimeUtil;
 
 
 /**
@@ -20,9 +21,24 @@ public class OtherTask extends ModelTask {
     private static final String TAG = OtherTask.class.getSimpleName();
 
     private BooleanModelField enable;
+    /**
+     * 间隔时间
+     */
+    private Integer executeIntervalInt;
+    /**
+     * 黄金票
+     */
     private BooleanModelField goldTicket;
     private IntegerModelField executeInterval;
-    private Integer executeIntervalInt;
+    /**
+     * 车神卡
+     */
+    private BooleanModelField carGodCard;
+
+    /**
+     * 实体红包
+     */
+    private BooleanModelField promoprodRedEnvelope;
 
     @Override
     public String setName() {
@@ -33,8 +49,10 @@ public class OtherTask extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enable = new BooleanModelField("enable", "开启其他任务", false));
-        modelFields.addField(goldTicket = new BooleanModelField("goldTicket", "黄金票 | 开启", false));
-        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "黄金票 | 执行间隔(毫秒)", 2000));
+        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000));
+        modelFields.addField(goldTicket = new BooleanModelField("goldTicket", "黄金票 | 开启", true));
+        modelFields.addField(carGodCard = new BooleanModelField("carGodCard", "车神卡 | 开启", true));
+        modelFields.addField(promoprodRedEnvelope = new BooleanModelField("promoprodRedEnvelope", "实体红包 | 开启", true));
         return modelFields;
     }
 
@@ -47,6 +65,9 @@ public class OtherTask extends ModelTask {
     public Runnable init() {
         return () -> {
             executeIntervalInt = Math.max(executeInterval.getValue(), 2000);
+            if (promoprodRedEnvelope.getValue()) {
+                promoprodTaskList();
+            }
             if (goldTicket.getValue()) {
                 //签到
                 goldBillCollect("\"campId\":\"CP1417744\",\"directModeDisableCollect\":true,\"from\":\"antfarm\",");
@@ -54,6 +75,9 @@ public class OtherTask extends ModelTask {
 //                goldTicket();
                 //收取其他
                 goldBillCollect("");
+            }
+            if (carGodCard.getValue()) {
+                carGodCardbenefit();
             }
         };
     }
@@ -136,6 +160,106 @@ public class OtherTask extends ModelTask {
             Log.other("黄金票🏦本次总共获得[" + JsonUtil.getValueByPath(object, "collectedCamp.amount") + "]");
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    /**
+     * 车神卡领奖
+     */
+    private void carGodCardbenefit() {
+        try {
+            while (true) {
+                String str = OtherTaskRpcCall.v1benefitQuery();
+                JSONObject jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".carGodCardbenefit.v1benefitQuery", jsonObject.optString("resultDesc"));
+                    return;
+                }
+                JSONObject object = jsonObject.getJSONObject("data");
+                JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(object, "result.aggregationOfferInfos");
+                if (jsonArray == null || jsonArray.length() == 0) {
+                    return;
+                }
+                jsonObject = new JSONObject();
+                jsonObject.put("args", new JSONObject().put("offerRequest", jsonArray));
+                str = OtherTaskRpcCall.v1benefitTrigger(jsonObject);
+                jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".carGodCardbenefit.v1benefitTrigger", jsonObject.optString("resultDesc"));
+                    continue;
+                }
+                jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "data.result");
+                if (jsonArray == null) {
+                    continue;
+                }
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    str = "车神卡🏎获得[" + jsonObject.getString("name");
+                    if (jsonObject.has("memo")) {
+                        str += "-" + jsonObject.getString("memo");
+                    }
+                    str += "]" + jsonObject.getString("price") + jsonObject.getString("unit");
+                    Log.other(str);
+                }
+                TimeUtil.sleep(executeIntervalInt);
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "signIn err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    /**
+     * 实体红包
+     */
+    private void promoprodTaskList() {
+        try {
+            String str = OtherTaskRpcCall.queryTaskList();
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".queryTaskList", jsonObject.optString("resultDesc"));
+                return;
+            }
+            JSONArray jsonArray = jsonObject.getJSONArray("taskDetailList");
+            int length = jsonArray.length();
+            if (length == 0) {
+                return;
+            }
+            for (int i = 0; i < length; i++) {
+                JSONObject object = jsonArray.getJSONObject(i);
+                if ("SIGNUP_COMPLETE".equals(object.getString("taskProcessStatus"))) {
+                    continue;
+                }
+                str = OtherTaskRpcCall.signup(JsonUtil.getValueByPath(object, "taskParticipateExtInfo.gplusItem"), object.getString("taskId"));
+                jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".queryTaskList.signup", jsonObject.optString("errorMsg"));
+                }
+                TimeUtil.sleep(executeIntervalInt);
+                str = OtherTaskRpcCall.complete(object.getString("taskId"));
+                jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".queryTaskList.complete", jsonObject.optString("errorMsg"));
+                    continue;
+                }
+                Log.other("实体红包🍷获取[" + jsonObject.getString("ariverRpcTraceId") + "]" + JsonUtil.getValueByPath(jsonObject, "prizeSendInfo.price.amount") + "元");
+                TimeUtil.sleep(executeIntervalInt);
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "queryTaskList err:");
             Log.printStackTrace(TAG, th);
         } finally {
             try {

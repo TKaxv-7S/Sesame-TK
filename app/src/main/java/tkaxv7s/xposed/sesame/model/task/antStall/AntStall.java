@@ -448,75 +448,76 @@ public class AntStall extends ModelTask {
                     receiveTaskAward(task.getString("taskType"));
                     continue;
                 }
-                if ("TODO".equals(taskStatus)) {
-                    JSONObject bizInfo = new JSONObject(task.getString("bizInfo"));
-                    String taskType = task.getString("taskType");
-                    String title = bizInfo.optString("title", taskType);
-                    if (!"VISIT_AUTO_FINISH".equals(bizInfo.getString("actionType"))
-                            && !taskTypeList.contains(taskType)) {
-                        switch (taskType) {
-                            case "ANTSTALL_NORMAL_DAILY_QA":
-                                if (ReadingDada.answerQuestion(bizInfo)) {
-                                    receiveTaskAward(taskType);
-                                }
-                                break;
-                            case "ANTSTALL_NORMAL_INVITE_REGISTER":
-                                if (inviteRegister()) {
-                                    TimeUtil.sleep(200L);
-                                    continue;
-                                }
-                                break;
-                            case "ANTSTALL_P2P_DAILY_SHARER":
-                                //                                shareP2P();
-                                break;
-                            case "ANTSTALL_TASK_taojinbihuanduan":
-                                //进入淘宝芭芭农场
-                                String sceneCode = JsonUtil.getValueByPath(task,"bizInfo.targetUrl")
-                                        .replaceAll(".*sceneCode%3D([^&]+).*","$1");
-                                if (sceneCode.isEmpty()) {
-                                    continue;
-                                }
-                                s = AntStallRpcCall.queryCallAppSchema(sceneCode);
-                                jo = new JSONObject(s);
-                                if (!jo.getBoolean("success")) {
-                                    Log.i(TAG, "taskList.queryCallAppSchema err:" + jo.optString("resultDesc"));
-                                }
-                                TimeUtil.sleep(5000);
-                                AntStallRpcCall.home();
-                                AntStallRpcCall.taskList();
-                                break;
-                            case "ANTSTALL_XLIGHT_VARIABLE_AWARD":
-                                //【木兰市集】逛精选好物
-                                s = AntStallRpcCall.xlightPlugin();
-                                jo = new JSONObject(s);
-                                if (!jo.has("playingResult")) {
-                                    Log.i(TAG, "taskList.xlightPlugin err:" + jo.optString("resultDesc"));
-                                }
-                                jo = jo.getJSONObject("playingResult");
-                                String pid = jo.getString("playingBizId");
-                                JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jo, "eventRewardDetail.eventRewardInfoList");
-                                if (jsonArray == null || jsonArray.length() == 0) {
-                                    continue;
-                                }
-                                TimeUtil.sleep(5000);
-                                for (int j = 0; j < jsonArray.length(); j++) {
-                                    JSONObject jsonObject = jsonArray.getJSONObject(j);
-                                    s = AntStallRpcCall.finish(pid, jsonObject);
-                                    jo = new JSONObject(s);
-                                    if (!jo.getBoolean("success")) {
-                                        Log.i(TAG, "taskList.finish err:" + jo.optString("resultDesc"));
-                                    }
-                                    TimeUtil.sleep(5000);
-                                }
-                                break;
-                        }
-                        continue;
-                    }
+                if (!"TODO".equals(taskStatus)) {
+                    continue;
+                }
+                JSONObject bizInfo = new JSONObject(task.getString("bizInfo"));
+                String taskType = task.getString("taskType");
+                String title = bizInfo.optString("title", taskType);
+                if ("VISIT_AUTO_FINISH".equals(bizInfo.getString("actionType"))
+                        || taskTypeList.contains(taskType)) {
                     if (!finishTask(taskType)) {
                         continue;
                     }
-                    Log.farm("蚂蚁新村⛪[完成任务]#" + title);
+                    Log.farm("蚂蚁新村👣任务[" + title + "]完成");
                     TimeUtil.sleep(200L);
+                    continue;
+                }
+                switch (taskType) {
+                    case "ANTSTALL_NORMAL_DAILY_QA":
+                        if (ReadingDada.answerQuestion(bizInfo)) {
+                            receiveTaskAward(taskType);
+                        }
+                        break;
+                    case "ANTSTALL_NORMAL_INVITE_REGISTER":
+                        if (inviteRegister()) {
+                            TimeUtil.sleep(200L);
+                            continue;
+                        }
+                        break;
+                    case "ANTSTALL_P2P_DAILY_SHARER":
+                        //                                shareP2P();
+                        break;
+                    case "ANTSTALL_TASK_taojinbihuanduan":
+                        //进入淘宝芭芭农场
+                        String sceneCode = JsonUtil.getValueByPath(task, "bizInfo.targetUrl")
+                                .replaceAll(".*sceneCode%3D([^&]+).*", "$1");
+                        if (sceneCode.isEmpty()) {
+                            continue;
+                        }
+                        s = AntStallRpcCall.queryCallAppSchema(sceneCode);
+                        jo = new JSONObject(s);
+                        if (!jo.getBoolean("success")) {
+                            Log.i(TAG, "taskList.queryCallAppSchema err:" + jo.optString("resultDesc"));
+                        }
+                        TimeUtil.sleep(5000);
+                        AntStallRpcCall.home();
+                        AntStallRpcCall.taskList();
+                        break;
+                    case "ANTSTALL_XLIGHT_VARIABLE_AWARD":
+                        //【木兰市集】逛精选好物
+                        s = AntStallRpcCall.xlightPlugin();
+                        jo = new JSONObject(s);
+                        if (!jo.has("playingResult")) {
+                            Log.i(TAG, "taskList.xlightPlugin err:" + jo.optString("resultDesc"));
+                        }
+                        jo = jo.getJSONObject("playingResult");
+                        String pid = jo.getString("playingBizId");
+                        JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jo, "eventRewardDetail.eventRewardInfoList");
+                        if (jsonArray == null || jsonArray.length() == 0) {
+                            continue;
+                        }
+                        TimeUtil.sleep(5000);
+                        for (int j = 0; j < jsonArray.length(); j++) {
+                            JSONObject jsonObject = jsonArray.getJSONObject(j);
+                            s = AntStallRpcCall.finish(pid, jsonObject);
+                            jo = new JSONObject(s);
+                            if (!jo.getBoolean("success")) {
+                                Log.i(TAG, "taskList.finish err:" + jo.optString("resultDesc"));
+                            }
+                            TimeUtil.sleep(5000);
+                        }
+                        break;
                 }
                 TimeUtil.sleep(200L);
             }
@@ -671,6 +672,8 @@ public class AntStall extends ModelTask {
                 }
                 Log.farm("新村助力🎉成功[" + name + "]");
             }
+            //暂时一天只做一次
+            Statistics.antStallAssistFriendToday();
         } catch (Throwable t) {
             Log.i(TAG, "assistFriend err:");
             Log.printStackTrace(TAG, t);
