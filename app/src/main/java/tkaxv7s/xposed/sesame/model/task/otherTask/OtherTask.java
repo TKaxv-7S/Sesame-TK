@@ -50,9 +50,9 @@ public class OtherTask extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enable = new BooleanModelField("enable", "开启其他任务", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000));
-        modelFields.addField(goldTicket = new BooleanModelField("goldTicket", "黄金票 | 开启", true));
-        modelFields.addField(carGodCard = new BooleanModelField("carGodCard", "车神卡 | 开启", true));
-        modelFields.addField(promoprodRedEnvelope = new BooleanModelField("promoprodRedEnvelope", "实体红包 | 开启", true));
+        modelFields.addField(goldTicket = new BooleanModelField("goldTicket", "开启 | 黄金票", true));
+        modelFields.addField(carGodCard = new BooleanModelField("carGodCard", "开启 | 车神卡", true));
+        modelFields.addField(promoprodRedEnvelope = new BooleanModelField("promoprodRedEnvelope", "开启 | 实体红包", true));
         return modelFields;
     }
 
@@ -155,7 +155,7 @@ public class OtherTask extends ModelTask {
                 return;
             }
             for (int i = 0; i < length; i++) {
-                Log.other("黄金票🏦[" + jsonArray.getString(i) + "]");
+                Log.other("黄金票🙈[" + jsonArray.getString(i) + "]");
             }
             Log.other("黄金票🏦本次总共获得[" + JsonUtil.getValueByPath(object, "collectedCamp.amount") + "]");
         } catch (Throwable th) {
