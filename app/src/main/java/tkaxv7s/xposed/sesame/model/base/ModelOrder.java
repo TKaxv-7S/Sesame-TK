@@ -12,6 +12,7 @@ import tkaxv7s.xposed.sesame.model.task.antOcean.AntOcean;
 import tkaxv7s.xposed.sesame.model.task.antOrchard.AntOrchard;
 import tkaxv7s.xposed.sesame.model.task.antSports.AntSports;
 import tkaxv7s.xposed.sesame.model.task.antStall.AntStall;
+import tkaxv7s.xposed.sesame.model.task.gameCenter.GameCenter;
 import tkaxv7s.xposed.sesame.model.task.greenFinance.GreenFinance;
 import tkaxv7s.xposed.sesame.model.task.kbMember.KBMember;
 import tkaxv7s.xposed.sesame.model.task.otherTask.OtherTask;
@@ -40,7 +41,7 @@ public class ModelOrder {
             , GreenFinance.class
             , KBMember.class
             , WelfareCenter.class
-            //, GameCenter.class
+            , GameCenter.class
             , SesameCredit.class
             , OtherTask.class
             , AnswerAI.class
