@@ -116,8 +116,8 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField ecoLifeTick;
     private BooleanModelField ecoLifeOpen;
     private BooleanModelField photoGuangPan;
-    private StringModelField photoGuangPanBefore;
-    private StringModelField photoGuangPanAfter;
+    private TextModelField photoGuangPanBefore;
+    private TextModelField photoGuangPanAfter;
 
     @Getter
     private Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
@@ -180,8 +180,12 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
         modelFields.addField(ecoLifeOpen = new BooleanModelField("ecoLifeOpen", "绿色 | 自动开通", false));
         modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "绿色 | 光盘行动", false));
-        modelFields.addField(photoGuangPanBefore = new StringModelField("photoGuangPanBefore", "绿色 | 光盘前图片ID", ""));
-        modelFields.addField(photoGuangPanAfter = new StringModelField("photoGuangPanAfter", "绿色 | 光盘后图片ID", ""));
+        modelFields.addField(new EmptyModelField("photoGuangPanClear", "绿色 | 清空图片ID", v -> {
+            photoGuangPanBefore.reset();
+            photoGuangPanAfter.reset();
+        }));
+        modelFields.addField(photoGuangPanBefore = new TextModelField("photoGuangPanBefore", "绿色 | 光盘前图片ID", ""));
+        modelFields.addField(photoGuangPanAfter = new TextModelField("photoGuangPanAfter", "绿色 | 光盘后图片ID", ""));
         return modelFields;
     }
 

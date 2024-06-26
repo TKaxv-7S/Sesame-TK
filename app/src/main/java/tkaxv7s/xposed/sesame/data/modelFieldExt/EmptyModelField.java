@@ -1,6 +1,5 @@
 package tkaxv7s.xposed.sesame.data.modelFieldExt;
 
-
 import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
@@ -9,28 +8,32 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
-import tkaxv7s.xposed.sesame.ui.StringDialog;
 
-public class TextModelField extends ModelField {
+public class EmptyModelField extends ModelField {
 
-    public TextModelField(String code, String name, String value) {
-        super(code, name, value);
+    private final View.OnClickListener clickListener;
+
+    public EmptyModelField(String code, String name) {
+        super(code, name, null);
+        this.clickListener = null;
+    }
+
+    public EmptyModelField(String code, String name, View.OnClickListener clickListener) {
+        super(code, name, null);
+        this.clickListener = clickListener;
     }
 
     @Override
     public void setValue(Object value) {
-        if (value == null) {
-            value = defaultValue;
-        }
-        this.value = String.valueOf(value);
     }
 
     @Override
-    public String getValue() {
-        return (String) value;
+    public Object getValue() {
+        return null;
     }
 
     @JsonIgnore
@@ -45,7 +48,11 @@ public class TextModelField extends ModelField {
         btn.setMaxHeight(180);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> StringDialog.showReadDialog(v.getContext(), ((Button) v).getText(), this));
+        if (clickListener != null) {
+            btn.setOnClickListener(clickListener);
+        } else {
+            btn.setOnClickListener(v -> Toast.makeText(context, "无配置项", Toast.LENGTH_SHORT).show());
+        }
         return btn;
     }
 
