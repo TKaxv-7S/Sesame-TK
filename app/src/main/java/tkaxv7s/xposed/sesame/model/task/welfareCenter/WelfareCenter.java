@@ -77,9 +77,6 @@ public class WelfareCenter extends ModelTask {
 //            }
         //1.会报错，queryEnableVirtualProfitV2接口返回success=false
         //2.不会报错，taskDetailList无数据
-        if (welfareCenterProfit.getValue()) {
-            batchUseVirtualProfit();
-        }
         if (welfareCenterTask.getValue()) {
             //赚福利金
             WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
@@ -90,7 +87,9 @@ public class WelfareCenter extends ModelTask {
         if (welfareCenterWSLuckDraw.getValue()) {
             playTrigger();
         }
-
+        if (welfareCenterProfit.getValue()) {
+            batchUseVirtualProfit();
+        }
     }
 
     /**
