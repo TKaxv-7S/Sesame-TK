@@ -1650,7 +1650,7 @@ public class AntForestV2 extends ModelTask {
             boolean isDone = false;
             String photoGuangPanBeforeStr = photoGuangPanBefore.getValue();
             String photoGuangPanAfterStr = photoGuangPanAfter.getValue();
-            if (StringUtil.isEmpty(photoGuangPanBeforeStr) || StringUtil.isEmpty(photoGuangPanAfterStr)) {
+            if (StringUtil.isEmpty(photoGuangPanBeforeStr) || StringUtil.isEmpty(photoGuangPanAfterStr) || Objects.equals(photoGuangPanBeforeStr, photoGuangPanAfterStr)) {
                 JSONObject data = jsonObject.optJSONObject("data");
                 if (data != null) {
                     String beforeMealsImageUrl = data.optString("beforeMealsImageUrl");
@@ -1664,7 +1664,7 @@ public class AntForestV2 extends ModelTask {
                         }
                         Matcher afterMatcher = pattern.matcher(afterMealsImageUrl);
                         if (afterMatcher.find()) {
-                            photoGuangPanAfterStr = beforeMatcher.group(1);
+                            photoGuangPanAfterStr = afterMatcher.group(1);
                             photoGuangPanAfter.setValue(photoGuangPanAfterStr);
                         }
                         ConfigV2.save(false);
@@ -1675,7 +1675,7 @@ public class AntForestV2 extends ModelTask {
                 isDone = true;
             }
             if ("SUCCESS".equals(JsonUtil.getValueByPath(jsonObject, "data.status"))) {
-                Log.forest("光盘行动💿今日已完成");
+                //Log.forest("光盘行动💿今日已完成");
                 return;
             }
             if (!isDone) {
