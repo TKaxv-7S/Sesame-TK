@@ -31,7 +31,7 @@ public class WelfareCenter extends ModelTask {
     private final BooleanModelField welfareCenterProfit = new BooleanModelField("welfareCenterProfit", "福利金 | 领奖", false);
     private final BooleanModelField welfareCenterTask = new BooleanModelField("welfareCenterTask", "福利金 | 任务", false);
     private final BooleanModelField welfareCenterWSTask = new BooleanModelField("welfareCenterWSTask", "网商银行 | 任务", false);
-    private final BooleanModelField welfareCenterWSLuckDraw = new BooleanModelField("welfareCenterWSTask", "网商银行 | 抽奖", false);
+    private final BooleanModelField welfareCenterWSLuckDraw = new BooleanModelField("welfareCenterWSLuckDraw", "网商银行 | 抽奖", false);
 
     @Override
     public String setName() {
