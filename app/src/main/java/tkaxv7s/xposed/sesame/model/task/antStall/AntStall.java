@@ -105,64 +105,64 @@ public class AntStall extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return enableStall.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                String s = AntStallRpcCall.home();
-                JSONObject jo = new JSONObject(s);
-                if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    if (!jo.getBoolean("hasRegister") || jo.getBoolean("hasQuit")) {
-                        Log.farm("蚂蚁新村⛪请先开启蚂蚁新村");
-                        return;
-                    }
-
-                    JSONObject astReceivableCoinVO = jo.getJSONObject("astReceivableCoinVO");
-                    if (astReceivableCoinVO.optBoolean("hasCoin")) {
-                        settleReceivable();
-                    }
-
-                    if (stallThrowManure.getValue()) {
-                        throwManure();
-                    }
-
-                    JSONObject seatsMap = jo.getJSONObject("seatsMap");
-                    settle(seatsMap);
-
-                    collectManure();
-
-                    sendBack(seatsMap);
-
-                    if (stallAutoClose.getValue()) {
-                        closeShop();
-                    }
-
-                    if (stallAutoOpen.getValue()) {
-                        openShop();
-                    }
-                    if (stallAutoTask.getValue()) {
-                        taskList();
-                    }
-                    if (stallDonate.getValue()) {
-                        roadmap();
-                    }
-                    if (stallAutoTicket.getValue()) {
-                        pasteTicket();
-                    }
-                } else {
-                    Log.record("home err:" + " " + s);
+    @Override
+    public void run() {
+        try {
+            String s = AntStallRpcCall.home();
+            JSONObject jo = new JSONObject(s);
+            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                if (!jo.getBoolean("hasRegister") || jo.getBoolean("hasQuit")) {
+                    Log.farm("蚂蚁新村⛪请先开启蚂蚁新村");
+                    return;
                 }
-            } catch (Throwable t) {
-                Log.i(TAG, "home err:");
-                Log.printStackTrace(TAG, t);
-            } finally {
-                //不受没有开通的影响
-                assistFriend();
+
+                JSONObject astReceivableCoinVO = jo.getJSONObject("astReceivableCoinVO");
+                if (astReceivableCoinVO.optBoolean("hasCoin")) {
+                    settleReceivable();
+                }
+
+                if (stallThrowManure.getValue()) {
+                    throwManure();
+                }
+
+                JSONObject seatsMap = jo.getJSONObject("seatsMap");
+                settle(seatsMap);
+
+                collectManure();
+
+                sendBack(seatsMap);
+
+                if (stallAutoClose.getValue()) {
+                    closeShop();
+                }
+
+                if (stallAutoOpen.getValue()) {
+                    openShop();
+                }
+                if (stallAutoTask.getValue()) {
+                    taskList();
+                }
+                if (stallDonate.getValue()) {
+                    roadmap();
+                }
+                if (stallAutoTicket.getValue()) {
+                    pasteTicket();
+                }
+            } else {
+                Log.record("home err:" + " " + s);
             }
-        };
+        } catch (Throwable t) {
+            Log.i(TAG, "home err:");
+            Log.printStackTrace(TAG, t);
+        } finally {
+            //不受没有开通的影响
+            assistFriend();
+        }
     }
 
     private void sendBack(String billNo, String seatId, String shopId, String shopUserId) {

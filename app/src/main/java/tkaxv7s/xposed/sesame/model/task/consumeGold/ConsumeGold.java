@@ -38,22 +38,20 @@ public class ConsumeGold extends ModelTask {
         return System.currentTimeMillis() - executeTime >= 21600000;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
-                signinCalendar();
-                taskV2Index("CG_TASK_LIST");
-                taskV2Index("HOME_NAVIGATION");
-                taskV2Index("CG_SIGNIN_AD_FEEDS");
-                taskV2Index("SURPRISE_TASK");
-                taskV2Index("CG_BROWSER_AD_FEEDS");
-                consumeGoldIndex();
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
-            }
-        };
+    public void run() {
+        try {
+            RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
+            signinCalendar();
+            taskV2Index("CG_TASK_LIST");
+            taskV2Index("HOME_NAVIGATION");
+            taskV2Index("CG_SIGNIN_AD_FEEDS");
+            taskV2Index("SURPRISE_TASK");
+            taskV2Index("CG_BROWSER_AD_FEEDS");
+            consumeGoldIndex();
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void taskV2Index(String taskSceneCode) {
@@ -85,7 +83,7 @@ public class ConsumeGold extends ModelTask {
                     taskV2Index(taskSceneCode);
             } else {
                 Log.record(jo.getString("resultDesc"));
-Log.i(s);
+                Log.i(s);
             }
         } catch (Throwable t) {
             Log.i(TAG, "taskV2Index err:");

@@ -50,63 +50,63 @@ public class AntOrchard extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return antOrchard.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                executeIntervalInt = Math.max(executeInterval.getValue(), 500);
-                String s = AntOrchardRpcCall.orchardIndex();
-                JSONObject jo = new JSONObject(s);
-                if ("100".equals(jo.getString("resultCode"))) {
-                    if (jo.optBoolean("userOpenOrchard")) {
-                        JSONObject taobaoData = new JSONObject(jo.getString("taobaoData"));
-                        treeLevel = Integer.toString(taobaoData.getJSONObject("gameInfo").getJSONObject("plantInfo")
-                                .getJSONObject("seedStage").getInt("stageLevel"));
-                        JSONObject joo = new JSONObject(AntOrchardRpcCall.mowGrassInfo());
-                        if ("100".equals(jo.getString("resultCode"))) {
-                            userId = joo.getString("userId");
-                            if (jo.has("lotteryPlusInfo"))
-                                drawLotteryPlus(jo.getJSONObject("lotteryPlusInfo"));
-                            extraInfoGet();
-                            if (batchHireAnimal.getValue()) {
-                                if (!joo.optBoolean("hireCountOnceLimit", true)
-                                        && !joo.optBoolean("hireCountOneDayLimit", true))
-                                    batchHireAnimalRecommend();
-                            }
-                            if (receiveOrchardTaskAward.getValue()) {
-                                doOrchardDailyTask(userId);
-                                triggerTbTask();
-                            }
-                            Integer orchardSpreadManureCountValue = orchardSpreadManureCount.getValue();
-                            if (orchardSpreadManureCountValue > 0 && Statistics.canSpreadManureToday(userId))
-                                orchardSpreadManure();
-
-                            if (orchardSpreadManureCountValue >= 3
-                                    && orchardSpreadManureCountValue < 10) {
-                                querySubplotsActivity(3);
-                            } else if (orchardSpreadManureCountValue >= 10) {
-                                querySubplotsActivity(10);
-                            }
-
-                        } else {
-                            Log.record(jo.getString("resultDesc"));
-                            Log.i(jo.toString());
+    @Override
+    public void run() {
+        try {
+            executeIntervalInt = Math.max(executeInterval.getValue(), 500);
+            String s = AntOrchardRpcCall.orchardIndex();
+            JSONObject jo = new JSONObject(s);
+            if ("100".equals(jo.getString("resultCode"))) {
+                if (jo.optBoolean("userOpenOrchard")) {
+                    JSONObject taobaoData = new JSONObject(jo.getString("taobaoData"));
+                    treeLevel = Integer.toString(taobaoData.getJSONObject("gameInfo").getJSONObject("plantInfo")
+                            .getJSONObject("seedStage").getInt("stageLevel"));
+                    JSONObject joo = new JSONObject(AntOrchardRpcCall.mowGrassInfo());
+                    if ("100".equals(jo.getString("resultCode"))) {
+                        userId = joo.getString("userId");
+                        if (jo.has("lotteryPlusInfo"))
+                            drawLotteryPlus(jo.getJSONObject("lotteryPlusInfo"));
+                        extraInfoGet();
+                        if (batchHireAnimal.getValue()) {
+                            if (!joo.optBoolean("hireCountOnceLimit", true)
+                                    && !joo.optBoolean("hireCountOneDayLimit", true))
+                                batchHireAnimalRecommend();
                         }
+                        if (receiveOrchardTaskAward.getValue()) {
+                            doOrchardDailyTask(userId);
+                            triggerTbTask();
+                        }
+                        Integer orchardSpreadManureCountValue = orchardSpreadManureCount.getValue();
+                        if (orchardSpreadManureCountValue > 0 && Statistics.canSpreadManureToday(userId))
+                            orchardSpreadManure();
+
+                        if (orchardSpreadManureCountValue >= 3
+                                && orchardSpreadManureCountValue < 10) {
+                            querySubplotsActivity(3);
+                        } else if (orchardSpreadManureCountValue >= 10) {
+                            querySubplotsActivity(10);
+                        }
+
                     } else {
-                        antOrchard.setValue(false);
-                        Log.record("请先开启芭芭农场！");
+                        Log.record(jo.getString("resultDesc"));
+                        Log.i(jo.toString());
                     }
                 } else {
-                    Log.i(TAG, jo.getString("resultDesc"));
+                    antOrchard.setValue(false);
+                    Log.record("请先开启芭芭农场！");
                 }
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
+            } else {
+                Log.i(TAG, jo.getString("resultDesc"));
             }
-        };
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private String getWua() {

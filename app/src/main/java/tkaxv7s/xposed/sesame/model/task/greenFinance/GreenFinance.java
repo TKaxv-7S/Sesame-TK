@@ -63,8 +63,8 @@ public class GreenFinance extends ModelTask {
     }
 
     @Override
-    public Runnable init() {
-        return () -> {
+    public void  run() {
+   
             executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
             String s = GreenFinanceRpcCall.greenFinanceIndex();
             try {
@@ -116,7 +116,6 @@ public class GreenFinance extends ModelTask {
             prizes();
             //绿色经营
             GreenFinanceRpcCall.doTask("AP13159535", TAG, "绿色经营📊");
-        };
     }
 
     /**

@@ -56,25 +56,23 @@ public class Reserve extends ModelTask {
         return true;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                Log.record("开始检测保护地");
-                isProtecting = true;
+    public void run() {
+        try {
+            Log.record("开始检测保护地");
+            isProtecting = true;
 
-                if (enableReserve.getValue()) {
-                    animalReserve();
-                }
-
-                if (beach.getValue()) {
-                    protectBeach();
-                }
-                isProtecting = false;
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
+            if (enableReserve.getValue()) {
+                animalReserve();
             }
-        };
+
+            if (beach.getValue()) {
+                protectBeach();
+            }
+            isProtecting = false;
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void animalReserve() {

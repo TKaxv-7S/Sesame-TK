@@ -26,6 +26,18 @@ public class GameCenter extends ModelTask {
      */
     private BooleanModelField gameCenter;
     /**
+     * 是否启用签到
+     */
+    private BooleanModelField bmSignIn;
+    /**
+     * 是否启用任务功能
+     */
+    private BooleanModelField bmDoTask;
+    /**
+     * 是否启用全部领取
+     */
+    private BooleanModelField bmBatchReceive;
+    /**
      * 执行间隔时间
      */
     private IntegerModelField executeInterval;
@@ -40,6 +52,9 @@ public class GameCenter extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(gameCenter = new BooleanModelField("gameCenter", "开启游戏中心", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
+        modelFields.addField(bmSignIn = new BooleanModelField("signIn", "开启 | 签到", false));
+        modelFields.addField(bmDoTask = new BooleanModelField("doTask", "开启 | 任务（凉凉）", false));
+        modelFields.addField(bmBatchReceive = new BooleanModelField("batchReceive", "开启 | 领取", false));
         return modelFields;
     }
 
@@ -48,14 +63,21 @@ public class GameCenter extends ModelTask {
         return gameCenter.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
+    /**
+     * 执行
+     */
     @Override
-    public Runnable init() {
-        return () -> {
-            executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
+    public void run() {
+        executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
+        if (bmSignIn.getValue()) {
             signIn();
+        }
+        if (bmDoTask.getValue()) {
             doTask();
+        }
+        if (bmBatchReceive.getValue()) {
             batchReceive();
-        };
+        }
     }
 
     /**

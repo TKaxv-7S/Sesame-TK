@@ -57,59 +57,58 @@ public class AntSports extends ModelTask {
         return enableSports.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                if (Statistics.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
-                    addChildTask(BaseTask.newInstance("syncStep", () -> {
-                        int step = AntSports.tmpStepCount();
-                        try {
-                            if ((Boolean) XposedHelpers.callMethod(
-                                    XposedHelpers.callStaticMethod(
-                                            ApplicationHook.getClassLoader().loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"),
-                                            "a"),
-                                    "a", new Object[]{step, Boolean.FALSE, "system"})) {
-                                Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
-                            } else {
-                                Log.record("同步运动步数失败:" + step);
-                            }
-                            Statistics.SyncStepToday(UserIdMap.getCurrentUid());
-                        } catch (Throwable t) {
-                            Log.i(TAG, "StepTask.run err:");
-                            Log.printStackTrace(TAG, t);
+    @Override
+    public void run() {
+        try {
+            if (Statistics.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
+                addChildTask(BaseTask.newInstance("syncStep", () -> {
+                    int step = AntSports.tmpStepCount();
+                    try {
+                        if ((Boolean) XposedHelpers.callMethod(
+                                XposedHelpers.callStaticMethod(
+                                        ApplicationHook.getClassLoader().loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"),
+                                        "a"),
+                                "a", new Object[]{step, Boolean.FALSE, "system"})) {
+                            Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
+                        } else {
+                            Log.record("同步运动步数失败:" + step);
                         }
-                    }));
-                }
-                ClassLoader loader = ApplicationHook.getClassLoader();
-                if (openTreasureBox.getValue())
-                    queryMyHomePage(loader);
-
-                if (receiveCoinAsset.getValue())
-                    receiveCoinAsset();
-
-                if (donateCharityCoin.getValue())
-                    queryProjectList(loader);
-
-                if (minExchangeCount.getValue() > 0 && Statistics.canExchangeToday(UserIdMap.getCurrentUid()))
-                    queryWalkStep(loader);
-
-                if (tiyubiz.getValue()) {
-                    userTaskGroupQuery("SPORTS_DAILY_SIGN_GROUP");
-                    userTaskGroupQuery("SPORTS_DAILY_GROUP");
-                    userTaskRightsReceive();
-                    pathFeatureQuery();
-                    participate();
-                }
-
-                if (battleForFriends.getValue()) {
-                    queryClubHome();
-                    queryTrainItem();
-                }
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
+                        Statistics.SyncStepToday(UserIdMap.getCurrentUid());
+                    } catch (Throwable t) {
+                        Log.i(TAG, "StepTask.run err:");
+                        Log.printStackTrace(TAG, t);
+                    }
+                }));
             }
-        };
+            ClassLoader loader = ApplicationHook.getClassLoader();
+            if (openTreasureBox.getValue())
+                queryMyHomePage(loader);
+
+            if (receiveCoinAsset.getValue())
+                receiveCoinAsset();
+
+            if (donateCharityCoin.getValue())
+                queryProjectList(loader);
+
+            if (minExchangeCount.getValue() > 0 && Statistics.canExchangeToday(UserIdMap.getCurrentUid()))
+                queryWalkStep(loader);
+
+            if (tiyubiz.getValue()) {
+                userTaskGroupQuery("SPORTS_DAILY_SIGN_GROUP");
+                userTaskGroupQuery("SPORTS_DAILY_GROUP");
+                userTaskRightsReceive();
+                pathFeatureQuery();
+                participate();
+            }
+
+            if (battleForFriends.getValue()) {
+                queryClubHome();
+                queryTrainItem();
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     public static int tmpStepCount() {

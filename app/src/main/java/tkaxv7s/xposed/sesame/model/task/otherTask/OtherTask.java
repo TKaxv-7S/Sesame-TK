@@ -62,24 +62,22 @@ public class OtherTask extends ModelTask {
     }
 
     @Override
-    public Runnable init() {
-        return () -> {
-            executeIntervalInt = Math.max(executeInterval.getValue(), 2000);
-            if (promoprodRedEnvelope.getValue()) {
-                promoprodTaskList();
-            }
-            if (goldTicket.getValue()) {
-                //签到
-                goldBillCollect("\"campId\":\"CP1417744\",\"directModeDisableCollect\":true,\"from\":\"antfarm\",");
-                //摆设
+    public void run() {
+        executeIntervalInt = Math.max(executeInterval.getValue(), 2000);
+        if (promoprodRedEnvelope.getValue()) {
+            promoprodTaskList();
+        }
+        if (goldTicket.getValue()) {
+            //签到
+            goldBillCollect("\"campId\":\"CP1417744\",\"directModeDisableCollect\":true,\"from\":\"antfarm\",");
+            //摆设
 //                goldTicket();
-                //收取其他
-                goldBillCollect("");
-            }
-            if (carGodCard.getValue()) {
-                carGodCardbenefit();
-            }
-        };
+            //收取其他
+            goldBillCollect("");
+        }
+        if (carGodCard.getValue()) {
+            carGodCardbenefit();
+        }
     }
 
     /**

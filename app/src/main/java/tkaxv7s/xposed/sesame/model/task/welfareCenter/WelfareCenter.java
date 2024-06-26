@@ -42,10 +42,9 @@ public class WelfareCenter extends ModelTask {
     }
 
     @Override
-    public Runnable init() {
-        return () -> {
-            executeIntervalInt = Math.max(executeInterval.getValue(), 2000);
-            //TODO：待处理，检查未开通的接口
+    public void run() {
+        executeIntervalInt = Math.max(executeInterval.getValue(), 2000);
+        //TODO：待处理，检查未开通的接口
 //            String s = WelfareCenterRpcCall.welfareIndex();
 //            try {
 //                JSONObject jo = new JSONObject(s);
@@ -62,12 +61,11 @@ public class WelfareCenter extends ModelTask {
 //                Log.i(TAG, "index err:");
 //                Log.printStackTrace(TAG, th);
 //            }
-            //1.会报错，queryEnableVirtualProfitV2接口返回success=false
-            //2.不会报错，taskDetailList无数据
-            batchUseVirtualProfit();
-            //赚福利金
-            WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
-        };
+        //1.会报错，queryEnableVirtualProfitV2接口返回success=false
+        //2.不会报错，taskDetailList无数据
+        batchUseVirtualProfit();
+        //赚福利金
+        WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
     }
 
     /**

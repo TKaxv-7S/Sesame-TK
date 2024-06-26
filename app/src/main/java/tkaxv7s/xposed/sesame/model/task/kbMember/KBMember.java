@@ -33,25 +33,23 @@ public class KBMember extends ModelTask {
     }
 
     @Override
-    public Runnable init() {
-        return () -> {
-            try {
-                String s = KBMemberRpcCall.rpcCall_signIn();
-                JSONObject jo = new JSONObject(s);
-                if (jo.optBoolean("success", false)) {
-                    jo = jo.getJSONObject("data");
-                    Log.other("口碑签到📅[第" + jo.getString("dayNo") + "天]#获得" + jo.getString("value") + "积分");
-                    Statistics.KbSignInToday();
-                } else if (s.contains("\"HAS_SIGN_IN\"")) {
-                    Statistics.KbSignInToday();
-                } else {
-                    Log.i(TAG, jo.getString("errorMessage"));
-                }
-            } catch (Throwable t) {
-                Log.i(TAG, "signIn err:");
-                Log.printStackTrace(TAG, t);
+    public void run() {
+        try {
+            String s = KBMemberRpcCall.rpcCall_signIn();
+            JSONObject jo = new JSONObject(s);
+            if (jo.optBoolean("success", false)) {
+                jo = jo.getJSONObject("data");
+                Log.other("口碑签到📅[第" + jo.getString("dayNo") + "天]#获得" + jo.getString("value") + "积分");
+                Statistics.KbSignInToday();
+            } else if (s.contains("\"HAS_SIGN_IN\"")) {
+                Statistics.KbSignInToday();
+            } else {
+                Log.i(TAG, jo.getString("errorMessage"));
             }
-        };
+        } catch (Throwable t) {
+            Log.i(TAG, "signIn err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
 }

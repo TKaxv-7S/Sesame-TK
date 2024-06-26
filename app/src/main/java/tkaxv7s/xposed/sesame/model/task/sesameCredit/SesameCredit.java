@@ -67,29 +67,27 @@ public class SesameCredit extends ModelTask {
     }
 
     @Override
-    public Runnable init() {
-        return () -> {
-            executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
-            try {
-                String s = SesameCreditRpcCall.queryHome();
-                JSONObject jo = new JSONObject(s);
-                if (!jo.getBoolean("success")) {
-                    Log.i(TAG + ".init.queryHome", jo.optString("errorMsg"));
-                    return;
-                }
-                JSONObject entrance = jo.getJSONObject("entrance");
-                if (!entrance.optBoolean("openApp")) {
-                    Log.other("芝麻信用💌未开通");
-                    return;
-                }
-                doPromise();
-                insBlueBean();
-                collectSesame();
-            } catch (Throwable th) {
-                Log.i(TAG, "init err:");
-                Log.printStackTrace(TAG, th);
+    public void run() {
+        executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
+        try {
+            String s = SesameCreditRpcCall.queryHome();
+            JSONObject jo = new JSONObject(s);
+            if (!jo.getBoolean("success")) {
+                Log.i(TAG + ".run.queryHome", jo.optString("errorMsg"));
+                return;
             }
-        };
+            JSONObject entrance = jo.getJSONObject("entrance");
+            if (!entrance.optBoolean("openApp")) {
+                Log.other("芝麻信用💌未开通");
+                return;
+            }
+            doPromise();
+            insBlueBean();
+            collectSesame();
+        } catch (Throwable th) {
+            Log.i(TAG, "run err:");
+            Log.printStackTrace(TAG, th);
+        }
     }
 
     /**
