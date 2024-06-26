@@ -8,27 +8,12 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TabHost;
-import android.widget.TabWidget;
-import android.widget.Toast;
+import android.widget.*;
+import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.data.*;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.Map;
-
-import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
-import tkaxv7s.xposed.sesame.data.ModelConfig;
-import tkaxv7s.xposed.sesame.data.ModelField;
-import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ViewAppInfo;
-import tkaxv7s.xposed.sesame.data.ModelTask;
-import tkaxv7s.xposed.sesame.util.BeachIdMap;
-import tkaxv7s.xposed.sesame.util.CooperationIdMap;
-import tkaxv7s.xposed.sesame.util.LanguageUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.ReserveIdMap;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 public class SettingsActivity extends Activity {
 
@@ -36,6 +21,7 @@ public class SettingsActivity extends Activity {
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
+    //private GestureDetector gestureDetector;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -80,11 +66,42 @@ public class SettingsActivity extends Activity {
         }
         tabHost.setCurrentTab(0);
 
+        /*int size = modelConfigMap.size() - 1;
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (Math.abs(e1.getX() - e2.getX()) > 250) {
+                    return false;
+                    }
+                int currentView = tabHost.getCurrentTab();
+                if (e1.getY() - e2.getY() > 120 && Math.abs(velocityY) > 200) {
+                    if (currentView < size) {
+                        currentView++;
+                    }
+                    tabHost.setCurrentTab(currentView);
+                } else if (e2.getY() - e1.getY() > 120 && Math.abs(velocityY) > 200) {
+                    if (currentView > 0) {
+                        currentView--;
+                    }
+                    tabHost.setCurrentTab(currentView);
+                }
+                return true;
+            }
+        });*/
+
         UserIdMap.shouldReload = true;
         CooperationIdMap.shouldReload = true;
         ReserveIdMap.shouldReload = true;
         BeachIdMap.shouldReload = true;
     }
+
+    /*@Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (gestureDetector.onTouchEvent(event)) {
+            event.setAction(MotionEvent.ACTION_CANCEL);
+        }
+        return super.dispatchTouchEvent(event);
+    }*/
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
