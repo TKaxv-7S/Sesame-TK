@@ -59,6 +59,7 @@ public class AntStall extends ModelTask {
     public BooleanModelField enableStall;
     public BooleanModelField stallAutoClose;
     public BooleanModelField stallAutoOpen;
+    public BooleanModelField stallAutoTicket;
     public BooleanModelField stallAutoTask;
     public BooleanModelField stallReceiveAward;
     public BooleanModelField stallOpenType;
@@ -86,6 +87,7 @@ public class AntStall extends ModelTask {
         modelFields.addField(enableStall = new BooleanModelField("enableStall", "开启新村", false));
         modelFields.addField(stallAutoOpen = new BooleanModelField("stallAutoOpen", "新村自动摆摊", false));
         modelFields.addField(stallAutoClose = new BooleanModelField("stallAutoClose", "新村自动收摊", false));
+        modelFields.addField(stallAutoTicket = new BooleanModelField("stallAutoTicket", "新村自动贴罚单", false));
         modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
         modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
         modelFields.addField(stallOpenType = new BooleanModelField("stallOpenType", "摊位类型(打开:摆摊列表/关闭:不摆列表)", false));
@@ -147,7 +149,9 @@ public class AntStall extends ModelTask {
                     if (stallDonate.getValue()) {
                         roadmap();
                     }
-                    pasteTicket();
+                    if (stallAutoTicket.getValue()) {
+                        pasteTicket();
+                    }
                 } else {
                     Log.record("home err:" + " " + s);
                 }
