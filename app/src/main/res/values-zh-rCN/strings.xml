@@ -70,6 +70,7 @@
     <string name="export_runtime_log_file">导出运行日志</string>
     <string name="export_the_statistic_file">导出统计</string>
     <string name="import_the_statistic_file">导入统计</string>
+    <string name="sync_the_config_file">同步配置文件</string>
     <string name="view_debug">抓包记录</string>
     <string name="settings">设  置</string>
     <string name="limit_collect">限制收取</string>

@@ -4,6 +4,10 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 
+/**
+ * 会员RpcCall类
+ * @author xiong
+ */
 public class AntMemberRpcCall {
 
     private static String getUniqueId() {
@@ -115,4 +119,8 @@ public class AntMemberRpcCall {
                         + bizParam + "\",\"bizSubType\":\"" + bizSubType + "\",\"bizType\":\"BROWSE\"}]");
     }
 
+    public static String queryAllStatusTaskList() {
+        return ApplicationHook.requestString("alipay.antmember.biz.rpc.membertask.h5.signPageTaskList",
+                "[{\"sourceBusiness\":\"signInAd\",\"sourcePassMap\":{\"innerSource\":\"\",\"source\":\"myTab\",\"unid\":\"\"}}]");
+    }
 }

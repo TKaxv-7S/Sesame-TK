@@ -205,6 +205,9 @@ public class MainActivity extends Activity {
         menu.add(0, 5, 5, R.string.export_the_statistic_file);
         menu.add(0, 6, 6, R.string.import_the_statistic_file);
         menu.add(0, 8, 8, R.string.settings);
+        if("TEST".equals(ViewAppInfo.getAppVersion())) {
+            menu.add(0, 9, 9, R.string.sync_the_config_file);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -283,6 +286,9 @@ public class MainActivity extends Activity {
 
             case 8:
                 startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case 9:
+
                 break;
         }
         return super.onOptionsItemSelected(item);

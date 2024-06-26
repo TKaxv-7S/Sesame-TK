@@ -73,18 +73,16 @@ public class OmegakoiTown extends ModelTask {
         return System.currentTimeMillis() - executeTime >= 21600000;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                RuntimeInfo.getInstance().put("omegakoiTown", System.currentTimeMillis());
-                getUserTasks();
-                getSignInStatus();
-                houseProduct();
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
-            }
-        };
+    public void run() {
+        try {
+            RuntimeInfo.getInstance().put("omegakoiTown", System.currentTimeMillis());
+            getUserTasks();
+            getSignInStatus();
+            houseProduct();
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void getUserTasks() {

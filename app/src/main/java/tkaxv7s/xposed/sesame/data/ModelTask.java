@@ -20,7 +20,7 @@ public abstract class ModelTask extends Model {
     private final Map<String, BaseTask> childTaskMap = new ConcurrentHashMap<>();
 
     public ModelTask() {
-        this.runnable = init();
+        this.runnable = this::run;
         this.thread = null;
     }
 
@@ -38,7 +38,7 @@ public abstract class ModelTask extends Model {
 
     public abstract Boolean check();
 
-    public abstract Runnable init();
+    public abstract void run();
 
     public synchronized Boolean hasChildTask(String childId) {
         return childTaskMap.containsKey(childId);

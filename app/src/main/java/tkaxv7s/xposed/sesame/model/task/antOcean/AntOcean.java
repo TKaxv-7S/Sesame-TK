@@ -35,30 +35,30 @@ public class AntOcean extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return enableOcean.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                String s = AntOceanRpcCall.queryOceanStatus();
-                JSONObject jo = new JSONObject(s);
-                if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    if (jo.getBoolean("opened")) {
-                        queryHomePage();
-                    } else {
-                        enableOcean.setValue(false);
-                        Log.record("请先开启神奇海洋，并完成引导教程");
-                    }
+    @Override
+    public void run() {
+        try {
+            String s = AntOceanRpcCall.queryOceanStatus();
+            JSONObject jo = new JSONObject(s);
+            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                if (jo.getBoolean("opened")) {
+                    queryHomePage();
                 } else {
-                    Log.i(TAG, jo.getString("resultDesc"));
+                    enableOcean.setValue(false);
+                    Log.record("请先开启神奇海洋，并完成引导教程");
                 }
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
+            } else {
+                Log.i(TAG, jo.getString("resultDesc"));
             }
-        };
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void queryHomePage() {

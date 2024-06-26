@@ -32,8 +32,8 @@ public final class ViewAppInfo {
         appTitle = context.getString(R.string.app_name);
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            appVersion = " " + packageInfo.versionName;
-            appTitle += appVersion;
+            appVersion = packageInfo.versionName;
+            appTitle = appTitle + " " + appVersion;
         } catch (PackageManager.NameNotFoundException ignored) {
         }
         checkRunType();

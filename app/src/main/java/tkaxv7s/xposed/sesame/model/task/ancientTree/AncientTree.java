@@ -40,6 +40,7 @@ public class AncientTree extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         if (enableAncientTree.getValue() && !TaskCommon.IS_ENERGY_TIME && TaskCommon.IS_AFTER_8AM) {
             if (!ancientTreeOnlyWeek.getValue()) {
@@ -52,16 +53,16 @@ public class AncientTree extends ModelTask {
         return false;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                Log.record("开始检测古树保护");
-                ancientTree(ancientTreeCityCodeList.getValue().getKey().keySet()); // 二次检查 有时会返回繁忙漏保护
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
-            }
-        };
+    @Override
+    public void run() {
+        try {
+            Log.record("开始检测古树保护");
+            // 二次检查 有时会返回繁忙漏保护
+            ancientTree(ancientTreeCityCodeList.getValue().getKey().keySet());
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void ancientTree(Collection<String> ancientTreeCityCodeList) {

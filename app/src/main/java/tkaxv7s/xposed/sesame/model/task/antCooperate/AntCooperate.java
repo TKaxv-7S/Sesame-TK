@@ -39,55 +39,55 @@ public class AntCooperate extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         return enableAntCooperate.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                if (cooperateWater.getValue()) {
-                    String s = AntCooperateRpcCall.queryUserCooperatePlantList();
-                    if (s == null) {
-                        Thread.sleep(RandomUtil.delay());
-                        s = AntCooperateRpcCall.queryUserCooperatePlantList();
-                    }
-                    JSONObject jo = new JSONObject(s);
-                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                        int userCurrentEnergy = jo.getInt("userCurrentEnergy");
-                        JSONArray ja = jo.getJSONArray("cooperatePlants");
-                        for (int i = 0; i < ja.length(); i++) {
-                            jo = ja.getJSONObject(i);
-                            String cooperationId = jo.getString("cooperationId");
-                            if (!jo.has("name")) {
-                                s = AntCooperateRpcCall.queryCooperatePlant(cooperationId);
-                                jo = new JSONObject(s).getJSONObject("cooperatePlant");
-                            }
-                            String name = jo.getString("name");
-                            int waterDayLimit = jo.getInt("waterDayLimit");
-                            CooperationIdMap.putIdMap(cooperationId, name);
-                            if (!Statistics.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
-                                continue;
-                            Integer num = cooperateWaterList.getValue().getKey().get(cooperationId);
-                            if (num != null) {
-                                if (num > waterDayLimit)
-                                    num = waterDayLimit;
-                                if (num > userCurrentEnergy)
-                                    num = userCurrentEnergy;
-                                if (num > 0)
-                                    cooperateWater(UserIdMap.getCurrentUid(), cooperationId, num, name);
-                            }
-                        }
-                    } else {
-                        Log.i(TAG, jo.getString("resultDesc"));
-                    }
+    @Override
+    public void run() {
+        try {
+            if (cooperateWater.getValue()) {
+                String s = AntCooperateRpcCall.queryUserCooperatePlantList();
+                if (s == null) {
+                    Thread.sleep(RandomUtil.delay());
+                    s = AntCooperateRpcCall.queryUserCooperatePlantList();
                 }
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
+                JSONObject jo = new JSONObject(s);
+                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                    int userCurrentEnergy = jo.getInt("userCurrentEnergy");
+                    JSONArray ja = jo.getJSONArray("cooperatePlants");
+                    for (int i = 0; i < ja.length(); i++) {
+                        jo = ja.getJSONObject(i);
+                        String cooperationId = jo.getString("cooperationId");
+                        if (!jo.has("name")) {
+                            s = AntCooperateRpcCall.queryCooperatePlant(cooperationId);
+                            jo = new JSONObject(s).getJSONObject("cooperatePlant");
+                        }
+                        String name = jo.getString("name");
+                        int waterDayLimit = jo.getInt("waterDayLimit");
+                        CooperationIdMap.putIdMap(cooperationId, name);
+                        if (!Statistics.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
+                            continue;
+                        Integer num = cooperateWaterList.getValue().getKey().get(cooperationId);
+                        if (num != null) {
+                            if (num > waterDayLimit)
+                                num = waterDayLimit;
+                            if (num > userCurrentEnergy)
+                                num = userCurrentEnergy;
+                            if (num > 0)
+                                cooperateWater(UserIdMap.getCurrentUid(), cooperationId, num, name);
+                        }
+                    }
+                } else {
+                    Log.i(TAG, jo.getString("resultDesc"));
+                }
             }
-            CooperationIdMap.saveIdMap();
-        };
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
+        CooperationIdMap.saveIdMap();
     }
 
     private static void cooperateWater(String uid, String coopId, int count, String name) {

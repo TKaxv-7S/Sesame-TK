@@ -3,9 +3,11 @@ package tkaxv7s.xposed.sesame.model.task.welfareCenter;
 import org.json.JSONArray;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.common.rpcCall.BaseTaskRpcCall;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 
 /**
  * 福利金RpcCall类
+ *
  * @author xiong
  */
 public class WelfareCenterRpcCall extends BaseTaskRpcCall {
@@ -38,5 +40,28 @@ public class WelfareCenterRpcCall extends BaseTaskRpcCall {
     public static String batchUseVirtualProfit(JSONArray vpIds) {
         return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.virtualProfit.batchUseVirtualProfit",
                 "[{\"virtualProfitIdList\":" + vpIds + "}]");
+    }
+
+    /**
+     * 查询抽奖次数
+     *
+     * @param certIds Ids
+     * @return 结果
+     */
+    public static String queryCert(String[] certIds) {
+        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.cert.query",
+                "[{\"certTemplateIdSet\":" + JsonUtil.toJsonString(certIds) + "}]");
+    }
+
+    /**
+     * 批量抽奖
+     *
+     *
+     * @param playId ID
+     * @return 结果
+     */
+    public static String playTrigger(String playId) {
+        return ApplicationHook.requestString("com.alipay.loanpromoweb.promo.playcenter.playTrigger.trigger",
+                "[{\"extInfo\":{},\"operation\":\"MYBK_DACU_INTERACTIVE_ZHB\",\"playId\":\"" + playId + "\"}]");
     }
 }

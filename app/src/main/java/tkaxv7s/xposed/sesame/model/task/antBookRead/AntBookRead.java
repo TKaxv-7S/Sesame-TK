@@ -29,6 +29,7 @@ public class AntBookRead extends ModelTask {
         return modelFields;
     }
 
+    @Override
     public Boolean check() {
         if (!antBookRead.getValue()) {
             return false;
@@ -40,18 +41,17 @@ public class AntBookRead extends ModelTask {
         return System.currentTimeMillis() - executeTime >= 21600000;
     }
 
-    public Runnable init() {
-        return () -> {
-            try {
-                RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
-                queryTaskCenterPage();
-                queryTask();
-                queryTreasureBox();
-            } catch (Throwable t) {
-                Log.i(TAG, "start.run err:");
-                Log.printStackTrace(TAG, t);
-            }
-        };
+    @Override
+    public void run() {
+        try {
+            RuntimeInfo.getInstance().put("consumeGold", System.currentTimeMillis());
+            queryTaskCenterPage();
+            queryTask();
+            queryTreasureBox();
+        } catch (Throwable t) {
+            Log.i(TAG, "start.run err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void queryTaskCenterPage() {
