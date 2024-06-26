@@ -385,7 +385,8 @@ public class AntForestV2 extends ModelTask {
             boolean isCollectEnergy = collectEnergy.getValue() && !dontCollectMap.containsKey(userId);
 
             if (isSelf) {
-                if ("CAN_PLAY".equals(userHomeObject.optString("whackMoleStatus"))) {
+                String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
+                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
                     whackMole();
                 }
                 updateDoubleTime(userHomeObject);
@@ -459,10 +460,6 @@ public class AntForestV2 extends ModelTask {
 
             if (!TaskCommon.IS_ENERGY_TIME) {
                 if (isSelf) {
-                    String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                    if ("CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
-                        whackMole();
-                    }
                     if (totalCertCount.getValue()) {
                         JSONObject userBaseInfo = userHomeObject.getJSONObject("userBaseInfo");
                         int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
@@ -891,7 +888,7 @@ public class AntForestV2 extends ModelTask {
                         String resultCode = jo.getString("resultCode");
                         if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
                             if ("PARAM_ILLEGAL2".equals(resultCode)) {
-                                Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误信息:" + jo.getString("resultDesc"));
+                                Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
                                 return;
                             }
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
