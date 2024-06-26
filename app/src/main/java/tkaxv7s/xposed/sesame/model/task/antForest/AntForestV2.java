@@ -1648,17 +1648,13 @@ public class AntForestV2 extends ModelTask {
                 return;
             }
             boolean isDone = false;
-            if ("SUCCESS".equals(JsonUtil.getValueByPath(jsonObject, "data.status"))) {
-                Log.forest("光盘行动💿今日已完成");
-                isDone = true;
-            }
             String photoGuangPanBeforeStr = photoGuangPanBefore.getValue();
             String photoGuangPanAfterStr = photoGuangPanAfter.getValue();
-            if (StringUtil.isEmpty(photoGuangPanBeforeStr) || StringUtil.isEmpty(photoGuangPanAfterStr)) {
+            if (StringUtil.isEmpty(photoGuangPanBeforeStr) || StringUtil.isEmpty(photoGuangPanAfterStr) || Objects.equals(photoGuangPanBeforeStr, photoGuangPanAfterStr)) {
                 JSONObject data = jsonObject.optJSONObject("data");
                 if (data != null) {
-                    String beforeMealsImageUrl = jsonObject.optString("beforeMealsImageUrl");
-                    String afterMealsImageUrl = jsonObject.optString("afterMealsImageUrl");
+                    String beforeMealsImageUrl = data.optString("beforeMealsImageUrl");
+                    String afterMealsImageUrl = data.optString("afterMealsImageUrl");
                     if (!StringUtil.isEmpty(beforeMealsImageUrl) && !StringUtil.isEmpty(afterMealsImageUrl)) {
                         Pattern pattern = Pattern.compile("img/(.*)/original");
                         Matcher beforeMatcher = pattern.matcher(beforeMealsImageUrl);
@@ -1668,13 +1664,19 @@ public class AntForestV2 extends ModelTask {
                         }
                         Matcher afterMatcher = pattern.matcher(afterMealsImageUrl);
                         if (afterMatcher.find()) {
-                            photoGuangPanAfterStr = beforeMatcher.group(1);
+                            photoGuangPanAfterStr = afterMatcher.group(1);
                             photoGuangPanAfter.setValue(photoGuangPanAfterStr);
                         }
                         ConfigV2.save(false);
                         isDone = true;
                     }
                 }
+            } else {
+                isDone = true;
+            }
+            if ("SUCCESS".equals(JsonUtil.getValueByPath(jsonObject, "data.status"))) {
+                //Log.forest("光盘行动💿今日已完成");
+                return;
             }
             if (!isDone) {
                 Log.forest("光盘行动💿请先完成一次光盘打卡");
