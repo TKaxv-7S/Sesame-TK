@@ -25,6 +25,7 @@ public class UserIdMap {
     public static void setCurrentUid(String uid) {
         if (currentUid == null || !currentUid.equals(uid)) {
             currentUid = uid;
+            FileUtil.setUid(uid);
             FriendManager.fillUser(ApplicationHook.getClassLoader());
         }
     }
