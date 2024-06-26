@@ -238,7 +238,8 @@ public class OtherTask extends ModelTask {
             for (int i = 0; i < length; i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
                 String status = object.getString("taskProcessStatus");
-                if ("RECEIVE_SUCCESS".equals(status)) {
+                String taskType = object.getString("taskType");
+                if ("RECEIVE_SUCCESS".equals(status) || "TRANSFORMER".equals(taskType)) {
                     continue;
                 }
                 if (!"SIGNUP_COMPLETE".equals(status)) {

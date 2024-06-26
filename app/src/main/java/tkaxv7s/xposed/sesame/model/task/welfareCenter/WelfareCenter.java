@@ -9,6 +9,9 @@ import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.TimeUtil;
+
+import java.util.Iterator;
 
 
 /**
@@ -28,6 +31,7 @@ public class WelfareCenter extends ModelTask {
     private final BooleanModelField welfareCenterProfit = new BooleanModelField("welfareCenterProfit", "福利金 | 领奖", false);
     private final BooleanModelField welfareCenterTask = new BooleanModelField("welfareCenterTask", "福利金 | 任务", false);
     private final BooleanModelField welfareCenterWSTask = new BooleanModelField("welfareCenterWSTask", "网商银行 | 任务", false);
+    private final BooleanModelField welfareCenterWSLuckDraw = new BooleanModelField("welfareCenterWSTask", "网商银行 | 抽奖", false);
 
     @Override
     public String setName() {
@@ -42,6 +46,7 @@ public class WelfareCenter extends ModelTask {
         modelFields.addField(welfareCenterProfit);
         modelFields.addField(welfareCenterTask);
         modelFields.addField(welfareCenterWSTask);
+        modelFields.addField(welfareCenterWSLuckDraw);
         return modelFields;
     }
 
@@ -72,13 +77,20 @@ public class WelfareCenter extends ModelTask {
 //            }
         //1.会报错，queryEnableVirtualProfitV2接口返回success=false
         //2.不会报错，taskDetailList无数据
-        batchUseVirtualProfit();
-        //赚福利金
-        WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
+        if (welfareCenterProfit.getValue()) {
+            batchUseVirtualProfit();
+        }
+        if (welfareCenterTask.getValue()) {
+            //赚福利金
+            WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
+        }
+        if (welfareCenterWSTask.getValue()) {
+            WelfareCenterRpcCall.doTask("AP12202921", TAG, "网商银行🏦");
+        }
+        if (welfareCenterWSLuckDraw.getValue()) {
+            playTrigger();
+        }
 
-        WelfareCenterRpcCall.doTask("AP12202921", TAG, "网商银行🏦");
-
-//        WelfareCenterRpcCall.doTask("AP14237892", TAG, "福利金🤑");
     }
 
     /**
@@ -111,7 +123,7 @@ public class WelfareCenter extends ModelTask {
                     Log.i(TAG + ".batchUseVirtualProfit", result.optString("resultDesc"));
                     continue;
                 }
-                Log.other("福利金🤑领取成功[" + object.getString("sceneDesc") + "]" + object.getString("reward") + "×" + virtualProfitIds.length());
+                Log.other("福利金🤑获得[" + object.getString("sceneDesc") + "]" + object.getString("reward") + "×" + virtualProfitIds.length());
             }
         } catch (Throwable th) {
             Log.i(TAG, "batchUseVirtualProfit err:");
@@ -139,6 +151,52 @@ public class WelfareCenter extends ModelTask {
                 return;
             }
             Log.other("福利金🤑签到成功" + JsonUtil.getValueByPath(jsonObject, "result.prizeOrderDTOList.[0].price"));
+        } catch (Throwable th) {
+            Log.i(TAG, "signIn err:");
+            Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(executeIntervalInt);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    private void playTrigger() {
+        try {
+            String str = WelfareCenterRpcCall.queryCert(new String[]{"CT02048186", "CT32675397"});
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".playTrigger", jsonObject.optString("resultDesc"));
+                return;
+            }
+            jsonObject = (JSONObject) JsonUtil.getValueByPathObject(jsonObject, "result.cert");
+            if (jsonObject == null) {
+                return;
+            }
+            Iterator<String> keys = jsonObject.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                int count = jsonObject.getInt(key);
+                for (int j = 0; j < count; j++) {
+                    str = WelfareCenterRpcCall.playTrigger("PLAY100576638");
+                    TimeUtil.sleep(500);
+                    jsonObject = new JSONObject(str);
+                    if (!jsonObject.getBoolean("success")) {
+                        Log.i(TAG + ".playTrigger", jsonObject.optString("resultDesc"));
+                        return;
+                    }
+                    JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.extInfo.result.sendResult.prizeSendOrderList");
+                    if (jsonArray == null) {
+                        continue;
+                    }
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        jsonObject = jsonArray.getJSONObject(i);
+                        Log.other("网商银行🏦获得[" + jsonObject.getString("prizeName") + "]");
+                    }
+                }
+            }
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
             Log.printStackTrace(TAG, th);
