@@ -594,7 +594,7 @@ public class AntSports extends ModelTask {
                 int minGoStepCount = path.getInt("minGoStepCount");
                 if (jo.has("userPath")) {
                     JSONObject userPath = jo.getJSONObject("userPath");
-                    UserIdMap.setCurrentUid(userPath.getString("userId"));
+                    // UserIdMap.setCurrentUid(userPath.getString("userId"));
                     String userPathRecordStatus = userPath.getString("userPathRecordStatus");
                     if ("COMPLETED".equals(userPathRecordStatus)) {
                         pathMapHomepage(pathId);
