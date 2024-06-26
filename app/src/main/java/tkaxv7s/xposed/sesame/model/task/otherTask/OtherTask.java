@@ -19,8 +19,7 @@ import tkaxv7s.xposed.sesame.util.TimeUtil;
  */
 public class OtherTask extends ModelTask {
     private static final String TAG = OtherTask.class.getSimpleName();
-
-    private BooleanModelField enable;
+    private final BooleanModelField enable = new BooleanModelField("enable", "开启其他任务", false);
     /**
      * 间隔时间
      */
@@ -28,17 +27,17 @@ public class OtherTask extends ModelTask {
     /**
      * 黄金票
      */
-    private BooleanModelField goldTicket;
-    private IntegerModelField executeInterval;
+    private final BooleanModelField goldTicket = new BooleanModelField("goldTicket", "开启 | 黄金票", true);
+    private final IntegerModelField executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000);
     /**
      * 车神卡
      */
-    private BooleanModelField carGodCard;
+    private final BooleanModelField carGodCard = new BooleanModelField("carGodCard", "开启 | 车神卡", true);
 
     /**
      * 实体红包
      */
-    private BooleanModelField promoprodRedEnvelope;
+    private final BooleanModelField promoprodRedEnvelope = new BooleanModelField("promoprodRedEnvelope", "开启 | 实体红包", true);
 
     @Override
     public String setName() {
@@ -48,11 +47,11 @@ public class OtherTask extends ModelTask {
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enable = new BooleanModelField("enable", "开启其他任务", false));
-        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000));
-        modelFields.addField(goldTicket = new BooleanModelField("goldTicket", "开启 | 黄金票", true));
-        modelFields.addField(carGodCard = new BooleanModelField("carGodCard", "开启 | 车神卡", true));
-        modelFields.addField(promoprodRedEnvelope = new BooleanModelField("promoprodRedEnvelope", "开启 | 实体红包", true));
+        modelFields.addField(enable);
+        modelFields.addField(executeInterval);
+        modelFields.addField(goldTicket);
+        modelFields.addField(carGodCard);
+        modelFields.addField(promoprodRedEnvelope);
         return modelFields;
     }
 
@@ -238,22 +237,27 @@ public class OtherTask extends ModelTask {
             }
             for (int i = 0; i < length; i++) {
                 JSONObject object = jsonArray.getJSONObject(i);
-                if ("SIGNUP_COMPLETE".equals(object.getString("taskProcessStatus"))) {
+                String status = object.getString("taskProcessStatus");
+                if ("RECEIVE_SUCCESS".equals(status)) {
                     continue;
                 }
-                str = OtherTaskRpcCall.signup(JsonUtil.getValueByPath(object, "taskParticipateExtInfo.gplusItem"), object.getString("taskId"));
-                jsonObject = new JSONObject(str);
-                if (!jsonObject.getBoolean("success")) {
-                    Log.i(TAG + ".queryTaskList.signup", jsonObject.optString("errorMsg"));
+                if (!"SIGNUP_COMPLETE".equals(status)) {
+                    str = OtherTaskRpcCall.signup(JsonUtil.getValueByPath(object, "taskParticipateExtInfo.gplusItem"),
+                            object.getString("taskId"));
+                    jsonObject = new JSONObject(str);
+                    if (!jsonObject.getBoolean("success")) {
+                        Log.i(TAG + ".queryTaskList.signup", jsonObject.optString("errorMsg"));
+                    }
+                    TimeUtil.sleep(executeIntervalInt);
                 }
-                TimeUtil.sleep(executeIntervalInt);
                 str = OtherTaskRpcCall.complete(object.getString("taskId"));
                 jsonObject = new JSONObject(str);
                 if (!jsonObject.getBoolean("success")) {
                     Log.i(TAG + ".queryTaskList.complete", jsonObject.optString("errorMsg"));
                     continue;
                 }
-                Log.other("实体红包🍷获取[" + jsonObject.getString("ariverRpcTraceId") + "]" + JsonUtil.getValueByPath(jsonObject, "prizeSendInfo.price.amount") + "元");
+                Log.other("实体红包🍷获取[" + JsonUtil.getValueByPath(jsonObject, "appletBaseConfigDTO.appletName") +
+                        "]" + JsonUtil.getValueByPath(jsonObject, "prizeSendInfo.price.amount") + "元");
                 TimeUtil.sleep(executeIntervalInt);
             }
         } catch (Throwable th) {

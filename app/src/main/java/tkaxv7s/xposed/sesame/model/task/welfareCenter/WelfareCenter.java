@@ -12,27 +12,36 @@ import tkaxv7s.xposed.sesame.util.Log;
 
 
 /**
- * 福利金
+ * 网商银行
  *
  * @author xiong
  */
 public class WelfareCenter extends ModelTask {
     private static final String TAG = WelfareCenter.class.getSimpleName();
 
+    /**
+     * 执行间隔
+     */
     private Integer executeIntervalInt;
-    private BooleanModelField welfareCenter;
-    private IntegerModelField executeInterval;
+    private final BooleanModelField welfareCenter = new BooleanModelField("welfareCenter", "开启网商银行", false);
+    private final IntegerModelField executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000);
+    private final BooleanModelField welfareCenterProfit = new BooleanModelField("welfareCenterProfit", "福利金 | 领奖", false);
+    private final BooleanModelField welfareCenterTask = new BooleanModelField("welfareCenterTask", "福利金 | 任务", false);
+    private final BooleanModelField welfareCenterWSTask = new BooleanModelField("welfareCenterWSTask", "网商银行 | 任务", false);
 
     @Override
     public String setName() {
-        return "福利金";
+        return "网商银行";
     }
 
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(welfareCenter = new BooleanModelField("welfareCenter", "开启福利金", false));
-        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 2000));
+        modelFields.addField(welfareCenter);
+        modelFields.addField(executeInterval);
+        modelFields.addField(welfareCenterProfit);
+        modelFields.addField(welfareCenterTask);
+        modelFields.addField(welfareCenterWSTask);
         return modelFields;
     }
 
@@ -66,6 +75,10 @@ public class WelfareCenter extends ModelTask {
         batchUseVirtualProfit();
         //赚福利金
         WelfareCenterRpcCall.doTask("AP1269301", TAG, "福利金🤑");
+
+        WelfareCenterRpcCall.doTask("AP12202921", TAG, "网商银行🏦");
+
+//        WelfareCenterRpcCall.doTask("AP14237892", TAG, "福利金🤑");
     }
 
     /**

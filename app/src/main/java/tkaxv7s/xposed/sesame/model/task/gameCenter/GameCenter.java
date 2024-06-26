@@ -52,9 +52,9 @@ public class GameCenter extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(gameCenter = new BooleanModelField("gameCenter", "开启游戏中心", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
-        modelFields.addField(bmSignIn = new BooleanModelField("signIn", "开启 | 签到", false));
-        modelFields.addField(bmDoTask = new BooleanModelField("doTask", "开启 | 任务（凉凉）", false));
-        modelFields.addField(bmBatchReceive = new BooleanModelField("batchReceive", "开启 | 领取", false));
+        modelFields.addField(bmSignIn = new BooleanModelField("bmSignIn", "开启 | 签到", false));
+        modelFields.addField(bmDoTask = new BooleanModelField("bmDoTask", "开启 | 任务（凉凉）", false));
+        modelFields.addField(bmBatchReceive = new BooleanModelField("bmBatchReceive", "开启 | 领取", false));
         return modelFields;
     }
 
