@@ -812,6 +812,7 @@ public class AntFarm extends ModelTask {
             if ("SUCCESS".equals(memo)) {
                 JSONObject signList = jo.getJSONObject("signList");
                 sign(signList);
+                Thread.sleep(2000);
                 JSONArray jaFarmTaskList = jo.getJSONArray("farmTaskList");
                 for (int i = 0; i < jaFarmTaskList.length(); i++) {
                     jo = jaFarmTaskList.getJSONObject(i);
@@ -825,10 +826,11 @@ public class AntFarm extends ModelTask {
                             int awardCount = jo.getInt("awardCount");
                             if (awardCount + foodStock > foodStockLimit) {
                                 unreceiveTaskAward++;
-                                Log.record("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，已终止领取");
-                                break;
+                                Log.record("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，终止领取");
+                                return;
                             }
                             s = AntFarmRpcCall.receiveFarmTaskAward(jo.getString("taskId"));
+                            Thread.sleep(5000);
                             jo = new JSONObject(s);
                             memo = jo.getString("memo");
                             if ("SUCCESS".equals(memo)) {

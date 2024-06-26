@@ -49,6 +49,11 @@ public class HtmlViewerActivity extends Activity {
                         }
                     }
                 });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         Intent intent = getIntent();
         uri = intent.getData();
         if (uri != null) {

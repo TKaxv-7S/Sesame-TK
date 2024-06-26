@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
 import android.text.Editable;
+import android.text.InputType;
 import android.widget.EditText;
 
 import tkaxv7s.xposed.sesame.R;
@@ -68,6 +70,34 @@ public class StringDialog {
                 .create();
         edt.setText(String.valueOf(modelField.getConfigValue()));
         return editDialog;
+    }
+
+    public static void showReadDialog(Context c, CharSequence title, ModelField modelField) {
+        showReadDialog(c, title, modelField, null);
+    }
+
+    public static void showReadDialog(Context c, CharSequence title, ModelField modelField, String msg) {
+        StringDialog.modelField = modelField;
+        AlertDialog readDialog = getReadDialog(c);
+        if (msg != null) {
+            readDialog.setTitle(title);
+            readDialog.setMessage(msg);
+        } else {
+            readDialog.setTitle(title);
+        }
+        readDialog.show();
+    }
+
+    private static AlertDialog getReadDialog(Context c) {
+        EditText edt = new EditText(c);
+        edt.setInputType(InputType.TYPE_NULL);
+        edt.setTextColor(Color.GRAY);
+        AlertDialog readDialog = new AlertDialog.Builder(c)
+                .setTitle("title")
+                .setView(edt)
+                .create();
+        edt.setText(String.valueOf(modelField.getConfigValue()));
+        return readDialog;
     }
 
 }

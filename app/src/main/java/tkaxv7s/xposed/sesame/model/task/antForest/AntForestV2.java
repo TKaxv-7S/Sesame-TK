@@ -116,8 +116,8 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField ecoLifeTick;
     private BooleanModelField ecoLifeOpen;
     private BooleanModelField photoGuangPan;
-    private StringModelField photoGuangPanBefore;
-    private StringModelField photoGuangPanAfter;
+    private TextModelField photoGuangPanBefore;
+    private TextModelField photoGuangPanAfter;
 
     @Getter
     private Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
@@ -180,8 +180,12 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
         modelFields.addField(ecoLifeOpen = new BooleanModelField("ecoLifeOpen", "绿色 | 自动开通", false));
         modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "绿色 | 光盘行动", false));
-        modelFields.addField(photoGuangPanBefore = new StringModelField("photoGuangPanBefore", "绿色 | 光盘前图片ID", ""));
-        modelFields.addField(photoGuangPanAfter = new StringModelField("photoGuangPanAfter", "绿色 | 光盘后图片ID", ""));
+        modelFields.addField(photoGuangPanBefore = new TextModelField("photoGuangPanBefore", "绿色 | 光盘前图片ID", ""));
+        modelFields.addField(photoGuangPanAfter = new TextModelField("photoGuangPanAfter", "绿色 | 光盘后图片ID", ""));
+        modelFields.addField(new EmptyModelField("photoGuangPanClear", "绿色 | 清空图片ID", v -> {
+            photoGuangPanBefore.reset();
+            photoGuangPanAfter.reset();
+        }));
         return modelFields;
     }
 
@@ -381,7 +385,8 @@ public class AntForestV2 extends ModelTask {
             boolean isCollectEnergy = collectEnergy.getValue() && !dontCollectMap.containsKey(userId);
 
             if (isSelf) {
-                if ("CAN_PLAY".equals(userHomeObject.optString("whackMoleStatus"))) {
+                String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
+                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
                     whackMole();
                 }
                 updateDoubleTime(userHomeObject);
@@ -455,10 +460,6 @@ public class AntForestV2 extends ModelTask {
 
             if (!TaskCommon.IS_ENERGY_TIME) {
                 if (isSelf) {
-                    String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                    if ("CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
-                        whackMole();
-                    }
                     if (totalCertCount.getValue()) {
                         JSONObject userBaseInfo = userHomeObject.getJSONObject("userBaseInfo");
                         int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
@@ -887,7 +888,7 @@ public class AntForestV2 extends ModelTask {
                         String resultCode = jo.getString("resultCode");
                         if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
                             if ("PARAM_ILLEGAL2".equals(resultCode)) {
-                                Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误信息:" + jo.getString("resultDesc"));
+                                Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
                                 return;
                             }
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));

@@ -48,6 +48,10 @@ public class ModelField implements Serializable {
         setValue(value);
     }
 
+    public void reset() {
+        value = defaultValue;
+    }
+
     @JsonIgnore
     public String getConfigValue() {
         return String.valueOf(getValue());
