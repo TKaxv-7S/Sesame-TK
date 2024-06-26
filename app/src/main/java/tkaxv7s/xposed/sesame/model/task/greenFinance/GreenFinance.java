@@ -2,11 +2,9 @@ package tkaxv7s.xposed.sesame.model.task.greenFinance;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
@@ -14,7 +12,10 @@ import tkaxv7s.xposed.sesame.util.Statistics;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TreeMap;
 
 /**
  * @author Constanline
@@ -23,9 +24,8 @@ import java.util.*;
 public class GreenFinance extends ModelTask {
     private static final String TAG = GreenFinance.class.getSimpleName();
 
-    private Integer executeIntervalInt;
+    private final Integer executeIntervalInt = 5000;
     private BooleanModelField greenFinance;
-    private IntegerModelField executeInterval;
     private BooleanModelField greenFinanceLsxd;
     private BooleanModelField greenFinanceLsbg;
     private BooleanModelField greenFinanceLscg;
@@ -46,7 +46,6 @@ public class GreenFinance extends ModelTask {
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(greenFinance = new BooleanModelField("greenFinance", "开启绿色经营", false));
-        modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 5000));
         modelFields.addField(greenFinanceLsxd = new BooleanModelField("greenFinanceLsxd", "打卡 | 绿色行动", false));
         modelFields.addField(greenFinanceLscg = new BooleanModelField("greenFinanceLscg", "打卡 | 绿色采购", false));
         modelFields.addField(greenFinanceLsbg = new BooleanModelField("greenFinanceLsbg", "打卡 | 绿色办公", false));
@@ -64,8 +63,6 @@ public class GreenFinance extends ModelTask {
 
     @Override
     public void  run() {
-   
-            executeIntervalInt = Math.max(executeInterval.getValue(), 5000);
             String s = GreenFinanceRpcCall.greenFinanceIndex();
             try {
                 JSONObject jo = new JSONObject(s);

@@ -3,19 +3,18 @@ package tkaxv7s.xposed.sesame.model.task.antStall;
 import android.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.*;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
-import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.readingDada.ReadingDada;
 import tkaxv7s.xposed.sesame.util.*;
+
+import java.util.*;
 
 /**
  * @author Constanline
