@@ -57,7 +57,11 @@ public class AntForestRpcCall {
     }
 
     public static RpcEntity getCollectBatchEnergyRpcEntity(String userId, List<Long> bubbleIdList) {
-        return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", "[{\"bizType\":\"\",\"bubbleIds\":[" + StringUtil.collectionJoinString(",", bubbleIdList)
+        return getCollectBatchEnergyRpcEntity(userId, StringUtil.collectionJoinString(",", bubbleIdList));
+    }
+
+    public static RpcEntity getCollectBatchEnergyRpcEntity(String userId, String bubbleIds) {
+        return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", "[{\"bizType\":\"\",\"bubbleIds\":[" + bubbleIds
                 + "],\"fromAct\":\"BATCH_ROB_ENERGY\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\"" + userId + "\",\"version\":\""
                 + VERSION + "\"}]");
     }

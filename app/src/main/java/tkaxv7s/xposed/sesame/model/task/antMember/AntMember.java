@@ -2,15 +2,11 @@ package tkaxv7s.xposed.sesame.model.task.antMember;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.Statistics;
-import tkaxv7s.xposed.sesame.util.TimeUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.util.*;
 
 /**
  * 会员
@@ -25,14 +21,24 @@ public class AntMember extends ModelTask {
         return "会员";
     }
 
-    public BooleanModelField receivePoint;
-    public BooleanModelField zcjSignIn;
-    public BooleanModelField merchantKmdk;
+    private BooleanModelField memberEnable;
+    private BooleanModelField memberSign;
+    private BooleanModelField collectSesame;
+    private BooleanModelField enableKb;
+    private BooleanModelField enableGoldTicket;
+    private BooleanModelField enableGameCenter;
+    private BooleanModelField zcjSignIn;
+    private BooleanModelField merchantKmdk;
 
     @Override
     public ModelFields setFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(receivePoint = new BooleanModelField("receivePoint", "开启会员", false));
+        modelFields.addField(memberEnable = new BooleanModelField("memberEnable", "开启会员", false));
+        modelFields.addField(memberSign = new BooleanModelField("memberSign", "会员签到", false));
+        modelFields.addField(collectSesame = new BooleanModelField("collectSesame", "芝麻粒领取", false));
+        modelFields.addField(enableKb = new BooleanModelField("enableKb", "口碑签到", false));
+        modelFields.addField(enableGoldTicket = new BooleanModelField("enableGoldTicket", "黄金票签到", false));
+        modelFields.addField(enableGameCenter = new BooleanModelField("enableGameCenter", "游戏中心签到", false));
         modelFields.addField(zcjSignIn = new BooleanModelField("zcjSignIn", "招财金签到", false));
         modelFields.addField(merchantKmdk = new BooleanModelField("merchantKmdk", "商户开门打卡", false));
         return modelFields;
@@ -40,11 +46,54 @@ public class AntMember extends ModelTask {
 
     @Override
     public Boolean check() {
-        return receivePoint.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return memberEnable.getValue() && !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override
     public void run() {
+        try {
+            if (memberSign.getValue()) {
+                memberSign();
+            }
+            if (collectSesame.getValue()) {
+                collectSesame();
+            }
+            if (enableKb.getValue()) {
+                kbMember();
+            }
+            if (enableGoldTicket.getValue()) {
+                goldTicket();
+            }
+            if (enableGameCenter.getValue()) {
+                enableGameCenter();
+            }
+            if (zcjSignIn.getValue() || merchantKmdk.getValue()) {
+                JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
+                if (!jo.getBoolean("success")) {
+                    return;
+                }
+                JSONObject data = jo.getJSONObject("data");
+                if (!data.optBoolean("isOpened")) {
+                    Log.record("商家服务👪未开通");
+                    return;
+                }
+                if (zcjSignIn.getValue()) {
+                    zcjSignIn();
+                }
+                if (merchantKmdk.getValue()) {
+                    if (TimeUtil.isNowAfterTimeStr("0600") && TimeUtil.isNowBeforeTimeStr("1200")) {
+                        kmdkSignIn();
+                    }
+                    kmdkSignUp();
+                    taskListQuery();
+                }
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private void memberSign() {
         try {
             if (Statistics.canMemberSignInToday(UserIdMap.getCurrentUid())) {
                 String s = AntMemberRpcCall.queryMemberSigninCalendar();
@@ -64,32 +113,14 @@ public class AntMember extends ModelTask {
             signPageTaskList();
 
             queryAllStatusTaskList();
-
-            if (!merchantKmdk.getValue() && !zcjSignIn.getValue()) {
-                return;
-            }
-            JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
-            if (!jo.getBoolean("success")) {
-                return;
-            }
-            JSONObject data = jo.getJSONObject("data");
-            if (!data.optBoolean("isOpened")) {
-                Log.record("商家服务👪未开通");
-                return;
-            }
-            if (zcjSignIn.getValue()) {
-                zcjSignIn();
-            }
-            if (merchantKmdk.getValue()) {
-                if (TimeUtil.isNowAfterTimeStr("0600") && TimeUtil.isNowBeforeTimeStr("1200")) {
-                    kmdkSignIn();
-                }
-                kmdkSignUp();
-            }
-            taskListQuery();
         } catch (Throwable t) {
-            Log.i(TAG, "run err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 
@@ -289,6 +320,12 @@ public class AntMember extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "taskListQuery err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 
@@ -433,6 +470,190 @@ public class AntMember extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
         return doubleCheck;
+    }
+
+    public void kbMember() {
+        try {
+            if (!Statistics.canKbSignInToday()) {
+                return;
+            }
+            String s = AntMemberRpcCall.rpcCall_signIn();
+            JSONObject jo = new JSONObject(s);
+            if (jo.optBoolean("success", false)) {
+                jo = jo.getJSONObject("data");
+                Log.other("口碑签到📅[第" + jo.getString("dayNo") + "天]#获得" + jo.getString("value") + "积分");
+                Statistics.KbSignInToday();
+            } else if (s.contains("\"HAS_SIGN_IN\"")) {
+                Statistics.KbSignInToday();
+            } else {
+                Log.i(TAG, jo.getString("errorMessage"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "signIn err:");
+            Log.printStackTrace(TAG, t);
+        } finally {
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    private void goldTicket() {
+        try {
+            //签到
+            goldBillCollect("\"campId\":\"CP1417744\",\"directModeDisableCollect\":true,\"from\":\"antfarm\",");
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+            //收取其他
+            goldBillCollect("");
+        } catch (Throwable t) {
+            Log.printStackTrace(TAG, t);
+        } finally {
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    /**
+     * 收取黄金票
+     */
+    private void goldBillCollect(String signInfo) {
+        try {
+            String str = AntMemberRpcCall.goldBillCollect(signInfo);
+            JSONObject jsonObject = new JSONObject(str);
+            if (!jsonObject.getBoolean("success")) {
+                Log.i(TAG + ".goldBillCollect.goldBillCollect", jsonObject.optString("resultDesc"));
+                return;
+            }
+            JSONObject object = jsonObject.getJSONObject("result");
+            JSONArray jsonArray = object.getJSONArray("collectedList");
+            int length = jsonArray.length();
+            if (length == 0) {
+                return;
+            }
+            for (int i = 0; i < length; i++) {
+                Log.other("黄金票🙈[" + jsonArray.getString(i) + "]");
+            }
+            Log.other("黄金票🏦本次总共获得[" + JsonUtil.getValueByPath(object, "collectedCamp.amount") + "]");
+        } catch (Throwable th) {
+            Log.i(TAG, "signIn err:");
+            Log.printStackTrace(TAG, th);
+        }
+    }
+
+    private void enableGameCenter() {
+        try {
+            try {
+                String str = AntMemberRpcCall.querySignInBall();
+                JSONObject jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".signIn.querySignInBall", jsonObject.optString("resultDesc"));
+                    return;
+                }
+                str = JsonUtil.getValueByPath(jsonObject, "data.signInBallModule.signInStatus");
+                if (String.valueOf(true).equals(str)) {
+                    return;
+                }
+                str = AntMemberRpcCall.continueSignIn();
+                jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".signIn.continueSignIn", jsonObject.optString("resultDesc"));
+                    return;
+                }
+                Log.other("游戏中心🎮签到成功");
+            } catch (Throwable th) {
+                Log.i(TAG, "signIn err:");
+                Log.printStackTrace(TAG, th);
+            }
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException e) {
+                Log.printStackTrace(e);
+            }
+            try {
+                String str = AntMemberRpcCall.queryPointBallList();
+                JSONObject jsonObject = new JSONObject(str);
+                if (!jsonObject.getBoolean("success")) {
+                    Log.i(TAG + ".batchReceive.queryPointBallList", jsonObject.optString("resultDesc"));
+                    return;
+                }
+                JSONArray jsonArray = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "data.pointBallList");
+                if (jsonArray == null || jsonArray.length() == 0) {
+                    return;
+                }
+                str = AntMemberRpcCall.batchReceivePointBall();
+                jsonObject = new JSONObject(str);
+                if (jsonObject.getBoolean("success")) {
+                    Log.other("游戏中心🎮全部领取成功[" + JsonUtil.getValueByPath(jsonObject, "data.totalAmount") + "]乐豆");
+                } else {
+                    Log.i(TAG + ".batchReceive.batchReceivePointBall", jsonObject.optString("resultDesc"));
+                }
+            } catch (Throwable th) {
+                Log.i(TAG, "batchReceive err:");
+                Log.printStackTrace(TAG, th);
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(TAG, t);
+        } finally {
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    private void collectSesame() {
+        try {
+            String s = AntMemberRpcCall.queryHome();
+            JSONObject jo = new JSONObject(s);
+            if (!jo.getBoolean("success")) {
+                Log.i(TAG + ".run.queryHome", jo.optString("errorMsg"));
+                return;
+            }
+            JSONObject entrance = jo.getJSONObject("entrance");
+            if (!entrance.optBoolean("openApp")) {
+                Log.other("芝麻信用💌未开通");
+                return;
+            }
+            JSONObject jo2 = new JSONObject(AntMemberRpcCall.queryCreditFeedback());
+            if (!jo2.getBoolean("success")) {
+                Log.i(TAG + ".collectSesame.queryCreditFeedback", jo2.optString("resultView"));
+                return;
+            }
+            JSONArray ojbect = jo2.getJSONArray("creditFeedbackVOS");
+            for (int i = 0; i < ojbect.length(); i++) {
+                jo2 = ojbect.getJSONObject(i);
+                if (!"UNCLAIMED".equals(jo2.getString("status"))) {
+                    continue;
+                }
+                String title = jo2.getString("title");
+                String creditFeedbackId = jo2.getString("creditFeedbackId");
+                String potentialSize = jo2.getString("potentialSize");
+                jo2 = new JSONObject(AntMemberRpcCall.collectCreditFeedback(creditFeedbackId));
+                if (!jo2.getBoolean("success")) {
+                    Log.i(TAG + ".collectSesame.collectCreditFeedback", jo2.optString("resultView"));
+                    continue;
+                }
+                Log.other("收芝麻粒🙇🏻‍♂️[" + title + "]#" + potentialSize + "粒");
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(TAG, t);
+        } finally {
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
     }
 
 }

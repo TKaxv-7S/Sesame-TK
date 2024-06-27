@@ -12,11 +12,8 @@ import tkaxv7s.xposed.sesame.model.task.antOcean.AntOcean;
 import tkaxv7s.xposed.sesame.model.task.antOrchard.AntOrchard;
 import tkaxv7s.xposed.sesame.model.task.antSports.AntSports;
 import tkaxv7s.xposed.sesame.model.task.antStall.AntStall;
-import tkaxv7s.xposed.sesame.model.task.gameCenter.GameCenter;
 import tkaxv7s.xposed.sesame.model.task.greenFinance.GreenFinance;
-import tkaxv7s.xposed.sesame.model.task.kbMember.KBMember;
 import tkaxv7s.xposed.sesame.model.task.reserve.Reserve;
-import tkaxv7s.xposed.sesame.model.task.sesameCredit.SesameCredit;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,19 +24,16 @@ public class ModelOrder {
     private static final Class<Model>[] array = new Class[]{
             BaseModel.class
             , AntForestV2.class
-            , AntCooperate.class
             , AntFarm.class
             , AntStall.class
-            , Reserve.class
             , AntOrchard.class
-            , AncientTree.class
+            , Reserve.class
             , AntOcean.class
+            , AntCooperate.class
+            , AncientTree.class
             , AntSports.class
             , AntMember.class
-            , KBMember.class
             , GreenFinance.class
-            , GameCenter.class
-            , SesameCredit.class
             , AnswerAI.class
     };
 

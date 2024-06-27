@@ -123,4 +123,106 @@ public class AntMemberRpcCall {
         return ApplicationHook.requestString("alipay.antmember.biz.rpc.membertask.h5.signPageTaskList",
                 "[{\"sourceBusiness\":\"signInAd\",\"sourcePassMap\":{\"innerSource\":\"\",\"source\":\"myTab\",\"unid\":\"\"}}]");
     }
+
+    public static String rpcCall_signIn() {
+        String args1 = "[{\"sceneCode\":\"KOUBEI_INTEGRAL\",\"source\":\"ALIPAY_TAB\",\"version\":\"2.0\"}]";
+        return ApplicationHook.requestString("alipay.kbmemberprod.action.signIn", args1);
+    }
+
+    /**
+     * 黄金票收取
+     *
+     * @param str signInfo
+     * @return 结果
+     */
+    public static String goldBillCollect(String str) {
+        return ApplicationHook.requestString("com.alipay.wealthgoldtwa.goldbill.v2.index.collect",
+                "[{" + str + "\"trigger\":\"Y\"}]");
+    }
+
+    /**
+     * 游戏中心签到查询
+     */
+    public static String querySignInBall() {
+        return ApplicationHook.requestString("com.alipay.gamecenteruprod.biz.rpc.v3.querySignInBall",
+                "[{\"source\":\"ch_appcenter__chsub_9patch\"}]");
+    }
+
+    /**
+     * 游戏中心签到
+     */
+    public static String continueSignIn() {
+        return ApplicationHook.requestString("com.alipay.gamecenteruprod.biz.rpc.continueSignIn",
+                "[{\"sceneId\":\"GAME_CENTER\",\"signType\":\"NORMAL_SIGN\",\"source\":\"ch_appcenter__chsub_9patch\"}]");
+    }
+
+    /**
+     * 游戏中心查询待领取乐豆列表
+     */
+    public static String queryPointBallList(){
+        return ApplicationHook.requestString("com.alipay.gamecenteruprod.biz.rpc.v3.queryPointBallList",
+                "[{\"source\":\"ch_appcenter__chsub_9patch\"}]");
+    }
+
+    /**
+     * 游戏中心全部领取
+     */
+    public static String batchReceivePointBall() {
+        return ApplicationHook.requestString("com.alipay.gamecenteruprod.biz.rpc.v3.batchReceivePointBall",
+                "[{}]");
+    }
+
+    /**
+     * 查询可收取的芝麻粒
+     *
+     * @return 结果
+     */
+    public static String queryCreditFeedback() {
+        return ApplicationHook.requestString(
+                "com.antgroup.zmxy.zmcustprod.biz.rpc.home.creditaccumulate.api.CreditAccumulateRpcManager.queryCreditFeedback",
+                "[{\"queryPotential\":false,\"size\":20,\"status\":\"UNCLAIMED\"}]");
+    }
+
+    /**
+     * 芝麻信用首页
+     *
+     * @return 结果
+     */
+    public static String queryHome() {
+        return ApplicationHook.requestString("com.antgroup.zmxy.zmcustprod.biz.rpc.home.api.HomeV6RpcManager.queryHome",
+                "[{\"miniZmGrayInside\":\"\"}]");
+    }
+
+    /**
+     * 收取芝麻粒
+     *
+     * @param creditFeedbackId creditFeedbackId
+     * @return 结果
+     */
+    public static String collectCreditFeedback(String creditFeedbackId) {
+        return ApplicationHook.requestString(
+                "com.antgroup.zmxy.zmcustprod.biz.rpc.home.creditaccumulate.api.CreditAccumulateRpcManager.collectCreditFeedback",
+                "[{\"collectAll\":false,\"creditFeedbackId\":\"" + creditFeedbackId + "\",\"status\":\"UNCLAIMED\"}]");
+    }
+
+    /**
+     * 保护海洋净滩行动
+     */
+    public static String queryCultivationList() {
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryCultivationList",
+                "[{\"source\":\"ANT_FOREST\",\"version\":\"20231031\"}]");
+    }
+
+    public static String queryCultivationDetail(String cultivationCode, String projectCode) {
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryCultivationDetail",
+                "[{\"cultivationCode\":\"" + cultivationCode + "\",\"projectCode\":\"" + projectCode
+                        + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+    }
+
+    public static String oceanExchangeTree(String cultivationCode, String projectCode) {
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.exchangeTree",
+                "[{\"cultivationCode\":\"" + cultivationCode + "\",\"projectCode\":\"" + projectCode
+                        + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+    }
+
 }

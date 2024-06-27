@@ -140,13 +140,23 @@ public class ConfigV2 {
     public static synchronized ConfigV2 load() {
         Log.i(TAG, "开始加载配置");
         Model.initAllModel();
-        String json = null;
         try {
             File configV2File = FileUtil.getConfigV2File(UserIdMap.getCurrentUid());
             if (configV2File.exists()) {
-                json = FileUtil.readFromFile(configV2File);
+                String json = FileUtil.readFromFile(configV2File);
+                JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
+                String formatted = JsonUtil.toJsonString(INSTANCE);
+                if (formatted != null && !formatted.equals(json)) {
+                    Log.i(TAG, "重新格式化 config_v2.json");
+                    Log.system(TAG, "重新格式化 config_v2.json");
+                    FileUtil.write2File(formatted, FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
+                }
+            } else {
+                String formatted = JsonUtil.toJsonString(INSTANCE);
+                Log.i(TAG, "初始化 config_v2.json");
+                Log.system(TAG, "初始化 config_v2.json");
+                FileUtil.write2File(formatted, FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
             }
-            JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
             Log.i(TAG, "配置文件格式有误，已重置配置文件");
@@ -156,12 +166,6 @@ public class ConfigV2 {
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, t);
             }
-        }
-        String formatted = JsonUtil.toJsonString(INSTANCE);
-        if (formatted != null && !formatted.equals(json)) {
-            Log.i(TAG, "重新格式化 config_v2.json");
-            Log.system(TAG, "重新格式化 config_v2.json");
-            FileUtil.write2File(formatted, FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
         }
         INSTANCE.setInit(true);
         Log.i(TAG, "加载配置成功");

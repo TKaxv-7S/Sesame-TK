@@ -763,20 +763,24 @@ public class Statistics {
     }
 
     public static synchronized Statistics load() {
-        String json = null;
         try {
             File statisticsFile = FileUtil.getStatisticsFile();
             if (statisticsFile.exists()) {
-                json = FileUtil.readFromFile(statisticsFile);
-            }
-            JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
-            if (INSTANCE.resetByCalendar(Calendar.getInstance())) {
-                return INSTANCE;
-            }
-            String formatted = JsonUtil.toJsonString(INSTANCE);
-            if (formatted != null && !formatted.equals(json)) {
-                Log.i(TAG, "重新格式化 statistics.json");
-                Log.system(TAG, "重新格式化 statistics.json");
+                String json = FileUtil.readFromFile(statisticsFile);
+                JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
+                if (INSTANCE.resetByCalendar(Calendar.getInstance())) {
+                    return INSTANCE;
+                }
+                String formatted = JsonUtil.toJsonString(INSTANCE);
+                if (formatted != null && !formatted.equals(json)) {
+                    Log.i(TAG, "重新格式化 statistics.json");
+                    Log.system(TAG, "重新格式化 statistics.json");
+                    FileUtil.write2File(formatted, FileUtil.getStatisticsFile());
+                }
+            } else {
+                String formatted = JsonUtil.toJsonString(INSTANCE);
+                Log.i(TAG, "初始化 statistics.json");
+                Log.system(TAG, "初始化 statistics.json");
                 FileUtil.write2File(formatted, FileUtil.getStatisticsFile());
             }
         } catch (Throwable t) {

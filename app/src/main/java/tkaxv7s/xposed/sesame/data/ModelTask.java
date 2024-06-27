@@ -3,25 +3,51 @@ package tkaxv7s.xposed.sesame.data;
 import android.os.Build;
 import lombok.Getter;
 import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public abstract class ModelTask extends Model {
 
-    @Getter
-    private final Runnable runnable;
+    private static final Map<ModelTask, Thread> MAIN_TASK_MAP = new ConcurrentHashMap<>();
+
+    private static final ThreadPoolExecutor MAIN_THREAD_POOL = new ThreadPoolExecutor(getModelArray().length, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
+
+    private final ThreadPoolExecutor childThreadPool;
 
     @Getter
-    private volatile Thread thread;
+    private final Runnable mainRunnable = new Runnable() {
 
-    private final Map<String, BaseTask> childTaskMap = new ConcurrentHashMap<>();
+        private final ModelTask task = ModelTask.this;
+
+        @Override
+        public void run() {
+            if (MAIN_TASK_MAP.get(task) != null) {
+                return;
+            }
+            MAIN_TASK_MAP.put(task, Thread.currentThread());
+            try {
+                task.run();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            } finally {
+                MAIN_TASK_MAP.remove(task);
+            }
+        }
+
+    };
+
+    private final Map<String, ChildModelTask> childTaskMap = new ConcurrentHashMap<>();
 
     public ModelTask() {
-        this.runnable = this::run;
-        this.thread = null;
+        this(0);
+    }
+
+    public ModelTask(int childThreadSize) {
+        childThreadPool = new ThreadPoolExecutor(childThreadSize, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     public String getId() {
@@ -44,26 +70,26 @@ public abstract class ModelTask extends Model {
         return childTaskMap.containsKey(childId);
     }
 
-    public synchronized BaseTask getChildTask(String childId) {
+    public synchronized ChildModelTask getChildTask(String childId) {
         return childTaskMap.get(childId);
     }
 
-    public synchronized void addChildTask(BaseTask childTask) {
+    public synchronized void addChildTask(ChildModelTask childTask) {
         String childId = childTask.getId();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
-                    value.stopTask();
+                    childThreadPool.remove(value);
                 }
-                childTask.startTask();
+                childThreadPool.execute(childTask);
                 return childTask;
             });
         } else {
-            BaseTask oldTask = childTaskMap.get(childId);
+            ChildModelTask oldTask = childTaskMap.get(childId);
             if (oldTask != null) {
-                oldTask.stopTask();
+                childThreadPool.remove(oldTask);
             }
-            childTask.startTask();
+            childThreadPool.execute(childTask);
             childTaskMap.put(childId, childTask);
         }
     }
@@ -72,14 +98,14 @@ public abstract class ModelTask extends Model {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
-                    ThreadUtil.shutdownAndWait(value.getThread(), -1, TimeUnit.SECONDS);
+                    childThreadPool.remove(value);
                 }
                 return null;
             });
         } else {
-            BaseTask oldTask = childTaskMap.get(childId);
+            ChildModelTask oldTask = childTaskMap.get(childId);
             if (oldTask != null) {
-                ThreadUtil.shutdownAndWait(oldTask.getThread(), -1, TimeUnit.SECONDS);
+                childThreadPool.remove(oldTask);
             }
             childTaskMap.remove(childId);
         }
@@ -94,21 +120,15 @@ public abstract class ModelTask extends Model {
     }
 
     public synchronized Boolean startTask(Boolean force) {
-        if (thread != null && thread.isAlive()) {
+        if (MAIN_TASK_MAP.containsKey(this)) {
             if (!force) {
                 return false;
             }
             stopTask();
         }
-        thread = new Thread(runnable);
         try {
             if (check()) {
-                thread.start();
-                for (BaseTask childTask : childTaskMap.values()) {
-                    if (childTask != null) {
-                        childTask.startTask();
-                    }
-                }
+                MAIN_THREAD_POOL.execute(mainRunnable);
                 return true;
             }
         } catch (Exception e) {
@@ -118,16 +138,10 @@ public abstract class ModelTask extends Model {
     }
 
     public synchronized void stopTask() {
-        if (thread != null && thread.isAlive()) {
-            ThreadUtil.shutdownAndWait(thread, 5, TimeUnit.SECONDS);
-        }
-        for (BaseTask childTask : childTaskMap.values()) {
-            if (childTask != null) {
-                ThreadUtil.shutdownAndWait(childTask.getThread(), -1, TimeUnit.SECONDS);
-            }
-        }
-        thread = null;
+        childThreadPool.purge();
         childTaskMap.clear();
+        MAIN_THREAD_POOL.remove(mainRunnable);
+        MAIN_TASK_MAP.remove(this);
     }
 
     public static void startAllTask() {
@@ -160,4 +174,76 @@ public abstract class ModelTask extends Model {
         }
     }
 
+    @Getter
+    public static class ChildModelTask implements Runnable {
+
+        private final ModelTask modelTask;
+
+        private final String id;
+
+        private final Runnable runnable;
+
+        private final long execTime;
+
+        public ChildModelTask(ModelTask modelTask) {
+            this(modelTask, null, () -> {}, 0);
+        }
+
+        public ChildModelTask(ModelTask modelTask, String id) {
+            this(modelTask, id, () -> {}, 0);
+        }
+
+        public ChildModelTask(ModelTask modelTask, String id, int execTime) {
+            this(modelTask, id, null, execTime);
+        }
+
+        public ChildModelTask(ModelTask modelTask, String id, Runnable runnable) {
+            this(modelTask, id, runnable, 0);
+        }
+
+        public ChildModelTask(ModelTask modelTask, String id, Runnable runnable, int execTime) {
+            if (id == null) {
+                id = toString();
+            }
+            if (runnable == null) {
+                runnable = setRunnable();
+            }
+            this.modelTask = modelTask;
+            this.id = id;
+            this.runnable = runnable;
+            this.execTime = execTime;
+        }
+
+        public Runnable setRunnable() {
+            return null;
+        }
+
+        public final void run() {
+            Map<String, ChildModelTask> childTaskMap = modelTask.childTaskMap;
+            if (childTaskMap.get(id) != null) {
+                return;
+            }
+            String modelTaskId = modelTask.getId();
+            childTaskMap.put(id, this);
+            Log.record("模块:" + modelTaskId + " 添加子任务:" + id);
+            try {
+                long delay = execTime - System.currentTimeMillis();
+                if (delay > 0) {
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException e) {
+                        Log.record("模块:" + modelTaskId + " 中断子任务:" + id);
+                        return;
+                    }
+                }
+                runnable.run();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                Log.record("模块:" + modelTaskId + " 异常子任务:" + id);
+            } finally {
+                childTaskMap.remove(id);
+                Log.record("模块:" + modelTaskId + " 移除子任务:" + id);
+            }
+        }
+    }
 }

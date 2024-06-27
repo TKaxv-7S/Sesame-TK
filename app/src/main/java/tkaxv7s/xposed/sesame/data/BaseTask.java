@@ -12,15 +12,11 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseTask {
 
     @Getter
-    private final Runnable runnable;
-
-    @Getter
     private volatile Thread thread;
 
     private final Map<String, BaseTask> childTaskMap = new ConcurrentHashMap<>();
 
     public BaseTask() {
-        this.runnable = init();
         this.thread = null;
     }
 
@@ -30,7 +26,7 @@ public abstract class BaseTask {
 
     public abstract Boolean check();
 
-    public abstract Runnable init();
+    public abstract void run();
 
     public synchronized Boolean hasChildTask(String childId) {
         return childTaskMap.containsKey(childId);
@@ -92,7 +88,7 @@ public abstract class BaseTask {
             }
             stopTask();
         }
-        thread = new Thread(runnable);
+        thread = new Thread(this::run);
         try {
             if (check()) {
                 thread.start();
@@ -125,8 +121,7 @@ public abstract class BaseTask {
     public static BaseTask newInstance() {
         return new BaseTask() {
             @Override
-            public Runnable init() {
-                return () -> {};
+            public void run() {
             }
 
             @Override
@@ -144,8 +139,7 @@ public abstract class BaseTask {
             }
 
             @Override
-            public Runnable init() {
-                return () -> {};
+            public void run() {
             }
 
             @Override
@@ -163,8 +157,8 @@ public abstract class BaseTask {
             }
 
             @Override
-            public Runnable init() {
-                return runnable;
+            public void run() {
+                runnable.run();
             }
 
             @Override
