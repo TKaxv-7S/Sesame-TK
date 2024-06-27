@@ -35,7 +35,7 @@ public class AncientTree extends ModelTask {
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableAncientTree = new BooleanModelField("enableAncientTree", "开启古树", false));
-        modelFields.addField(ancientTreeOnlyWeek = new BooleanModelField("ancientTreeOnlyWeek", "仅星期一、三、五运行保护古树", true));
+        modelFields.addField(ancientTreeOnlyWeek = new BooleanModelField("ancientTreeOnlyWeek", "仅星期一、三、五运行保护古树", false));
         modelFields.addField(ancientTreeCityCodeList = new SelectModelField("ancientTreeCityCodeList", "古树区划代码列表", new KVNode<>(new LinkedHashMap<>(), false), AreaCode.getList()));
         return modelFields;
     }
