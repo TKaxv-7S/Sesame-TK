@@ -22,7 +22,7 @@ public class AntSports extends ModelTask {
     private static int tmpStepCount = -1;
 
     @Override
-    public String setName() {
+    public String getName() {
         return "运动";
     }
 
@@ -37,7 +37,7 @@ public class AntSports extends ModelTask {
     public BooleanModelField battleForFriends;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableSports = new BooleanModelField("enableSports", "开启运动", true));
         modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));

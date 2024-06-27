@@ -45,12 +45,12 @@ public class BaseModel extends Model {
     private static final IntegerModelField toastOffsetY = new IntegerModelField("toastOffsetY", "气泡纵向偏移", 0);
 
     @Override
-    public String setName() {
+    public String getName() {
         return "基础";
     }
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enable);
         modelFields.addField(stayAwake);

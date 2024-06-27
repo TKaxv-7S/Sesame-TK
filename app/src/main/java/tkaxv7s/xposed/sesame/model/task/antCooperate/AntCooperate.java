@@ -22,7 +22,7 @@ public class AntCooperate extends ModelTask {
     private static final String TAG = AntCooperate.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "合种";
     }
 
@@ -31,7 +31,7 @@ public class AntCooperate extends ModelTask {
     public static SelectModelField cooperateWaterList;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableAntCooperate = new BooleanModelField("enableAntCooperate", "开启合种", true));
         modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", true));

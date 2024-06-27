@@ -58,43 +58,24 @@ public abstract class ModelTask extends Model {
         return ModelType.TASK;
     }
 
-    public abstract String setName();
+    public abstract String getName();
 
-    public abstract ModelFields setFields();
+    public abstract ModelFields getFields();
 
     public abstract Boolean check();
 
     public abstract void run();
 
-    public synchronized Boolean hasChildTask(String childId) {
+    public Boolean hasChildTask(String childId) {
         return childTaskMap.containsKey(childId);
     }
 
-    public synchronized ChildModelTask getChildTask(String childId) {
+    public ChildModelTask getChildTask(String childId) {
         return childTaskMap.get(childId);
     }
 
-    public synchronized void addChildTask(ChildModelTask childTask) {
+    public void addChildTask(ChildModelTask childTask) {
         String childId = childTask.getId();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childTaskMap.compute(childId, (key, value) -> {
-                if (value != null) {
-                    childThreadPool.remove(value);
-                }
-                childThreadPool.execute(childTask);
-                return childTask;
-            });
-        } else {
-            ChildModelTask oldTask = childTaskMap.get(childId);
-            if (oldTask != null) {
-                childThreadPool.remove(oldTask);
-            }
-            childThreadPool.execute(childTask);
-            childTaskMap.put(childId, childTask);
-        }
-    }
-
-    public synchronized void removeChildTask(String childId) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
@@ -103,15 +84,36 @@ public abstract class ModelTask extends Model {
                 return null;
             });
         } else {
-            ChildModelTask oldTask = childTaskMap.get(childId);
-            if (oldTask != null) {
-                childThreadPool.remove(oldTask);
+            synchronized (childTaskMap) {
+                ChildModelTask oldTask = childTaskMap.remove(childId);
+                if (oldTask != null) {
+                    childThreadPool.remove(oldTask);
+                }
             }
-            childTaskMap.remove(childId);
+        }
+        childThreadPool.execute(childTask);
+    }
+
+    public void removeChildTask(String childId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            childTaskMap.compute(childId, (key, value) -> {
+                if (value != null) {
+                    childThreadPool.remove(value);
+                }
+                return null;
+            });
+        } else {
+            synchronized (childTaskMap) {
+                ChildModelTask oldTask = childTaskMap.get(childId);
+                if (oldTask != null) {
+                    childThreadPool.remove(oldTask);
+                }
+                childTaskMap.remove(childId);
+            }
         }
     }
 
-    public synchronized Integer countChildTask() {
+    public Integer countChildTask() {
         return childTaskMap.size();
     }
 
@@ -223,9 +225,9 @@ public abstract class ModelTask extends Model {
             if (childTaskMap.get(id) != null) {
                 return;
             }
-            String modelTaskId = modelTask.getId();
+            String modelTaskId = modelTask.getName();
             childTaskMap.put(id, this);
-            Log.record("模块:" + modelTaskId + " 添加子任务:" + id);
+            //Log.record("模块:" + modelTaskId + " 添加子任务:" + id);
             try {
                 long delay = execTime - System.currentTimeMillis();
                 if (delay > 0) {
@@ -242,7 +244,7 @@ public abstract class ModelTask extends Model {
                 Log.record("模块:" + modelTaskId + " 异常子任务:" + id);
             } finally {
                 childTaskMap.remove(id);
-                Log.record("模块:" + modelTaskId + " 移除子任务:" + id);
+                //Log.record("模块:" + modelTaskId + " 移除子任务:" + id);
             }
         }
     }

@@ -28,9 +28,9 @@ public abstract class Model {
         return ModelType.NORMAL;
     }
 
-    public abstract String setName();
+    public abstract String getName();
 
-    public abstract ModelFields setFields();
+    public abstract ModelFields getFields();
 
     public void config() {}
 

@@ -24,7 +24,7 @@ public class Reserve extends ModelTask {
     private static boolean isProtecting = false;
 
     @Override
-    public String setName() {
+    public String getName() {
         return "保护地";
     }
 
@@ -32,7 +32,7 @@ public class Reserve extends ModelTask {
     public static SelectModelField reserveList;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableReserve = new BooleanModelField("enableReserve", "开启保护地", false));
         modelFields.addField(reserveList = new SelectModelField("reserveList", "保护地列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayReserve.getList()));

@@ -23,7 +23,7 @@ public class AncientTree extends ModelTask {
     private static final String TAG = AncientTree.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "古树";
     }
 
@@ -32,7 +32,7 @@ public class AncientTree extends ModelTask {
     private SelectModelField ancientTreeCityCodeList;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableAncientTree = new BooleanModelField("enableAncientTree", "开启古树", false));
         modelFields.addField(ancientTreeOnlyWeek = new BooleanModelField("ancientTreeOnlyWeek", "仅星期一、三、五运行保护古树", true));

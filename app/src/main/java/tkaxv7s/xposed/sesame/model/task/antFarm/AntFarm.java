@@ -51,7 +51,7 @@ public class AntFarm extends ModelTask {
     }
 
     @Override
-    public String setName() {
+    public String getName() {
         return "庄园";
     }
 
@@ -83,7 +83,7 @@ public class AntFarm extends ModelTask {
     public BooleanModelField enableChouchoule;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableFarm = new BooleanModelField("enableFarm", "开启庄园", true));
         modelFields.addField(rewardFriend = new BooleanModelField("rewardFriend", "打赏好友", true));

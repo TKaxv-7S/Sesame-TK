@@ -30,7 +30,7 @@ public class AntOcean extends ModelTask {
     private static final String TAG = AntOcean.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "海洋";
     }
 
@@ -39,7 +39,7 @@ public class AntOcean extends ModelTask {
     public static SelectModelField protectOceanList;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableOcean = new BooleanModelField("enableOcean", "开启海洋", false));
         modelFields.addField(protectOcean = new BooleanModelField("protectOcean", "保护 | 开启", false));

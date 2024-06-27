@@ -17,7 +17,7 @@ public class AntMember extends ModelTask {
     private static final String TAG = AntMember.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "会员";
     }
 
@@ -31,7 +31,7 @@ public class AntMember extends ModelTask {
     private BooleanModelField merchantKmdk;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(memberEnable = new BooleanModelField("memberEnable", "开启会员", false));
         modelFields.addField(memberSign = new BooleanModelField("memberSign", "会员签到", false));

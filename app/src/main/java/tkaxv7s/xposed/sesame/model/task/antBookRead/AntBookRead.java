@@ -16,14 +16,14 @@ public class AntBookRead extends ModelTask {
     private static final String TAG = AntBookRead.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "读书听书";
     }
 
     private BooleanModelField antBookRead;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(antBookRead = new BooleanModelField("antBookRead", "开启读书听书", false));
         return modelFields;

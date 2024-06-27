@@ -51,7 +51,7 @@ public class AntStall extends ModelTask {
     }
 
     @Override
-    public String setName() {
+    public String getName() {
         return "新村";
     }
 
@@ -81,7 +81,7 @@ public class AntStall extends ModelTask {
     public SelectModelField assistFriendList;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableStall = new BooleanModelField("enableStall", "开启新村", false));
         modelFields.addField(stallAutoOpen = new BooleanModelField("stallAutoOpen", "新村自动摆摊", false));
@@ -896,7 +896,10 @@ public class AntStall extends ModelTask {
                     Statistics.pasteTicketTime();
                     return;
                 }
-                String friendId = jsonObject.getString("friendUserId");
+                String friendId = jsonObject.optString("friendUserId");
+                if (friendId.isEmpty()) {
+                    continue;
+                }
                 str = AntStallRpcCall.friendHome(friendId, "ch_appcenter__chsub_9patch");
                 jsonObject = new JSONObject(str);
                 if (!jsonObject.getBoolean("success")) {

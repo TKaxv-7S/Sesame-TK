@@ -14,14 +14,14 @@ public class ConsumeGold extends ModelTask {
     private static final String TAG = ConsumeGold.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "消费金";
     }
 
     private BooleanModelField consumeGold;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(consumeGold = new BooleanModelField("consumeGold", "开启消费金", false));
         return modelFields;

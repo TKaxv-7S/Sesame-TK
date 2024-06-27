@@ -125,12 +125,12 @@ public class AntForestV2 extends ModelTask {
     private Map<String, Integer> dontCollectMap = new ConcurrentHashMap<>();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "森林";
     }
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableAntForest = new BooleanModelField("enableAntForest", "开启森林", true));
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", true));
@@ -366,11 +366,13 @@ public class AntForestV2 extends ModelTask {
             UserIdMap.saveIdMap();
 
             boolean isCollectEnergy = collectEnergy.getValue() && !dontCollectMap.containsKey(userId);
+            boolean isWhackMole = false;
 
             if (isSelf) {
-                String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                String nextAction = userHomeObject.optString("nextAction");
+                if ("WhackMole".equalsIgnoreCase(nextAction)) {
                     whackMole();
+                    isWhackMole = true;
                 }
                 updateDoubleTime(userHomeObject);
             } else {
@@ -444,6 +446,12 @@ public class AntForestV2 extends ModelTask {
 
             if (!TaskCommon.IS_ENERGY_TIME) {
                 if (isSelf) {
+                    if (!isWhackMole) {
+                        String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
+                        if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                            whackMole();
+                        }
+                    }
                     if (totalCertCount.getValue()) {
                         JSONObject userBaseInfo = userHomeObject.getJSONObject("userBaseInfo");
                         int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
@@ -564,8 +572,9 @@ public class AntForestV2 extends ModelTask {
                         for (int i = 0; i < usingUserProps.length(); i++) {
                             JSONObject jo = usingUserProps.getJSONObject(i);
                             if (!"animal".equals(jo.getString("type"))) {
-                                canConsumeProp = false;
                                 continue;
+                            } else {
+                                canConsumeProp = false;
                             }
                             JSONObject extInfo = new JSONObject(jo.getString("extInfo"));
                             int energy = extInfo.optInt("energy", 0);

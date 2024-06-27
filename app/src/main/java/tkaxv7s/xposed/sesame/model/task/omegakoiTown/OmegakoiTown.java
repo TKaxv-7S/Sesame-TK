@@ -49,14 +49,14 @@ public class OmegakoiTown extends ModelTask {
     }
 
     @Override
-    public String setName() {
+    public String getName() {
         return "小镇";
     }
 
     private BooleanModelField omegakoiTown;
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(omegakoiTown = new BooleanModelField("omegakoiTown", "开启小镇", false));
         return modelFields;

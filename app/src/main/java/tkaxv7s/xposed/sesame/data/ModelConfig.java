@@ -25,8 +25,8 @@ public final class ModelConfig implements Serializable {
     public ModelConfig(Model model) {
         this();
         this.code = model.getClass().getSimpleName();
-        this.name = model.setName();
-        addFields(model.setFields());
+        this.name = model.getName();
+        addFields(model.getFields());
     }
 
     public void addFields(ModelFields newFields) {

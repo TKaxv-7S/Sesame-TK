@@ -38,12 +38,12 @@ public class GreenFinance extends ModelTask {
     private BooleanModelField greenFinancePointFriend;
 
     @Override
-    public String setName() {
+    public String getName() {
         return "绿色经营";
     }
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(greenFinance = new BooleanModelField("greenFinance", "开启绿色经营", false));
         modelFields.addField(greenFinanceLsxd = new BooleanModelField("greenFinanceLsxd", "打卡 | 绿色行动", false));

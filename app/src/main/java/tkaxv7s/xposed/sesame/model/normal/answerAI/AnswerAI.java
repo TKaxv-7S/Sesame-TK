@@ -13,7 +13,7 @@ public class AnswerAI extends Model {
     private static final String TAG = AnswerAI.class.getSimpleName();
 
     @Override
-    public String setName() {
+    public String getName() {
         return "AI答题";
     }
 
@@ -26,7 +26,7 @@ public class AnswerAI extends Model {
     private final StringModelField setGeminiAIToken = new StringModelField("useGeminiAIToken", "GeminiAI | 设置令牌", "");
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(enableAI);
         modelFields.addField(useGeminiAI);

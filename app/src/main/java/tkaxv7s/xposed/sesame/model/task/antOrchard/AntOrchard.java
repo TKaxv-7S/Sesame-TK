@@ -35,12 +35,12 @@ public class AntOrchard extends ModelTask {
     private static BooleanModelField batchHireAnimal;
 
     @Override
-    public String setName() {
+    public String getName() {
         return "农场";
     }
 
     @Override
-    public ModelFields setFields() {
+    public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(antOrchard = new BooleanModelField("antOrchard", "开启农场", true));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 500));
