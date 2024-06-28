@@ -4,7 +4,6 @@ import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -13,7 +12,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     public void onContentChanged() {
         super.onContentChanged();
-        ViewAppInfo.init(getApplicationContext());
         toolbar = findViewById(R.id.x_toolbar);
         toolbar.setTitle(getBaseTitle());
         toolbar.setSubtitle(getBaseSubtitle());
