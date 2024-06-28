@@ -26,7 +26,7 @@
 
         <meta-data
                 android:name="xposeddescription"
-                android:value="芝麻粒插件TK版" />
+                android:value="芝麻粒TK版" />
 
         <meta-data
                 android:name="xposedminversion"

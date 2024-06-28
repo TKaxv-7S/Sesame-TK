@@ -38,7 +38,6 @@ public final class ViewAppInfo {
             } catch (PackageManager.NameNotFoundException ignored) {
             }
         }
-        checkRunType();
     }
 
     public static RunType checkRunType() {

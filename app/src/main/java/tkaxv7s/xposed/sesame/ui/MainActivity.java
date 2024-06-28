@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
-        ViewAppInfo.init(getApplicationContext());
+        ViewAppInfo.checkRunType();
         updateSubTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
         titleRunner = () -> updateSubTitle(RunType.DISABLE);
