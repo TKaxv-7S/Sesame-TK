@@ -547,7 +547,7 @@ public class Statistics {
         if (stat.exchangeDoubleCard < stat.day.time) {
             return true;
         }
-        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+        AntForestV2 task = ModelTask.getModel(AntForestV2.class);
         if (task == null) {
             return false;
         }
@@ -562,7 +562,7 @@ public class Statistics {
         if (isSuccess) {
             stat.exchangeTimes += 1;
         } else {
-            AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+            AntForestV2 task = ModelTask.getModel(AntForestV2.class);
             if (task == null) {
                 stat.exchangeTimes = 0;
             } else {
@@ -577,7 +577,7 @@ public class Statistics {
         if (stat.exchangeDoubleCard < stat.day.time) {
             return true;
         }
-        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+        AntForestV2 task = ModelTask.getModel(AntForestV2.class);
         if (task == null) {
             return false;
         }
@@ -618,7 +618,7 @@ public class Statistics {
     }
 
     public static boolean canDoubleToday() {
-        AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+        AntForestV2 task = ModelTask.getModel(AntForestV2.class);
         if (task == null) {
             return false;
         }

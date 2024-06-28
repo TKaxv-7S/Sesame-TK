@@ -1,6 +1,7 @@
 package tkaxv7s.xposed.sesame.data;
 
 import lombok.Getter;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.model.base.ModelOrder;
 import tkaxv7s.xposed.sesame.util.Log;
 
@@ -24,6 +25,24 @@ public abstract class Model {
 
     private static final List<Model> readOnlyModelList = Collections.unmodifiableList(modelList);
 
+    private final BooleanModelField enableField;
+
+    public final BooleanModelField getEnableField() {
+        return enableField;
+    }
+
+    public Model() {
+        this.enableField = new BooleanModelField("enable", getEnableFieldName(), false);
+    }
+
+    public String getEnableFieldName() {
+        return "开启" + getName();
+    }
+
+    public final Boolean isEnable() {
+        return enableField.getValue();
+    }
+
     public ModelType getType() {
         return ModelType.NORMAL;
     }
@@ -40,13 +59,13 @@ public abstract class Model {
         return readOnlyModelConfigMap;
     }
 
-    public static Boolean hasTask(Class<? extends Model> taskClazz) {
-        return modelMap.containsKey(taskClazz);
+    public static Boolean hasModel(Class<? extends Model> modelClazz) {
+        return modelMap.containsKey(modelClazz);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Model> T getTask(Class<T> taskClazz) {
-        return (T) modelMap.get(taskClazz);
+    public static <T extends Model> T getModel(Class<T> modelClazz) {
+        return (T) modelMap.get(modelClazz);
     }
 
     public static List<Model> getModelList() {
@@ -56,12 +75,12 @@ public abstract class Model {
     public static synchronized void initAllModel() {
         destroyAllModel();
         for (int i = 0, len = modelClazzList.size(); i < len; i++) {
-            Class<Model> taskClazz = modelClazzList.get(i);
+            Class<Model> modelClazz = modelClazzList.get(i);
             try {
-                Model task = taskClazz.newInstance();
-                ModelConfig modelConfig = new ModelConfig(task);
-                modelArray[i] = task;
-                modelMap.put(taskClazz, task);
+                Model model = modelClazz.newInstance();
+                ModelConfig modelConfig = new ModelConfig(model);
+                modelArray[i] = model;
+                modelMap.put(modelClazz, model);
                 modelConfigMap.put(modelConfig.getCode(), modelConfig);
             } catch (IllegalAccessException | InstantiationException e) {
                 Log.printStackTrace(e);
@@ -69,7 +88,9 @@ public abstract class Model {
         }
         for (Model model : modelArray) {
             try {
-                model.config();
+                if (model.getEnableField().getValue()) {
+                    model.config();
+                }
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }
@@ -78,10 +99,10 @@ public abstract class Model {
 
     public static synchronized void destroyAllModel() {
         for (int i = 0, len = modelArray.length; i < len; i++) {
-            Model task = modelArray[i];
-            if (task != null) {
+            Model model = modelArray[i];
+            if (model != null) {
                 try {
-                    task.destroy();
+                    model.destroy();
                 } catch (Exception e) {
                     Log.printStackTrace(e);
                 }

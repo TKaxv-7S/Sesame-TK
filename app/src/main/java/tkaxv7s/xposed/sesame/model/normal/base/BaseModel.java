@@ -14,8 +14,6 @@ import tkaxv7s.xposed.sesame.util.ListUtil;
 public class BaseModel extends Model {
 
     @Getter
-    private static final BooleanModelField enable = new BooleanModelField("enable", "启用模块", true);
-    @Getter
     private static final BooleanModelField stayAwake = new BooleanModelField("stayAwake", "保持唤醒", true);
     @Getter
     private static final IntegerModelField checkInterval = new IntegerModelField.MultiplyIntegerModelField("checkInterval", "执行间隔(分钟)", 30 * 60_000, 60_000, 12 * 60 * 60_000, 60_000);
@@ -50,9 +48,13 @@ public class BaseModel extends Model {
     }
 
     @Override
+    public String getEnableFieldName() {
+        return "启用模块";
+    }
+
+    @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enable);
         modelFields.addField(stayAwake);
         modelFields.addField(checkInterval);
         modelFields.addField(execAtTimeList);

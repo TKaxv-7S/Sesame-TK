@@ -2,11 +2,9 @@ package tkaxv7s.xposed.sesame.model.task.omegakoiTown;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.RuntimeInfo;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
 
@@ -53,19 +51,14 @@ public class OmegakoiTown extends ModelTask {
         return "小镇";
     }
 
-    private BooleanModelField omegakoiTown;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(omegakoiTown = new BooleanModelField("omegakoiTown", "开启小镇", false));
         return modelFields;
     }
 
     public Boolean check() {
-        if (!omegakoiTown.getValue()) {
-            return false;
-        }
         if (TaskCommon.IS_ENERGY_TIME) {
             return false;
         }

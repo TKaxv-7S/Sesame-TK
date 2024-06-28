@@ -2,11 +2,9 @@ package tkaxv7s.xposed.sesame.model.task.antBookRead;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.RuntimeInfo;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
@@ -20,20 +18,14 @@ public class AntBookRead extends ModelTask {
         return "读书听书";
     }
 
-    private BooleanModelField antBookRead;
-
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(antBookRead = new BooleanModelField("antBookRead", "开启读书听书", false));
         return modelFields;
     }
 
     @Override
     public Boolean check() {
-        if (!antBookRead.getValue()) {
-            return false;
-        }
         if (TaskCommon.IS_ENERGY_TIME || !TaskCommon.IS_AFTER_8AM) {
             return false;
         }

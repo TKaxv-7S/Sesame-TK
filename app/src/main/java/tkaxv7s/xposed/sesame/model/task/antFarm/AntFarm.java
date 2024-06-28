@@ -55,7 +55,6 @@ public class AntFarm extends ModelTask {
         return "庄园";
     }
 
-    private BooleanModelField enableFarm;
     private BooleanModelField rewardFriend;
     private BooleanModelField sendBackAnimal;
     private ChoiceModelField sendType;
@@ -85,7 +84,6 @@ public class AntFarm extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableFarm = new BooleanModelField("enableFarm", "开启庄园", false));
         modelFields.addField(rewardFriend = new BooleanModelField("rewardFriend", "打赏好友", false));
         modelFields.addField(sendBackAnimal = new BooleanModelField("sendBackAnimal", "遣返 | 开启", false));
         modelFields.addField(sendType = new ChoiceModelField("sendType", "遣返 | 方式", SendType.NORMAL, AntFarm.SendType.nickNames));
@@ -121,7 +119,7 @@ public class AntFarm extends ModelTask {
 
     @Override
     public Boolean check() {
-        return enableFarm.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override

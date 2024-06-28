@@ -26,14 +26,6 @@ public class FileUtil {
     private static File beachIdMapFile;
     private static File statisticsFile;
     private static File exportedStatisticsFile;
-    private static File systemLogFile;
-    private static File forestLogFile;
-    private static File farmLogFile;
-    private static File otherLogFile;
-    //private static File recordLogFile;
-    private static File debugLogFile;
-    private static File runtimeLogFile;
-    private static File errorLogFile;
     private static File cityCodeFile;
     private static File friendWatchFile;
     private static File wuaFile;
@@ -158,8 +150,9 @@ public class FileUtil {
     public static File getFriendWatchFile() {
         if (friendWatchFile == null) {
             friendWatchFile = new File(MAIN_DIRECTORY_FILE, "friendWatch.json");
-            if (friendWatchFile.exists() && friendWatchFile.isDirectory())
+            if (friendWatchFile.exists() && friendWatchFile.isDirectory()) {
                 friendWatchFile.delete();
+            }
         }
         return friendWatchFile;
     }
@@ -174,8 +167,9 @@ public class FileUtil {
     public static File getFriendIdMapFile() {
         if (friendIdMapFile == null) {
             friendIdMapFile = new File(MAIN_DIRECTORY_FILE, "friendId.list");
-            if (friendIdMapFile.exists() && friendIdMapFile.isDirectory())
+            if (friendIdMapFile.exists() && friendIdMapFile.isDirectory()) {
                 friendIdMapFile.delete();
+            }
         }
         return friendIdMapFile;
     }
@@ -196,8 +190,9 @@ public class FileUtil {
     public static File getCooperationIdMapFile() {
         if (cooperationIdMapFile == null) {
             cooperationIdMapFile = new File(MAIN_DIRECTORY_FILE, "cooperationId.list");
-            if (cooperationIdMapFile.exists() && cooperationIdMapFile.isDirectory())
+            if (cooperationIdMapFile.exists() && cooperationIdMapFile.isDirectory()) {
                 cooperationIdMapFile.delete();
+            }
         }
         return cooperationIdMapFile;
     }
@@ -205,8 +200,9 @@ public class FileUtil {
     public static File getReserveIdMapFile() {
         if (reserveIdMapFile == null) {
             reserveIdMapFile = new File(MAIN_DIRECTORY_FILE, "reserveId.list");
-            if (reserveIdMapFile.exists() && reserveIdMapFile.isDirectory())
+            if (reserveIdMapFile.exists() && reserveIdMapFile.isDirectory()) {
                 reserveIdMapFile.delete();
+            }
         }
         return reserveIdMapFile;
     }
@@ -214,8 +210,9 @@ public class FileUtil {
     public static File getBeachIdMapFile() {
         if (beachIdMapFile == null) {
             beachIdMapFile = new File(MAIN_DIRECTORY_FILE, "beachId.list");
-            if (beachIdMapFile.exists() && beachIdMapFile.isDirectory())
+            if (beachIdMapFile.exists() && beachIdMapFile.isDirectory()) {
                 beachIdMapFile.delete();
+            }
         }
         return beachIdMapFile;
     }
@@ -269,23 +266,22 @@ public class FileUtil {
     public static File getCityCodeFile() {
         if (cityCodeFile == null) {
             cityCodeFile = new File(MAIN_DIRECTORY_FILE, "cityCode.json");
-            if (cityCodeFile.exists() && cityCodeFile.isDirectory())
+            if (cityCodeFile.exists() && cityCodeFile.isDirectory()) {
                 cityCodeFile.delete();
+            }
         }
         return cityCodeFile;
     }
 
     public static File getRuntimeLogFile() {
-        if (runtimeLogFile == null) {
-            runtimeLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("runtime"));
-            if (runtimeLogFile.exists() && runtimeLogFile.isDirectory()) {
-                runtimeLogFile.delete();
-            }
-            if (!runtimeLogFile.exists()) {
-                try {
-                    runtimeLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File runtimeLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("runtime"));
+        if (runtimeLogFile.exists() && runtimeLogFile.isDirectory()) {
+            runtimeLogFile.delete();
+        }
+        if (!runtimeLogFile.exists()) {
+            try {
+                runtimeLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return runtimeLogFile;
@@ -306,96 +302,84 @@ public class FileUtil {
     }
 
     public static File getSystemLogFile() {
-        if (systemLogFile == null) {
-            systemLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("system"));
-            if (systemLogFile.exists() && systemLogFile.isDirectory()) {
-                systemLogFile.delete();
-            }
-            if (!systemLogFile.exists()) {
-                try {
-                    systemLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File systemLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("system"));
+        if (systemLogFile.exists() && systemLogFile.isDirectory()) {
+            systemLogFile.delete();
+        }
+        if (!systemLogFile.exists()) {
+            try {
+                systemLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return systemLogFile;
     }
 
     public static File getDebugLogFile() {
-        if (debugLogFile == null) {
-            debugLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("debug"));
-            if (debugLogFile.exists() && debugLogFile.isDirectory()) {
-                debugLogFile.delete();
-            }
-            if (!debugLogFile.exists()) {
-                try {
-                    debugLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File debugLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("debug"));
+        if (debugLogFile.exists() && debugLogFile.isDirectory()) {
+            debugLogFile.delete();
+        }
+        if (!debugLogFile.exists()) {
+            try {
+                debugLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return debugLogFile;
     }
 
     public static File getForestLogFile() {
-        if (forestLogFile == null) {
-            forestLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("forest"));
-            if (forestLogFile.exists() && forestLogFile.isDirectory()) {
-                forestLogFile.delete();
-            }
-            if (!forestLogFile.exists()) {
-                try {
-                    forestLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File forestLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("forest"));
+        if (forestLogFile.exists() && forestLogFile.isDirectory()) {
+            forestLogFile.delete();
+        }
+        if (!forestLogFile.exists()) {
+            try {
+                forestLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return forestLogFile;
     }
 
     public static File getFarmLogFile() {
-        if (farmLogFile == null) {
-            farmLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("farm"));
-            if (farmLogFile.exists() && farmLogFile.isDirectory()) {
-                farmLogFile.delete();
-            }
-            if (!farmLogFile.exists()) {
-                try {
-                    farmLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File farmLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("farm"));
+        if (farmLogFile.exists() && farmLogFile.isDirectory()) {
+            farmLogFile.delete();
+        }
+        if (!farmLogFile.exists()) {
+            try {
+                farmLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return farmLogFile;
     }
 
     public static File getOtherLogFile() {
-        if (otherLogFile == null) {
-            otherLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("other"));
-            if (otherLogFile.exists() && otherLogFile.isDirectory()) {
-                otherLogFile.delete();
-            }
-            if (!otherLogFile.exists()) {
-                try {
-                    otherLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File otherLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("other"));
+        if (otherLogFile.exists() && otherLogFile.isDirectory()) {
+            otherLogFile.delete();
+        }
+        if (!otherLogFile.exists()) {
+            try {
+                otherLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return otherLogFile;
     }
 
     public static File getErrorLogFile() {
-        if (errorLogFile == null) {
-            errorLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("error"));
-            if (errorLogFile.exists() && errorLogFile.isDirectory()) {
-                errorLogFile.delete();
-            }
-            if (!errorLogFile.exists()) {
-                try {
-                    errorLogFile.createNewFile();
-                } catch (Throwable ignored) {
-                }
+        File errorLogFile = new File(LOG_DIRECTORY_FILE, Log.getLogFileName("error"));
+        if (errorLogFile.exists() && errorLogFile.isDirectory()) {
+            errorLogFile.delete();
+        }
+        if (!errorLogFile.exists()) {
+            try {
+                errorLogFile.createNewFile();
+            } catch (Throwable ignored) {
             }
         }
         return errorLogFile;
@@ -490,7 +474,7 @@ public class FileUtil {
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
         } finally {
-            close(fr, f);
+            close(fr);
         }
         return result.toString();
     }
@@ -508,10 +492,9 @@ public class FileUtil {
             fw.flush();
             success = true;
         } catch (Throwable t) {
-            if (!f.equals(getRuntimeLogFile()))
-                Log.printStackTrace(TAG, t);
+            Log.printStackTrace(TAG, t);
         }
-        close(fw, f);
+        close(fw);
         return success;
     }
 
@@ -528,10 +511,9 @@ public class FileUtil {
             fw.flush();
             success = true;
         } catch (Throwable t) {
-            if (!f.equals(getRuntimeLogFile()))
-                Log.printStackTrace(TAG, t);
+            Log.printStackTrace(TAG, t);
         }
-        close(fw, f);
+        close(fw);
         return success;
     }
 
@@ -539,13 +521,12 @@ public class FileUtil {
         return write2File(readFromFile(f1), f2);
     }
 
-    public static void close(Closeable c, File f) {
+    public static void close(Closeable c) {
         try {
             if (c != null)
                 c.close();
         } catch (Throwable t) {
-            if (!f.equals(getRuntimeLogFile()))
-                Log.printStackTrace(TAG, t);
+            Log.printStackTrace(TAG, t);
         }
     }
 

@@ -25,7 +25,6 @@ public class GreenFinance extends ModelTask {
     private static final String TAG = GreenFinance.class.getSimpleName();
 
     private final Integer executeIntervalInt = 5000;
-    private BooleanModelField greenFinance;
     private BooleanModelField greenFinanceLsxd;
     private BooleanModelField greenFinanceLsbg;
     private BooleanModelField greenFinanceLscg;
@@ -45,7 +44,6 @@ public class GreenFinance extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(greenFinance = new BooleanModelField("greenFinance", "开启绿色经营", false));
         modelFields.addField(greenFinanceLsxd = new BooleanModelField("greenFinanceLsxd", "打卡 | 绿色行动", false));
         modelFields.addField(greenFinanceLscg = new BooleanModelField("greenFinanceLscg", "打卡 | 绿色采购", false));
         modelFields.addField(greenFinanceLsbg = new BooleanModelField("greenFinanceLsbg", "打卡 | 绿色办公", false));
@@ -58,61 +56,59 @@ public class GreenFinance extends ModelTask {
 
     @Override
     public Boolean check() {
-        return greenFinance.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override
     public void  run() {
-            String s = GreenFinanceRpcCall.greenFinanceIndex();
-            try {
-                JSONObject jo = new JSONObject(s);
-                if (!jo.getBoolean("success")) {
-                    Log.i(TAG, jo.optString("resultDesc"));
-                    return;
-                }
-                JSONObject result = jo.getJSONObject("result");
-                if (!result.getBoolean("greenFinanceSigned")) {
-                    Log.other("绿色经营📊未开通");
-                    return;
-                }
-                JSONObject mcaGreenLeafResult = result.getJSONObject("mcaGreenLeafResult");
-                JSONArray greenLeafList = mcaGreenLeafResult.getJSONArray("greenLeafList");
-                String currentCode = "";
-                JSONArray bsnIds = new JSONArray();
-                for (int i = 0; i < greenLeafList.length(); i++) {
-                    JSONObject greenLeaf = greenLeafList.getJSONObject(i);
-                    String code = greenLeaf.getString("code");
-                    if (currentCode.equals(code) || bsnIds.length() == 0) {
-                        bsnIds.put(greenLeaf.getString("bsnId"));
-                    } else {
-                        batchSelfCollect(bsnIds);
-                        bsnIds = new JSONArray();
-                    }
-                }
-                if (bsnIds.length() > 0) {
-                    batchSelfCollect(bsnIds);
-                }
-            } catch (Throwable th) {
-                Log.i(TAG, "index err:");
-                Log.printStackTrace(TAG, th);
+        String s = GreenFinanceRpcCall.greenFinanceIndex();
+        try {
+            JSONObject jo = new JSONObject(s);
+            if (!jo.getBoolean("success")) {
+                Log.i(TAG, jo.optString("resultDesc"));
+                return;
             }
+            JSONObject result = jo.getJSONObject("result");
+            if (!result.getBoolean("greenFinanceSigned")) {
+                Log.other("绿色经营📊未开通");
+                return;
+            }
+            JSONObject mcaGreenLeafResult = result.getJSONObject("mcaGreenLeafResult");
+            JSONArray greenLeafList = mcaGreenLeafResult.getJSONArray("greenLeafList");
+            String currentCode = "";
+            JSONArray bsnIds = new JSONArray();
+            for (int i = 0; i < greenLeafList.length(); i++) {
+                JSONObject greenLeaf = greenLeafList.getJSONObject(i);
+                String code = greenLeaf.getString("code");
+                if (currentCode.equals(code) || bsnIds.length() == 0) {
+                    bsnIds.put(greenLeaf.getString("bsnId"));
+                } else {
+                    batchSelfCollect(bsnIds);
+                    bsnIds = new JSONArray();
+                }
+            }
+            if (bsnIds.length() > 0) {
+                batchSelfCollect(bsnIds);
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "index err:");
+            Log.printStackTrace(TAG, th);
+        }
 
-            signIn("PLAY102632271");
+        signIn("PLAY102632271");
 //            signIn("PLAY102932217");
-            signIn("PLAY102232206");
+        signIn("PLAY102232206");
 
-            //执行打卡
-            behaviorTick();
-            //捐助
-            donation();
-            //收好友金币
-            batchStealFriend();
-            //评级任务
-            doProveTask();
-            //评级奖品
-            prizes();
-            //绿色经营
-            GreenFinanceRpcCall.doTask("AP13159535", TAG, "绿色经营📊");
+        //执行打卡
+        behaviorTick();
+        //捐助
+        donation();
+        //收好友金币
+        batchStealFriend();
+        //评级奖品
+        prizes();
+        //绿色经营
+        GreenFinanceRpcCall.doTask("AP13159535", TAG, "绿色经营📊");
     }
 
     /**
@@ -304,6 +300,7 @@ public class GreenFinance extends ModelTask {
                     return;
                 }
                 Log.other("绿色经营📊成功捐助[" + name + "]" + am + "金币");
+                TimeUtil.sleep(1000);
             }
         } catch (Throwable th) {
             Log.i(TAG, "donation err:");
@@ -370,96 +367,6 @@ public class GreenFinance extends ModelTask {
         }
     }
 
-    private void doProveTask() {
-        try {
-            String str = GreenFinanceRpcCall.consultProveTaskList();
-            JSONObject jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
-                Log.i(TAG + ".doProveTask.consultProveTaskList", jsonObject.optString("resultDesc"));
-                return;
-            }
-            JSONObject result = jsonObject.getJSONObject("result");
-            JSONArray jsonArray = result.getJSONArray("proveTasks");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                jsonObject = jsonArray.getJSONObject(i);
-                if (!"CAN_RECEIVE".equals(jsonObject.optString("status"))) {
-                    continue;
-                }
-                String bizType = jsonObject.getString("bizType");
-                String url = "";
-                switch (bizType) {
-                    case "classifyTrashCanProve":
-                        url = "biz/screditgrowup/upload/1fac-2d0b8b67-385b-46da-b0c7-2446f025cd28.jpg";
-                        break;
-                    case "ECO_FRIENDLY_BAG_PROVE":
-                        url = "biz/screditgrowup/upload/1fac-fd0ab983-4e5e-412f-b882-d0c096c7ddaf.jpg";
-                        break;
-                    default:
-                        Log.other("绿色经营⛔评级任务[" + jsonObject.getString("templateName") + "]未适配");
-                        break;
-                }
-                if (!proveTask(bizType, url)) {
-                    continue;
-                }
-                Log.other("绿色经营📊评级任务[" + jsonObject.getString("templateName") + "]完成");
-            }
-        } catch (Throwable th) {
-            Log.i(TAG, "prizes err:");
-            Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
-        }
-    }
-
-    /**
-     * 评级任务
-     */
-    private boolean proveTask(String bizType, String imageUrl) {
-        try {
-            String str = GreenFinanceRpcCall.proveTask(bizType, imageUrl);
-            JSONObject jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
-                Log.i(TAG + ".prizesTask.proveTask", jsonObject.optString("resultDesc"));
-                return false;
-            }
-            String taskId = JsonUtil.getValueByPath(jsonObject, "result.taskId");
-            if (taskId.isEmpty()) {
-                return false;
-            }
-            TimeUtil.sleep(2000);
-            while (true) {
-                str = GreenFinanceRpcCall.queryProveTaskStatus(taskId);
-                jsonObject = new JSONObject(str);
-                if (!jsonObject.getBoolean("success")) {
-                    Log.i(TAG + ".prizesTask.proveTask", jsonObject.optString("resultDesc"));
-                    continue;
-                }
-                String status = JsonUtil.getValueByPath(jsonObject, "result.status");
-                if ("FAIL".equals(status)) {
-                    return false;
-                }
-                if ("FINISH".equals(status)) {
-                    return true;
-                }
-                TimeUtil.sleep(2000);
-            }
-        } catch (Throwable th) {
-            Log.i(TAG, "prizesTask err:");
-            Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
-        }
-        return false;
-    }
-
     /**
      * 收好友金币
      */
@@ -470,58 +377,62 @@ public class GreenFinance extends ModelTask {
             }
             int n = 0;
             while (true) {
-                String str = GreenFinanceRpcCall.queryRankingList(n);
-                JSONObject jsonObject = new JSONObject(str);
-                if (!jsonObject.getBoolean("success")) {
-                    Log.i(TAG + ".batchStealFriend.queryRankingList", jsonObject.optString("resultDesc"));
-                    continue;
-                }
-                JSONObject result = jsonObject.getJSONObject("result");
-                if (result.getBoolean("lastPage")) {
-                    Log.other("绿色经营🙋报告大人，好友的金币已全部巡查完毕~");
-                    Statistics.greenFinancePointFriend();
-                    return;
-                }
-                n = result.getInt("nextStartIndex");
-                JSONArray list = result.getJSONArray("rankingList");
-                for (int i = 0; i < list.length(); i++) {
-                    JSONObject object = list.getJSONObject(i);
-                    if (!object.getBoolean("collectFlag")) {
-                        continue;
-                    }
-                    String friendId = object.optString("uid");
-                    if (friendId.isEmpty()) {
-                        continue;
-                    }
-                    str = GreenFinanceRpcCall.queryGuestIndexPoints(friendId);
-                    jsonObject = new JSONObject(str);
+                try {
+                    String str = GreenFinanceRpcCall.queryRankingList(n);
+                    JSONObject jsonObject = new JSONObject(str);
                     if (!jsonObject.getBoolean("success")) {
-                        Log.i(TAG + ".batchStealFriend.queryGuestIndexPoints", jsonObject.optString("resultDesc"));
+                        Log.i(TAG + ".batchStealFriend.queryRankingList", jsonObject.optString("resultDesc"));
                         continue;
                     }
-                    JSONArray points = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.pointDetailList");
-                    if (points == null) {
-                        continue;
+                    JSONObject result = jsonObject.getJSONObject("result");
+                    if (result.getBoolean("lastPage")) {
+                        Log.other("绿色经营🙋，好友的金币已全部巡查完毕~");
+                        Statistics.greenFinancePointFriend();
+                        return;
                     }
-                    JSONArray jsonArray = new JSONArray();
-                    for (int j = 0; j < points.length(); j++) {
-                        jsonObject = points.getJSONObject(j);
-                        if (!jsonObject.getBoolean("collectFlag")) {
-                            jsonArray.put(jsonObject.getString("bsnId"));
+                    n = result.getInt("nextStartIndex");
+                    JSONArray list = result.getJSONArray("rankingList");
+                    for (int i = 0; i < list.length(); i++) {
+                        JSONObject object = list.getJSONObject(i);
+                        if (!object.getBoolean("collectFlag")) {
+                            continue;
                         }
+                        String friendId = object.optString("uid");
+                        if (friendId.isEmpty()) {
+                            continue;
+                        }
+                        str = GreenFinanceRpcCall.queryGuestIndexPoints(friendId);
+                        jsonObject = new JSONObject(str);
+                        if (!jsonObject.getBoolean("success")) {
+                            Log.i(TAG + ".batchStealFriend.queryGuestIndexPoints", jsonObject.optString("resultDesc"));
+                            continue;
+                        }
+                        JSONArray points = (JSONArray) JsonUtil.getValueByPathObject(jsonObject, "result.pointDetailList");
+                        if (points == null) {
+                            continue;
+                        }
+                        JSONArray jsonArray = new JSONArray();
+                        for (int j = 0; j < points.length(); j++) {
+                            jsonObject = points.getJSONObject(j);
+                            if (!jsonObject.getBoolean("collectFlag")) {
+                                jsonArray.put(jsonObject.getString("bsnId"));
+                            }
+                        }
+                        if (jsonArray.length() == 0) {
+                            continue;
+                        }
+                        str = GreenFinanceRpcCall.batchSteal(jsonArray, friendId);
+                        jsonObject = new JSONObject(str);
+                        if (!jsonObject.getBoolean("success")) {
+                            Log.i(TAG + ".batchStealFriend.batchSteal", jsonObject.optString("resultDesc"));
+                            continue;
+                        }
+                        Log.other("绿色经营🤩收[" + object.optString("nickName") + "]" +
+                                JsonUtil.getValueByPath(jsonObject, "result.totalCollectPoint") + "金币");
+                        TimeUtil.sleep(750);
                     }
-                    if (jsonArray.length() == 0) {
-                        continue;
-                    }
-                    str = GreenFinanceRpcCall.batchSteal(jsonArray, friendId);
-                    jsonObject = new JSONObject(str);
-                    if (!jsonObject.getBoolean("success")) {
-                        Log.i(TAG + ".batchStealFriend.batchSteal", jsonObject.optString("resultDesc"));
-                        continue;
-                    }
-                    Log.other("绿色经营🤩收[" + object.optString("nickName") + "]" +
-                            JsonUtil.getValueByPath(jsonObject, "result.totalCollectPoint") + "金币");
-                    TimeUtil.sleep(500);
+                } finally {
+                    TimeUtil.sleep(2000);
                 }
             }
         } catch (Throwable th) {

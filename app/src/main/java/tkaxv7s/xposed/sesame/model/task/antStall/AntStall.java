@@ -55,7 +55,6 @@ public class AntStall extends ModelTask {
         return "新村";
     }
 
-    public BooleanModelField enableStall;
     public BooleanModelField stallAutoClose;
     public BooleanModelField stallAutoOpen;
     public BooleanModelField stallAutoTicket;
@@ -83,7 +82,6 @@ public class AntStall extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableStall = new BooleanModelField("enableStall", "开启新村", false));
         modelFields.addField(stallAutoOpen = new BooleanModelField("stallAutoOpen", "新村自动摆摊", false));
         modelFields.addField(stallAutoClose = new BooleanModelField("stallAutoClose", "新村自动收摊", false));
         modelFields.addField(stallAutoTicket = new BooleanModelField("stallAutoTicket", "新村自动贴罚单", false));
@@ -106,7 +104,7 @@ public class AntStall extends ModelTask {
 
     @Override
     public Boolean check() {
-        return enableStall.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override
@@ -818,8 +816,8 @@ public class AntStall extends ModelTask {
     }
 
     private static void throwManure(JSONArray dynamicList) {
-        String s = AntStallRpcCall.throwManure(dynamicList);
         try {
+            String s = AntStallRpcCall.throwManure(dynamicList);
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.farm("蚂蚁新村⛪扔肥料");
@@ -827,12 +825,18 @@ public class AntStall extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "throwManure err:");
             Log.printStackTrace(TAG, th);
+        } finally {
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 
     private static void throwManure() {
-        String s = AntStallRpcCall.dynamicLoss();
         try {
+            String s = AntStallRpcCall.dynamicLoss();
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONArray astLossDynamicVOS = jo.getJSONArray("astLossDynamicVOS");
@@ -885,56 +889,69 @@ public class AntStall extends ModelTask {
                 return;
             }
             while (true) {
-                String str = AntStallRpcCall.nextTicketFriend();
-                JSONObject jsonObject = new JSONObject(str);
-                if (!jsonObject.getBoolean("success")) {
-                    Log.i(TAG, "pasteTicket.nextTicketFriend err:" + jsonObject.optString("resultDesc"));
-                    return;
-                }
-                if (jsonObject.getInt("canPasteTicketCount") == 0) {
-                    Log.farm("蚂蚁新村👍[今日罚单已贴完]");
-                    Statistics.pasteTicketTime();
-                    return;
-                }
-                String friendId = jsonObject.optString("friendUserId");
-                if (friendId.isEmpty()) {
-                    continue;
-                }
-                str = AntStallRpcCall.friendHome(friendId, "ch_appcenter__chsub_9patch");
-                jsonObject = new JSONObject(str);
-                if (!jsonObject.getBoolean("success")) {
-                    Log.i(TAG, "pasteTicket.friendHome err:" + jsonObject.optString("resultDesc"));
-                    return;
-                }
-                JSONObject object = jsonObject.getJSONObject("seatsMap");
-                // 使用 keys() 方法获取所有键
-                Iterator<String> keys = object.keys();
-                // 遍历所有键
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    // 获取键对应的值
-                    Object propertyValue = object.get(key);
-                    if (!(propertyValue instanceof JSONObject)) {
+                try {
+                    String str = AntStallRpcCall.nextTicketFriend();
+                    JSONObject jsonObject = new JSONObject(str);
+                    if (!jsonObject.getBoolean("success")) {
+                        Log.i(TAG, "pasteTicket.nextTicketFriend err:" + jsonObject.optString("resultDesc"));
+                        return;
+                    }
+                    if (jsonObject.getInt("canPasteTicketCount") == 0) {
+                        Log.farm("蚂蚁新村👍[今日罚单已贴完]");
+                        Statistics.pasteTicketTime();
+                        return;
+                    }
+                    String friendId = jsonObject.optString("friendUserId");
+                    if (friendId.isEmpty()) {
                         continue;
                     }
-                    //如signInDTO、priorityChannelDTO
-                    JSONObject jo = ((JSONObject) propertyValue);
-                    if (jo.length() == 0) {
-                        continue;
+                    str = AntStallRpcCall.friendHome(friendId, "ch_appcenter__chsub_9patch");
+                    jsonObject = new JSONObject(str);
+                    if (!jsonObject.getBoolean("success")) {
+                        Log.i(TAG, "pasteTicket.friendHome err:" + jsonObject.optString("resultDesc"));
+                        return;
                     }
-                    if (jo.getBoolean("canOpenShop") || !"BUSY".equals(jo.getString("status"))
-                            || !jo.getBoolean("overTicketProtection")) {
-                        continue;
+                    JSONObject object = jsonObject.getJSONObject("seatsMap");
+                    // 使用 keys() 方法获取所有键
+                    Iterator<String> keys = object.keys();
+                    // 遍历所有键
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        // 获取键对应的值
+                        Object propertyValue = object.get(key);
+                        if (!(propertyValue instanceof JSONObject)) {
+                            continue;
+                        }
+                        //如signInDTO、priorityChannelDTO
+                        JSONObject jo = ((JSONObject) propertyValue);
+                        if (jo.length() == 0) {
+                            continue;
+                        }
+                        if (jo.getBoolean("canOpenShop") || !"BUSY".equals(jo.getString("status"))
+                                || !jo.getBoolean("overTicketProtection")) {
+                            continue;
+                        }
+                        String rentLastUser = jo.getString("rentLastUser");
+                        str = AntStallRpcCall.ticket(jo.getString("rentLastBill"), jo.getString("seatId"),
+                                jo.getString("rentLastShop"), rentLastUser, jo.getString("userId"));
+                        jo = new JSONObject(str);
+                        if (!jo.getBoolean("success")) {
+                            Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
+                            continue;
+                        }
+                        Log.farm("蚂蚁新村🚫贴罚单[" + UserIdMap.getNameById(friendId) + "]");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (Exception e) {
+                            Log.printStackTrace(e);
+                        }
                     }
-                    String rentLastUser = jo.getString("rentLastUser");
-                    str = AntStallRpcCall.ticket(jo.getString("rentLastBill"), jo.getString("seatId"),
-                            jo.getString("rentLastShop"), rentLastUser, jo.getString("userId"));
-                    jo = new JSONObject(str);
-                    if (!jo.getBoolean("success")) {
-                        Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
-                        continue;
+                } finally {
+                    try {
+                        Thread.sleep(1500);
+                    } catch (Exception e) {
+                        Log.printStackTrace(e);
                     }
-                    Log.farm("蚂蚁新村🚫贴罚单[" + UserIdMap.getNameById(friendId) + "]");
                 }
             }
         } catch (Throwable th) {

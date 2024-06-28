@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.ModelTask;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayReserve;
 import tkaxv7s.xposed.sesame.entity.KVNode;
@@ -21,34 +20,22 @@ import java.util.Objects;
 public class Reserve extends ModelTask {
     private static final String TAG = Reserve.class.getSimpleName();
 
-    private static boolean isProtecting = false;
-
     @Override
     public String getName() {
         return "保护地";
     }
 
-    public static BooleanModelField enableReserve;
     public static SelectModelField reserveList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableReserve = new BooleanModelField("enableReserve", "开启保护地", false));
         modelFields.addField(reserveList = new SelectModelField("reserveList", "保护地列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayReserve.getList()));
         return modelFields;
     }
 
     public Boolean check() {
-        if (!enableReserve.getValue()) {
-            return false;
-        }
         if (TaskCommon.IS_ENERGY_TIME) {
-            return false;
-        }
-
-        if (isProtecting) {
-            Log.record("之前的兑换保护地未结束，本次暂停");
             return false;
         }
         return true;
@@ -57,11 +44,7 @@ public class Reserve extends ModelTask {
     public void run() {
         try {
             Log.record("开始检测保护地");
-            isProtecting = true;
-            if (enableReserve.getValue()) {
-                animalReserve();
-            }
-            isProtecting = false;
+            animalReserve();
         } catch (Throwable t) {
             Log.i(TAG, "start.run err:");
             Log.printStackTrace(TAG, t);

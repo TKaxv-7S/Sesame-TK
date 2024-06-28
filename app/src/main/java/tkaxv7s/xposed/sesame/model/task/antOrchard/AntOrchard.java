@@ -2,21 +2,16 @@ package tkaxv7s.xposed.sesame.model.task.antOrchard;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
+import tkaxv7s.xposed.sesame.model.base.TaskCommon;
+import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
-import tkaxv7s.xposed.sesame.data.ModelTask;
-import tkaxv7s.xposed.sesame.model.base.TaskCommon;
-import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm;
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.Statistics;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 public class AntOrchard extends ModelTask {
     private static final String TAG = AntOrchard.class.getSimpleName();
@@ -28,7 +23,6 @@ public class AntOrchard extends ModelTask {
 
     private Integer executeIntervalInt;
 
-    public static BooleanModelField antOrchard;
     private static IntegerModelField executeInterval;
     private static BooleanModelField receiveOrchardTaskAward;
     private static IntegerModelField orchardSpreadManureCount;
@@ -42,7 +36,6 @@ public class AntOrchard extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(antOrchard = new BooleanModelField("antOrchard", "开启农场", false));
         modelFields.addField(executeInterval = new IntegerModelField("executeInterval", "执行间隔(毫秒)", 500));
         modelFields.addField(receiveOrchardTaskAward = new BooleanModelField("receiveOrchardTaskAward", "收取农场任务奖励", false));
         modelFields.addField(orchardSpreadManureCount = new IntegerModelField("orchardSpreadManureCount", "农场每日施肥次数", 0));
@@ -52,7 +45,7 @@ public class AntOrchard extends ModelTask {
 
     @Override
     public Boolean check() {
-        return antOrchard.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override
@@ -97,7 +90,7 @@ public class AntOrchard extends ModelTask {
                         Log.i(jo.toString());
                     }
                 } else {
-                    antOrchard.setValue(false);
+                    getEnableField().setValue(false);
                     Log.record("请先开启芭芭农场！");
                 }
             } else {

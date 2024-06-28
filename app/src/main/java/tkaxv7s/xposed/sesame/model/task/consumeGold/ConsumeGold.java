@@ -2,11 +2,9 @@ package tkaxv7s.xposed.sesame.model.task.consumeGold;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.RuntimeInfo;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
 
@@ -18,19 +16,13 @@ public class ConsumeGold extends ModelTask {
         return "消费金";
     }
 
-    private BooleanModelField consumeGold;
-
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(consumeGold = new BooleanModelField("consumeGold", "开启消费金", false));
         return modelFields;
     }
 
     public Boolean check() {
-        if (!consumeGold.getValue()) {
-            return false;
-        }
         if (TaskCommon.IS_ENERGY_TIME) {
             return false;
         }

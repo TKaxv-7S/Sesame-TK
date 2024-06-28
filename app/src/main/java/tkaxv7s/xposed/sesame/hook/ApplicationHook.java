@@ -19,9 +19,9 @@ import lombok.Getter;
 import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.model.task.antMember.AntMemberRpcCall;
 import tkaxv7s.xposed.sesame.model.task.antSports.AntSports;
-import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.RpcBridge;
@@ -470,7 +470,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 Log.record("开始加载");
                 ConfigV2.load();
-                if (!BaseModel.getEnable().getValue()) {
+                if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");
                     return;

@@ -129,7 +129,7 @@ public abstract class ModelTask extends Model {
             stopTask();
         }
         try {
-            if (check()) {
+            if (isEnable() && check()) {
                 MAIN_THREAD_POOL.execute(mainRunnable);
                 return true;
             }

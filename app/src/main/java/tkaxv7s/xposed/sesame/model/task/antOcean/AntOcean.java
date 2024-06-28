@@ -33,14 +33,12 @@ public class AntOcean extends ModelTask {
         return "海洋";
     }
 
-    public static BooleanModelField enableOcean;
     public static BooleanModelField protectOcean;
     public static SelectModelField protectOceanList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableOcean = new BooleanModelField("enableOcean", "开启海洋", false));
         modelFields.addField(protectOcean = new BooleanModelField("protectOcean", "保护 | 开启", false));
         modelFields.addField(protectOceanList = new SelectModelField("protectOceanList", "保护 | 海洋列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayBeach.getList()));
         return modelFields;
@@ -48,7 +46,7 @@ public class AntOcean extends ModelTask {
 
     @Override
     public Boolean check() {
-        return enableOcean.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override
@@ -60,7 +58,7 @@ public class AntOcean extends ModelTask {
                 if (jo.getBoolean("opened")) {
                     queryHomePage();
                 } else {
-                    enableOcean.setValue(false);
+                    getEnableField().setValue(false);
                     Log.record("请先开启神奇海洋，并完成引导教程");
                 }
             } else {
@@ -406,7 +404,7 @@ public class AntOcean extends ModelTask {
         }
         try {
             String userId = fillFlag.getString("userId");
-            AntForestV2 task = ModelTask.getTask(AntForestV2.class);
+            AntForestV2 task = ModelTask.getModel(AntForestV2.class);
             if (task == null || task.getDontCollectMap().containsKey(userId)) {
                 return;
             }

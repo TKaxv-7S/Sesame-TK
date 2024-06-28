@@ -2,21 +2,16 @@ package tkaxv7s.xposed.sesame.model.task.antCooperate;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.LinkedHashMap;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.CooperateUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
-import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
-import tkaxv7s.xposed.sesame.util.CooperationIdMap;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.Statistics;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.util.*;
+
+import java.util.LinkedHashMap;
 
 public class AntCooperate extends ModelTask {
     private static final String TAG = AntCooperate.class.getSimpleName();
@@ -26,14 +21,12 @@ public class AntCooperate extends ModelTask {
         return "合种";
     }
 
-    public static BooleanModelField enableAntCooperate;
     public static BooleanModelField cooperateWater;
     public static SelectModelField cooperateWaterList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableAntCooperate = new BooleanModelField("enableAntCooperate", "开启合种", false));
         modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false));
         modelFields.addField(cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser.getList()));
         return modelFields;
@@ -41,7 +34,7 @@ public class AntCooperate extends ModelTask {
 
     @Override
     public Boolean check() {
-        return enableAntCooperate.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override

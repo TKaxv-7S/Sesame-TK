@@ -2,22 +2,21 @@ package tkaxv7s.xposed.sesame.model.task.ancientTree;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.entity.AreaCode;
+import tkaxv7s.xposed.sesame.entity.KVNode;
+import tkaxv7s.xposed.sesame.model.base.TaskCommon;
+import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.Statistics;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
-
-import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
-import tkaxv7s.xposed.sesame.entity.AreaCode;
-import tkaxv7s.xposed.sesame.entity.KVNode;
-import tkaxv7s.xposed.sesame.data.ModelTask;
-import tkaxv7s.xposed.sesame.model.base.TaskCommon;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.Statistics;
 
 public class AncientTree extends ModelTask {
     private static final String TAG = AncientTree.class.getSimpleName();
@@ -27,14 +26,12 @@ public class AncientTree extends ModelTask {
         return "古树";
     }
 
-    private BooleanModelField enableAncientTree;
     private BooleanModelField ancientTreeOnlyWeek;
     private SelectModelField ancientTreeCityCodeList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableAncientTree = new BooleanModelField("enableAncientTree", "开启古树", false));
         modelFields.addField(ancientTreeOnlyWeek = new BooleanModelField("ancientTreeOnlyWeek", "仅星期一、三、五运行保护古树", false));
         modelFields.addField(ancientTreeCityCodeList = new SelectModelField("ancientTreeCityCodeList", "古树区划代码列表", new KVNode<>(new LinkedHashMap<>(), false), AreaCode.getList()));
         return modelFields;
@@ -42,7 +39,7 @@ public class AncientTree extends ModelTask {
 
     @Override
     public Boolean check() {
-        if (enableAncientTree.getValue() && !TaskCommon.IS_ENERGY_TIME && TaskCommon.IS_AFTER_8AM) {
+        if (!TaskCommon.IS_ENERGY_TIME && TaskCommon.IS_AFTER_8AM) {
             if (!ancientTreeOnlyWeek.getValue()) {
                 return true;
             }

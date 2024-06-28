@@ -21,7 +21,6 @@ public class AntMember extends ModelTask {
         return "会员";
     }
 
-    private BooleanModelField memberEnable;
     private BooleanModelField memberSign;
     private BooleanModelField collectSesame;
     private BooleanModelField enableKb;
@@ -33,7 +32,6 @@ public class AntMember extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(memberEnable = new BooleanModelField("memberEnable", "开启会员", false));
         modelFields.addField(memberSign = new BooleanModelField("memberSign", "会员签到", false));
         modelFields.addField(collectSesame = new BooleanModelField("collectSesame", "芝麻粒领取", false));
         modelFields.addField(enableKb = new BooleanModelField("enableKb", "口碑签到", false));
@@ -46,7 +44,7 @@ public class AntMember extends ModelTask {
 
     @Override
     public Boolean check() {
-        return memberEnable.getValue() && !TaskCommon.IS_ENERGY_TIME;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     @Override
