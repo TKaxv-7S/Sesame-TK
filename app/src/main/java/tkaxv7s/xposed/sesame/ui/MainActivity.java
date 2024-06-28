@@ -49,6 +49,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ViewAppInfo.init(getApplicationContext());
         tvStatistics = findViewById(R.id.tv_statistics);
         updateSubTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
