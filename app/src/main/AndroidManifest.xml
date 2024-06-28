@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="tkaxv7s.xposed.sesame">
+          xmlns:tools="http://schemas.android.com/tools"
+          package="tkaxv7s.xposed.sesame">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-permission
-        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+            android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+            tools:ignore="ScopedStorage" />
 
     <application
-        android:theme="@style/AppTheme"
-        android:allowBackup="true"
-        android:requestLegacyExternalStorage="true"
-        android:icon="@drawable/logo"
-        android:roundIcon="@drawable/logo"
-        android:label="@string/app_name"
-        tools:targetApi="q">
+            android:allowBackup="true"
+            android:requestLegacyExternalStorage="true"
+            android:icon="@drawable/logo"
+            android:roundIcon="@drawable/logo"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme"
+            tools:targetApi="q">
 
         <meta-data
-            android:name="xposedmodule"
-            android:value="true" />
+                android:name="xposedmodule"
+                android:value="true" />
 
         <meta-data
-            android:name="xposeddescription"
-            android:value="蚂蚁森林快速收取能量" />
+                android:name="xposeddescription"
+                android:value="芝麻粒插件TK版" />
 
         <meta-data
-            android:name="xposedminversion"
-            android:value="54" />
+                android:name="xposedminversion"
+                android:value="54" />
 
         <meta-data
-            android:name="xposedscope"
-            android:resource="@array/xposed_scopes" />
+                android:name="xposedscope"
+                android:resource="@array/xposed_scopes" />
 
 
         <activity
-            android:name="tkaxv7s.xposed.sesame.ui.MainActivity"
-            android:resizeableActivity="true"
-            android:exported="true">
+                android:name="tkaxv7s.xposed.sesame.ui.MainActivity"
+                android:resizeableActivity="true"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
@@ -48,10 +48,10 @@
         </activity>
 
         <activity-alias
-            android:name=".ui.MainActivityAlias"
-            android:enabled="true"
-            android:targetActivity="tkaxv7s.xposed.sesame.ui.MainActivity"
-            android:exported="true">
+                android:name=".ui.MainActivityAlias"
+                android:enabled="true"
+                android:targetActivity="tkaxv7s.xposed.sesame.ui.MainActivity"
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -59,14 +59,14 @@
         </activity-alias>
 
         <activity
-            android:name="tkaxv7s.xposed.sesame.ui.SettingsActivity"
-            android:resizeableActivity="true"
-            tools:targetApi="n" />
+                android:name="tkaxv7s.xposed.sesame.ui.SettingsActivity"
+                android:resizeableActivity="true"
+                tools:targetApi="n" />
 
         <activity
-            android:name="tkaxv7s.xposed.sesame.ui.HtmlViewerActivity"
-            android:resizeableActivity="true"
-            tools:targetApi="n" />
+                android:name="tkaxv7s.xposed.sesame.ui.HtmlViewerActivity"
+                android:resizeableActivity="true"
+                tools:targetApi="n" />
 
     </application>
 

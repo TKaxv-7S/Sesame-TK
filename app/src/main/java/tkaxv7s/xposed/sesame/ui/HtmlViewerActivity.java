@@ -1,5 +1,6 @@
 package tkaxv7s.xposed.sesame.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -37,6 +38,7 @@ public class HtmlViewerActivity extends Activity {
 
         mWebView.setWebChromeClient(
                 new WebChromeClient() {
+                    @SuppressLint("WrongConstant")
                     @Override
                     public void onProgressChanged(WebView view, int progress) {
                         pgb.setProgress(progress);
@@ -44,7 +46,7 @@ public class HtmlViewerActivity extends Activity {
                             setTitle("Loading...");
                             pgb.setVisibility(View.VISIBLE);
                         } else {
-                            setTitle(mWebView.getTitle() + ViewAppInfo.getAppVersion());
+                            setTitle(ViewAppInfo.getAppTitle() + " " + mWebView.getTitle());
                             pgb.setVisibility(View.GONE);
                         }
                     }
