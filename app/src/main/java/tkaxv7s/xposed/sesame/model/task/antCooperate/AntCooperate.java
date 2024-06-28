@@ -33,8 +33,8 @@ public class AntCooperate extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableAntCooperate = new BooleanModelField("enableAntCooperate", "开启合种", true));
-        modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", true));
+        modelFields.addField(enableAntCooperate = new BooleanModelField("enableAntCooperate", "开启合种", false));
+        modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false));
         modelFields.addField(cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser.getList()));
         return modelFields;
     }

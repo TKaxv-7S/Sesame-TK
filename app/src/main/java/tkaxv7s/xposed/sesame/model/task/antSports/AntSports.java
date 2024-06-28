@@ -39,7 +39,7 @@ public class AntSports extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(enableSports = new BooleanModelField("enableSports", "开启运动", true));
+        modelFields.addField(enableSports = new BooleanModelField("enableSports", "开启运动", false));
         modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));
         modelFields.addField(receiveCoinAsset = new BooleanModelField("receiveCoinAsset", "收运动币", false));
         modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币", false));
