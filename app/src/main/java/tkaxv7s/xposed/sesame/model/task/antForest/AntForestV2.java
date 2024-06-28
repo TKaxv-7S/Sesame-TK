@@ -410,7 +410,7 @@ public class AntForestV2 extends ModelTask {
                                     break;
                                 }
                                 addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
-                                Log.record("添加["+userName +"]蹲点收取任务, 在["+DateFormat.getDateTimeInstance().format(produceTime) +"]执行");
+                                Log.record("添加[" + userName + "]蹲点收取任务, 在[" + DateFormat.getDateTimeInstance().format(produceTime) + "]执行");
                             } else {
                                 Log.i(TAG, "用户[" + UserIdMap.getNameById(userId) + "]能量成熟时间: " + DateFormat.getDateTimeInstance().format(produceTime));
                             }
@@ -744,7 +744,11 @@ public class AntForestV2 extends ModelTask {
     }
 
     private void collectUserEnergy(String userId, long bubbleId, String bizNo) {
-        addChildTask(new ChildModelTask(this, "NC|" + userId + "|" + bubbleId, () -> {
+        collectUserEnergy(userId, bubbleId, bizNo, false);
+    }
+
+    private void collectUserEnergy(String userId, long bubbleId, String bizNo, boolean joinThread) {
+        Runnable runnable = () -> {
             synchronized (collectEnergyLockObj) {
                 try {
                     if (doubleCard.getValue() && !Objects.equals(selfId, userId) && doubleEndTime < System.currentTimeMillis()) {
@@ -837,7 +841,12 @@ public class AntForestV2 extends ModelTask {
                     }
                 }
             }
-        }));
+        };
+        if (joinThread) {
+            runnable.run();
+        } else {
+            addChildTask(new ChildModelTask(this, "NC|" + userId + "|" + bubbleId, runnable));
+        }
     }
 
     private void collectUserBatchEnergy(String userId, final List<Long> bubbleIdList) {
@@ -1076,8 +1085,9 @@ public class AntForestV2 extends ModelTask {
     }
 
     private int returnFriendWater(String userId, String bizNo, int count, int waterEnergy) {
-        if (bizNo == null || bizNo.isEmpty())
+        if (bizNo == null || bizNo.isEmpty()) {
             return 0;
+        }
         int wateredTimes = 0;
         try {
             String s;
@@ -2270,7 +2280,7 @@ public class AntForestV2 extends ModelTask {
                     }
                 }
                 Log.record("执行[" + userName + "]蹲点收取任务");
-                collectUserEnergy(userId, bubbleId, null);
+                collectUserEnergy(userId, bubbleId, null, true);
             };
         }
     }

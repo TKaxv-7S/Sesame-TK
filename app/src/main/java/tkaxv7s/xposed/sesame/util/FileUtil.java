@@ -91,34 +91,6 @@ public class FileUtil {
         return logDir;
     }
 
-    public static File getConfigFile() {
-        return getConfigFile(null);
-    }
-
-    public static File getConfigFile(String userId) {
-        if (!configFileMap.containsKey("Default")) {
-            File configFile = new File(MAIN_DIRECTORY_FILE, "config.json");
-            if (configFile.exists()) {
-                Log.i(TAG, "[config]读:" + configFile.canRead() + ";写:" + configFile.canWrite());
-            } else {
-                Log.i(TAG, "config.json文件不存在");
-            }
-            configFileMap.put("Default", configFile);
-        }
-        if (!StringUtil.isEmpty(userId)) {
-            if (!configFileMap.containsKey(userId)) {
-                File configFile = new File(CONFIG_DIRECTORY_FILE, "config-" + userId + ".json");
-                if (configFile.exists()) {
-                    configFileMap.put(userId, configFile);
-                    return configFile;
-                }
-            } else {
-                return configFileMap.get(userId);
-            }
-        }
-        return configFileMap.get("Default");
-    }
-
     public static File getConfigV2File() {
         return getConfigV2File(null);
     }
