@@ -892,7 +892,7 @@ public class AntStall extends ModelTask {
                 try {
                     String str = AntStallRpcCall.nextTicketFriend();
                     JSONObject jsonObject = new JSONObject(str);
-                    if (!jsonObject.getBoolean("success")) {
+                    if (!jsonObject.optBoolean("success")) {
                         Log.i(TAG, "pasteTicket.nextTicketFriend err:" + jsonObject.optString("resultDesc"));
                         return;
                     }
@@ -935,7 +935,7 @@ public class AntStall extends ModelTask {
                             str = AntStallRpcCall.ticket(jo.getString("rentLastBill"), jo.getString("seatId"),
                                     jo.getString("rentLastShop"), rentLastUser, jo.getString("userId"));
                             jo = new JSONObject(str);
-                            if (!jo.getBoolean("success")) {
+                            if (!jo.optBoolean("success")) {
                                 Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
                                 return;
                             }
