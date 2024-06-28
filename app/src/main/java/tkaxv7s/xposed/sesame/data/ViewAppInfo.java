@@ -28,13 +28,15 @@ public final class ViewAppInfo {
     private static RunType runType = RunType.DISABLE;
 
     public static void init(Context context) {
-        ViewAppInfo.context = context;
-        appTitle = context.getString(R.string.app_name);
-        try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            appVersion = packageInfo.versionName;
-            appTitle = appTitle + " " + appVersion;
-        } catch (PackageManager.NameNotFoundException ignored) {
+        if (ViewAppInfo.context == null) {
+            ViewAppInfo.context = context;
+            appTitle = context.getString(R.string.app_name);
+            try {
+                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+                appVersion = packageInfo.versionName;
+                appTitle = appTitle + " " + appVersion;
+            } catch (PackageManager.NameNotFoundException ignored) {
+            }
         }
         checkRunType();
     }

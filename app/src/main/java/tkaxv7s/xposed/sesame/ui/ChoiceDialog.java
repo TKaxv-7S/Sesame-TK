@@ -1,8 +1,7 @@
 package tkaxv7s.xposed.sesame.ui;
 
-import android.app.AlertDialog;
 import android.content.Context;
-
+import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 

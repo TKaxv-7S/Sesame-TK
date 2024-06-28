@@ -1,7 +1,6 @@
 package tkaxv7s.xposed.sesame.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,13 +14,18 @@ import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.Map;
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends BaseActivity {
 
     private Boolean isDraw = false;
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
     //private GestureDetector gestureDetector;
+
+    @Override
+    public String getBaseSubtitle() {
+        return getString(R.string.settings);
+    }
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -30,7 +34,7 @@ public class SettingsActivity extends Activity {
         ConfigV2.load();
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
-        setTitle(getText(R.string.settings) + " " + ViewAppInfo.getAppVersion());
+        setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
 
         context = this;
         tabHost = findViewById(R.id.tab_settings);

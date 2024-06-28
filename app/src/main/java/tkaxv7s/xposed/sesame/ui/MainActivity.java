@@ -1,14 +1,9 @@
 package tkaxv7s.xposed.sesame.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,22 +13,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
-import java.util.LinkedHashMap;
-
+import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.RunType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.FileUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.PermissionUtil;
 import tkaxv7s.xposed.sesame.util.Statistics;
 
-public class MainActivity extends Activity {
+import java.io.File;
+import java.util.LinkedHashMap;
+
+public class MainActivity extends BaseActivity {
 
     private final Handler handler = new Handler();
 
@@ -55,10 +50,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
-        ViewAppInfo.init(getApplicationContext());
-        updateTitle(ViewAppInfo.getRunType());
+        updateSubTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
-        titleRunner = () -> updateTitle(RunType.DISABLE);
+        titleRunner = () -> updateSubTitle(RunType.DISABLE);
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -68,7 +62,7 @@ public class MainActivity extends Activity {
                     switch (action) {
                         case "tkaxv7s.xposed.sesame.status":
                             if (RunType.DISABLE == ViewAppInfo.getRunType()) {
-                                updateTitle(RunType.PACKAGE);
+                                updateSubTitle(RunType.PACKAGE);
                             }
                             viewHandler.removeCallbacks(titleRunner);
                             if (isClick) {
@@ -294,8 +288,19 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void updateTitle(RunType runType) {
-        setTitle(ViewAppInfo.getAppTitle() + "【" + runType.getName() + "】");
+    private void updateSubTitle(RunType runType) {
+        setBaseSubtitle("【" + runType.getName() + "】");
+        switch (runType) {
+            case DISABLE:
+                setBaseSubtitleTextColor(Color.parseColor("#333333"));
+                break;
+            case MODEL:
+                setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+                break;
+            case PACKAGE:
+                setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+                break;
+        }
     }
 
 }

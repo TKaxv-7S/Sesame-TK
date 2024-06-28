@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="@android:style/Theme.Material.Light">
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
         <!--Appbar背景色-->
-        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <!--ToolBar上的Title颜色-->
-        <item name="android:titleTextColor">@color/textColorPrimary</item>
+        <item name="titleTextColor">@color/textColorPrimary</item>
+        <item name="subtitleTextColor">#333333</item>
         <item name="android:navigationBarColor">@color/colorPrimary</item>
         <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="windowNoTitle">true</item>
     </style>
+
 </resources>

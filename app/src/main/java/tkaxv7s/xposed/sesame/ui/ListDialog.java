@@ -1,7 +1,6 @@
 package tkaxv7s.xposed.sesame.ui;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -9,24 +8,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
+import android.widget.*;
+import androidx.appcompat.app.AlertDialog;
+import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.entity.*;
+import tkaxv7s.xposed.sesame.util.CooperationIdMap;
+import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 import java.util.List;
 import java.util.Map;
-
-import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
-import tkaxv7s.xposed.sesame.entity.AlipayUser;
-import tkaxv7s.xposed.sesame.entity.AreaCode;
-import tkaxv7s.xposed.sesame.entity.CooperateUser;
-import tkaxv7s.xposed.sesame.entity.IdAndName;
-import tkaxv7s.xposed.sesame.entity.KVNode;
-import tkaxv7s.xposed.sesame.util.CooperationIdMap;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 public class ListDialog {
     static AlertDialog listDialog;

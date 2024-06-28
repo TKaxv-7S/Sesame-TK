@@ -1,6 +1,5 @@
 package tkaxv7s.xposed.sesame.ui;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -8,7 +7,7 @@ import android.graphics.Color;
 import android.text.Editable;
 import android.text.InputType;
 import android.widget.EditText;
-
+import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.util.Log;

@@ -1,242 +1,250 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/tab_settings">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:baselineAligned="false"
-        android:orientation="horizontal">
+    <include layout="@layout/base_title"/>
 
-        <ScrollView
-            android:id="@+id/sv_tabs"
-            android:layout_weight="32"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none">
+    <TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:id="@+id/tab_settings">
 
-            <TabWidget
-                android:id="@android:id/tabs"
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"/>
+                android:layout_height="match_parent"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
 
-        </ScrollView>
-
-        <ScrollView
-            android:layout_weight="10"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <FrameLayout
-                android:id="@android:id/tabcontent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp">
-                <!--基础设置-->
-                <!--<LinearLayout
-                    android:id="@+id/tab_base"
+            <ScrollView
+                    android:id="@+id/sv_tabs"
+                    android:layout_weight="32"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none">
 
-                    <Switch
-                        android:id="@+id/sw_immediateEffect"
+                <TabWidget
+                        android:id="@android:id/tabs"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/immediate_effect" />
+                        android:orientation="vertical"/>
 
-                    <Switch
-                        android:id="@+id/sw_stayAwake"
+            </ScrollView>
+
+            <ScrollView
+                    android:layout_weight="10"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                <FrameLayout
+                        android:id="@android:id/tabcontent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/stay_awake" />
-
-                    <Button
-                        android:id="@+id/btn_checkInterval"
-                        android:textColor="#008175"
+                        android:padding="12dp">
+                    <!--基础设置-->
+                    <!--<LinearLayout
+                        android:id="@+id/tab_base"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button"
-                        android:gravity="start|center_vertical"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/check_interval_minutes"
-                        android:textAllCaps="false" />
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
 
-                    <Button
-                        android:id="@+id/btn_execAtTimeList"
-                        android:textColor="#008175"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button"
-                        android:gravity="start|center_vertical"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/exec_at_time"
-                        android:textAllCaps="false" />
+                        <Switch
+                            android:id="@+id/sw_immediateEffect"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/immediate_effect" />
 
-                    <Button
-                        android:id="@+id/btn_wakenAtTimeList"
-                        android:textColor="#008175"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button"
-                        android:gravity="start|center_vertical"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/waken_at_time"
-                        android:textAllCaps="false" />
+                        <Switch
+                            android:id="@+id/sw_stayAwake"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/stay_awake" />
 
-                    <Switch
-                        android:id="@+id/sw_timeoutRestart"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/timeout_restart" />
+                        <Button
+                            android:id="@+id/btn_checkInterval"
+                            android:textColor="#008175"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button"
+                            android:gravity="start|center_vertical"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/check_interval_minutes"
+                            android:textAllCaps="false" />
 
-                    <Button
-                        android:id="@+id/btn_waitWhenException"
-                        android:textColor="#008175"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button"
-                        android:gravity="start|center_vertical"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/wait_when_exception"
-                        android:textAllCaps="false" />
+                        <Button
+                            android:id="@+id/btn_execAtTimeList"
+                            android:textColor="#008175"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button"
+                            android:gravity="start|center_vertical"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/exec_at_time"
+                            android:textAllCaps="false" />
 
-                    <Switch
-                        android:id="@+id/sw_batteryPerm"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/battery_perm" />
+                        <Button
+                            android:id="@+id/btn_wakenAtTimeList"
+                            android:textColor="#008175"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button"
+                            android:gravity="start|center_vertical"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/waken_at_time"
+                            android:textAllCaps="false" />
 
-                    <Switch
-                        android:id="@+id/sw_newRpc"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/new_rpc" />
+                        <Switch
+                            android:id="@+id/sw_timeoutRestart"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/timeout_restart" />
 
-                    <Switch
-                        android:id="@+id/sw_debugMode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/debug_mode" />
+                        <Button
+                            android:id="@+id/btn_waitWhenException"
+                            android:textColor="#008175"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button"
+                            android:gravity="start|center_vertical"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/wait_when_exception"
+                            android:textAllCaps="false" />
 
-                    <Switch
-                        android:id="@+id/sw_recordLog"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/record_log" />
+                        <Switch
+                            android:id="@+id/sw_batteryPerm"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/battery_perm" />
 
-                    <Switch
-                        android:id="@+id/sw_enableOnGoing"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/enable_on_going" />
+                        <Switch
+                            android:id="@+id/sw_newRpc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/new_rpc" />
 
-                    <Switch
-                        android:id="@+id/sw_languageSimplifiedChinese"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/language_simplified_chinese" />
+                        <Switch
+                            android:id="@+id/sw_debugMode"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/debug_mode" />
 
-                    <Switch
-                        android:id="@+id/sw_showToast"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/show_toast" />
+                        <Switch
+                            android:id="@+id/sw_recordLog"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/record_log" />
 
-                    <Button
-                        android:id="@+id/btn_toastOffsetY"
-                        android:textColor="#008175"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button"
-                        android:gravity="start|center_vertical"
-                        android:maxHeight="60dp"
-                        android:minHeight="50dp"
-                        android:paddingStart="@dimen/setting_item_padding"
-                        android:paddingEnd="@dimen/setting_item_padding"
-                        android:text="@string/toast_vertical_offset"
-                        android:textAllCaps="false" />
-                </LinearLayout>-->
-                <!--其他-->
-                <!--
-                                <LinearLayout
-                                    android:id="@+id/tab_other"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:gravity="center_horizontal"
-                                    android:orientation="vertical">
+                        <Switch
+                            android:id="@+id/sw_enableOnGoing"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/enable_on_going" />
 
-                                    &lt;!&ndash;<Switch
-                                        android:paddingStart="@dimen/setting_item_padding"
-                                        android:paddingEnd="@dimen/setting_item_padding"
+                        <Switch
+                            android:id="@+id/sw_languageSimplifiedChinese"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/language_simplified_chinese" />
+
+                        <Switch
+                            android:id="@+id/sw_showToast"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/show_toast" />
+
+                        <Button
+                            android:id="@+id/btn_toastOffsetY"
+                            android:textColor="#008175"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/button"
+                            android:gravity="start|center_vertical"
+                            android:maxHeight="60dp"
+                            android:minHeight="50dp"
+                            android:paddingStart="@dimen/setting_item_padding"
+                            android:paddingEnd="@dimen/setting_item_padding"
+                            android:text="@string/toast_vertical_offset"
+                            android:textAllCaps="false" />
+                    </LinearLayout>-->
+                    <!--其他-->
+                    <!--
+                                    <LinearLayout
+                                        android:id="@+id/tab_other"
                                         android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/ant_book_read"
-                                        android:onClick="onClick"
-                                        android:minHeight="50dp"
-                                        android:id="@+id/sw_antBookRead" />&ndash;&gt;
+                                        android:layout_height="match_parent"
+                                        android:gravity="center_horizontal"
+                                        android:orientation="vertical">
 
-                                </LinearLayout>
-                -->
+                                        &lt;!&ndash;<Switch
+                                            android:paddingStart="@dimen/setting_item_padding"
+                                            android:paddingEnd="@dimen/setting_item_padding"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/ant_book_read"
+                                            android:onClick="onClick"
+                                            android:minHeight="50dp"
+                                            android:id="@+id/sw_antBookRead" />&ndash;&gt;
 
-            </FrameLayout>
-        </ScrollView>
-    </LinearLayout>
-</TabHost>
+                                    </LinearLayout>
+                    -->
+
+                </FrameLayout>
+            </ScrollView>
+        </LinearLayout>
+    </TabHost>
+</LinearLayout>

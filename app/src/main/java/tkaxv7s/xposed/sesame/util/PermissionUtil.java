@@ -1,6 +1,5 @@
 package tkaxv7s.xposed.sesame.util;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -11,7 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.Settings;
-
+import androidx.appcompat.app.AppCompatActivity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestRpcCall;
 
@@ -25,7 +24,7 @@ public class PermissionUtil {
             "android.permission.WRITE_EXTERNAL_STORAGE",
     };
 
-    public static Boolean checkOrRequestAllPermissions(Activity activity) {
+    public static Boolean checkOrRequestAllPermissions(AppCompatActivity activity) {
         return checkOrRequestFilePermissions(activity) && checkOrRequestAlarmPermissions(activity);
     }
 
@@ -45,7 +44,7 @@ public class PermissionUtil {
         }
     }
 
-    public static Boolean checkOrRequestFilePermissions(Activity activity) {
+    public static Boolean checkOrRequestFilePermissions(AppCompatActivity activity) {
         try {
             if (checkFilePermissions(activity)) {
                 return true;
