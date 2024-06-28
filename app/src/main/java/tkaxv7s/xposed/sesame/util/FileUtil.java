@@ -124,27 +124,38 @@ public class FileUtil {
     }
 
     public static File getConfigV2File(String userId) {
-        if (!configFileMap.containsKey("DefaultV2")) {
-            File configFile = new File(MAIN_DIRECTORY_FILE, "config_v2.json");
-            if (configFile.exists()) {
-                Log.i(TAG, "[config_v2]读:" + configFile.canRead() + ";写:" + configFile.canWrite());
-            } else {
-                Log.i(TAG, "config_v2.json文件不存在");
-            }
-            configFileMap.put("DefaultV2", configFile);
-        }
+        File configFile = new File(MAIN_DIRECTORY_FILE, "config_v2.json");
         if (!StringUtil.isEmpty(userId)) {
-            if (!configFileMap.containsKey(userId)) {
-                File configFile = new File(CONFIG_DIRECTORY_FILE, "config_v2-" + userId + ".json");
-                if (configFile.exists()) {
-                    configFileMap.put(userId, configFile);
-                    return configFile;
-                }
+            File userConfigFile = new File(CONFIG_DIRECTORY_FILE, "config_v2-" + userId + ".json");
+            if (userConfigFile.exists()) {
+                write2File(readFromFile(userConfigFile), configFile);
             } else {
-                return configFileMap.get(userId);
+                File[] files =  CONFIG_DIRECTORY_FILE.listFiles();
+                if (files == null || files.length == 0) {
+                    // 没有账号配置文件，视为初始设置,将config_v2.json读取写入到config_v2-userId.json
+                    write2File(readFromFile(configFile), userConfigFile);
+                } else {
+                    // 如果不存在config_v2-userId.json，则将config_v2.json的配置内容清空
+                    clearFile(configFile);
+                }
             }
         }
-        return configFileMap.get("DefaultV2");
+        if (configFile.exists()) {
+            Log.i(TAG, "[config_v2]读:" + configFile.canRead() + ";写:" + configFile.canWrite());
+        } else {
+            Log.i(TAG, "config_v2.json文件不存在");
+        }
+        return configFile;
+    }
+
+    public static boolean setConfigV2File(String json) {
+        // 使用uidFile中的UID，避免支付宝未启动时UserIdMap.CurrentUid没有值导致配置错误
+        File uidFile = getUidFile();
+        if (uidFile.exists()) {
+            String uid = readFromFile(uidFile);
+            FileUtil.write2File(json, new File(CONFIG_DIRECTORY_FILE, "config_v2-" + uid + ".json"));
+        }
+        return FileUtil.write2File(json, FileUtil.getConfigV2File());
     }
 
     public static File getFriendWatchFile() {
@@ -551,5 +562,12 @@ public class FileUtil {
             }
         }
         return false;
+    }
+
+    public static Boolean setUid(String uid) {
+        return write2File(uid, new File(MAIN_DIRECTORY_FILE,"uid"));
+    }
+    public static File getUidFile() {
+        return new File(MAIN_DIRECTORY_FILE,"uid");
     }
 }

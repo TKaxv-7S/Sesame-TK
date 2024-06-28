@@ -134,13 +134,14 @@ public class ConfigV2 {
         }
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system(TAG, "保存 config_v2.json: " + json);
-        return FileUtil.write2File(json, FileUtil.getConfigV2File());
+        return FileUtil.setConfigV2File(json);
     }
 
     public static synchronized ConfigV2 load() {
         Log.i(TAG, "开始加载配置");
         Model.initAllModel();
         try {
+            Log.i(TAG, "currentUid： "+ UserIdMap.getCurrentUid());
             File configV2File = FileUtil.getConfigV2File(UserIdMap.getCurrentUid());
             if (configV2File.exists()) {
                 String json = FileUtil.readFromFile(configV2File);
