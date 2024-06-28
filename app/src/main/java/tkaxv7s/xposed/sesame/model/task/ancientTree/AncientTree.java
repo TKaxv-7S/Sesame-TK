@@ -54,7 +54,6 @@ public class AncientTree extends ModelTask {
     public void run() {
         try {
             Log.record("开始检测古树保护");
-            // 二次检查 有时会返回繁忙漏保护
             ancientTree(ancientTreeCityCodeList.getValue().getKey().keySet());
         } catch (Throwable t) {
             Log.i(TAG, "start.run err:");
@@ -68,7 +67,7 @@ public class AncientTree extends ModelTask {
                 if (!Statistics.canAncientTreeToday(cityCode))
                     continue;
                 ancientTreeProtect(cityCode);
-                Thread.sleep(500L);
+                Thread.sleep(1000L);
             }
         } catch (Throwable th) {
             Log.i(TAG, "ancientTree err:");

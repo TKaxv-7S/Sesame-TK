@@ -1264,82 +1264,89 @@ public class AntForestV2 extends ModelTask {
 
     private void receiveTaskAward() {
         try {
-            boolean doubleCheck = false;
-            String s = AntForestRpcCall.queryTaskList();
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray forestSignVOList = jo.getJSONArray("forestSignVOList");
-                JSONObject forestSignVO = forestSignVOList.getJSONObject(0);
-                String currentSignKey = forestSignVO.getString("currentSignKey");
-                JSONArray signRecords = forestSignVO.getJSONArray("signRecords");
-                for (int i = 0; i < signRecords.length(); i++) {
-                    JSONObject signRecord = signRecords.getJSONObject(i);
-                    String signKey = signRecord.getString("signKey");
-                    if (signKey.equals(currentSignKey)) {
-                        if (!signRecord.getBoolean("signed")) {
-                            JSONObject joSign = new JSONObject(AntForestRpcCall.vitalitySign());
-                            if ("SUCCESS".equals(joSign.getString("resultCode")))
-                                Log.forest("森林签到📆");
-                        }
-                        break;
-                    }
-                }
-                JSONArray forestTasksNew = jo.optJSONArray("forestTasksNew");
-                if (forestTasksNew == null)
-                    return;
-                for (int i = 0; i < forestTasksNew.length(); i++) {
-                    JSONObject forestTask = forestTasksNew.getJSONObject(i);
-                    JSONArray taskInfoList = forestTask.getJSONArray("taskInfoList");
-                    for (int j = 0; j < taskInfoList.length(); j++) {
-                        JSONObject taskInfo = taskInfoList.getJSONObject(j);
-                        JSONObject taskBaseInfo = taskInfo.getJSONObject("taskBaseInfo");
-                        JSONObject bizInfo = new JSONObject(taskBaseInfo.getString("bizInfo"));
-                        String taskType = taskBaseInfo.getString("taskType");
-                        String taskTitle = bizInfo.optString("taskTitle", taskType);
-                        String awardCount = bizInfo.optString("awardCount", "1");
-                        String sceneCode = taskBaseInfo.getString("sceneCode");
-                        String taskStatus = taskBaseInfo.getString("taskStatus");
-                        if (TaskStatus.FINISHED.name().equals(taskStatus)) {
-                            JSONObject joAward = new JSONObject(AntForestRpcCall.receiveTaskAward(sceneCode, taskType));
-                            if (joAward.getBoolean("success")) {
-                                Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
-                                doubleCheck = true;
-                            } else {
-                                Log.record("领取失败，" + s);
-                                Log.i(joAward.toString());
-                            }
-                        } else if (TaskStatus.TODO.name().equals(taskStatus)) {
-                            if (bizInfo.optBoolean("autoCompleteTask", false)
-                                    || AntForestTaskTypeSet.contains(taskType) || taskType.endsWith("_JIASUQI")
-                                    || taskType.endsWith("_BAOHUDI") || taskType.startsWith("GYG")) {
-                                JSONObject joFinishTask = new JSONObject(
-                                        AntForestRpcCall.finishTask(sceneCode, taskType));
-                                if (joFinishTask.getBoolean("success")) {
-                                    Log.forest("森林任务🧾️[" + taskTitle + "]");
-                                    doubleCheck = true;
-                                } else {
-                                    Log.record("完成任务失败，" + taskTitle);
+            try {
+                do {
+                    boolean doubleCheck = false;
+                    String s = AntForestRpcCall.queryTaskList();
+                    JSONObject jo = new JSONObject(s);
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                        JSONArray forestSignVOList = jo.getJSONArray("forestSignVOList");
+                        JSONObject forestSignVO = forestSignVOList.getJSONObject(0);
+                        String currentSignKey = forestSignVO.getString("currentSignKey");
+                        JSONArray signRecords = forestSignVO.getJSONArray("signRecords");
+                        for (int i = 0; i < signRecords.length(); i++) {
+                            JSONObject signRecord = signRecords.getJSONObject(i);
+                            String signKey = signRecord.getString("signKey");
+                            if (signKey.equals(currentSignKey)) {
+                                if (!signRecord.getBoolean("signed")) {
+                                    JSONObject joSign = new JSONObject(AntForestRpcCall.vitalitySign());
+                                    if ("SUCCESS".equals(joSign.getString("resultCode")))
+                                        Log.forest("森林签到📆");
                                 }
-                            } else if ("DAKA_GROUP".equals(taskType)) {
-                                JSONArray childTaskTypeList = taskInfo.optJSONArray("childTaskTypeList");
-                                if (childTaskTypeList != null && childTaskTypeList.length() > 0) {
-                                    doChildTask(childTaskTypeList, taskTitle);
-                                }
-                            } else if ("TEST_LEAF_TASK".equals(taskType)) {
-                                JSONArray childTaskTypeList = taskInfo.optJSONArray("childTaskTypeList");
-                                if (childTaskTypeList != null && childTaskTypeList.length() > 0) {
-                                    doChildTask(childTaskTypeList, taskTitle);
-                                    doubleCheck = true;
-                                }
+                                break;
                             }
                         }
+                        JSONArray forestTasksNew = jo.optJSONArray("forestTasksNew");
+                        if (forestTasksNew == null)
+                            return;
+                        for (int i = 0; i < forestTasksNew.length(); i++) {
+                            JSONObject forestTask = forestTasksNew.getJSONObject(i);
+                            JSONArray taskInfoList = forestTask.getJSONArray("taskInfoList");
+                            for (int j = 0; j < taskInfoList.length(); j++) {
+                                JSONObject taskInfo = taskInfoList.getJSONObject(j);
+                                JSONObject taskBaseInfo = taskInfo.getJSONObject("taskBaseInfo");
+                                JSONObject bizInfo = new JSONObject(taskBaseInfo.getString("bizInfo"));
+                                String taskType = taskBaseInfo.getString("taskType");
+                                String taskTitle = bizInfo.optString("taskTitle", taskType);
+                                String awardCount = bizInfo.optString("awardCount", "1");
+                                String sceneCode = taskBaseInfo.getString("sceneCode");
+                                String taskStatus = taskBaseInfo.getString("taskStatus");
+                                if (TaskStatus.FINISHED.name().equals(taskStatus)) {
+                                    JSONObject joAward = new JSONObject(AntForestRpcCall.receiveTaskAward(sceneCode, taskType));
+                                    if (joAward.getBoolean("success")) {
+                                        Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
+                                        doubleCheck = true;
+                                    } else {
+                                        Log.record("领取失败，" + s);
+                                        Log.i(joAward.toString());
+                                    }
+                                } else if (TaskStatus.TODO.name().equals(taskStatus)) {
+                                    if (bizInfo.optBoolean("autoCompleteTask", false)
+                                            || AntForestTaskTypeSet.contains(taskType) || taskType.endsWith("_JIASUQI")
+                                            || taskType.endsWith("_BAOHUDI") || taskType.startsWith("GYG")) {
+                                        JSONObject joFinishTask = new JSONObject(
+                                                AntForestRpcCall.finishTask(sceneCode, taskType));
+                                        if (joFinishTask.getBoolean("success")) {
+                                            Log.forest("森林任务🧾️[" + taskTitle + "]");
+                                            doubleCheck = true;
+                                        } else {
+                                            Log.record("完成任务失败，" + taskTitle);
+                                        }
+                                    } else if ("DAKA_GROUP".equals(taskType)) {
+                                        JSONArray childTaskTypeList = taskInfo.optJSONArray("childTaskTypeList");
+                                        if (childTaskTypeList != null && childTaskTypeList.length() > 0) {
+                                            doChildTask(childTaskTypeList, taskTitle);
+                                        }
+                                    } else if ("TEST_LEAF_TASK".equals(taskType)) {
+                                        JSONArray childTaskTypeList = taskInfo.optJSONArray("childTaskTypeList");
+                                        if (childTaskTypeList != null && childTaskTypeList.length() > 0) {
+                                            doChildTask(childTaskTypeList, taskTitle);
+                                            doubleCheck = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (doubleCheck)
+                            continue;
+                    } else {
+                        Log.record(jo.getString("resultDesc"));
+                        Log.i(s);
                     }
-                }
-                if (doubleCheck)
-                    receiveTaskAward();
-            } else {
-                Log.record(jo.getString("resultDesc"));
-                Log.i(s);
+                    break;
+                } while (true);
+            } finally {
+                TimeUtil.sleep(1000);
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveTaskAward err:");

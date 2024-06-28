@@ -708,35 +708,42 @@ public class AntFarm extends ModelTask {
 
     private static void recordFarmGame(GameType gameType) {
         try {
-            JSONObject jo = new JSONObject(AntFarmRpcCall.initFarmGame(gameType.name()));
-            if ("SUCCESS".equals(jo.getString("memo"))) {
-                if (jo.getJSONObject("gameAward").getBoolean("level3Get")) {
-                    return;
-                }
-                if (jo.optInt("remainingGameCount", 1) == 0) {
-                    return;
-                }
-                jo = new JSONObject(AntFarmRpcCall.recordFarmGame(gameType.name()));
-                if ("SUCCESS".equals(jo.getString("memo"))) {
-                    JSONArray awardInfos = jo.getJSONArray("awardInfos");
-                    StringBuilder award = new StringBuilder();
-                    for (int i = 0; i < awardInfos.length(); i++) {
-                        JSONObject awardInfo = awardInfos.getJSONObject(i);
-                        award.append(awardInfo.getString("awardName")).append("*").append(awardInfo.getInt("awardCount"));
+            do {
+                try {
+                    JSONObject jo = new JSONObject(AntFarmRpcCall.initFarmGame(gameType.name()));
+                    if ("SUCCESS".equals(jo.getString("memo"))) {
+                        if (jo.getJSONObject("gameAward").getBoolean("level3Get")) {
+                            return;
+                        }
+                        if (jo.optInt("remainingGameCount", 1) == 0) {
+                            return;
+                        }
+                        jo = new JSONObject(AntFarmRpcCall.recordFarmGame(gameType.name()));
+                        if ("SUCCESS".equals(jo.getString("memo"))) {
+                            JSONArray awardInfos = jo.getJSONArray("awardInfos");
+                            StringBuilder award = new StringBuilder();
+                            for (int i = 0; i < awardInfos.length(); i++) {
+                                JSONObject awardInfo = awardInfos.getJSONObject(i);
+                                award.append(awardInfo.getString("awardName")).append("*").append(awardInfo.getInt("awardCount"));
+                            }
+                            if (jo.has("receiveFoodCount")) {
+                                award.append(";肥料*").append(jo.getString("receiveFoodCount"));
+                            }
+                            Log.farm("庄园游戏🎮[" + gameType.gameName() + "]#" + award);
+                            if (jo.optInt("remainingGameCount", 0) > 0) {
+                                continue;
+                            }
+                        } else {
+                            Log.i(TAG, jo.toString());
+                        }
+                    } else {
+                        Log.i(TAG, jo.toString());
                     }
-                    if (jo.has("receiveFoodCount")) {
-                        award.append(";肥料*").append(jo.getString("receiveFoodCount"));
-                    }
-                    Log.farm("庄园游戏🎮[" + gameType.gameName() + "]#" + award);
-                    if (jo.optInt("remainingGameCount", 0) > 0) {
-                        recordFarmGame(gameType);
-                    }
-                } else {
-                    Log.i(TAG, jo.toString());
+                    break;
+                } finally {
+                    TimeUtil.sleep(2000);
                 }
-            } else {
-                Log.i(TAG, jo.toString());
-            }
+            } while (true);
         } catch (Throwable t) {
             Log.i(TAG, "recordFarmGame err:");
             Log.printStackTrace(TAG, t);
