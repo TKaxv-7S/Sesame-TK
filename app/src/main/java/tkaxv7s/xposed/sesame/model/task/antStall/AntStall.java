@@ -903,7 +903,7 @@ public class AntStall extends ModelTask {
                     }
                     String friendId = jsonObject.optString("friendUserId");
                     if (friendId.isEmpty()) {
-                        continue;
+                        return;
                     }
                     str = AntStallRpcCall.friendHome(friendId, "ch_appcenter__chsub_9patch");
                     jsonObject = new JSONObject(str);
@@ -916,34 +916,36 @@ public class AntStall extends ModelTask {
                     Iterator<String> keys = object.keys();
                     // 遍历所有键
                     while (keys.hasNext()) {
-                        String key = keys.next();
-                        // 获取键对应的值
-                        Object propertyValue = object.get(key);
-                        if (!(propertyValue instanceof JSONObject)) {
-                            continue;
-                        }
-                        //如signInDTO、priorityChannelDTO
-                        JSONObject jo = ((JSONObject) propertyValue);
-                        if (jo.length() == 0) {
-                            continue;
-                        }
-                        if (jo.getBoolean("canOpenShop") || !"BUSY".equals(jo.getString("status"))
-                                || !jo.getBoolean("overTicketProtection")) {
-                            continue;
-                        }
-                        String rentLastUser = jo.getString("rentLastUser");
-                        str = AntStallRpcCall.ticket(jo.getString("rentLastBill"), jo.getString("seatId"),
-                                jo.getString("rentLastShop"), rentLastUser, jo.getString("userId"));
-                        jo = new JSONObject(str);
-                        if (!jo.getBoolean("success")) {
-                            Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
-                            continue;
-                        }
-                        Log.farm("蚂蚁新村🚫贴罚单[" + UserIdMap.getNameById(friendId) + "]");
                         try {
-                            Thread.sleep(1000);
-                        } catch (Exception e) {
-                            Log.printStackTrace(e);
+                            String key = keys.next();
+                            // 获取键对应的值
+                            Object propertyValue = object.get(key);
+                            if (!(propertyValue instanceof JSONObject)) {
+                                continue;
+                            }
+                            //如signInDTO、priorityChannelDTO
+                            JSONObject jo = ((JSONObject) propertyValue);
+                            if (jo.length() == 0) {
+                                continue;
+                            }
+                            if (jo.getBoolean("canOpenShop") || !"BUSY".equals(jo.getString("status")) || !jo.getBoolean("overTicketProtection")) {
+                                continue;
+                            }
+                            String rentLastUser = jo.getString("rentLastUser");
+                            str = AntStallRpcCall.ticket(jo.getString("rentLastBill"), jo.getString("seatId"),
+                                    jo.getString("rentLastShop"), rentLastUser, jo.getString("userId"));
+                            jo = new JSONObject(str);
+                            if (!jo.getBoolean("success")) {
+                                Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
+                                return;
+                            }
+                            Log.farm("蚂蚁新村🚫贴罚单[" + UserIdMap.getNameById(friendId) + "]");
+                        } finally {
+                            try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+                                Log.printStackTrace(e);
+                            }
                         }
                     }
                 } finally {

@@ -290,16 +290,16 @@ public class MainActivity extends BaseActivity {
     }
 
     private void updateSubTitle(RunType runType) {
-        setBaseSubtitle("【" + runType.getName() + "】");
+        setBaseTitle(ViewAppInfo.getAppTitle() + "【" + runType.getName() + "】");
         switch (runType) {
             case DISABLE:
-                setBaseSubtitleTextColor(Color.parseColor("#333333"));
+                setBaseTitleTextColor(Color.parseColor("#333333"));
                 break;
             case MODEL:
-                setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+                setBaseTitleTextColor(getResources().getColor(R.color.textColorPrimary));
                 break;
             case PACKAGE:
-                setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
+                setBaseTitleTextColor(getResources().getColor(R.color.textColorPrimary));
                 break;
         }
     }
