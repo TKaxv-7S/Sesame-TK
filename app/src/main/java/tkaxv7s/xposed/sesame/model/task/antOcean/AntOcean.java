@@ -12,7 +12,6 @@ import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestRpcCall;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
-import tkaxv7s.xposed.sesame.model.task.antMember.AntMemberRpcCall;
 import tkaxv7s.xposed.sesame.util.BeachIdMap;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
@@ -521,7 +520,7 @@ public class AntOcean extends ModelTask {
 
     private void protectOcean() {
         try {
-            String s = AntMemberRpcCall.queryCultivationList();
+            String s = AntOceanRpcCall.queryCultivationList();
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONArray ja = jo.getJSONArray("cultivationItemVOList");
@@ -569,7 +568,7 @@ public class AntOcean extends ModelTask {
             if (appliedTimes < 0)
                 return;
             for (int applyCount = 1; applyCount <= count; applyCount++) {
-                s = AntMemberRpcCall.oceanExchangeTree(cultivationCode, projectCode);
+                s = AntOceanRpcCall.oceanExchangeTree(cultivationCode, projectCode);
                 jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     JSONArray awardInfos = jo.getJSONArray("rewardItemVOs");
@@ -604,7 +603,7 @@ public class AntOcean extends ModelTask {
     private static int queryCultivationDetail(String cultivationCode, String projectCode, int count) {
         int appliedTimes = -1;
         try {
-            String s = AntMemberRpcCall.queryCultivationDetail(cultivationCode, projectCode);
+            String s = AntOceanRpcCall.queryCultivationDetail(cultivationCode, projectCode);
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONObject userInfo = jo.getJSONObject("userInfoVO");
