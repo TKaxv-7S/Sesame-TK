@@ -1,48 +1,49 @@
 package tkaxv7s.xposed.sesame.hook;
 
+import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONException;
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.Calendar;
 import java.util.List;
 
-import de.robv.android.xposed.XposedHelpers;
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.StringUtil;
-import tkaxv7s.xposed.sesame.util.TimeUtil;
-
 public class FriendManager {
     private static final String TAG = FriendManager.class.getSimpleName();
 
-    public static void fillUser(ClassLoader loader) {
+    public static void fillUser() {
         new Thread() {
-            ClassLoader loader;
-
-            public Thread setData(ClassLoader cl) {
-                loader = cl;
-                return this;
-            }
 
             @Override
             public void run() {
+                ClassLoader loader;
+                try {
+                    loader = ApplicationHook.getClassLoader();
+                } catch (Exception e) {
+                    Log.i(TAG, "Error getting classloader");
+                    return;
+                }
                 try {
                     Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
                     Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
                     Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
                     List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
                     for (Object friend : allFriends) {
-                        String userId = (String) XposedHelpers.findField(friend.getClass(), "userId").get(friend);
-                        String account = (String) XposedHelpers.findField(friend.getClass(), "account").get(friend);
-                        String name = (String) XposedHelpers.findField(friend.getClass(), "name").get(friend);
-                        String nickName = (String) XposedHelpers.findField(friend.getClass(), "nickName").get(friend);
-                        String remarkName = (String) XposedHelpers.findField(friend.getClass(), "remarkName").get(friend);
-                        if (StringUtil.isEmpty(remarkName)) {
-                            remarkName = nickName;
+                        try {
+                            String userId = (String) XposedHelpers.findField(friend.getClass(), "userId").get(friend);
+                            String account = (String) XposedHelpers.findField(friend.getClass(), "account").get(friend);
+                            String name = (String) XposedHelpers.findField(friend.getClass(), "name").get(friend);
+                            String nickName = (String) XposedHelpers.findField(friend.getClass(), "nickName").get(friend);
+                            String remarkName = (String) XposedHelpers.findField(friend.getClass(), "remarkName").get(friend);
+                            if (StringUtil.isEmpty(remarkName)) {
+                                remarkName = nickName;
+                            }
+                            remarkName += "|" + name;
+                            UserIdMap.putIdMap(userId, remarkName + "(" + account + ")");
+                        } catch (Throwable t) {
+                            Log.i(TAG, "checkUnknownId.for err:");
+                            Log.printStackTrace(TAG, t);
                         }
-                        remarkName += "|" + name;
-                        UserIdMap.putIdMap(userId, remarkName + "(" + account + ")");
                     }
                     UserIdMap.saveIdMap();
                 } catch (Throwable t) {
@@ -50,7 +51,7 @@ public class FriendManager {
                     Log.printStackTrace(TAG, t);
                 }
             }
-        }.setData(loader).start();
+        }.start();
     }
 
     public static boolean needUpdateAll(long last) {

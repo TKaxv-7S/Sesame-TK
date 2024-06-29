@@ -49,6 +49,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     @Getter
     private static volatile boolean hooked = false;
 
+    private static volatile boolean canInit = false;
+
     private static volatile boolean init = false;
 
     private static volatile Calendar dayCalendar = Calendar.getInstance();
@@ -138,11 +140,19 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             @Override
                             protected void afterHookedMethod(MethodHookParam param) {
                                 Log.i(TAG, "Activity onResume");
-                                if (!init) {
-                                    return;
-                                }
                                 String targetUid = getUserId();
                                 if (targetUid == null) {
+                                    Log.record("用户未登录");
+                                    Toast.show("用户未登录");
+                                    return;
+                                }
+                                if (!init) {
+                                    if (canInit) {
+                                        UserIdMap.setCurrentUid(targetUid);
+                                        if (initHandler(true)) {
+                                            init = true;
+                                        }
+                                    }
                                     return;
                                 }
                                 String currentUid = UserIdMap.getCurrentUid();
@@ -194,7 +204,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                         }
                                         Log.record("开始执行");
                                         try {
-                                            ConfigV2 config = ConfigV2.INSTANCE;
                                             int checkInterval = BaseModel.getCheckInterval().getValue();
                                             if (lastExecTime + 5000 > System.currentTimeMillis()) {
                                                 Log.record("执行间隔较短，跳过执行");
@@ -203,20 +212,17 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                             }
                                             updateDay();
                                             String targetUid = getUserId();
-                                            if (targetUid == null) {
+                                            String currentUid = UserIdMap.getCurrentUid();
+                                            if (targetUid == null || currentUid == null) {
                                                 Log.record("用户为空，放弃执行");
                                                 reLogin();
                                                 return;
                                             }
-                                            String currentUid = UserIdMap.getCurrentUid();
                                             if (!targetUid.equals(currentUid)) {
-                                                if (currentUid != null) {
-                                                    Log.record("开始切换用户");
-                                                    Toast.show("开始切换用户");
-                                                    reLogin();
-                                                    return;
-                                                }
-                                                UserIdMap.setCurrentUid(targetUid);
+                                                Log.record("开始切换用户");
+                                                Toast.show("开始切换用户");
+                                                reLogin();
+                                                return;
                                             }
                                             try {
                                                 FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
@@ -270,7 +276,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     }
                                 });
                                 registerBroadcastReceiver(appService);
-                                initHandler(true);
+                                canInit = true;
+                                String targetUid = getUserId();
+                                if (targetUid != null) {
+                                    UserIdMap.setCurrentUid(targetUid);
+                                    if (initHandler(true)) {
+                                        init = true;
+                                    }
+                                }
                             }
                         });
                 Log.i(TAG, "hook service onCreate successfully");
@@ -452,13 +465,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     }
 
     @SuppressLint("WakelockTimeout")
-    private static void initHandler(Boolean force) {
+    private static Boolean initHandler(Boolean force) {
         if (context == null) {
-            return;
+            return false;
         }
         destroyHandler(force);
         try {
-            if (!init || force) {
+            if (force) {
                 if (!PermissionUtil.checkAlarmPermissions()) {
                     Log.record("支付宝无闹钟权限");
                     mainHandler.postDelayed(() -> {
@@ -466,14 +479,14 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                             android.widget.Toast.makeText(context, "请授予支付宝使用闹钟权限", android.widget.Toast.LENGTH_SHORT).show();
                         }
                     }, 2000);
-                    return;
+                    return false;
                 }
                 Log.record("开始加载");
                 ConfigV2.load();
                 if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");
-                    return;
+                    return false;
                 }
                 if (BaseModel.getBatteryPerm().getValue() && !init && !PermissionUtil.checkBatteryPermissions()) {
                     Log.record("支付宝无始终在后台运行权限");
@@ -574,14 +587,15 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 NotificationUtil.start(service);
                 Log.record("加载完成");
                 Toast.show("芝麻粒加载成功");
-                init = true;
             }
             offline = false;
             execHandler();
+            return true;
         } catch (Throwable th) {
             Log.i(TAG, "startHandler err:");
             Log.printStackTrace(TAG, th);
             Toast.show("芝麻粒加载失败");
+            return false;
         }
     }
 
