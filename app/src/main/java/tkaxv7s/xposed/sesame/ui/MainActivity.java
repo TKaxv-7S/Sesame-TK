@@ -171,8 +171,8 @@ public class MainActivity extends BaseActivity {
                 userNameArray = userNameList.toArray(new String[0]);
                 userIdArray = userIdList.toArray(new String[0]);
             } catch (Exception e) {
-                userNameArray = new String[]{};
-                userIdArray = new String[]{};
+                userNameArray = new String[]{"默认"};
+                userIdArray = new String[]{null};
                 Log.printStackTrace(e);
             }
             try {
@@ -315,19 +315,22 @@ public class MainActivity extends BaseActivity {
 
     private void selectSettingUid() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("请选择用户配置");
+        builder.setTitle("请选择配置");
         builder.setItems(userNameArray, (dialog, which) -> {
             dialog.dismiss();
-            goSettingActivity(userIdArray[which]);
+            goSettingActivity(which);
         });
         builder.setPositiveButton("返回", (dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    private void goSettingActivity(String currentUid) {
+    private void goSettingActivity(int index) {
+        String userId = userIdArray[index];
+        String userName = userNameArray[index];
         Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra("currentUid", currentUid);
+        intent.putExtra("userId", userId);
+        intent.putExtra("userName", userName);
         startActivity(intent);
     }
 

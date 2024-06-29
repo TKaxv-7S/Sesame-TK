@@ -20,7 +20,7 @@ public class SettingsActivity extends BaseActivity {
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
-    private String currentUid;
+    private String userId;
     //private GestureDetector gestureDetector;
 
     @Override
@@ -32,12 +32,13 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        currentUid = null;
+        userId = null;
         Intent intent = getIntent();
         if (intent != null) {
-            currentUid = intent.getStringExtra("currentUid");
+            userId = intent.getStringExtra("userId");
+            setBaseSubtitle(getString(R.string.settings) + ": " + intent.getStringExtra("userName"));
         }
-        UserIdMap.setCurrentUid(currentUid, false);
+        UserIdMap.setCurrentUid(userId, false);
         ConfigV2.load(false);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
