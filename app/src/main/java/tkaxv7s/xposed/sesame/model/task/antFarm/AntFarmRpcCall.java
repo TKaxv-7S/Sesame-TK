@@ -418,4 +418,14 @@ public class AntFarmRpcCall {
         return ApplicationHook.requestString("com.alipay.antfarm.DrawPrize",
                 "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\"}]");
     }
+
+    public static String drawGameCenterAward() {
+        return ApplicationHook.requestString("com.alipay.antfarm.drawGameCenterAward",
+                "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    public static String queryGameList() {
+        return ApplicationHook.requestString("com.alipay.antfarm.queryGameList",
+            "[{\"commonDegradeResult\":{\"deviceLevel\":\"high\",\"resultReason\":0,\"resultType\":0},\"platform\":\"Android\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+    }
 }
