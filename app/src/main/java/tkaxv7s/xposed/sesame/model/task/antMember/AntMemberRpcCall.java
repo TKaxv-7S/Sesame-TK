@@ -1,5 +1,7 @@
 package tkaxv7s.xposed.sesame.model.task.antMember;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
@@ -203,6 +205,70 @@ public class AntMemberRpcCall {
         return ApplicationHook.requestString(
                 "com.antgroup.zmxy.zmcustprod.biz.rpc.home.creditaccumulate.api.CreditAccumulateRpcManager.collectCreditFeedback",
                 "[{\"collectAll\":false,\"creditFeedbackId\":\"" + creditFeedbackId + "\",\"status\":\"UNCLAIMED\"}]");
+    }
+
+    /**
+     * 查询生活记录
+     *
+     * @return 结果
+     */
+    public static String promiseQueryHome() {
+        return ApplicationHook.requestString("com.antgroup.zmxy.zmmemberop.biz.rpc.promise.PromiseRpcManager.queryHome", null);
+    }
+
+    /**
+     * 查询生活记录明细
+     *
+     * @param recordId recordId
+     * @return 结果
+     */
+    public static String promiseQueryDetail(String recordId) {
+        return ApplicationHook.requestString("com.antgroup.zmxy.zmmemberop.biz.rpc.promise.PromiseRpcManager.queryDetail",
+                "[{\"recordId\":\"" + recordId + "\"}]");
+    }
+
+    /**
+     * 生活记录加入新纪录
+     *
+     * @param data data
+     * @return 结果
+     */
+    public static String promiseJoin(String data) {
+        return ApplicationHook.requestString("com.antgroup.zmxy.zmmemberop.biz.rpc.promise.PromiseRpcManager.join",
+                "[" + data + "]");
+    }
+
+    /**
+     * 查询待领取的保障金
+     *
+     * @return 结果
+     */
+    public static String queryMultiSceneWaitToGainList() {
+        return ApplicationHook.requestString("com.alipay.insgiftbff.insgiftMain.queryMultiSceneWaitToGainList",
+                "[{\"entrance\":\"jkj_zhima_dairy66\",\"eventToWaitParamDTO\":{\"giftProdCode\":\"GIFT_UNIVERSAL_COVERAGE\"," +
+                        "\"rightNoList\":[\"UNIVERSAL_ACCIDENT\",\"UNIVERSAL_HOSPITAL\",\"UNIVERSAL_OUTPATIENT\"," +
+                        "\"UNIVERSAL_SERIOUSNESS\",\"UNIVERSAL_WEALTH\",\"UNIVERSAL_TRANS\",\"UNIVERSAL_FRAUD_LIABILITY\"]}," +
+                        "\"helpChildParamDTO\":{\"giftProdCode\":\"GIFT_HEALTH_GOLD_CHILD\",\"rightNoList\":[\"UNIVERSAL_ACCIDENT\"," +
+                        "\"UNIVERSAL_HOSPITAL\",\"UNIVERSAL_OUTPATIENT\",\"UNIVERSAL_SERIOUSNESS\",\"UNIVERSAL_WEALTH\"," +
+                        "\"UNIVERSAL_TRANS\",\"UNIVERSAL_FRAUD_LIABILITY\"]},\"priorityChannelParamDTO\":{\"giftProdCode\":" +
+                        "\"GIFT_UNIVERSAL_COVERAGE\",\"rightNoList\":[\"UNIVERSAL_ACCIDENT\",\"UNIVERSAL_HOSPITAL\"," +
+                        "\"UNIVERSAL_OUTPATIENT\",\"UNIVERSAL_SERIOUSNESS\",\"UNIVERSAL_WEALTH\",\"UNIVERSAL_TRANS\"," +
+                        "\"UNIVERSAL_FRAUD_LIABILITY\"]},\"signInParamDTO\":{\"giftProdCode\":\"GIFT_UNIVERSAL_COVERAGE\"," +
+                        "\"rightNoList\":[\"UNIVERSAL_ACCIDENT\",\"UNIVERSAL_HOSPITAL\",\"UNIVERSAL_OUTPATIENT\"," +
+                        "\"UNIVERSAL_SERIOUSNESS\",\"UNIVERSAL_WEALTH\",\"UNIVERSAL_TRANS\",\"UNIVERSAL_FRAUD_LIABILITY\"]}}]");
+    }
+
+    /**
+     * 领取保障金
+     *
+     * @param jsonObject jsonObject
+     * @return 结果
+     */
+    public static String gainMyAndFamilySumInsured(JSONObject jsonObject) throws JSONException {
+        jsonObject.put("disabled", false);
+        jsonObject.put("entrance", "jkj_zhima_dairy66");
+        return ApplicationHook.requestString("com.alipay.insgiftbff.insgiftMain.gainMyAndFamilySumInsured",
+                "[" + jsonObject + "]");
     }
 
 }

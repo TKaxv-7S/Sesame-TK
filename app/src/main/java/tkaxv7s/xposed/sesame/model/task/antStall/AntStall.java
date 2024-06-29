@@ -939,7 +939,7 @@ public class AntStall extends ModelTask {
                                 Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
                                 return;
                             }
-                            Log.farm("蚂蚁新村🚫贴罚单[" + UserIdMap.getNameById(friendId) + "]");
+                            Log.farm("蚂蚁新村🚫在[" + UserIdMap.getNameById(friendId) + "]贴罚单");
                         } finally {
                             try {
                                 Thread.sleep(1000);

@@ -15,18 +15,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.RunType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.PermissionUtil;
-import tkaxv7s.xposed.sesame.util.Statistics;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends BaseActivity {
 
@@ -43,6 +43,10 @@ public class MainActivity extends BaseActivity {
     private Handler viewHandler;
 
     private Runnable titleRunner;
+
+    private String[] userNameArray = {"默认"};
+
+    private String[] userIdArray = {null};
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
@@ -136,6 +140,42 @@ public class MainActivity extends BaseActivity {
                 }
             }
             try {
+                List<String> userNameList = new ArrayList<>();
+                List<String> userIdList = new ArrayList<>();
+                File[] configFiles = FileUtil.CONFIG_DIRECTORY_FILE.listFiles();
+                if (configFiles != null) {
+                    Pattern pattern = Pattern.compile("config_v2-(.*).json");
+                    for (File configFile : configFiles) {
+                        Matcher beforeMatcher = pattern.matcher(configFile.getName());
+                        if (beforeMatcher.find()) {
+                            String userId = beforeMatcher.group(1);
+                            String userName = UserIdMap.getNameById(userId);
+                            if (userName == null || userName.isEmpty()) {
+                                userNameList.add(userId);
+                                userIdList.add(userId);
+                            } else {
+                                int length = userId.length();
+                                if (length > 6) {
+                                    String prefix = userId.substring(0, 3);
+                                    String suffix = userId.substring(length - 4);
+                                    userName += "-" + prefix + "***" + suffix;
+                                }
+                                userNameList.add(userName);
+                                userIdList.add(userId);
+                            }
+                        }
+                    }
+                }
+                userNameList.add(0, "默认");
+                userIdList.add(0, null);
+                userNameArray = userNameList.toArray(new String[0]);
+                userIdArray = userIdList.toArray(new String[0]);
+            } catch (Exception e) {
+                userNameArray = new String[]{};
+                userIdArray = new String[]{};
+                Log.printStackTrace(e);
+            }
+            try {
                 Statistics.load();
                 tvStatistics.setText(Statistics.getText());
             } catch (Exception e) {
@@ -176,8 +216,9 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case R.id.btn_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                selectSettingUid();
                 return;
+
             case R.id.btn_friend_watch:
                 ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), new LinkedHashMap<>(), false, ListDialog.ListType.SHOW);
                 return;
@@ -199,29 +240,12 @@ public class MainActivity extends BaseActivity {
         menu.add(0, 4, 4, R.string.export_runtime_log_file);
         menu.add(0, 5, 5, R.string.export_the_statistic_file);
         menu.add(0, 6, 6, R.string.import_the_statistic_file);
+        menu.add(0, 7, 7, R.string.view_debug);
         menu.add(0, 8, 8, R.string.settings);
         if("TEST".equals(ViewAppInfo.getAppVersion())) {
             menu.add(0, 9, 9, R.string.sync_the_config_file);
         }
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        if (hasPermissions) {
-            if (!ConfigV2.INSTANCE.isInit()) {
-                ConfigV2.load();
-            }
-            if (BaseModel.getDebugMode().getValue()) {
-                MenuItem item = menu.findItem(7);
-                if (item == null) {
-                    menu.add(0, 7, 7, R.string.view_debug);
-                }
-            } else {
-                menu.removeItem(7);
-            }
-        }
-        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -280,13 +304,31 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case 8:
-                startActivity(new Intent(this, SettingsActivity.class));
+                selectSettingUid();
                 break;
-            case 9:
 
+            case 9:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void selectSettingUid() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("请选择用户配置");
+        builder.setItems(userNameArray, (dialog, which) -> {
+            dialog.dismiss();
+            goSettingActivity(userIdArray[which]);
+        });
+        builder.setPositiveButton("返回", (dialog, which) -> dialog.dismiss());
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void goSettingActivity(String currentUid) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra("currentUid", currentUid);
+        startActivity(intent);
     }
 
     private void updateSubTitle(RunType runType) {

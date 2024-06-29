@@ -20,6 +20,7 @@ public class SettingsActivity extends BaseActivity {
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
+    private String currentUid;
     //private GestureDetector gestureDetector;
 
     @Override
@@ -31,7 +32,13 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ConfigV2.load();
+        currentUid = null;
+        Intent intent = getIntent();
+        if (intent != null) {
+            currentUid = intent.getStringExtra("currentUid");
+        }
+        UserIdMap.setCurrentUid(currentUid, false);
+        ConfigV2.load(false);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
         setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
@@ -99,6 +106,24 @@ public class SettingsActivity extends BaseActivity {
         BeachIdMap.shouldReload = true;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (ConfigV2.isModify() && ConfigV2.save(false)) {
+            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            try {
+                sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.restart"));
+            } catch (Throwable th) {
+                Log.printStackTrace(th);
+            }
+        }
+        UserIdMap.saveIdMap();
+        CooperationIdMap.saveIdMap();
+        ReserveIdMap.saveIdMap();
+        BeachIdMap.saveIdMap();
+        finish();
+    }
+
     /*@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (gestureDetector.onTouchEvent(event)) {
@@ -120,23 +145,6 @@ public class SettingsActivity extends BaseActivity {
             tabWidget.requestLayout();
             isDraw = true;
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (ConfigV2.isModify() && ConfigV2.save(false)) {
-            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-            try {
-                sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.restart"));
-            } catch (Throwable th) {
-                Log.printStackTrace(th);
-            }
-        }
-        UserIdMap.saveIdMap();
-        CooperationIdMap.saveIdMap();
-        ReserveIdMap.saveIdMap();
-        BeachIdMap.saveIdMap();
     }
 
 }

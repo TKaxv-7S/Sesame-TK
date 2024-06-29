@@ -1,14 +1,13 @@
 package tkaxv7s.xposed.sesame.util;
 
+import lombok.Getter;
+import tkaxv7s.xposed.sesame.hook.FriendManager;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import lombok.Getter;
-import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.hook.FriendManager;
 
 public class UserIdMap {
     private static final String TAG = UserIdMap.class.getSimpleName();
@@ -22,11 +21,18 @@ public class UserIdMap {
 
     private static boolean hasChanged = false;
 
-    public static void setCurrentUid(String uid) {
-        if (currentUid == null || !currentUid.equals(uid)) {
-            currentUid = uid;
-            FileUtil.setUid(uid);
-            FriendManager.fillUser(ApplicationHook.getClassLoader());
+    public synchronized static void setCurrentUid(String uid) {
+        setCurrentUid(uid, true);
+    }
+
+    public synchronized static void setCurrentUid(String uid, Boolean isUpdateFriend) {
+        if (uid == null || uid.isEmpty()) {
+            currentUid = null;
+            return;
+        }
+        currentUid = uid;
+        if (isUpdateFriend) {
+            FriendManager.fillUser();
         }
     }
 

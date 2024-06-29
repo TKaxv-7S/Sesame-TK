@@ -3,10 +3,7 @@ package tkaxv7s.xposed.sesame.data;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Data;
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.JsonUtil;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
 import java.util.HashMap;
@@ -116,8 +113,9 @@ public class ConfigV2 {
 
     public static Boolean isModify() {
         String json = null;
-        if (FileUtil.getConfigV2File(UserIdMap.getCurrentUid()).exists()) {
-            json = FileUtil.readFromFile(FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
+        File configV2File = FileUtil.getConfigV2File();
+        if (configV2File.exists()) {
+            json = FileUtil.readFromFile(configV2File);
         }
         if (json != null) {
             String formatted = JsonUtil.toJsonString(INSTANCE);
@@ -133,35 +131,59 @@ public class ConfigV2 {
             }
         }
         String json = JsonUtil.toJsonString(INSTANCE);
-        Log.system(TAG, "保存 config_v2.json: " + json);
-        return FileUtil.setConfigV2File(json);
+        boolean success = FileUtil.setConfigV2File(json);
+        Log.record("保存配置: " + UserIdMap.getCurrentUid());
+        return success;
     }
 
     public static synchronized ConfigV2 load() {
+        return load(true);
+    }
+
+    public static synchronized ConfigV2 load(Boolean forceCurrentUid) {
         Log.i(TAG, "开始加载配置");
         Model.initAllModel();
+        String currentUid = UserIdMap.getCurrentUid();
         try {
-            Log.i(TAG, "currentUid： "+ UserIdMap.getCurrentUid());
-            File configV2File = FileUtil.getConfigV2File(UserIdMap.getCurrentUid());
+            Log.record("加载配置: "+ currentUid);
+            File configV2File;
+            if (StringUtil.isEmpty(currentUid)) {
+                if (forceCurrentUid) {
+                    Log.i(TAG, "用户为空，配置加载失败");
+                    throw new RuntimeException("用户为空，配置加载失败");
+                }
+                configV2File = FileUtil.getDefaultConfigV2File();
+            } else {
+                configV2File = FileUtil.getCurrentConfigV2File(currentUid);
+            }
             if (configV2File.exists()) {
                 String json = FileUtil.readFromFile(configV2File);
                 JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 if (formatted != null && !formatted.equals(json)) {
-                    Log.i(TAG, "重新格式化 config_v2.json");
-                    Log.system(TAG, "重新格式化 config_v2.json");
-                    FileUtil.write2File(formatted, FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
+                    Log.i(TAG, "格式化配置: " + currentUid);
+                    Log.system(TAG, "格式化配置: " + currentUid);
+                    FileUtil.write2File(formatted, configV2File);
                 }
             } else {
-                String formatted = JsonUtil.toJsonString(INSTANCE);
-                Log.i(TAG, "初始化 config_v2.json");
-                Log.system(TAG, "初始化 config_v2.json");
-                FileUtil.write2File(formatted, FileUtil.getConfigV2File(UserIdMap.getCurrentUid()));
+                File defaultConfigV2File = FileUtil.getDefaultConfigV2File();
+                if (defaultConfigV2File.exists()) {
+                    String json = FileUtil.readFromFile(defaultConfigV2File);
+                    JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
+                    Log.i(TAG, "复制新配置: " + currentUid);
+                    Log.system(TAG, "复制新配置: " + currentUid);
+                    FileUtil.write2File(json, configV2File);
+                } else {
+                    String json = JsonUtil.toJsonString(INSTANCE);
+                    Log.i(TAG, "初始新配置: " + currentUid);
+                    Log.system(TAG, "初始新配置: " + currentUid);
+                    FileUtil.write2File(json, configV2File);
+                }
             }
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
-            Log.i(TAG, "配置文件格式有误，已重置配置文件");
-            Log.system(TAG, "配置文件格式有误，已重置配置文件");
+            Log.i(TAG, "重置配置: " + currentUid);
+            Log.system(TAG, "重置配置: " + currentUid);
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new ConfigV2());
             } catch (JsonMappingException e) {
