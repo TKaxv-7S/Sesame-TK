@@ -133,7 +133,6 @@ public class ConfigV2 {
         String json = JsonUtil.toJsonString(INSTANCE);
         boolean success = FileUtil.setConfigV2File(json);
         Log.record("保存配置: " + UserIdMap.getCurrentUid());
-        Log.system(TAG, "保存配置文件: " + json);
         return success;
     }
 

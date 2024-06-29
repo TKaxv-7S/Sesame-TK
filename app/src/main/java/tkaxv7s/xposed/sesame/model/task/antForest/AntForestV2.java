@@ -703,20 +703,30 @@ public class AntForestV2 extends ModelTask {
             }
             for (int i = 0; i < jaFriendRanking.length(); i++) {
                 try {
-                    friendsObject = jaFriendRanking.getJSONObject(i);
-                    String userId = friendsObject.getString("userId");
-                    if (collectEnergy.getValue() && !userId.equals(selfId)) {
-                        if (!friendsObject.getBoolean("canCollectEnergy")) {
-                            long canCollectLaterTime = friendsObject.getLong("canCollectLaterTime");
-                            if (canCollectLaterTime <= 0 || (canCollectLaterTime - System.currentTimeMillis() > BaseModel.getCheckInterval().getValue())) {
-                                continue;
+                    boolean isExec = false;
+                    JSONObject friendObject = jaFriendRanking.getJSONObject(i);
+                    String userId = friendObject.getString("userId");
+                    try {
+                        if (collectEnergy.getValue() && !userId.equals(selfId)) {
+                            if (!friendObject.getBoolean("canCollectEnergy")) {
+                                long canCollectLaterTime = friendObject.getLong("canCollectLaterTime");
+                                if (canCollectLaterTime <= 0 || (canCollectLaterTime - System.currentTimeMillis() > BaseModel.getCheckInterval().getValue())) {
+                                    continue;
+                                }
                             }
-                        }
-                        if (!dontCollectMap.containsKey(userId)) {
-                            collectUserEnergy(userId);
-                        }/* else {
+                            if (!dontCollectMap.containsKey(userId)) {
+                                collectUserEnergy(userId);
+                                isExec = true;
+                            }/* else {
                             Log.i("不收取[" + UserIdMap.getNameById(userId) + "], userId=" + userId);
                         }*/
+                        }
+                    } finally {
+                        if (!isExec) {
+                            if ((helpFriendCollect.getValue() && friendObject.optBoolean("canProtectBubble", false)) || (collectGiftBox.getValue() && friendObject.optBoolean("canCollectGiftBox", false))) {
+                                collectUserEnergy(userId);
+                            }
+                        }
                     }
                 } catch (Exception t) {
                     Log.i(TAG, "collectFriendEnergy err:");

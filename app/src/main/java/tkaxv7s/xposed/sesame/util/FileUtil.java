@@ -104,7 +104,7 @@ public class FileUtil {
         if (StringUtil.isEmpty(currentUid)) {
             return setDefaultConfigV2File(json);
         }
-        return setCurrentConfigV2File(json, currentUid);
+        return setCurrentConfigV2File(currentUid, json);
     }
 
     public static File getDefaultConfigV2File() {

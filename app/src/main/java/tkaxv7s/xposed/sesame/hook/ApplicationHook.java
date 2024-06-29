@@ -481,6 +481,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return false;
                 }
+                Model.destroyAllModel();
                 Log.record("开始加载");
                 ConfigV2.load();
                 if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
