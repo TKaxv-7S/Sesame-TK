@@ -59,8 +59,8 @@ public class AntCooperate extends ModelTask {
                         }
                         String name = jo.getString("name");
                         int waterDayLimit = jo.getInt("waterDayLimit");
-                        CooperationIdMap.putIdMap(cooperationId, name);
-                        if (!Statistics.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
+                        CooperationIdMap.add(cooperationId, name);
+                        if (!Status.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
                             continue;
                         Integer num = cooperateWaterList.getValue().getKey().get(cooperationId);
                         if (num != null) {
@@ -80,7 +80,7 @@ public class AntCooperate extends ModelTask {
             Log.i(TAG, "start.run err:");
             Log.printStackTrace(TAG, t);
         }
-        CooperationIdMap.saveIdMap();
+        CooperationIdMap.save(UserIdMap.getCurrentUid());
     }
 
     private static void cooperateWater(String uid, String coopId, int count, String name) {
@@ -89,7 +89,7 @@ public class AntCooperate extends ModelTask {
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.forest("合种浇水🚿[" + name + "]" + jo.getString("barrageText"));
-                Statistics.cooperateWaterToday(UserIdMap.getCurrentUid(), coopId);
+                Status.cooperateWaterToday(UserIdMap.getCurrentUid(), coopId);
             } else {
                 Log.i(TAG, jo.getString("resultDesc"));
             }

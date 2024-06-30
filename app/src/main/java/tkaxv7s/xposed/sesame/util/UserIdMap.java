@@ -1,25 +1,36 @@
 package tkaxv7s.xposed.sesame.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.Getter;
+import tkaxv7s.xposed.sesame.entity.UserEntity;
 import tkaxv7s.xposed.sesame.hook.FriendManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class UserIdMap {
-    private static final String TAG = UserIdMap.class.getSimpleName();
 
-    private static Map<String, String> idMap;
+    private static final Map<String, UserEntity> userMap = new ConcurrentHashMap<>();
 
-    public static boolean shouldReload = false;
+    private static final Map<String, UserEntity> readOnlyUserMap = Collections.unmodifiableMap(userMap);
 
     @Getter
     private static String currentUid = null;
 
-    private static boolean hasChanged = false;
+    public static Map<String, UserEntity> getUserMap() {
+        return readOnlyUserMap;
+    }
+
+    public static Set<String> getUserIdSet() {
+        return userMap.keySet();
+    }
+
+    public static Collection<UserEntity> getUserEntityCollection() {
+        return userMap.values();
+    }
 
     public synchronized static void setCurrentUid(String uid) {
         setCurrentUid(uid, true);
@@ -36,126 +47,74 @@ public class UserIdMap {
         }
     }
 
-    public static void putIdMapIfEmpty(String key, String value) {
-        if (key == null || key.isEmpty())
+    public static String getShowName(String userId) {
+        UserEntity userEntity = userMap.get(userId);
+        if (userEntity == null) {
+            return null;
+        }
+        return userEntity.getShowName();
+    }
+
+    public static String getMaskName(String userId) {
+        UserEntity userEntity = userMap.get(userId);
+        if (userEntity == null) {
+            return null;
+        }
+        return userEntity.getMaskName();
+    }
+
+    public synchronized static void addUser(UserEntity userEntity) {
+        String userId = userEntity.getUserId();
+        if (userId == null || userId.isEmpty()) {
             return;
-        if (!getIdMap().containsKey(key)) {
-            getIdMap().put(key, value);
-            hasChanged = true;
         }
+        userMap.put(userId, userEntity);
     }
 
-    public static void putIdMap(String key, String value) {
-        if (key == null || key.isEmpty())
-            return;
-        if (getIdMap().containsKey(key)) {
-            if (!getIdMap().get(key).equals(value)) {
-                getIdMap().remove(key);
-                getIdMap().put(key, value);
-                hasChanged = true;
-            }
-        } else {
-            getIdMap().put(key, value);
-            hasChanged = true;
-        }
+    public synchronized static void removeUser(String userId) {
+        userMap.remove(userId);
     }
 
-    public static void removeIdMap(String key) {
-        if (key == null || key.isEmpty())
-            return;
-        if (getIdMap().containsKey(key)) {
-            getIdMap().remove(key);
-            hasChanged = true;
-        }
-    }
-
-    public static void saveIdMap() {
-        if (hasChanged) {
-            StringBuilder sb = new StringBuilder();
-            Set<Map.Entry<String, String>> idSet = getIdMap().entrySet();
-            for (Map.Entry<String, String> entry : idSet) {
-                sb.append(entry.getKey());
-                sb.append(':');
-                sb.append(entry.getValue());
-                sb.append('\n');
-            }
-            hasChanged = !FileUtil.write2File(sb.toString(), FileUtil.getFriendIdMapFile());
-        }
-    }
-
-    public static String getNameById(String id) {
-        if (id == null || id.isEmpty())
-            return id;
-        if (getIdMap().containsKey(id)) {
-            String n = getIdMap().get(id);
-            int ind = n.lastIndexOf('(');
-            if (ind > 0)
-                n = n.substring(0, ind);
-            if (!n.equals("*"))
-                return n;
-        } else {
-            putIdMap(id, "*(*)");
-        }
-        return id;
-    }
-
-//    public static List<String> getIncompleteUnknownIds() {
-//        List<String> idList = new ArrayList<>();
-//        for (Map.Entry<String, String> entry : getIdMap().entrySet()) {
-//            if ("我".equals(entry.getValue())) {
-//                continue;
-//            }
-//            if (entry.getValue().split("\\|").length < 2) {
-//                idList.add(entry.getKey());
-//                // Log.i(TAG, "未知id: " + entry.getKey());
-//            }
-//        }
-//        return idList;
-//    }
-
-    public static Map<String, String> getIdMap() {
-        if (idMap == null || shouldReload) {
-            shouldReload = false;
-            idMap = new ConcurrentHashMap<>();
-            String str = FileUtil.readFromFile(FileUtil.getFriendIdMapFile());
-            if (str != null && !str.isEmpty()) {
-                try {
-                    String[] idSet = str.split("\n");
-                    for (String s : idSet) {
-                        // Log.i(TAG, s);
-                        int ind = s.indexOf(":");
-                        idMap.put(s.substring(0, ind), s.substring(ind + 1));
-                    }
-                } catch (Throwable t) {
-                    Log.printStackTrace(TAG, t);
-                    idMap.clear();
+    public synchronized static void load(String userId) {
+        userMap.clear();
+        try {
+            String body = FileUtil.readFromFile(FileUtil.getFriendIdMapFile(userId));
+            if (!body.isEmpty()) {
+                Map<String, UserEntity.UserDto> dtoMap = JsonUtil.parseObject(body, new TypeReference<Map<String, UserEntity.UserDto>>() {
+                });
+                for (UserEntity.UserDto dto : dtoMap.values()) {
+                    userMap.put(dto.getUserId(), dto.toEntity());
                 }
             }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
-        return idMap;
     }
 
-    public static List<String> getFriendIds() {
-        List<String> idList = new ArrayList<>();
-        for (Map.Entry<String, String> entry : getIdMap().entrySet()) {
-            if ("我".equals(entry.getValue()) || entry.getKey().equals(currentUid)) {
-                continue;
-            }
-            idList.add(entry.getKey());
-        }
-        return idList;
+    public synchronized static boolean save(String userId) {
+        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(userMap), FileUtil.getFriendIdMapFile(userId));
     }
 
-    public static void waitingCurrentUid() throws InterruptedException {
-        int count = 1;
-        while (getCurrentUid() == null || getCurrentUid().isEmpty()) {
-            if (count > 3) {
-                throw new InterruptedException("获取当前用户超时");
-            } else {
-                count++;
-                Thread.sleep(1000);
+    public synchronized static void loadSelf(String userId) {
+        userMap.clear();
+        try {
+            String body = FileUtil.readFromFile(FileUtil.getSelfIdFile(userId));
+            if (!body.isEmpty()) {
+                UserEntity.UserDto dto = JsonUtil.parseObject(body, new TypeReference<UserEntity.UserDto>() {
+                });
+                userMap.put(dto.getUserId(), dto.toEntity());
             }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
+    }
+
+    public synchronized static boolean saveSelf(UserEntity userEntity) {
+        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(userEntity), FileUtil.getSelfIdFile(userEntity.getUserId()));
+    }
+
+    public synchronized static void clear() {
+        userMap.clear();
     }
 
 }

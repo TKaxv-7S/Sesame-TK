@@ -57,7 +57,7 @@ public class AntSports extends ModelTask {
     @Override
     public void run() {
         try {
-            if (Statistics.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
+            if (Status.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
                 addChildTask(new ChildModelTask(this, "syncStep", () -> {
                     int step = AntSports.tmpStepCount();
                     try {
@@ -66,7 +66,7 @@ public class AntSports extends ModelTask {
                         } else {
                             Log.record("同步运动步数失败:" + step);
                         }
-                        Statistics.SyncStepToday(UserIdMap.getCurrentUid());
+                        Status.SyncStepToday(UserIdMap.getCurrentUid());
                     } catch (Throwable t) {
                         Log.printStackTrace(TAG, t);
                     }
@@ -82,7 +82,7 @@ public class AntSports extends ModelTask {
             if (donateCharityCoin.getValue())
                 queryProjectList(loader);
 
-            if (minExchangeCount.getValue() > 0 && Statistics.canExchangeToday(UserIdMap.getCurrentUid()))
+            if (minExchangeCount.getValue() > 0 && Status.canExchangeToday(UserIdMap.getCurrentUid()))
                 queryWalkStep(loader);
 
             if (tiyubiz.getValue()) {
@@ -421,7 +421,7 @@ public class AntSports extends ModelTask {
                     JSONObject walkDonateHomeModel = jo.getJSONObject("walkDonateHomeModel");
                     JSONObject walkUserInfoModel = walkDonateHomeModel.getJSONObject("walkUserInfoModel");
                     if (!walkUserInfoModel.has("exchangeFlag")) {
-                        Statistics.exchangeToday(UserIdMap.getCurrentUid());
+                        Status.exchangeToday(UserIdMap.getCurrentUid());
                         return;
                     }
 
@@ -436,10 +436,10 @@ public class AntSports extends ModelTask {
                         int userCount = donateExchangeResultModel.getInt("userCount");
                         double amount = donateExchangeResultModel.getJSONObject("userAmount").getDouble("amount");
                         Log.other("捐出活动❤️[" + userCount + "步]#兑换" + amount + "元公益金");
-                        Statistics.exchangeToday(UserIdMap.getCurrentUid());
+                        Status.exchangeToday(UserIdMap.getCurrentUid());
 
                     } else if (s.contains("已捐步")) {
-                        Statistics.exchangeToday(UserIdMap.getCurrentUid());
+                        Status.exchangeToday(UserIdMap.getCurrentUid());
                     } else {
                         Log.i(TAG, jo.getString("resultDesc"));
                     }
@@ -745,7 +745,7 @@ public class AntSports extends ModelTask {
                         String memberId = member.getString("memberId");
                         String originBossId = member.getString("originBossId");
                         // 获取用户名称
-                        String userName = UserIdMap.getNameById(originBossId);
+                        String userName = UserIdMap.getMaskName(originBossId);
                         // 检查训练状态
                         JSONObject trainInfo = member.optJSONObject("trainInfo");
                         if (trainInfo != null && trainInfo.optBoolean("training", false)) {

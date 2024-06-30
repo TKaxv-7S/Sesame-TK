@@ -40,6 +40,10 @@ public class SettingsActivity extends BaseActivity {
             userName = intent.getStringExtra("userName");
         }
         UserIdMap.setCurrentUid(userId, false);
+        UserIdMap.load(userId);
+        CooperationIdMap.load(userId);
+        ReserveIdMap.load(userId);
+        BeachIdMap.load(userId);
         ConfigV2.load(false);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
@@ -104,11 +108,6 @@ public class SettingsActivity extends BaseActivity {
                 return true;
             }
         });*/
-
-        UserIdMap.shouldReload = true;
-        CooperationIdMap.shouldReload = true;
-        ReserveIdMap.shouldReload = true;
-        BeachIdMap.shouldReload = true;
     }
 
     @Override
@@ -122,10 +121,10 @@ public class SettingsActivity extends BaseActivity {
                 Log.printStackTrace(th);
             }
         }
-        UserIdMap.saveIdMap();
-        CooperationIdMap.saveIdMap();
-        ReserveIdMap.saveIdMap();
-        BeachIdMap.saveIdMap();
+        UserIdMap.save(userId);
+        CooperationIdMap.save(userId);
+        ReserveIdMap.save(userId);
+        BeachIdMap.save(userId);
         finish();
     }
 

@@ -8,7 +8,7 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.Statistics;
+import tkaxv7s.xposed.sesame.util.Status;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 
 import java.text.SimpleDateFormat;
@@ -319,7 +319,7 @@ public class GreenFinance extends ModelTask {
      */
     private void prizes() {
         try {
-            if (Statistics.canGreenFinancePrizesMap()) {
+            if (Status.canGreenFinancePrizesMap()) {
                 return;
             }
             String campId = "CP14664674";
@@ -339,7 +339,7 @@ public class GreenFinance extends ModelTask {
                     Date dateTime = formatter.parse(bizTime);
                     if (TimeUtil.getWeekNumber(dateTime) == TimeUtil.getWeekNumber(new Date())) {
                         //本周已完成
-                        Statistics.greenFinancePrizesMap();
+                        Status.greenFinancePrizesMap();
                         return;
                     }
                 }
@@ -372,7 +372,7 @@ public class GreenFinance extends ModelTask {
      */
     private void batchStealFriend() {
         try {
-            if (Statistics.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
+            if (Status.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
                 return;
             }
             int n = 0;
@@ -387,7 +387,7 @@ public class GreenFinance extends ModelTask {
                     JSONObject result = jsonObject.getJSONObject("result");
                     if (result.getBoolean("lastPage")) {
                         Log.other("绿色经营🙋，好友的金币已全部巡查完毕~");
-                        Statistics.greenFinancePointFriend();
+                        Status.greenFinancePointFriend();
                         return;
                     }
                     n = result.getInt("nextStartIndex");

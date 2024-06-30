@@ -8,10 +8,7 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayReserve;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
-import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.RandomUtil;
-import tkaxv7s.xposed.sesame.util.ReserveIdMap;
-import tkaxv7s.xposed.sesame.util.Statistics;
+import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -72,12 +69,12 @@ public class Reserve extends ModelTask {
                     String projectId = jo.getString("itemId");
                     String itemName = jo.getString("itemName");
                     int energy = jo.getInt("energy");
-                    ReserveIdMap.putIdMap(projectId, itemName + "(" + energy + "g)");
+                    ReserveIdMap.add(projectId, itemName + "(" + energy + "g)");
                     Map<String, Integer> map = reserveList.getValue().getKey();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), projectId)) {
                             Integer count = entry.getValue();
-                            if (count != null && count > 0 && Statistics.canReserveToday(projectId, count)) {
+                            if (count != null && count > 0 && Status.canReserveToday(projectId, count)) {
                                 exchangeTree(projectId, itemName, count);
                             }
                             break;
@@ -91,7 +88,7 @@ public class Reserve extends ModelTask {
             Log.i(TAG, "animalReserve err:");
             Log.printStackTrace(TAG, t);
         }
-        ReserveIdMap.saveIdMap();
+        ReserveIdMap.save(UserIdMap.getCurrentUid());
     }
 
     private static boolean queryTreeForExchange(String projectId) {
@@ -137,11 +134,11 @@ public class Reserve extends ModelTask {
                 jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     int vitalityAmount = jo.optInt("vitalityAmount", 0);
-                    appliedTimes = Statistics.getReserveTimes(projectId) + 1;
+                    appliedTimes = Status.getReserveTimes(projectId) + 1;
                     String str = "领保护地🏕️[" + itemName + "]#第" + appliedTimes + "次"
                             + (vitalityAmount > 0 ? "-活力值+" + vitalityAmount : "");
                     Log.forest(str);
-                    Statistics.reserveToday(projectId, 1);
+                    Status.reserveToday(projectId, 1);
                 } else {
                     Log.record(jo.getString("resultDesc"));
                     Log.i(jo.toString());
@@ -157,7 +154,7 @@ public class Reserve extends ModelTask {
                 } else {
                     Thread.sleep(300);
                 }
-                if (!Statistics.canReserveToday(projectId, count))
+                if (!Status.canReserveToday(projectId, count))
                     break;
             }
         } catch (Throwable t) {

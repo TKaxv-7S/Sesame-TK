@@ -75,7 +75,7 @@ public class AntOrchard extends ModelTask {
                             triggerTbTask();
                         }
                         Integer orchardSpreadManureCountValue = orchardSpreadManureCount.getValue();
-                        if (orchardSpreadManureCountValue > 0 && Statistics.canSpreadManureToday(userId))
+                        if (orchardSpreadManureCountValue > 0 && Status.canSpreadManureToday(userId))
                             orchardSpreadManure();
 
                         if (orchardSpreadManureCountValue >= 3
@@ -177,7 +177,7 @@ public class AntOrchard extends ModelTask {
                         String stageText = jo.getJSONObject("currentStage").getString("stageText");
                         Log.farm("农场施肥💩[" + stageText + "]");
                         if (!canSpreadManureContinue(seedStage.getInt("totalValue"), jo.getJSONObject("currentStage").getInt("totalValue"))) {
-                            Statistics.spreadManureToday(userId);
+                            Status.spreadManureToday(userId);
                             return;
                         }
                         continue;

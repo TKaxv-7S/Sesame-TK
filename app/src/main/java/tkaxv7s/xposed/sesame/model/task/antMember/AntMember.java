@@ -103,13 +103,13 @@ public class AntMember extends ModelTask {
 
     private void memberSign() {
         try {
-            if (Statistics.canMemberSignInToday(UserIdMap.getCurrentUid())) {
+            if (Status.canMemberSignInToday(UserIdMap.getCurrentUid())) {
                 String s = AntMemberRpcCall.queryMemberSigninCalendar();
                 JSONObject jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     Log.other("每日签到📅[" + jo.getString("signinPoint") + "积分]#已签到" + jo.getString("signinSumDay")
                             + "天");
-                    Statistics.memberSignInToday(UserIdMap.getCurrentUid());
+                    Status.memberSignInToday(UserIdMap.getCurrentUid());
                 } else {
                     Log.record(jo.getString("resultDesc"));
                     Log.i(s);
@@ -646,7 +646,7 @@ public class AntMember extends ModelTask {
 
     public void kbMember() {
         try {
-            if (!Statistics.canKbSignInToday()) {
+            if (!Status.canKbSignInToday()) {
                 return;
             }
             String s = AntMemberRpcCall.rpcCall_signIn();
@@ -654,9 +654,9 @@ public class AntMember extends ModelTask {
             if (jo.optBoolean("success", false)) {
                 jo = jo.getJSONObject("data");
                 Log.other("口碑签到📅[第" + jo.getString("dayNo") + "天]#获得" + jo.getString("value") + "积分");
-                Statistics.KbSignInToday();
+                Status.KbSignInToday();
             } else if (s.contains("\"HAS_SIGN_IN\"")) {
-                Statistics.KbSignInToday();
+                Status.KbSignInToday();
             } else {
                 Log.i(TAG, jo.getString("errorMessage"));
             }

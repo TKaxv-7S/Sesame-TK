@@ -570,6 +570,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }
                 }
                 Statistics.load();
+                Status.load();
                 NotificationUtil.start(service);
                 Log.record("加载完成");
                 Toast.show("芝麻粒加载成功");
@@ -715,12 +716,22 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     public static String getUserId() {
         try {
-            Object callMethod = XposedHelpers.callMethod(XposedHelpers.callMethod(getMicroApplicationContext(), "findServiceByInterface", XposedHelpers.findClass("com.alipay.mobile.personalbase.service.SocialSdkContactService", classLoader).getName()), "getMyAccountInfoModelByLocal");
-            if (callMethod != null) {
-                return (String) XposedHelpers.getObjectField(callMethod, "userId");
+            Object userObject = getUserObject();
+            if (userObject != null) {
+                return (String) XposedHelpers.getObjectField(userObject, "userId");
             }
         } catch (Throwable th) {
             Log.i(TAG, "getUserId err");
+            Log.printStackTrace(TAG, th);
+        }
+        return null;
+    }
+
+    public static Object getUserObject() {
+        try {
+            return XposedHelpers.callMethod(XposedHelpers.callMethod(getMicroApplicationContext(), "findServiceByInterface", XposedHelpers.findClass("com.alipay.mobile.personalbase.service.SocialSdkContactService", classLoader).getName()), "getMyAccountInfoModelByLocal");
+        } catch (Throwable th) {
+            Log.i(TAG, "getUserObject err");
             Log.printStackTrace(TAG, th);
         }
         return null;

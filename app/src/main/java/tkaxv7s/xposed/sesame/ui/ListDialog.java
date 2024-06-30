@@ -301,10 +301,10 @@ public class ListDialog {
                 public void onClick(DialogInterface p1, int p2) {
                     if (p2 == DialogInterface.BUTTON_POSITIVE) {
                         if (curIdAndName instanceof AlipayUser) {
-                            UserIdMap.removeIdMap(curIdAndName.id);
+                            UserIdMap.removeUser(curIdAndName.id);
                             AlipayUser.remove(curIdAndName.id);
                         } else if (curIdAndName instanceof CooperateUser) {
-                            CooperationIdMap.removeIdMap(curIdAndName.id);
+                            CooperationIdMap.remove(curIdAndName.id);
                             CooperateUser.remove(curIdAndName.id);
                         }
                         selectedMap.remove(curIdAndName.id);

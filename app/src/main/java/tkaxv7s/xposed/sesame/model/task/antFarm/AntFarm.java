@@ -196,7 +196,7 @@ public class AntFarm extends ModelTask {
 
                     boolean hungry = false;
                     String userName = UserIdMap
-                            .getNameById(AntFarmRpcCall.farmId2UserId(ownerAnimal.currentFarmId));
+                            .getMaskName(AntFarmRpcCall.farmId2UserId(ownerAnimal.currentFarmId));
                     switch (AnimalFeedStatus.valueOf(ownerAnimal.animalFeedStatus)) {
                         case HUNGRY:
                             hungry = true;
@@ -265,11 +265,11 @@ public class AntFarm extends ModelTask {
                 harvestProduce(ownerFarmId);
             }
 
-            if (donation.getValue() && Statistics.canDonationEgg(userId) && harvestBenevolenceScore >= 1) {
+            if (donation.getValue() && Status.canDonationEgg(userId) && harvestBenevolenceScore >= 1) {
                 donation();
             }
 
-            if (answerQuestion.getValue() && Statistics.canAnswerQuestionToday(UserIdMap.getCurrentUid())) {
+            if (answerQuestion.getValue() && Status.canAnswerQuestionToday(UserIdMap.getCurrentUid())) {
                 answerQuestion();
             }
 
@@ -333,8 +333,6 @@ public class AntFarm extends ModelTask {
             Log.i(TAG, "AntFarm.start.run err:");
             Log.printStackTrace(TAG, t);
         }
-        UserIdMap.saveIdMap();
-
     }
 
     private static void animalSleep() {
@@ -409,7 +407,7 @@ public class AntFarm extends ModelTask {
                     if ("SUCCESS".equals(memo)) {
                         double rewardCount = benevolenceScore - jo.getDouble("farmProduct");
                         benevolenceScore -= rewardCount;
-                        Log.farm("打赏好友💰[" + UserIdMap.getNameById(rewardFriend.friendId) + "]#得" + rewardCount
+                        Log.farm("打赏好友💰[" + UserIdMap.getMaskName(rewardFriend.friendId) + "]#得" + rewardCount
                                 + "颗爱心鸡蛋");
                     } else {
                         Log.record(memo);
@@ -458,7 +456,7 @@ public class AntFarm extends ModelTask {
                     if (dontSendFriendList.getValue().getKey().containsKey(user))
                         continue;
                     int sendTypeInt = sendType.getValue();
-                    user = UserIdMap.getNameById(user);
+                    user = UserIdMap.getMaskName(user);
                     String s = AntFarmRpcCall.sendBackAnimal(
                             SendType.nickNames[sendTypeInt], animal.animalId,
                             animal.currentFarmId, animal.masterFarmId);
@@ -585,7 +583,7 @@ public class AntFarm extends ModelTask {
                         jo = jo.getJSONObject("donation");
                         harvestBenevolenceScore = jo.getDouble("harvestBenevolenceScore");
                         Log.farm("捐赠活动❤️[" + activityName + "]#累计捐赠" + jo.getInt("donationTimesStat") + "次");
-                        Statistics.donationEgg(userId);
+                        Status.donationEgg(userId);
                     } else {
                         Log.record(memo);
                         Log.i(s);
@@ -622,7 +620,7 @@ public class AntFarm extends ModelTask {
                                     String answer = null;
                                     String anotherAnswer = null;
                                     boolean existsResult = false;
-                                    Set<String> dadaDailySet = Statistics.getDadaDailySet();
+                                    Set<String> dadaDailySet = Status.getDadaDailySet();
                                     if (dadaDailySet.contains(TimeUtil.getDateStr() + labels.getString(0))) {
                                         answer = labels.getString(0);
                                         anotherAnswer = labels.getString(1);
@@ -654,7 +652,7 @@ public class AntFarm extends ModelTask {
                                         }
                                         Log.record("答题" + (correct ? "正确" : "错误") + "可领取［"
                                                 + extInfo.getString("award") + "克］");
-                                        Statistics.answerQuestionToday(UserIdMap.getCurrentUid());
+                                        Status.answerQuestionToday(UserIdMap.getCurrentUid());
 
                                         JSONArray operationConfigList = joDailySubmit
                                                 .getJSONArray("operationConfigList");
@@ -672,7 +670,7 @@ public class AntFarm extends ModelTask {
                                                 }
                                             }
                                         }
-                                        Statistics.setDadaDailySet(dadaDailySet);
+                                        Status.setDadaDailySet(dadaDailySet);
                                     } else {
                                         Log.i(s);
                                     }
@@ -683,15 +681,15 @@ public class AntFarm extends ModelTask {
                                 break;
 
                             case RECEIVED:
-                                Statistics.setQuestionHint(null);
+                                Status.setQuestionHint(null);
                                 Log.record("今日答题已完成");
-                                Statistics.answerQuestionToday(UserIdMap.getCurrentUid());
+                                Status.answerQuestionToday(UserIdMap.getCurrentUid());
                                 break;
 
                             case FINISHED:
-                                Statistics.setQuestionHint(null);
+                                Status.setQuestionHint(null);
                                 Log.record("已经答过题了，饲料待领取");
-                                Statistics.answerQuestionToday(UserIdMap.getCurrentUid());
+                                Status.answerQuestionToday(UserIdMap.getCurrentUid());
                                 break;
                         }
                         break;
@@ -852,7 +850,7 @@ public class AntFarm extends ModelTask {
                             break;
                         case RECEIVED:
                             if ("庄园小课堂".equals(taskTitle)) {
-                                Statistics.setQuestionHint(null);
+                                Status.setQuestionHint(null);
                             }
                             break;
                     }
@@ -991,7 +989,7 @@ public class AntFarm extends ModelTask {
                 String userId = entry.getKey();
                 if (userId.equals(UserIdMap.getCurrentUid()))
                     continue;
-                if (!Statistics.canFeedFriendToday(userId, entry.getValue()))
+                if (!Status.canFeedFriendToday(userId, entry.getValue()))
                     continue;
                 s = AntFarmRpcCall.enterFarm("", userId);
                 jo = new JSONObject(s);
@@ -1007,7 +1005,7 @@ public class AntFarm extends ModelTask {
                             jo = jo.getJSONObject("animalStatusVO");
                             if (AnimalInteractStatus.HOME.name().equals(jo.getString("animalInteractStatus"))
                                     && AnimalFeedStatus.HUNGRY.name().equals(jo.getString("animalFeedStatus"))) {
-                                feedFriendAnimal(friendFarmId, UserIdMap.getNameById(userId));
+                                feedFriendAnimal(friendFarmId, UserIdMap.getMaskName(userId));
                             }
                             break;
                         }
@@ -1042,7 +1040,7 @@ public class AntFarm extends ModelTask {
                     if (feedFood > 0) {
                         add2FoodStock(-feedFood);
                         Log.farm("帮喂好友🥣[" + user + "]的小鸡[" + feedFood + "g]#剩余" + foodStock + "g");
-                        Statistics.feedFriendToday(AntFarmRpcCall.farmId2UserId(friendFarmId));
+                        Status.feedFriendToday(AntFarmRpcCall.farmId2UserId(friendFarmId));
                     }
                 } else {
                     Log.record(memo);
@@ -1074,7 +1072,7 @@ public class AntFarm extends ModelTask {
                     for (int i = 0; i < jaRankingList.length(); i++) {
                         jo = jaRankingList.getJSONObject(i);
                         String userId = jo.getString("userId");
-                        String userName = UserIdMap.getNameById(userId);
+                        String userName = UserIdMap.getMaskName(userId);
                         if (dontNotifyFriendList.getValue().getKey().containsKey(userId)
                                 || userId.equals(UserIdMap.getCurrentUid()))
                             continue;
@@ -1388,10 +1386,10 @@ public class AntFarm extends ModelTask {
                     continue;
                 if (count > 3)
                     count = 3;
-                if (Statistics.canVisitFriendToday(userId, count)) {
+                if (Status.canVisitFriendToday(userId, count)) {
                     count = visitFriend(userId, count);
                     if (count > 0)
-                        Statistics.visitFriendToday(userId, count);
+                        Status.visitFriendToday(userId, count);
                 }
             }
         } catch (Throwable t) {
@@ -1418,10 +1416,10 @@ public class AntFarm extends ModelTask {
                     jo = new JSONObject(AntFarmRpcCall.visitFriend(farmId));
                     if ("SUCCESS".equals(jo.getString("memo"))) {
                         foodStock = jo.getInt("foodStock");
-                        Log.farm("赠送麦子🌾[" + UserIdMap.getNameById(userId) + "]#" + jo.getInt("giveFoodNum") + "g");
+                        Log.farm("赠送麦子🌾[" + UserIdMap.getMaskName(userId) + "]#" + jo.getInt("giveFoodNum") + "g");
                         visitedTimes++;
                         if (jo.optBoolean("isReachLimit")) {
-                            Log.record("今日给[" + UserIdMap.getNameById(userId) + "]送麦子已达上限");
+                            Log.record("今日给[" + UserIdMap.getMaskName(userId) + "]送麦子已达上限");
                             visitedTimes = 3;
                             break;
                         }

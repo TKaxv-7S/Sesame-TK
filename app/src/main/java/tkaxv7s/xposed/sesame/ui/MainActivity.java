@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends BaseActivity {
 
@@ -145,25 +143,16 @@ public class MainActivity extends BaseActivity {
                 List<String> userIdList = new ArrayList<>();
                 File[] configFiles = FileUtil.CONFIG_DIRECTORY_FILE.listFiles();
                 if (configFiles != null) {
-                    Pattern pattern = Pattern.compile("config_v2-(.*).json");
-                    for (File configFile : configFiles) {
-                        Matcher beforeMatcher = pattern.matcher(configFile.getName());
-                        if (beforeMatcher.find()) {
-                            String userId = beforeMatcher.group(1);
-                            String userName = UserIdMap.getNameById(userId);
-                            if (userName == null || userName.isEmpty()) {
-                                userNameList.add(userId);
-                                userIdList.add(userId);
-                            } else {
-                                int length = userId.length();
-                                if (length > 6) {
-                                    String prefix = userId.substring(0, 3);
-                                    String suffix = userId.substring(length - 4);
-                                    userName += "-" + prefix + "***" + suffix;
-                                }
-                                userNameList.add(userName);
-                                userIdList.add(userId);
+                    for (File configDir : configFiles) {
+                        if (configDir.isDirectory()) {
+                            String userId = configDir.getName();
+                            UserIdMap.loadSelf(userId);
+                            String userName = UserIdMap.getShowName(userId);
+                            if (userName == null) {
+                                userName = userId;
                             }
+                            userNameList.add(userName);
+                            userIdList.add(userId);
                         }
                     }
                 }
@@ -330,7 +319,7 @@ public class MainActivity extends BaseActivity {
         int length = userNameArray.length;
         if (length > 0 && length < 3) {
             new Thread(()-> {
-                TimeUtil.sleep(1000);
+                TimeUtil.sleep(800);
                 if (!selected.get()) {
                     alertDialog.dismiss();
                     goSettingActivity(length - 1);
