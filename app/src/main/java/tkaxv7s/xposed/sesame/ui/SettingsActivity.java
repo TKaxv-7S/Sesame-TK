@@ -1,6 +1,7 @@
 package tkaxv7s.xposed.sesame.ui;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -169,19 +170,27 @@ public class SettingsActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == 1) {
-            File userConfigDirectoryFile;
-            if (StringUtil.isEmpty(userId)) {
-                userConfigDirectoryFile = FileUtil.getDefaultConfigV2File();
-            } else {
-                userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
-            }
-            if (FileUtil.deleteFile(userConfigDirectoryFile)) {
-                Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
-            }
-            isSave = false;
-            finish();
+            new AlertDialog.Builder(context)
+                    .setTitle("警告")
+                    .setMessage("确认删除该配置？")
+                    .setPositiveButton(R.string.ok, (dialog, id) -> {
+                        File userConfigDirectoryFile;
+                        if (StringUtil.isEmpty(userId)) {
+                            userConfigDirectoryFile = FileUtil.getDefaultConfigV2File();
+                        } else {
+                            userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
+                        }
+                        if (FileUtil.deleteFile(userConfigDirectoryFile)) {
+                            Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
+                        }
+                        isSave = false;
+                        finish();
+                    })
+                    .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss())
+                    .create()
+                    .show();
         }
         return super.onOptionsItemSelected(item);
     }
