@@ -53,19 +53,6 @@ public class FileUtil {
         return mainDir;
     }
 
-    private static File getConfigDirectoryFile() {
-        File configDir = new File(MAIN_DIRECTORY_FILE, "config");
-        if (configDir.exists()) {
-            if (configDir.isFile()) {
-                configDir.delete();
-                configDir.mkdirs();
-            }
-        } else {
-            configDir.mkdirs();
-        }
-        return configDir;
-    }
-
     private static File getLogDirectoryFile() {
         File logDir = new File(MAIN_DIRECTORY_FILE, "log");
         if (logDir.exists()) {
@@ -79,20 +66,30 @@ public class FileUtil {
         return logDir;
     }
 
-    public static File getConfigV2File() {
-        String currentUid = UserIdMap.getCurrentUid();
-        if (StringUtil.isEmpty(currentUid)) {
-            return FileUtil.getDefaultConfigV2File();
+    private static File getConfigDirectoryFile() {
+        File configDir = new File(MAIN_DIRECTORY_FILE, "config");
+        if (configDir.exists()) {
+            if (configDir.isFile()) {
+                configDir.delete();
+                configDir.mkdirs();
+            }
+        } else {
+            configDir.mkdirs();
         }
-        return getCurrentConfigV2File(currentUid);
+        return configDir;
     }
 
-    public static boolean setConfigV2File(String json) {
-        String currentUid = UserIdMap.getCurrentUid();
-        if (StringUtil.isEmpty(currentUid)) {
-            return setDefaultConfigV2File(json);
+    public static File getUserConfigDirectoryFile(String userId) {
+        File configDir = new File(CONFIG_DIRECTORY_FILE, userId);
+        if (configDir.exists()) {
+            if (configDir.isFile()) {
+                configDir.delete();
+                configDir.mkdirs();
+            }
+        } else {
+            configDir.mkdirs();
         }
-        return setCurrentConfigV2File(currentUid, json);
+        return configDir;
     }
 
     public static File getDefaultConfigV2File() {
@@ -103,10 +100,10 @@ public class FileUtil {
         return write2File(json, new File(MAIN_DIRECTORY_FILE, "config_v2.json"));
     }
 
-    public static File getCurrentConfigV2File(String currentUid) {
-        File file = new File(CONFIG_DIRECTORY_FILE + "/" + currentUid, "config_v2.json");
+    public static File getConfigV2File(String userId) {
+        File file = new File(CONFIG_DIRECTORY_FILE + "/" + userId, "config_v2.json");
         if (!file.exists()) {
-            File oldFile = new File(CONFIG_DIRECTORY_FILE, "config_v2-" + currentUid + ".json");
+            File oldFile = new File(CONFIG_DIRECTORY_FILE, "config_v2-" + userId + ".json");
             if (oldFile.exists()) {
                 if (write2File(readFromFile(oldFile), file)) {
                     oldFile.delete();
@@ -118,8 +115,8 @@ public class FileUtil {
         return file;
     }
 
-    public static boolean setCurrentConfigV2File(String currentUid, String json) {
-        return write2File(json, new File(CONFIG_DIRECTORY_FILE + "/" + currentUid, "config_v2.json"));
+    public static boolean setConfigV2File(String userId, String json) {
+        return write2File(json, new File(CONFIG_DIRECTORY_FILE + "/" + userId, "config_v2.json"));
     }
 
     public static File getSelfIdFile(String userId) {
@@ -514,5 +511,22 @@ public class FileUtil {
             }
         }
         return false;
+    }
+
+    public static Boolean deleteFile(File file) {
+        if (!file.exists()) {
+            return false;
+        }
+        if (file.isFile()) {
+            return file.delete();
+        }
+        File[] files = file.listFiles();
+        if (files == null) {
+            return file.delete();
+        }
+        for (File innerFile : files) {
+            deleteFile(innerFile);
+        }
+        return file.delete();
     }
 }

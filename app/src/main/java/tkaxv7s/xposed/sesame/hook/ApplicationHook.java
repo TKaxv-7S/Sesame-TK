@@ -481,7 +481,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 Model.destroyAllModel();
                 Log.record("开始加载");
-                ConfigV2.load();
+                ConfigV2.load(UserIdMap.getCurrentUid());
                 if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
                     Log.record("芝麻粒已禁用");
                     Toast.show("芝麻粒已禁用");

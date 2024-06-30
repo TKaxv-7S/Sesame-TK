@@ -1713,7 +1713,7 @@ public class AntForestV2 extends ModelTask {
                             photoGuangPanAfterStr = afterMatcher.group(1);
                             photoGuangPanAfter.setValue(photoGuangPanAfterStr);
                         }
-                        ConfigV2.save(false);
+                        ConfigV2.save(UserIdMap.getCurrentUid(), false);
                         isDone = true;
                     }
                 }

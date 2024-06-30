@@ -4,23 +4,23 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.util.*;
 
+import java.io.File;
 import java.util.Map;
 
 public class SettingsActivity extends BaseActivity {
 
-    private Boolean isDraw = false;
     private Context context;
+    private Boolean isDraw = false;
     private TabHost tabHost;
     private ScrollView svTabs;
     private String userId;
+    private Boolean isSave;
     //private GestureDetector gestureDetector;
 
     @Override
@@ -44,7 +44,7 @@ public class SettingsActivity extends BaseActivity {
         CooperationIdMap.load(userId);
         ReserveIdMap.load(userId);
         BeachIdMap.load(userId);
-        ConfigV2.load(false);
+        ConfigV2.load(userId);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
         if (userName != null) {
@@ -113,22 +113,31 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (ConfigV2.isModify() && ConfigV2.save(false)) {
-            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-            try {
-                sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.restart"));
-            } catch (Throwable th) {
-                Log.printStackTrace(th);
+        if (isSave) {
+            if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
+                Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+                try {
+                    sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.restart"));
+                } catch (Throwable th) {
+                    Log.printStackTrace(th);
+                }
+            }
+            if (!StringUtil.isEmpty(userId)) {
+                UserIdMap.save(userId);
+                CooperationIdMap.save(userId);
+                ReserveIdMap.save(userId);
+                BeachIdMap.save(userId);
             }
         }
-        UserIdMap.save(userId);
-        CooperationIdMap.save(userId);
-        ReserveIdMap.save(userId);
-        BeachIdMap.save(userId);
         finish();
     }
 
-    /*@Override
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isSave = true;
+    }
+/*@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (gestureDetector.onTouchEvent(event)) {
             event.setAction(MotionEvent.ACTION_CANCEL);
@@ -149,6 +158,32 @@ public class SettingsActivity extends BaseActivity {
             tabWidget.requestLayout();
             isDraw = true;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 1, 1, "删除配置");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == 1) {
+            File userConfigDirectoryFile;
+            if (StringUtil.isEmpty(userId)) {
+                userConfigDirectoryFile = FileUtil.getDefaultConfigV2File();
+            } else {
+                userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
+            }
+            if (FileUtil.deleteFile(userConfigDirectoryFile)) {
+                Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
+            }
+            isSave = false;
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
