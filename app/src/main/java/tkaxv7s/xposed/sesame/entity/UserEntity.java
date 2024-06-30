@@ -17,15 +17,11 @@ public class UserEntity {
 
     private final String remarkName;
 
-    private final String showName;
-
     private final String maskName;
 
-    public UserEntity(String userId, String account, String realName, String nickName, String remarkName) {
-        this(userId, account, realName, nickName, remarkName, false);
-    }
+    private final String fullName;
 
-    public UserEntity(String userId, String account, String realName, String nickName, String remarkName, Boolean isMaskAccount) {
+    public UserEntity(String userId, String account, String realName, String nickName, String remarkName) {
         this.userId = userId;
         this.account = account;
         this.realName = realName;
@@ -37,14 +33,13 @@ public class UserEntity {
         } else {
             showNameTmp = remarkName;
         }
-        this.showName = showNameTmp + "|" + realName + "(" + account + ")";
         String maskNameTmp;
         if (realName != null && realName.length() > 1) {
             maskNameTmp = "*" + realName.substring(1);
         } else {
             maskNameTmp = realName;
         }
-        if (isMaskAccount) {
+        /*if (isMaskAccount) {
             int length = account.length();
             if (length > 5) {
                 int prefixIndex = Math.min(3, Math.max(1, length - 3));
@@ -57,8 +52,9 @@ public class UserEntity {
                 String suffix = account.substring(suffixIndex);
                 account = prefix + "***" + suffix;
             }
-        }
-        this.maskName = showNameTmp + "|" + maskNameTmp + "(" + account + ")";
+        }*/
+        this.maskName = showNameTmp + "|" + maskNameTmp;
+        this.fullName = showNameTmp + "|" + realName + "(" + account + ")";
     }
 
     @Data

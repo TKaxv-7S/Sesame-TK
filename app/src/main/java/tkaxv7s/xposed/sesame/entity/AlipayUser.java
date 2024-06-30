@@ -19,7 +19,7 @@ public class AlipayUser extends IdAndName {
             list = new ArrayList<>();
             Map<String, UserEntity> userIdMap = UserIdMap.getUserMap();
             for (Map.Entry<String, UserEntity> entry : userIdMap.entrySet()) {
-                list.add(new AlipayUser(entry.getKey(), entry.getValue().getShowName()));
+                list.add(new AlipayUser(entry.getKey(), entry.getValue().getFullName()));
             }
         }
         return list;

@@ -55,7 +55,7 @@ public class FriendWatch extends IdAndName {
                 if (friend == null) {
                     friend = new JSONObject();
                 }
-                String name = UserIdMap.getShowName(id);
+                String name = UserIdMap.getFullName(id);
                 FriendWatch friendWatch = new FriendWatch(id, name);
                 friendWatch.startTime = friend.optString("startTime", "无");
                 friendWatch.weekGet = friend.optInt("weekGet", 0);

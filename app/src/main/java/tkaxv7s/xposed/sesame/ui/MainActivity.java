@@ -153,7 +153,7 @@ public class MainActivity extends BaseActivity {
                         if (configDir.isDirectory()) {
                             String userId = configDir.getName();
                             UserIdMap.loadSelf(userId);
-                            String userName = UserIdMap.getShowName(userId);
+                            String userName = UserIdMap.getFullName(userId);
                             if (userName == null) {
                                 userName = userId;
                             }
