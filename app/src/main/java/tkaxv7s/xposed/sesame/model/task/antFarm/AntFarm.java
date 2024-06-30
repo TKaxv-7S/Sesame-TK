@@ -320,6 +320,9 @@ public class AntFarm extends ModelTask {
                 chouchoule();
             }
 
+            stealingAnimal()
+
+
             // 开宝箱
             if (enableDdrawGameCenterAward.getValue()) {
                 drawGameCenterAward();
