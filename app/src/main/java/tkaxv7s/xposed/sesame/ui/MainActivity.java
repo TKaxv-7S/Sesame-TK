@@ -54,6 +54,12 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
         ViewAppInfo.checkRunType();
+
+        /*ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setIcon(R.drawable.title_logo);
+        }*/
+
         updateSubTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
         titleRunner = () -> updateSubTitle(RunType.DISABLE);
