@@ -410,7 +410,7 @@ public class AntFarmRpcCall {
 
     public static String stealingAnimalListTask() {
         return ApplicationHook.requestString("com.alipay.antfarm.rankingList",
-                "[{\"pageSize\":100,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"startNum\":0,\"version\":\"" + Version + "\"}]");
+                "[{\"pageSize\":100,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"startNum\":0,\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String DrawPrize() {
