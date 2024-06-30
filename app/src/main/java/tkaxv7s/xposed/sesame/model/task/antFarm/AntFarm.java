@@ -1665,13 +1665,14 @@ public class AntFarm extends ModelTask {
     private static void drawGameCenterAward() {
         try {
             JSONObject jo = new JSONObject(AntFarmRpcCall.queryGameList());
+            TimeUtil.sleep(1000);
             if (jo.getBoolean("success")) {
                 JSONObject gameDrawAwardActivity = jo.getJSONObject("gameDrawAwardActivity");
                 int canUseTimes = gameDrawAwardActivity.getInt("canUseTimes");
                 while (canUseTimes > 0) {
                     try {
                         jo = new JSONObject(AntFarmRpcCall.drawGameCenterAward());
-                        if (jo.getBoolean("success")) {
+                        if (jo.optBoolean("success")) {
                             canUseTimes = jo.getInt("drawRightsTimes");
                             JSONArray gameCenterDrawAwardList = jo.getJSONArray("gameCenterDrawAwardList");
                             ArrayList<String> awards = new ArrayList<String>();
@@ -1687,8 +1688,9 @@ public class AntFarm extends ModelTask {
                         }
                     } catch (Throwable t) {
                         Log.printStackTrace(TAG, t);
+                    } finally {
+                        TimeUtil.sleep(3000);
                     }
-                    Thread.sleep(3000L);
                 }
             } else {
                 Log.i(TAG, "queryGameList falsed result: " + jo.toString());
