@@ -320,7 +320,7 @@ public class AntFarm extends ModelTask {
                 chouchoule();
             }
 
-            stealingAnimal()
+            stealingAnimal();
 
 
             // 开宝箱
