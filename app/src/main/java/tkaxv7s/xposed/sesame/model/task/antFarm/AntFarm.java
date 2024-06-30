@@ -80,6 +80,7 @@ public class AntFarm extends ModelTask {
     public SelectModelField visitFriendList;
     public BooleanModelField chickenDiary;
     public BooleanModelField enableChouchoule;
+    public BooleanModelField enableDdrawGameCenterAward;
 
     @Override
     public ModelFields getFields() {
@@ -114,6 +115,7 @@ public class AntFarm extends ModelTask {
         modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", false));
         modelFields.addField(enableChouchoule = new BooleanModelField("enableChouchoule", "开启小鸡抽抽乐", false));
+        modelFields.addField(enableDdrawGameCenterAward = new BooleanModelField("enableDdrawGameCenterAward", "开宝箱", false));
         return modelFields;
     }
 
@@ -316,6 +318,11 @@ public class AntFarm extends ModelTask {
             // 抽抽乐
             if (enableChouchoule.getValue()) {
                 chouchoule();
+            }
+
+            // 开宝箱
+            if (enableDdrawGameCenterAward.getValue()) {
+                drawGameCenterAward();
             }
 
             List<String> animalSleepTimes = animalSleepTime.getValue();
@@ -1653,6 +1660,43 @@ public class AntFarm extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
         return false;
+    }
+
+    private static void drawGameCenterAward() {
+        try {
+            JSONObject jo = new JSONObject(AntFarmRpcCall.queryGameList());
+            if (jo.getBoolean("success")) {
+                JSONObject gameDrawAwardActivity = jo.getJSONObject("gameDrawAwardActivity");
+                int canUseTimes = gameDrawAwardActivity.getInt("canUseTimes");
+                while (canUseTimes > 0) {
+                    try {
+                        jo = new JSONObject(AntFarmRpcCall.drawGameCenterAward());
+                        if (jo.getBoolean("success")) {
+                            canUseTimes = jo.getInt("drawRightsTimes");
+                            JSONArray gameCenterDrawAwardList = jo.getJSONArray("gameCenterDrawAwardList");
+                            ArrayList<String> awards = new ArrayList<String>();
+                            for (int i = 0; i < gameCenterDrawAwardList.length(); i++) {
+                                JSONObject gameCenterDrawAward = gameCenterDrawAwardList.getJSONObject(i);
+                                int awardCount =  gameCenterDrawAward.getInt("awardCount");
+                                String awardName = gameCenterDrawAward.getString("awardName");
+                                awards.add(awardName + "*" + awardCount);
+                            }
+                            Log.farm("庄园小鸡🎁[开宝箱:获得" + StringUtil.collectionJoinString(",", awards) + "]");
+                        } else {
+                            Log.i(TAG, "drawGameCenterAward falsed result: " + jo.toString());
+                        }
+                    } catch (Throwable t) {
+                        Log.printStackTrace(TAG, t);
+                    }
+                    Thread.sleep(3000L);
+                }
+            } else {
+                Log.i(TAG, "queryGameList falsed result: " + jo.toString());
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "queryChickenDiaryList err:");
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     public interface RecallAnimalType {
