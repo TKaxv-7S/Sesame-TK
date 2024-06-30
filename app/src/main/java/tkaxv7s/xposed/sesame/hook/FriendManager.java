@@ -30,11 +30,12 @@ public class FriendManager {
                     List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
                     for (Object friend : allFriends) {
                         try {
-                            String userId = (String) XposedHelpers.findField(friend.getClass(), "userId").get(friend);
-                            String account = (String) XposedHelpers.findField(friend.getClass(), "account").get(friend);
-                            String name = (String) XposedHelpers.findField(friend.getClass(), "name").get(friend);
-                            String nickName = (String) XposedHelpers.findField(friend.getClass(), "nickName").get(friend);
-                            String remarkName = (String) XposedHelpers.findField(friend.getClass(), "remarkName").get(friend);
+                            Class<?> friendClass = friend.getClass();
+                            String userId = (String) XposedHelpers.findField(friendClass, "userId").get(friend);
+                            String account = (String) XposedHelpers.findField(friendClass, "account").get(friend);
+                            String name = (String) XposedHelpers.findField(friendClass, "name").get(friend);
+                            String nickName = (String) XposedHelpers.findField(friendClass, "nickName").get(friend);
+                            String remarkName = (String) XposedHelpers.findField(friendClass, "remarkName").get(friend);
                             if (StringUtil.isEmpty(remarkName)) {
                                 remarkName = nickName;
                             }

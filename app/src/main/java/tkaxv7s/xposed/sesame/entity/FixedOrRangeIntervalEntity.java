@@ -13,6 +13,9 @@ public class FixedOrRangeIntervalEntity {
     private final Integer rangeMax;
 
     public FixedOrRangeIntervalEntity(String fixedOrRangeStr, int min, int max) {
+        if (min > max) {
+            max = min;
+        }
         if (fixedOrRangeStr != null && !fixedOrRangeStr.isEmpty()) {
             String[] split = fixedOrRangeStr.split("-");
             if (split.length == 2) {
@@ -23,31 +26,33 @@ public class FixedOrRangeIntervalEntity {
                     rangeMinTmp = min;
                 }
                 try {
-                    rangeMaxTmp = Math.min(Integer.parseInt(split[1]), max) + 1;
+                    rangeMaxTmp = Math.min(Integer.parseInt(split[1]), max);
                 } catch (Exception ignored) {
                     rangeMaxTmp = max;
                 }
-                if (rangeMinTmp >= rangeMaxTmp) {
-                    rangeMaxTmp = rangeMinTmp + 1;
+                if (rangeMinTmp > rangeMaxTmp) {
+                    rangeMaxTmp = rangeMinTmp;
                 }
                 fixedInt = null;
                 rangeMin = rangeMinTmp;
-                rangeMax = rangeMaxTmp;
+                rangeMax = rangeMaxTmp + 1;
                 fixedOrRange = false;
             } else {
                 int fixedIntTmp;
                 try {
-                    fixedIntTmp = Math.max(Integer.parseInt(fixedOrRangeStr), min);
+                    fixedIntTmp = Integer.parseInt(fixedOrRangeStr);
                 } catch (Exception ignored) {
-                    fixedIntTmp = min;
+                    fixedIntTmp = max;
                 }
+                fixedIntTmp = Math.max(fixedIntTmp, min);
+                fixedIntTmp = Math.min(fixedIntTmp, max);
                 fixedInt = fixedIntTmp;
                 rangeMin = null;
                 rangeMax = null;
                 fixedOrRange = true;
             }
         } else {
-            fixedInt = min;
+            fixedInt = max;
             rangeMin = null;
             rangeMax = null;
             fixedOrRange = true;

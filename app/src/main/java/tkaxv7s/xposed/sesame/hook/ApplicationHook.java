@@ -432,17 +432,15 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             nowCalendar.set(Calendar.SECOND, 0);
             dayCalendar = nowCalendar;
             Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
-            try {
+            /*try {
                 setWakenAtTimeAlarm();
             } catch (Exception e) {
-                Log.i(TAG, "setWakenAtTimeAlarm err:");
-                Log.printStackTrace(TAG, e);
-            }
+                Log.printStackTrace(e);
+            }*/
             try {
                 Statistics.INSTANCE.resetByCalendar(nowCalendar);
             } catch (Exception e) {
-                Log.i(TAG, "statistics err:");
-                Log.printStackTrace(TAG, e);
+                Log.printStackTrace(e);
             }
         }
     }
@@ -508,25 +506,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         PowerManager pm = (PowerManager) service.getSystemService(Context.POWER_SERVICE);
                         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, service.getClass().getName());
                         wakeLock.acquire();
-                        Log.record("stayAwake 已设置");
-                    } catch (Throwable th) {
-                        Log.i(TAG, "stayAwake err:");
-                        Log.printStackTrace(TAG, th);
-                    }
-                    try {
-                        Intent it = new Intent();
-                        it.setClassName(ClassUtil.PACKAGE_NAME, ClassUtil.CURRENT_USING_SERVICE);
-                        PendingIntent pi = PendingIntent.getService(context, 0, it, getPendingIntentFlag());
-                        if (setAlarmTask(System.currentTimeMillis() + 30 * 60 * 1000, pi)) {
-                            Log.record("stayAwakeAlarm 已设置");
-                        }
-                    } catch (Throwable th) {
-                        Log.i(TAG, "stayAwakeAlarm err:");
-                        Log.printStackTrace(TAG, th);
+                    } catch (Throwable t) {
+                        Log.printStackTrace(t);
                     }
                 }
 
-                setWakenAtTimeAlarm();
+                //setWakenAtTimeAlarm();
 
                 if (BaseModel.getNewRpc().getValue() && BaseModel.getDebugMode().getValue()) {
                     try {

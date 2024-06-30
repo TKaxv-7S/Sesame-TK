@@ -33,15 +33,19 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userId = null;
+        String userName = null;
         Intent intent = getIntent();
         if (intent != null) {
             userId = intent.getStringExtra("userId");
-            setBaseSubtitle(getString(R.string.settings) + ": " + intent.getStringExtra("userName"));
+            userName = intent.getStringExtra("userName");
         }
         UserIdMap.setCurrentUid(userId, false);
         ConfigV2.load(false);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
+        if (userName != null) {
+            setBaseSubtitle(getString(R.string.settings) + ": " + userName);
+        }
         setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
 
         context = this;

@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -314,15 +315,28 @@ public class MainActivity extends BaseActivity {
     }
 
     private void selectSettingUid() {
+        AtomicBoolean selected = new AtomicBoolean(false);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("请选择配置");
         builder.setItems(userNameArray, (dialog, which) -> {
+            selected.set(true);
             dialog.dismiss();
             goSettingActivity(which);
         });
+        builder.setOnDismissListener(dialog -> selected.set(true));
         builder.setPositiveButton("返回", (dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        int length = userNameArray.length;
+        if (length > 0 && length < 3) {
+            new Thread(()-> {
+                TimeUtil.sleep(1000);
+                if (!selected.get()) {
+                    alertDialog.dismiss();
+                    goSettingActivity(length - 1);
+                }
+            }).start();
+        }
     }
 
     private void goSettingActivity(int index) {

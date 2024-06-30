@@ -63,9 +63,9 @@ public class AntForestV2 extends ModelTask {
 
     private Integer retryIntervalInt;
 
-    private FixedOrRangeIntervalEntity collectIntervalEntity;
+    private FixedOrRangeIntervalEntity queryIntervalEntity;
 
-    private FixedOrRangeIntervalEntity requestIntervalEntity;
+    private FixedOrRangeIntervalEntity collectIntervalEntity;
 
     private volatile long doubleEndTime = 0;
 
@@ -82,8 +82,8 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField collectWateringBubble;
     private BooleanModelField batchRobEnergy;
     private BooleanModelField collectProp;
+    private StringModelField queryInterval;
     private StringModelField collectInterval;
-    private StringModelField requestInterval;
     private BooleanModelField doubleCard;
     private ListModelField.ListJoinCommaToStringModelField doubleCardTime;
     @Getter
@@ -131,11 +131,11 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", false));
         modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", false));
+        modelFields.addField(queryInterval = new StringModelField("queryInterval", "查询间隔(毫秒或毫秒范围)", "500-1000"));
         modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "1000-1500"));
-        modelFields.addField(requestInterval = new StringModelField("requestInterval", "请求间隔(毫秒或毫秒范围)", "100-500"));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
-        modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 1000, 0, 6000));
+        modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 1000, 0, 10000));
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "双击卡 | 使用", false));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡 | 使用次数", 6));
         List<String> doubleCardTimeList = new ArrayList<>();
@@ -197,8 +197,8 @@ public class AntForestV2 extends ModelTask {
             retryIntervalInt = retryInterval.getValue();
             dontCollectMap = dontCollectList.getValue().getKey();
 
-            collectIntervalEntity = new FixedOrRangeIntervalEntity(collectInterval.getValue(), 500, 1000);
-            requestIntervalEntity = new FixedOrRangeIntervalEntity(requestInterval.getValue(), 0, 1000);
+            queryIntervalEntity = new FixedOrRangeIntervalEntity(queryInterval.getValue(), 0, 10000);
+            collectIntervalEntity = new FixedOrRangeIntervalEntity(collectInterval.getValue(), 0, 10000);
 
             collectSelfEnergy();
             try {
@@ -290,7 +290,11 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
-    private JSONObject querySelfPage() {
+    private JSONObject querySelfHome() {
+        return querySelfHome(queryIntervalEntity.getInterval());
+    }
+
+    private JSONObject querySelfHome(Integer interval) {
         JSONObject userHomeObject = null;
         try {
             long start = System.currentTimeMillis();
@@ -302,28 +306,19 @@ public class AntForestV2 extends ModelTask {
             collectUserEnergy(userHomeObject);
         } catch (Throwable t) {
             Log.printStackTrace(t);
-        }
-        return userHomeObject;
-    }
-
-    private JSONObject collectSelfEnergy() {
-        try {
-            JSONObject userHomeObject = querySelfPage();
-            if (userHomeObject != null) {
-                return collectUserEnergy(userHomeObject);
-            }
-        } catch (Throwable t) {
-            Log.printStackTrace(t);
         } finally {
-            Integer interval = requestIntervalEntity.getInterval();
             if (interval > 0) {
                 TimeUtil.sleep(interval);
             }
         }
-        return null;
+        return userHomeObject;
     }
 
     private JSONObject queryFriendHome(String userId) {
+        return queryFriendHome(userId, queryIntervalEntity.getInterval());
+    }
+
+    private JSONObject queryFriendHome(String userId, Integer interval) {
         JSONObject userHomeObject = null;
         try {
             long start = System.currentTimeMillis();
@@ -334,20 +329,41 @@ public class AntForestV2 extends ModelTask {
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
         } catch (Throwable t) {
             Log.printStackTrace(t);
+        } finally {
+            if (interval > 0) {
+                TimeUtil.sleep(interval);
+            }
         }
         return userHomeObject;
     }
 
-    private JSONObject collectFriendEnergy(String userId) {
+    private JSONObject collectSelfEnergy() {
         try {
-            JSONObject userHomeObject = queryFriendHome(userId);
+            JSONObject userHomeObject = querySelfHome(0);
             if (userHomeObject != null) {
                 return collectUserEnergy(userHomeObject);
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
         } finally {
-            Integer interval = requestIntervalEntity.getInterval();
+            Integer interval = queryIntervalEntity.getInterval();
+            if (interval > 0) {
+                TimeUtil.sleep(interval);
+            }
+        }
+        return null;
+    }
+
+    private JSONObject collectFriendEnergy(String userId) {
+        try {
+            JSONObject userHomeObject = queryFriendHome(userId, 0);
+            if (userHomeObject != null) {
+                return collectUserEnergy(userHomeObject);
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(t);
+        } finally {
+            Integer interval = queryIntervalEntity.getInterval();
             if (interval > 0) {
                 TimeUtil.sleep(interval);
             }
@@ -479,7 +495,7 @@ public class AntForestV2 extends ModelTask {
                     do {
                         if (hasMore) {
                             hasMore = false;
-                            userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
+                            userHomeObject = querySelfHome();
                         }
                         if (collectWateringBubble.getValue()) {
                             JSONArray wateringBubbles = userHomeObject.has("wateringBubbles")
@@ -805,10 +821,10 @@ public class AntForestV2 extends ModelTask {
                         JSONObject jo = new JSONObject(rpcEntity.getResponseString());
                         String resultCode = jo.getString("resultCode");
                         if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
-                            /*if ("PARAM_ILLEGAL2".equals(resultCode)) {
+                            if ("PARAM_ILLEGAL2".equals(resultCode)) {
                                 Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
                                 return;
-                            }*/
+                            }
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
                             continue;
                         }
@@ -908,10 +924,10 @@ public class AntForestV2 extends ModelTask {
                         JSONObject jo = new JSONObject(rpcEntity.getResponseString());
                         String resultCode = jo.getString("resultCode");
                         if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
-                            /*if ("PARAM_ILLEGAL2".equals(resultCode)) {
+                            if ("PARAM_ILLEGAL2".equals(resultCode)) {
                                 Log.record("[" + UserIdMap.getNameById(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
                                 return;
-                            }*/
+                            }
                             Log.record("[" + UserIdMap.getNameById(userId) + "]" + jo.getString("resultDesc"));
                             continue;
                         }
