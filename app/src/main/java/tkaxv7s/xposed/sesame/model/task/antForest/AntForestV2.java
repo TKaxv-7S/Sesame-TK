@@ -170,7 +170,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "绿色 | 光盘行动", false));
         modelFields.addField(photoGuangPanBefore = new TextModelField("photoGuangPanBefore", "绿色 | 光盘前图片ID", ""));
         modelFields.addField(photoGuangPanAfter = new TextModelField("photoGuangPanAfter", "绿色 | 光盘后图片ID", ""));
-        modelFields.addField(new EmptyModelField("photoGuangPanClear", "绿色 | 清空图片ID", v -> {
+        modelFields.addField(new EmptyModelField("photoGuangPanClear", "绿色 | 清空图片ID", () -> {
             photoGuangPanBefore.reset();
             photoGuangPanAfter.reset();
         }));
@@ -340,7 +340,7 @@ public class AntForestV2 extends ModelTask {
         try {
             JSONObject userHomeObject = querySelfHome(0);
             if (userHomeObject != null) {
-                return collectUserEnergy(userHomeObject);
+                return collectUserEnergy(UserIdMap.getCurrentUid(), userHomeObject);
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -357,7 +357,7 @@ public class AntForestV2 extends ModelTask {
         try {
             JSONObject userHomeObject = queryFriendHome(userId, 0);
             if (userHomeObject != null) {
-                return collectUserEnergy(userHomeObject);
+                return collectUserEnergy(userId, userHomeObject);
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -370,21 +370,14 @@ public class AntForestV2 extends ModelTask {
         return null;
     }
 
-    private JSONObject collectUserEnergy(JSONObject userHomeObject) {
+    private JSONObject collectUserEnergy(String userId, JSONObject userHomeObject) {
         try {
             if (!"SUCCESS".equals(userHomeObject.getString("resultCode"))) {
                 Log.record(userHomeObject.getString("resultDesc"));
                 return userHomeObject;
             }
             long serverTime = userHomeObject.getLong("now");
-            JSONObject userEnergy = userHomeObject.optJSONObject("userEnergy");
-            String userId;
-            boolean isSelf = userEnergy == null;
-            if (isSelf) {
-                userId = UserIdMap.getCurrentUid();
-            } else {
-                userId = userEnergy.getString("userId");
-            }
+            boolean isSelf = Objects.equals(userId, selfId);
             String userName =UserIdMap.getMaskName(userId);
             Log.record("进入[" + userName + "]的蚂蚁森林");
 
@@ -1929,48 +1922,56 @@ public class AntForestV2 extends ModelTask {
 
     private void antdodoPropList() {
         try {
-            JSONObject jo = new JSONObject(AntForestRpcCall.antdodoPropList());
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray propList = jo.getJSONObject("data").optJSONArray("propList");
-                for (int i = 0; i < propList.length(); i++) {
-                    JSONObject prop = propList.getJSONObject(i);
-                    String propType = prop.getString("propType");
-                    if ("COLLECT_TIMES_7_DAYS".equals(propType)) {
-                        JSONArray propIdList = prop.getJSONArray("propIdList");
-                        String propId = propIdList.getString(0);
-                        String propName = prop.getJSONObject("propConfig").getString("propName");
-                        int holdsNum = prop.optInt("holdsNum", 0);
-                        jo = new JSONObject(AntForestRpcCall.antdodoConsumeProp(propId, propType));
-                        if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                            JSONObject useResult = jo.getJSONObject("data").getJSONObject("useResult");
-                            JSONObject animal = useResult.getJSONObject("animal");
-                            String ecosystem = animal.getString("ecosystem");
-                            String name = animal.getString("name");
-                            Log.forest("使用道具🎭[" + propName + "]#" + ecosystem + "-" + name);
-                            Map<String, Integer> map = sendFriendCard.getValue().getKey();
-                            if (!map.isEmpty()) {
-                                for (String userId : map.keySet()) {
-                                    if (!UserIdMap.getCurrentUid().equals(userId)) {
-                                        int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
-                                        if (fantasticStarQuantity == 3) {
-                                            sendCard(animal, userId);
+            th:do {
+                JSONObject jo = new JSONObject(AntForestRpcCall.antdodoPropList());
+                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                    JSONArray propList = jo.getJSONObject("data").optJSONArray("propList");
+                    if (propList == null) {
+                        return;
+                    }
+                    for (int i = 0; i < propList.length(); i++) {
+                        JSONObject prop = propList.getJSONObject(i);
+                        String propType = prop.getString("propType");
+                        if ("COLLECT_TIMES_7_DAYS".equals(propType)) {
+                            JSONArray propIdList = prop.getJSONArray("propIdList");
+                            String propId = propIdList.getString(0);
+                            String propName = prop.getJSONObject("propConfig").getString("propName");
+                            int holdsNum = prop.optInt("holdsNum", 0);
+                            try {
+                                jo = new JSONObject(AntForestRpcCall.antdodoConsumeProp(propId, propType));
+                                if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                                    Log.record(jo.getString("resultDesc"));
+                                    Log.i(jo.toString());
+                                    continue;
+                                }
+                                JSONObject useResult = jo.getJSONObject("data").getJSONObject("useResult");
+                                JSONObject animal = useResult.getJSONObject("animal");
+                                String ecosystem = animal.getString("ecosystem");
+                                String name = animal.getString("name");
+                                Log.forest("使用道具🎭[" + propName + "]#" + ecosystem + "-" + name);
+                                Map<String, Integer> map = sendFriendCard.getValue().getKey();
+                                if (!map.isEmpty()) {
+                                    for (String userId : map.keySet()) {
+                                        if (!UserIdMap.getCurrentUid().equals(userId)) {
+                                            int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
+                                            if (fantasticStarQuantity == 3) {
+                                                sendCard(animal, userId);
+                                            }
+                                            break;
                                         }
-                                        break;
                                     }
                                 }
+                                if (holdsNum > 1) {
+                                    continue th;
+                                }
+                            } finally {
+                                TimeUtil.sleep(1000);
                             }
-                            if (holdsNum > 1) {
-                                Thread.sleep(1000L);
-                                antdodoPropList();
-                                return;
-                            }
-                        } else {
-                            Log.record(jo.getString("resultDesc"));
-                            Log.i(jo.toString());
                         }
                     }
                 }
-            }
+                break;
+            } while (true);
         } catch (Throwable th) {
             Log.i(TAG, "antdodoPropList err:");
             Log.printStackTrace(TAG, th);
