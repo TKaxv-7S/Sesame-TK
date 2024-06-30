@@ -44,9 +44,8 @@ public class FriendManager {
                             String name = (String) XposedHelpers.findField(friendClass, "name").get(userObject);
                             String nickName = (String) XposedHelpers.findField(friendClass, "nickName").get(userObject);
                             String remarkName = (String) XposedHelpers.findField(friendClass, "remarkName").get(userObject);
-                            boolean isSelf = Objects.equals(selfId, userId);
-                            UserEntity userEntity = new UserEntity(userId, account, name, nickName, remarkName, isSelf);
-                            if (isSelf) {
+                            UserEntity userEntity = new UserEntity(userId, account, name, nickName, remarkName);
+                            if (Objects.equals(selfId, userId)) {
                                 selfEntity = userEntity;
                             }
                             UserIdMap.addUser(userEntity);
