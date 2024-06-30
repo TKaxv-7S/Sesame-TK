@@ -1632,6 +1632,25 @@ public class AntFarm extends ModelTask {
         }
     }
 
+    private static void stealingAnimal() {
+        try {
+            JSONObject jo = new JSONObject(AntFarmRpcCall.stealingAnimalListTask());
+            if ("SUCCESS".equals(jo.getString("memo"))) {
+                if (!jo.has("rankingList"))
+                    return;
+                JSONArray rankingList = jo.getJSONArray("rankingList");
+                for (int i = 0; i < rankingList.length(); i++) {
+                    userId = rankingList.getJSONObject(i).getString("userId");
+                    actionTypeList = rankingList.getJSONObject(i).getString("actionTypeList");
+                    Log.farm("庄园小鸡雇佣测试[" + userId + "*" + actionTypeList + "]");
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "stealingAnimal err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
     private static Boolean chouchouleDoFarmTask(String bizKey, String name, int times) {
         try {
             for (int i = 0; i < times; i++) {

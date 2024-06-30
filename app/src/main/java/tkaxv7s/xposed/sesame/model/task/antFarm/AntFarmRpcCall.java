@@ -408,10 +408,9 @@ public class AntFarmRpcCall {
                 "[{\"bizKey\":\"" + bizKey + "\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
     }
 
-    public static String chouchouleReceiveFarmTaskAward(String taskId) {
-        return ApplicationHook.requestString("com.alipay.antfarm.receiveFarmTaskAward",
-                "[{\"awardType\":\"DRAW_TIMES\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskId\":\""
-                        + taskId + "\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
+    public static String stealingAnimalListTask() {
+        return ApplicationHook.requestString("com.alipay.antfarm.rankingList",
+                "[{\"pageSize\":100,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"startNum\":0,\"version\":\"" + Version + "\"}]");
     }
 
     public static String DrawPrize() {
@@ -426,6 +425,6 @@ public class AntFarmRpcCall {
 
     public static String queryGameList() {
         return ApplicationHook.requestString("com.alipay.antfarm.queryGameList",
-            "[{\"commonDegradeResult\":{\"deviceLevel\":\"high\",\"resultReason\":0,\"resultType\":0},\"platform\":\"Android\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+                "[{\"commonDegradeResult\":{\"deviceLevel\":\"high\",\"resultReason\":0,\"resultType\":0},\"platform\":\"Android\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
     }
 }
