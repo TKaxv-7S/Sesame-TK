@@ -1543,9 +1543,14 @@ public class AntForestV2 extends ModelTask {
                             }
                             if (!StringUtil.isEmpty(propId)) {
                                 jo = new JSONObject(AntForestRpcCall.consumeProp(propId, propType));
-                                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                                String resultCode = jo.getString("resultCode");
+                                if ("SUCCESS".equals(resultCode)) {
                                     doubleEndTime = System.currentTimeMillis() + 1000 * 60 * 5;
                                     Log.forest("使用道具🎭[" + propName + "]");
+                                    Status.DoubleToday();
+                                } else if ("DOUBLE_CLICK_IN_USE".equals(resultCode)) {
+                                    doubleEndTime = System.currentTimeMillis() + 1000 * 60 * 5;
+                                    Log.forest("已使用道具🎭[" + propName + "]");
                                     Status.DoubleToday();
                                 } else {
                                     Log.record(jo.getString("resultDesc"));
