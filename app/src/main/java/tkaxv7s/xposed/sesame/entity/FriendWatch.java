@@ -50,12 +50,12 @@ public class FriendWatch extends IdAndName {
             } else {
                 joFriendWatch = new JSONObject(strFriendWatch);
             }
-            for (String id : UserIdMap.getFriendIds()) {
+            for (String id : UserIdMap.getUserIdSet()) {
                 JSONObject friend = joFriendWatch.optJSONObject(id);
                 if (friend == null) {
                     friend = new JSONObject();
                 }
-                String name = UserIdMap.getNameById(id);
+                String name = UserIdMap.getShowName(id);
                 FriendWatch friendWatch = new FriendWatch(id, name);
                 friendWatch.startTime = friend.optString("startTime", "无");
                 friendWatch.weekGet = friend.optInt("weekGet", 0);

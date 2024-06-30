@@ -10,7 +10,7 @@ import tkaxv7s.xposed.sesame.entity.AreaCode;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
-import tkaxv7s.xposed.sesame.util.Statistics;
+import tkaxv7s.xposed.sesame.util.Status;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -64,7 +64,7 @@ public class AncientTree extends ModelTask {
     private static void ancientTree(Collection<String> ancientTreeCityCodeList) {
         try {
             for (String cityCode : ancientTreeCityCodeList) {
-                if (!Statistics.canAncientTreeToday(cityCode))
+                if (!Status.canAncientTreeToday(cityCode))
                     continue;
                 ancientTreeProtect(cityCode);
                 Thread.sleep(1000L);
@@ -94,7 +94,7 @@ public class AncientTree extends ModelTask {
                     districtDetail(districtCode);
                     Thread.sleep(1000L);
                 }
-                Statistics.ancientTreeToday(cityCode);
+                Status.ancientTreeToday(cityCode);
             }
         } catch (Throwable th) {
             Log.i(TAG, "ancientTreeProtect err:");

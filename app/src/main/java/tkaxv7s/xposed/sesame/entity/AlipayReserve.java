@@ -1,11 +1,11 @@
 package tkaxv7s.xposed.sesame.entity;
 
+import tkaxv7s.xposed.sesame.util.ReserveIdMap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import tkaxv7s.xposed.sesame.util.ReserveIdMap;
 
 public class AlipayReserve extends IdAndName {
     private static List<AlipayReserve> list;
@@ -16,9 +16,9 @@ public class AlipayReserve extends IdAndName {
     }
 
     public static List<AlipayReserve> getList() {
-        if (list == null || ReserveIdMap.shouldReload) {
+        if (list == null) {
             list = new ArrayList<>();
-            Set<Map.Entry<String, String>> idSet = ReserveIdMap.getIdMap().entrySet();
+            Set<Map.Entry<String, String>> idSet = ReserveIdMap.getMap().entrySet();
             for (Map.Entry<String, String> entry : idSet) {
                 list.add(new AlipayReserve(entry.getKey(), entry.getValue()));
             }

@@ -2,12 +2,11 @@ package tkaxv7s.xposed.sesame.data;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.util.FileUtil;
+import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 import java.util.Objects;
-
-import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
-import tkaxv7s.xposed.sesame.util.Log;
 
 /**
  * @author Constanline
@@ -37,7 +36,7 @@ public class RuntimeInfo {
 
     private RuntimeInfo() {
         userId = UserIdMap.getCurrentUid();
-        String content = FileUtil.readFromFile(FileUtil.runtimeInfoFile());
+        String content = FileUtil.readFromFile(FileUtil.runtimeInfoFile(userId));
         try {
             joAll = new JSONObject(content);
         } catch (Exception ignored) {
@@ -57,7 +56,7 @@ public class RuntimeInfo {
     }
 
     public void save() {
-        FileUtil.write2File(joAll.toString(), FileUtil.runtimeInfoFile());
+        FileUtil.write2File(joAll.toString(), FileUtil.runtimeInfoFile(userId));
     }
 
     public Object get(RuntimeInfoKey key) throws JSONException {

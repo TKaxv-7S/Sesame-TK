@@ -20,7 +20,7 @@ public class SettingsActivity extends BaseActivity {
     private Context context;
     private TabHost tabHost;
     private ScrollView svTabs;
-    private String currentUid;
+    private String userId;
     //private GestureDetector gestureDetector;
 
     @Override
@@ -32,15 +32,24 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        currentUid = null;
+        userId = null;
+        String userName = null;
         Intent intent = getIntent();
         if (intent != null) {
-            currentUid = intent.getStringExtra("currentUid");
+            userId = intent.getStringExtra("userId");
+            userName = intent.getStringExtra("userName");
         }
-        UserIdMap.setCurrentUid(currentUid, false);
+        UserIdMap.setCurrentUid(userId, false);
+        UserIdMap.load(userId);
+        CooperationIdMap.load(userId);
+        ReserveIdMap.load(userId);
+        BeachIdMap.load(userId);
         ConfigV2.load(false);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
+        if (userName != null) {
+            setBaseSubtitle(getString(R.string.settings) + ": " + userName);
+        }
         setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
 
         context = this;
@@ -99,11 +108,6 @@ public class SettingsActivity extends BaseActivity {
                 return true;
             }
         });*/
-
-        UserIdMap.shouldReload = true;
-        CooperationIdMap.shouldReload = true;
-        ReserveIdMap.shouldReload = true;
-        BeachIdMap.shouldReload = true;
     }
 
     @Override
@@ -117,10 +121,10 @@ public class SettingsActivity extends BaseActivity {
                 Log.printStackTrace(th);
             }
         }
-        UserIdMap.saveIdMap();
-        CooperationIdMap.saveIdMap();
-        ReserveIdMap.saveIdMap();
-        BeachIdMap.saveIdMap();
+        UserIdMap.save(userId);
+        CooperationIdMap.save(userId);
+        ReserveIdMap.save(userId);
+        BeachIdMap.save(userId);
         finish();
     }
 

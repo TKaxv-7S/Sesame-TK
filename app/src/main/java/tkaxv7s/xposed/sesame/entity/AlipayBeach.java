@@ -1,11 +1,10 @@
 package tkaxv7s.xposed.sesame.entity;
 
+import tkaxv7s.xposed.sesame.util.BeachIdMap;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import tkaxv7s.xposed.sesame.util.BeachIdMap;
 
 public class AlipayBeach extends IdAndName {
     private static List<AlipayBeach> list;
@@ -16,10 +15,9 @@ public class AlipayBeach extends IdAndName {
     }
 
     public static List<AlipayBeach> getList() {
-        if (list == null || BeachIdMap.shouldReload) {
+        if (list == null) {
             list = new ArrayList<>();
-            Set<Map.Entry<String, String>> idSet = BeachIdMap.getIdMap().entrySet();
-            for (Map.Entry<String, String> entry : idSet) {
+            for (Map.Entry<String, String> entry : BeachIdMap.getMap().entrySet()) {
                 list.add(new AlipayBeach(entry.getKey(), entry.getValue()));
             }
         }

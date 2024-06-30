@@ -173,7 +173,7 @@ public class AntStall extends ModelTask {
                 s = AntStallRpcCall.shopSendBack(seatId);
                 jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    Log.farm("蚂蚁新村⛪请走[" + UserIdMap.getNameById(shopUserId) + "]的小摊"
+                    Log.farm("蚂蚁新村⛪请走[" + UserIdMap.getMaskName(shopUserId) + "]的小摊"
                             + (amount > 0 ? "获得金币" + amount : ""));
                 } else {
                     Log.record("sendBack err:" + " " + s);
@@ -204,7 +204,7 @@ public class AntStall extends ModelTask {
                         s = AntStallRpcCall.oneKeyInviteOpenShop(friendUserId, seatId);
                         jo = new JSONObject(s);
                         if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                            Log.farm("蚂蚁新村⛪邀请[" + UserIdMap.getNameById(friendUserId) + "]开店成功");
+                            Log.farm("蚂蚁新村⛪邀请[" + UserIdMap.getMaskName(friendUserId) + "]开店成功");
                             return;
                         }
                     }
@@ -366,7 +366,7 @@ public class AntStall extends ModelTask {
         try {
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                Log.farm("蚂蚁新村⛪在[" + UserIdMap.getNameById(userId) + "]家摆摊");
+                Log.farm("蚂蚁新村⛪在[" + UserIdMap.getMaskName(userId) + "]家摆摊");
                 shopIds.poll();
             }
         } catch (Throwable t) {
@@ -415,7 +415,7 @@ public class AntStall extends ModelTask {
                 s = AntStallRpcCall.shopClose(shopId);
                 jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    Log.farm("蚂蚁新村⛪收取在[" + UserIdMap.getNameById(userId) + "]的摊位获得" + income.getString("amount"));
+                    Log.farm("蚂蚁新村⛪收取在[" + UserIdMap.getMaskName(userId) + "]的摊位获得" + income.getString("amount"));
                 } else {
                     Log.record("shopClose err:" + " " + s);
                 }
@@ -607,7 +607,7 @@ public class AntStall extends ModelTask {
                 }
                 jo = new JSONObject(AntStallRpcCall.friendInviteRegister(userId));
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    Log.farm("蚂蚁新村⛪邀请好友[" + UserIdMap.getNameById(userId) + "]#开通新村");
+                    Log.farm("蚂蚁新村⛪邀请好友[" + UserIdMap.getMaskName(userId) + "]#开通新村");
                     return true;
                 } else {
                     Log.record("friendInviteRegister err:" + " " + jo);
@@ -627,7 +627,7 @@ public class AntStall extends ModelTask {
             if (jo.getBoolean("success")) {
                 String shareId = jo.getString("shareId");
                 /* 保存shareId到Statistics */
-                Statistics.stallShareIdToday(UserIdMap.getCurrentUid(), shareId);
+                Status.stallShareIdToday(UserIdMap.getCurrentUid(), shareId);
                 Log.record("蚂蚁新村⛪[分享助力]");
             } else {
                 Log.record("shareP2P err:" + " " + s);
@@ -643,7 +643,7 @@ public class AntStall extends ModelTask {
      */
     private void assistFriend() {
         try {
-            if (Statistics.canAntStallAssistFriendToday()) {
+            if (Status.canAntStallAssistFriendToday()) {
                 return;
             }
             Map<String, Integer> friendList = assistFriendList.getValue().getKey();
@@ -652,7 +652,7 @@ public class AntStall extends ModelTask {
                 String str = AntStallRpcCall.achieveBeShareP2P(shareId);
                 JSONObject jsonObject = new JSONObject(str);
                 Thread.sleep(5000);
-                String name = UserIdMap.getNameById(uid);
+                String name = UserIdMap.getMaskName(uid);
                 if (!jsonObject.getBoolean("success")) {
                     String code = jsonObject.getString("code");
                     if ("600000028".equals(code)) {
@@ -661,7 +661,7 @@ public class AntStall extends ModelTask {
                     }
                     if ("600000027".equals(code)) {
                         Log.record("新村助力💪今日助力他人次数上限");
-                        Statistics.antStallAssistFriendToday();
+                        Status.antStallAssistFriendToday();
                         return;
                     }
                     //600000010 人传人邀请关系不存在
@@ -674,7 +674,7 @@ public class AntStall extends ModelTask {
                 Log.farm("新村助力🎉成功[" + name + "]");
             }
             //暂时一天只做一次
-            Statistics.antStallAssistFriendToday();
+            Status.antStallAssistFriendToday();
         } catch (Throwable t) {
             Log.i(TAG, "assistFriend err:");
             Log.printStackTrace(TAG, t);
@@ -683,25 +683,25 @@ public class AntStall extends ModelTask {
 
     private static void achieveBeShareP2P() {
         try {
-            if (!Statistics.canStallHelpToday(UserIdMap.getCurrentUid()))
+            if (!Status.canStallHelpToday(UserIdMap.getCurrentUid()))
                 return;
-            List<String> UserIdList = Statistics.stallP2PUserIdList(UserIdMap.getCurrentUid());
+            List<String> UserIdList = Status.stallP2PUserIdList(UserIdMap.getCurrentUid());
             for (String uid : UserIdList) {
-                if (Statistics.canStallBeHelpToday(uid)) {
-                    String shareId = Statistics.getStallShareId(uid);
-                    if (shareId != null && Statistics.canStallP2PHelpToday(uid)) {
+                if (Status.canStallBeHelpToday(uid)) {
+                    String shareId = Status.getStallShareId(uid);
+                    if (shareId != null && Status.canStallP2PHelpToday(uid)) {
                         String s = AntStallRpcCall.achieveBeShareP2P(shareId);
                         JSONObject jo = new JSONObject(s);
                         if (jo.getBoolean("success")) {
-                            Log.farm("新村助力🎈[" + UserIdMap.getNameById(uid) + "]");
-                            Statistics.stallHelpToday(UserIdMap.getCurrentUid(), false);
-                            Statistics.stallBeHelpToday(uid, false);
-                            Statistics.stallP2PHelpeToday(uid);
+                            Log.farm("新村助力🎈[" + UserIdMap.getMaskName(uid) + "]");
+                            Status.stallHelpToday(UserIdMap.getCurrentUid(), false);
+                            Status.stallBeHelpToday(uid, false);
+                            Status.stallP2PHelpeToday(uid);
                         } else if ("600000028".equals(jo.getString("code"))) {
-                            Statistics.stallBeHelpToday(uid, true);
+                            Status.stallBeHelpToday(uid, true);
                             Log.record("被助力次数上限:" + " " + uid);
                         } else if ("600000027".equals(jo.getString("code"))) {
-                            Statistics.stallHelpToday(UserIdMap.getCurrentUid(), true);
+                            Status.stallHelpToday(UserIdMap.getCurrentUid(), true);
                             Log.record("助力他人次数上限:" + " " + UserIdMap.getCurrentUid());
                         } else {
                             Log.record("achieveBeShareP2P err:" + " " + s);
@@ -885,7 +885,7 @@ public class AntStall extends ModelTask {
      */
     private static void pasteTicket() {
         try {
-            if (Statistics.canPasteTicketTime()) {
+            if (Status.canPasteTicketTime()) {
                 return;
             }
             while (true) {
@@ -898,7 +898,7 @@ public class AntStall extends ModelTask {
                     }
                     if (jsonObject.getInt("canPasteTicketCount") == 0) {
                         Log.farm("蚂蚁新村👍[今日罚单已贴完]");
-                        Statistics.pasteTicketTime();
+                        Status.pasteTicketTime();
                         return;
                     }
                     String friendId = jsonObject.optString("friendUserId");
@@ -939,7 +939,7 @@ public class AntStall extends ModelTask {
                                 Log.i(TAG, "pasteTicket.ticket err:" + jo.optString("resultDesc"));
                                 return;
                             }
-                            Log.farm("蚂蚁新村🚫在[" + UserIdMap.getNameById(friendId) + "]贴罚单");
+                            Log.farm("蚂蚁新村🚫在[" + UserIdMap.getMaskName(friendId) + "]贴罚单");
                         } finally {
                             try {
                                 Thread.sleep(1000);

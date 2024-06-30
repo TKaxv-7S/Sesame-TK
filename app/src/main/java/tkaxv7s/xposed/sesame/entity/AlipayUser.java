@@ -3,7 +3,6 @@ package tkaxv7s.xposed.sesame.entity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
@@ -16,11 +15,11 @@ public class AlipayUser extends IdAndName {
     }
 
     public static List<AlipayUser> getList() {
-        if (list == null || UserIdMap.shouldReload) {
+        if (list == null) {
             list = new ArrayList<>();
-            Set<Map.Entry<String, String>> idSet = UserIdMap.getIdMap().entrySet();
-            for (Map.Entry<String, String> entry : idSet) {
-                list.add(new AlipayUser(entry.getKey(), entry.getValue()));
+            Map<String, UserEntity> userIdMap = UserIdMap.getUserMap();
+            for (Map.Entry<String, UserEntity> entry : userIdMap.entrySet()) {
+                list.add(new AlipayUser(entry.getKey(), entry.getValue().getShowName()));
             }
         }
         return list;

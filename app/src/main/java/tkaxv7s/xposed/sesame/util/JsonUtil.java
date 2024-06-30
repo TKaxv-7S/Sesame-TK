@@ -36,6 +36,14 @@ public class JsonUtil {
         MAPPER.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
     }
 
+    public static String toNoFormatJsonString(Object object) {
+        try {
+            return MAPPER.writeValueAsString(object);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String toJsonString(Object object) {
         try {
             return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);

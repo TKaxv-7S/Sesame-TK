@@ -3,10 +3,15 @@ package tkaxv7s.xposed.sesame.hook;
 import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONException;
 import org.json.JSONObject;
-import tkaxv7s.xposed.sesame.util.*;
+import tkaxv7s.xposed.sesame.entity.UserEntity;
+import tkaxv7s.xposed.sesame.util.FileUtil;
+import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.TimeUtil;
+import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 
 public class FriendManager {
     private static final String TAG = FriendManager.class.getSimpleName();
@@ -24,34 +29,44 @@ public class FriendManager {
                     return;
                 }
                 try {
+                    UserIdMap.clear();
+                    String selfId = ApplicationHook.getUserId();
                     Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
                     Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
                     Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
                     List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
-                    for (Object friend : allFriends) {
+                    UserEntity selfEntity = null;
+                    for (Object userObject : allFriends) {
                         try {
-                            String userId = (String) XposedHelpers.findField(friend.getClass(), "userId").get(friend);
-                            String account = (String) XposedHelpers.findField(friend.getClass(), "account").get(friend);
-                            String name = (String) XposedHelpers.findField(friend.getClass(), "name").get(friend);
-                            String nickName = (String) XposedHelpers.findField(friend.getClass(), "nickName").get(friend);
-                            String remarkName = (String) XposedHelpers.findField(friend.getClass(), "remarkName").get(friend);
-                            if (StringUtil.isEmpty(remarkName)) {
-                                remarkName = nickName;
+                            Class<?> friendClass = userObject.getClass();
+                            String userId = (String) XposedHelpers.findField(friendClass, "userId").get(userObject);
+                            String account = (String) XposedHelpers.findField(friendClass, "account").get(userObject);
+                            String name = (String) XposedHelpers.findField(friendClass, "name").get(userObject);
+                            String nickName = (String) XposedHelpers.findField(friendClass, "nickName").get(userObject);
+                            String remarkName = (String) XposedHelpers.findField(friendClass, "remarkName").get(userObject);
+                            boolean isSelf = Objects.equals(selfId, userId);
+                            UserEntity userEntity = new UserEntity(userId, account, name, nickName, remarkName, isSelf);
+                            if (isSelf) {
+                                selfEntity = userEntity;
                             }
-                            remarkName += "|" + name;
-                            UserIdMap.putIdMap(userId, remarkName + "(" + account + ")");
+                            UserIdMap.addUser(userEntity);
                         } catch (Throwable t) {
-                            Log.i(TAG, "checkUnknownId.for err:");
+                            Log.i(TAG, "addUserObject err:");
                             Log.printStackTrace(TAG, t);
                         }
                     }
-                    UserIdMap.saveIdMap();
+                    UserIdMap.saveSelf(selfEntity);
+                    UserIdMap.save(selfId);
                 } catch (Throwable t) {
                     Log.i(TAG, "checkUnknownId.run err:");
                     Log.printStackTrace(TAG, t);
                 }
             }
         }.start();
+    }
+
+    public static UserEntity addUserObject(Object userObject, Boolean isMaskAccount) {
+        return null;
     }
 
     public static boolean needUpdateAll(long last) {
@@ -96,7 +111,7 @@ public class FriendManager {
         JSONObject joSingle = joFriendWatch.optJSONObject(id);
         if (joSingle == null) {
             joSingle = new JSONObject();
-            joSingle.put("name", UserIdMap.getNameById(id));
+            joSingle.put("name", UserIdMap.getMaskName(id));
             joSingle.put("allGet", 0);
             joSingle.put("startTime", TimeUtil.getDateStr());
             joFriendWatch.put(id, joSingle);
@@ -109,14 +124,13 @@ public class FriendManager {
         JSONObject joSingle;
         try {
             String dateStr = TimeUtil.getDateStr();
-            List<String> friendIds = UserIdMap.getFriendIds();
-            for (String id : friendIds) {
+            for (String id : UserIdMap.getUserIdSet()) {
                 if (joFriendWatch.has(id)) {
                     joSingle = joFriendWatch.getJSONObject(id);
                 } else {
                     joSingle = new JSONObject();
                 }
-                joSingle.put("name", UserIdMap.getNameById(id));
+                joSingle.put("name", UserIdMap.getMaskName(id));
                 joSingle.put("allGet", joSingle.optInt("allGet", 0) + joSingle.optInt("weekGet", 0));
                 joSingle.put("weekGet", 0);
                 if (!joSingle.has("startTime")) {

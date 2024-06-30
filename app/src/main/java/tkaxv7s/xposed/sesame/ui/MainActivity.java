@@ -25,8 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends BaseActivity {
 
@@ -144,25 +143,16 @@ public class MainActivity extends BaseActivity {
                 List<String> userIdList = new ArrayList<>();
                 File[] configFiles = FileUtil.CONFIG_DIRECTORY_FILE.listFiles();
                 if (configFiles != null) {
-                    Pattern pattern = Pattern.compile("config_v2-(.*).json");
-                    for (File configFile : configFiles) {
-                        Matcher beforeMatcher = pattern.matcher(configFile.getName());
-                        if (beforeMatcher.find()) {
-                            String userId = beforeMatcher.group(1);
-                            String userName = UserIdMap.getNameById(userId);
-                            if (userName == null || userName.isEmpty()) {
-                                userNameList.add(userId);
-                                userIdList.add(userId);
-                            } else {
-                                int length = userId.length();
-                                if (length > 6) {
-                                    String prefix = userId.substring(0, 3);
-                                    String suffix = userId.substring(length - 4);
-                                    userName += "-" + prefix + "***" + suffix;
-                                }
-                                userNameList.add(userName);
-                                userIdList.add(userId);
+                    for (File configDir : configFiles) {
+                        if (configDir.isDirectory()) {
+                            String userId = configDir.getName();
+                            UserIdMap.loadSelf(userId);
+                            String userName = UserIdMap.getShowName(userId);
+                            if (userName == null) {
+                                userName = userId;
                             }
+                            userNameList.add(userName);
+                            userIdList.add(userId);
                         }
                     }
                 }
@@ -171,8 +161,8 @@ public class MainActivity extends BaseActivity {
                 userNameArray = userNameList.toArray(new String[0]);
                 userIdArray = userIdList.toArray(new String[0]);
             } catch (Exception e) {
-                userNameArray = new String[]{};
-                userIdArray = new String[]{};
+                userNameArray = new String[]{"默认"};
+                userIdArray = new String[]{null};
                 Log.printStackTrace(e);
             }
             try {
@@ -314,20 +304,36 @@ public class MainActivity extends BaseActivity {
     }
 
     private void selectSettingUid() {
+        AtomicBoolean selected = new AtomicBoolean(false);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("请选择用户配置");
+        builder.setTitle("请选择配置");
         builder.setItems(userNameArray, (dialog, which) -> {
+            selected.set(true);
             dialog.dismiss();
-            goSettingActivity(userIdArray[which]);
+            goSettingActivity(which);
         });
+        builder.setOnDismissListener(dialog -> selected.set(true));
         builder.setPositiveButton("返回", (dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        int length = userNameArray.length;
+        if (length > 0 && length < 3) {
+            new Thread(()-> {
+                TimeUtil.sleep(800);
+                if (!selected.get()) {
+                    alertDialog.dismiss();
+                    goSettingActivity(length - 1);
+                }
+            }).start();
+        }
     }
 
-    private void goSettingActivity(String currentUid) {
+    private void goSettingActivity(int index) {
+        String userId = userIdArray[index];
+        String userName = userNameArray[index];
         Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra("currentUid", currentUid);
+        intent.putExtra("userId", userId);
+        intent.putExtra("userName", userName);
         startActivity(intent);
     }
 

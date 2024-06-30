@@ -132,7 +132,7 @@ public class AntOcean extends ModelTask {
                                 JSONObject retBubble = retBubbles.optJSONObject(j);
                                 if (retBubble != null) {
                                     int collectedEnergy = retBubble.getInt("collectedEnergy");
-                                    Log.forest("神奇海洋🐳收取[" + UserIdMap.getNameById(userId) + "]的海洋能量#"
+                                    Log.forest("神奇海洋🐳收取[" + UserIdMap.getMaskName(userId) + "]的海洋能量#"
                                             + collectedEnergy + "g");
                                 }
                             }
@@ -536,7 +536,7 @@ public class AntOcean extends ModelTask {
                     int energy = jo.getInt("energy");
                     JSONObject projectConfig = jo.getJSONObject("projectConfigVO");
                     String projectCode = projectConfig.getString("code");
-                    BeachIdMap.putIdMap(templateCode, cultivationName + "(" + energy + "g)");
+                    BeachIdMap.add(templateCode, cultivationName + "(" + energy + "g)");
                     Map<String, Integer> map = protectOceanList.getValue().getKey();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), templateCode)) {
@@ -555,7 +555,7 @@ public class AntOcean extends ModelTask {
             Log.i(TAG, "protectBeach err:");
             Log.printStackTrace(TAG, t);
         }
-        BeachIdMap.saveIdMap();
+        BeachIdMap.save(UserIdMap.getCurrentUid());
     }
 
     private static void oceanExchangeTree(String cultivationCode, String projectCode, String itemName, int count) {
