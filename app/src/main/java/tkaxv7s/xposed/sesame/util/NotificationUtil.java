@@ -117,7 +117,7 @@ public class NotificationUtil {
                 if (ApplicationHook.isOffline() || RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System.currentTimeMillis()) {
                     return;
                 }
-                updateStatusText("空闲");
+                updateStatusText("");
             } else {
                 ApplicationHook.getMainHandler().postDelayed(NotificationUtil::setStatusTextIdle, 15_000);
             }
@@ -133,7 +133,7 @@ public class NotificationUtil {
     private static void sendText() {
         try {
             Notification.BigTextStyle style = new Notification.BigTextStyle();
-            style.bigText(statusText + "，" + nextExecText + (StringUtil.isEmpty(lastExecText) ? "" : "\n" + lastExecText));
+            style.bigText((StringUtil.isEmpty(statusText) ? "" : statusText + "，") + nextExecText + (StringUtil.isEmpty(lastExecText) ? "" : "\n" + lastExecText));
 //          Notification.InboxStyle style = new Notification.InboxStyle();
 //          style.addLine(preContent);
 //          style.addLine(contentText);
