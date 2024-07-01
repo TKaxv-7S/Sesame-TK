@@ -414,6 +414,11 @@ public class AntFarmRpcCall {
                         + taskId + "\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
     }
 
+    public static String hireAnimal(String farmId, String animalId) {
+        return ApplicationHook.requestString("com.alipay.antfarm.hireAnimal",
+                "[{\"friendFarmId\":\"" + farmId + "\",\"hireActionType\":\"HIRE_IN_FRIEND_FARM\",\"hireAnimalId\":\"" + animalId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"sendCardChat\":false,\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+    }
+
     public static String DrawPrize() {
         return ApplicationHook.requestString("com.alipay.antfarm.DrawPrize",
                 "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\"}]");
@@ -426,6 +431,6 @@ public class AntFarmRpcCall {
 
     public static String queryGameList() {
         return ApplicationHook.requestString("com.alipay.antfarm.queryGameList",
-            "[{\"commonDegradeResult\":{\"deviceLevel\":\"high\",\"resultReason\":0,\"resultType\":0},\"platform\":\"Android\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+                "[{\"commonDegradeResult\":{\"deviceLevel\":\"high\",\"resultReason\":0,\"resultType\":0},\"platform\":\"Android\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
     }
 }
