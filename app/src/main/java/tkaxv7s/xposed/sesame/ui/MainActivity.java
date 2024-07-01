@@ -344,6 +344,8 @@ public class MainActivity extends BaseActivity {
         if (userEntity != null) {
             intent.putExtra("userId", userEntity.getUserId());
             intent.putExtra("userName", userEntity.getShowName());
+        } else {
+            intent.putExtra("userName", userNameArray[index]);
         }
         startActivity(intent);
     }
