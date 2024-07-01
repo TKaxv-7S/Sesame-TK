@@ -17,6 +17,8 @@ public class UserEntity {
 
     private final String remarkName;
 
+    private final String showName;
+
     private final String maskName;
 
     private final String fullName;
@@ -53,6 +55,7 @@ public class UserEntity {
                 account = prefix + "***" + suffix;
             }
         }*/
+        this.showName = showNameTmp;
         this.maskName = showNameTmp + "|" + maskNameTmp;
         this.fullName = showNameTmp + "|" + realName + "(" + account + ")";
     }

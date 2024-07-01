@@ -18,6 +18,7 @@ import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.RunType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
+import tkaxv7s.xposed.sesame.entity.UserEntity;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.*;
 
@@ -45,7 +46,7 @@ public class MainActivity extends BaseActivity {
 
     private String[] userNameArray = {"默认"};
 
-    private String[] userIdArray = {null};
+    private UserEntity[] userEntityArray = {null};
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
@@ -146,29 +147,32 @@ public class MainActivity extends BaseActivity {
             }
             try {
                 List<String> userNameList = new ArrayList<>();
-                List<String> userIdList = new ArrayList<>();
+                List<UserEntity> userEntityList = new ArrayList<>();
                 File[] configFiles = FileUtil.CONFIG_DIRECTORY_FILE.listFiles();
                 if (configFiles != null) {
                     for (File configDir : configFiles) {
                         if (configDir.isDirectory()) {
                             String userId = configDir.getName();
                             UserIdMap.loadSelf(userId);
-                            String userName = UserIdMap.getFullName(userId);
-                            if (userName == null) {
+                            UserEntity userEntity = UserIdMap.get(userId);
+                            String userName;
+                            if (userEntity == null) {
                                 userName = userId;
+                            } else {
+                                userName = userEntity.getShowName() + ": " + userEntity.getAccount();
                             }
                             userNameList.add(userName);
-                            userIdList.add(userId);
+                            userEntityList.add(userEntity);
                         }
                     }
                 }
                 userNameList.add(0, "默认");
-                userIdList.add(0, null);
+                userEntityList.add(0, null);
                 userNameArray = userNameList.toArray(new String[0]);
-                userIdArray = userIdList.toArray(new String[0]);
+                userEntityArray = userEntityList.toArray(new UserEntity[0]);
             } catch (Exception e) {
                 userNameArray = new String[]{"默认"};
-                userIdArray = new String[]{null};
+                userEntityArray = new UserEntity[]{null};
                 Log.printStackTrace(e);
             }
             try {
@@ -335,11 +339,10 @@ public class MainActivity extends BaseActivity {
     }
 
     private void goSettingActivity(int index) {
-        String userId = userIdArray[index];
-        String userName = userNameArray[index];
+        UserEntity userEntity = userEntityArray[index];
         Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra("userId", userId);
-        intent.putExtra("userName", userName);
+        intent.putExtra("userId", userEntity.getUserId());
+        intent.putExtra("userName", userEntity.getShowName());
         startActivity(intent);
     }
 

@@ -10,9 +10,6 @@ import java.util.Date;
  */
 public class TimeUtil {
 
-    public static final DateFormat DATE_FORMAT = DateFormat.getDateInstance();
-    public static final DateFormat TIME_FORMAT = DateFormat.getTimeInstance();
-
     public static Boolean checkNowInTimeRange(String timeRange) {
         return checkInTimeRange(System.currentTimeMillis(), timeRange);
     }
@@ -134,7 +131,7 @@ public class TimeUtil {
     }
 
     public static String getTimeStr(long ts) {
-        return TIME_FORMAT.format(new java.util.Date(ts));
+        return DateFormat.getTimeInstance().format(new java.util.Date(ts));
     }
 
     public static String getDateStr() {
@@ -146,7 +143,7 @@ public class TimeUtil {
         if (plusDay != 0) {
             c.add(Calendar.DATE, plusDay);
         }
-        return DATE_FORMAT.format(c.getTime());
+        return DateFormat.getDateInstance().format(c.getTime());
     }
 
     public static Calendar getToday() {

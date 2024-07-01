@@ -8,7 +8,9 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayReserve;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
-import tkaxv7s.xposed.sesame.util.*;
+import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.RandomUtil;
+import tkaxv7s.xposed.sesame.util.Status;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,16 +62,17 @@ public class Reserve extends ModelTask {
                 JSONArray ja = jo.getJSONArray("treeItems");
                 for (int i = 0; i < ja.length(); i++) {
                     jo = ja.getJSONObject(i);
-                    if (!jo.has("projectType"))
+                    if (!jo.has("projectType")) {
                         continue;
-                    if (!"RESERVE".equals(jo.getString("projectType")))
+                    }
+                    if (!"RESERVE".equals(jo.getString("projectType"))) {
                         continue;
-                    if (!"AVAILABLE".equals(jo.getString("applyAction")))
+                    }
+                    if (!"AVAILABLE".equals(jo.getString("applyAction"))) {
                         continue;
+                    }
                     String projectId = jo.getString("itemId");
                     String itemName = jo.getString("itemName");
-                    int energy = jo.getInt("energy");
-                    ReserveIdMap.add(projectId, itemName + "(" + energy + "g)");
                     Map<String, Integer> map = reserveList.getValue().getKey();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), projectId)) {
@@ -88,7 +91,6 @@ public class Reserve extends ModelTask {
             Log.i(TAG, "animalReserve err:");
             Log.printStackTrace(TAG, t);
         }
-        ReserveIdMap.save(UserIdMap.getCurrentUid());
     }
 
     private static boolean queryTreeForExchange(String projectId) {

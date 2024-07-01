@@ -2,10 +2,10 @@ package tkaxv7s.xposed.sesame.rpc;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -102,7 +102,7 @@ public class OldRpcBridge implements RpcBridge {
                         if (msg.contains("登录超时")) {
                             if (!ApplicationHook.isOffline()) {
                                 ApplicationHook.setOffline(true);
-                                NotificationUtil.setContentText("登录超时");
+                                NotificationUtil.updateStatusText("登录超时");
                                 if (BaseModel.getTimeoutRestart().getValue()) {
                                     Log.record("尝试重新登录");
                                     ApplicationHook.reLoginByBroadcast();
@@ -112,7 +112,7 @@ public class OldRpcBridge implements RpcBridge {
                             if (BaseModel.getWaitWhenException().getValue() > 0) {
                                 long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
                                 RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                                NotificationUtil.setContentText("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                NotificationUtil.updateStatusText("异常");
                                 Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                             }
                             if (retryInterval < 0) {
@@ -162,7 +162,7 @@ public class OldRpcBridge implements RpcBridge {
                 JSONObject resultObject = new JSONObject(resultStr);
                 if (resultObject.optString("memo", "").contains("系统繁忙")) {
                     ApplicationHook.setOffline(true);
-                    NotificationUtil.setContentText("系统繁忙，可能需要滑动验证");
+                    NotificationUtil.updateStatusText("系统繁忙，可能需要滑动验证");
                     Log.record("系统繁忙，可能需要滑动验证");
                     return null;
                 }

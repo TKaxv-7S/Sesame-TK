@@ -381,8 +381,8 @@ public class AntStall extends ModelTask {
         while (seats.size() > idx && !shopIds.isEmpty()) {
             Seat seat = seats.get(idx);
             String userId = seat.userId;
-            String s = AntStallRpcCall.friendHome(userId, "ANTFARM");
             try {
+                String s = AntStallRpcCall.friendHome(userId);
                 JSONObject jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.optString("resultCode"))) {
                     JSONObject seatsMap = jo.getJSONObject("seatsMap");
@@ -396,11 +396,13 @@ public class AntStall extends ModelTask {
                         }
                     }
                 } else {
-                    Log.record("friendHomeOpen err:" + " " + s);
+                    Log.record("新村摆摊失败: " + s);
+                    return;
                 }
             } catch (Throwable t) {
-                Log.i(TAG, "friendHomeOpen err:");
                 Log.printStackTrace(TAG, t);
+            } finally {
+                TimeUtil.sleep(1000);
             }
             idx++;
         }
@@ -905,7 +907,7 @@ public class AntStall extends ModelTask {
                     if (friendId.isEmpty()) {
                         return;
                     }
-                    str = AntStallRpcCall.friendHome(friendId, "ch_appcenter__chsub_9patch");
+                    str = AntStallRpcCall.friendHome(friendId);
                     jsonObject = new JSONObject(str);
                     if (!jsonObject.getBoolean("success")) {
                         Log.i(TAG, "pasteTicket.friendHome err:" + jsonObject.optString("resultDesc"));

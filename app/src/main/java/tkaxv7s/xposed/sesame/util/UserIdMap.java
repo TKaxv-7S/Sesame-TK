@@ -32,19 +32,17 @@ public class UserIdMap {
         return userMap.values();
     }
 
-    public synchronized static void setCurrentUid(String uid) {
-        setCurrentUid(uid, true);
+    public synchronized static void initUser(String userId) {
+        setCurrentUserId(userId);
+        FriendManager.fillUser();
     }
 
-    public synchronized static void setCurrentUid(String uid, Boolean isUpdateFriend) {
-        if (uid == null || uid.isEmpty()) {
+    public synchronized static void setCurrentUserId(String userId) {
+        if (userId == null || userId.isEmpty()) {
             currentUid = null;
             return;
         }
-        currentUid = uid;
-        if (isUpdateFriend) {
-            FriendManager.fillUser();
-        }
+        currentUid = userId;
     }
 
     public static String getMaskName(String userId) {
@@ -63,7 +61,11 @@ public class UserIdMap {
         return userEntity.getFullName();
     }
 
-    public synchronized static void addUser(UserEntity userEntity) {
+    public static UserEntity get(String userId) {
+        return userMap.get(userId);
+    }
+
+    public synchronized static void add(UserEntity userEntity) {
         String userId = userEntity.getUserId();
         if (userId == null || userId.isEmpty()) {
             return;
@@ -71,7 +73,7 @@ public class UserIdMap {
         userMap.put(userId, userEntity);
     }
 
-    public synchronized static void removeUser(String userId) {
+    public synchronized static void remove(String userId) {
         userMap.remove(userId);
     }
 

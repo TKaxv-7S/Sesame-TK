@@ -40,11 +40,11 @@ public class SettingsActivity extends BaseActivity {
             userId = intent.getStringExtra("userId");
             userName = intent.getStringExtra("userName");
         }
-        UserIdMap.setCurrentUid(userId, false);
+        UserIdMap.setCurrentUserId(userId);
         UserIdMap.load(userId);
         CooperationIdMap.load(userId);
-        ReserveIdMap.load(userId);
-        BeachIdMap.load(userId);
+        ReserveIdMap.load();
+        BeachIdMap.load();
         ConfigV2.load(userId);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_settings);
@@ -126,8 +126,6 @@ public class SettingsActivity extends BaseActivity {
             if (!StringUtil.isEmpty(userId)) {
                 UserIdMap.save(userId);
                 CooperationIdMap.save(userId);
-                ReserveIdMap.save(userId);
-                BeachIdMap.save(userId);
             }
         }
         finish();

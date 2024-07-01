@@ -1,14 +1,13 @@
 package tkaxv7s.xposed.sesame.entity;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import tkaxv7s.xposed.sesame.util.FileUtil;
-import tkaxv7s.xposed.sesame.util.UserIdMap;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Constanline
@@ -50,12 +49,14 @@ public class FriendWatch extends IdAndName {
             } else {
                 joFriendWatch = new JSONObject(strFriendWatch);
             }
-            for (String id : UserIdMap.getUserIdSet()) {
+            Iterator<String> ids = joFriendWatch.keys();
+            while (ids.hasNext()) {
+                String id = ids.next();
                 JSONObject friend = joFriendWatch.optJSONObject(id);
                 if (friend == null) {
                     friend = new JSONObject();
                 }
-                String name = UserIdMap.getFullName(id);
+                String name = friend.optString("name");
                 FriendWatch friendWatch = new FriendWatch(id, name);
                 friendWatch.startTime = friend.optString("startTime", "无");
                 friendWatch.weekGet = friend.optInt("weekGet", 0);
@@ -74,7 +75,6 @@ public class FriendWatch extends IdAndName {
                 Log.printStackTrace(e);
             }
         }
-
         return list;
     }
 }
