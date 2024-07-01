@@ -301,7 +301,7 @@ public class ListDialog {
                 public void onClick(DialogInterface p1, int p2) {
                     if (p2 == DialogInterface.BUTTON_POSITIVE) {
                         if (curIdAndName instanceof AlipayUser) {
-                            UserIdMap.removeUser(curIdAndName.id);
+                            UserIdMap.remove(curIdAndName.id);
                             AlipayUser.remove(curIdAndName.id);
                         } else if (curIdAndName instanceof CooperateUser) {
                             CooperationIdMap.remove(curIdAndName.id);

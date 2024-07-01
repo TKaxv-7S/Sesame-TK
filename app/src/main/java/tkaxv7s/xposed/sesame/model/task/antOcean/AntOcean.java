@@ -12,7 +12,6 @@ import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestRpcCall;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
-import tkaxv7s.xposed.sesame.util.BeachIdMap;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
@@ -524,19 +523,20 @@ public class AntOcean extends ModelTask {
                 JSONArray ja = jo.getJSONArray("cultivationItemVOList");
                 for (int i = 0; i < ja.length(); i++) {
                     jo = ja.getJSONObject(i);
-                    if (!jo.has("templateSubType"))
+                    if (!jo.has("templateSubType")) {
                         continue;
+                    }
                     if (!"BEACH".equals(jo.getString("templateSubType"))
-                            && !"COOPERATE_SEA_TREE".equals(jo.getString("templateSubType")) && !"SEA_ANIMAL".equals(jo.getString("templateSubType")))
+                            && !"COOPERATE_SEA_TREE".equals(jo.getString("templateSubType")) && !"SEA_ANIMAL".equals(jo.getString("templateSubType"))) {
                         continue;
-                    if (!"AVAILABLE".equals(jo.getString("applyAction")))
+                    }
+                    if (!"AVAILABLE".equals(jo.getString("applyAction"))) {
                         continue;
+                    }
                     String cultivationName = jo.getString("cultivationName");
                     String templateCode = jo.getString("templateCode");
-                    int energy = jo.getInt("energy");
                     JSONObject projectConfig = jo.getJSONObject("projectConfigVO");
                     String projectCode = projectConfig.getString("code");
-                    BeachIdMap.add(templateCode, cultivationName + "(" + energy + "g)");
                     Map<String, Integer> map = protectOceanList.getValue().getKey();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), templateCode)) {
@@ -555,7 +555,6 @@ public class AntOcean extends ModelTask {
             Log.i(TAG, "protectBeach err:");
             Log.printStackTrace(TAG, t);
         }
-        BeachIdMap.save(UserIdMap.getCurrentUid());
     }
 
     private static void oceanExchangeTree(String cultivationCode, String projectCode, String itemName, int count) {

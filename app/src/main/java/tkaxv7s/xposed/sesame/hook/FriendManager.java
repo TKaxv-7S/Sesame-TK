@@ -10,6 +10,7 @@ import tkaxv7s.xposed.sesame.util.TimeUtil;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,7 +49,7 @@ public class FriendManager {
                             if (Objects.equals(selfId, userId)) {
                                 selfEntity = userEntity;
                             }
-                            UserIdMap.addUser(userEntity);
+                            UserIdMap.add(userEntity);
                         } catch (Throwable t) {
                             Log.i(TAG, "addUserObject err:");
                             Log.printStackTrace(TAG, t);
@@ -84,9 +85,6 @@ public class FriendManager {
     private static JSONObject joFriendWatch;
 
     public static void friendWatch(String id, int collectedEnergy) {
-        if (id.equals(UserIdMap.getCurrentUid())) {
-            return;
-        }
         try {
             if (joFriendWatch == null) {
                 String strFriendWatch = FileUtil.readFromFile(FileUtil.getFriendWatchFile());
@@ -123,13 +121,11 @@ public class FriendManager {
         JSONObject joSingle;
         try {
             String dateStr = TimeUtil.getDateStr();
-            for (String id : UserIdMap.getUserIdSet()) {
-                if (joFriendWatch.has(id)) {
-                    joSingle = joFriendWatch.getJSONObject(id);
-                } else {
-                    joSingle = new JSONObject();
-                }
-                joSingle.put("name", UserIdMap.getMaskName(id));
+            Iterator<String> ids = joFriendWatch.keys();
+            while (ids.hasNext()) {
+                String id = ids.next();
+                joSingle = joFriendWatch.getJSONObject(id);
+                joSingle.put("name", joSingle.optString("name"));
                 joSingle.put("allGet", joSingle.optInt("allGet", 0) + joSingle.optInt("weekGet", 0));
                 joSingle.put("weekGet", 0);
                 if (!joSingle.has("startTime")) {

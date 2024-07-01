@@ -39,7 +39,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static final String TAG = ApplicationHook.class.getSimpleName();
 
-    private static final Map<Object, Boolean> rpcHookMap = new ConcurrentHashMap<>();
+    private static final Map<Object, Object[]> rpcHookMap = new ConcurrentHashMap<>();
 
     private static final Map<String, PendingIntent> wakenAtTimeAlarmMap = new ConcurrentHashMap<>();
 
@@ -148,7 +148,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 }
                                 if (!init) {
                                     if (canInit) {
-                                        UserIdMap.setCurrentUid(targetUid);
+                                        UserIdMap.initUser(targetUid);
                                         if (initHandler(true)) {
                                             init = true;
                                         }
@@ -157,7 +157,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 }
                                 String currentUid = UserIdMap.getCurrentUid();
                                 if (!targetUid.equals(currentUid)) {
-                                    UserIdMap.setCurrentUid(targetUid);
+                                    UserIdMap.initUser(targetUid);
                                     if (currentUid != null) {
                                         initHandler(true);
                                         Log.record("用户已切换");
@@ -279,7 +279,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 canInit = true;
                                 String targetUid = getUserId();
                                 if (targetUid != null) {
-                                    UserIdMap.setCurrentUid(targetUid);
+                                    UserIdMap.initUser(targetUid);
                                     if (initHandler(true)) {
                                         init = true;
                                     }
@@ -299,7 +299,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         if (!ClassUtil.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
                             return;
                         }
-                        NotificationUtil.setContentText("支付宝前台服务被销毁");
+                        NotificationUtil.updateStatusText("支付宝前台服务被销毁");
                         destroyHandler(true);
                         Log.record("支付宝前台服务被销毁");
                         restartByBroadcast();
@@ -421,47 +421,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private void updateDay() {
-        Calendar nowCalendar = Calendar.getInstance();
-        int nowYear = nowCalendar.get(Calendar.YEAR);
-        int nowMonth = nowCalendar.get(Calendar.MONTH);
-        int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
-        if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
-            nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
-            nowCalendar.set(Calendar.MINUTE, 0);
-            nowCalendar.set(Calendar.SECOND, 0);
-            dayCalendar = nowCalendar;
-            Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
-            /*try {
-                setWakenAtTimeAlarm();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }*/
-            try {
-                Statistics.INSTANCE.resetByCalendar(nowCalendar);
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
-        }
-    }
-
-    private static void execHandler() {
-        if (context != null) {
-            mainTask.startTask(false);
-        }
-    }
-
-    private static void execDelayedHandler(long delayMillis) {
-        if (context != null) {
-            mainHandler.postDelayed(() -> mainTask.startTask(false), delayMillis);
-            try {
-                NotificationUtil.setNextExecTime(System.currentTimeMillis() + delayMillis);
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
-        }
-    }
-
     @SuppressLint("WakelockTimeout")
     private static Boolean initHandler(Boolean force) {
         if (context == null) {
@@ -510,9 +469,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.printStackTrace(t);
                     }
                 }
-
                 //setWakenAtTimeAlarm();
-
                 if (BaseModel.getNewRpc().getValue() && BaseModel.getDebugMode().getValue()) {
                     try {
                         rpcRequestUnhook = XposedHelpers.findAndHookMethod(
@@ -526,17 +483,22 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         Object[] args = param.args;
                                         Object object = args[15];
-                                        rpcHookMap.put(object, true);
-                                        Log.debug("record request | id: " + object.hashCode() + "  | method: " + args[0] + " | args: " + args[4]);
+                                        Object[] recordArray = new Object[4];
+                                        recordArray[0] = System.currentTimeMillis();
+                                        recordArray[1] = args[0];
+                                        recordArray[2] = args[4];
+                                        rpcHookMap.put(object, recordArray);
                                     }
 
                                     @SuppressLint("WakelockTimeout")
                                     @Override
                                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                                         Object object = param.args[15];
-                                        if (rpcHookMap.containsKey(object)) {
-                                            rpcHookMap.remove(object);
-                                            Log.debug("record request removed id: " + object.hashCode());
+                                        Object[] recordArray = rpcHookMap.remove(object);
+                                        if (recordArray != null) {
+                                            Log.debug("\n时间: " + recordArray[0] + "\n方法: " + recordArray[1] + "\n参数: " + recordArray[2] + "\n数据: " + recordArray[3] + "\n");
+                                        } else {
+                                            Log.debug("删除记录ID: " + object.hashCode());
                                         }
                                     }
 
@@ -557,8 +519,9 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     @Override
                                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                                         Object object = param.thisObject;
-                                        if (Boolean.TRUE.equals(rpcHookMap.remove(object))) {
-                                            Log.debug("record response | id: " + object.hashCode() + " | data: " + param.args[0]);
+                                        Object[] recordArray = rpcHookMap.get(object);
+                                        if (recordArray != null) {
+                                            recordArray[3] = String.valueOf(param.args[0]);
                                         }
                                     }
 
@@ -571,6 +534,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 }
                 Statistics.load();
                 Status.load();
+                BaseModel.initData();
                 NotificationUtil.start(service);
                 Log.record("加载完成");
                 Toast.show("芝麻粒加载成功");
@@ -591,7 +555,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             if (force) {
                 if (context != null) {
                     NotificationUtil.stop(service, false);
-                    mainTask.stopTask();
+                    BaseModel.destroyData();
+                    stopHandler();
                 }
                 if (rpcResponseUnhook != null) {
                     rpcResponseUnhook.unhook();
@@ -614,6 +579,53 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         } catch (Throwable th) {
             Log.i(TAG, "stopHandler err:");
             Log.printStackTrace(TAG, th);
+        }
+    }
+
+    private static void execHandler() {
+        if (context != null) {
+            mainTask.startTask(false);
+        }
+    }
+
+    private static void execDelayedHandler(long delayMillis) {
+        if (context != null) {
+            mainHandler.postDelayed(() -> mainTask.startTask(false), delayMillis);
+            try {
+                NotificationUtil.updateNextExecTime(System.currentTimeMillis() + delayMillis);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    private static void stopHandler() {
+        if (context != null) {
+            mainTask.stopTask();
+        }
+    }
+
+    private void updateDay() {
+        Calendar nowCalendar = Calendar.getInstance();
+        int nowYear = nowCalendar.get(Calendar.YEAR);
+        int nowMonth = nowCalendar.get(Calendar.MONTH);
+        int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
+        if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
+            nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
+            nowCalendar.set(Calendar.MINUTE, 0);
+            nowCalendar.set(Calendar.SECOND, 0);
+            dayCalendar = nowCalendar;
+            Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
+            /*try {
+                setWakenAtTimeAlarm();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }*/
+            try {
+                Statistics.INSTANCE.resetByCalendar(nowCalendar);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
     }
 

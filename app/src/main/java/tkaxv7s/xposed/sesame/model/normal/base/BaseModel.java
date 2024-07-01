@@ -1,12 +1,16 @@
 package tkaxv7s.xposed.sesame.model.normal.base;
 
 import lombok.Getter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.Model;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ListModelField;
-import tkaxv7s.xposed.sesame.util.ListUtil;
+import tkaxv7s.xposed.sesame.model.task.antOcean.AntOceanRpcCall;
+import tkaxv7s.xposed.sesame.model.task.reserve.ReserveRpcCall;
+import tkaxv7s.xposed.sesame.util.*;
 
 /**
  * 基础配置模块
@@ -70,6 +74,86 @@ public class BaseModel extends Model {
         modelFields.addField(showToast);
         modelFields.addField(toastOffsetY);
         return modelFields;
+    }
+
+    public static void initData() {
+        try {
+            initReserve();
+            initBeach();
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+    }
+
+    public static void destroyData() {
+        try {
+            ReserveIdMap.clear();
+            BeachIdMap.clear();
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+    }
+
+    private static void initReserve() {
+        try {
+            String s = ReserveRpcCall.queryTreeItemsForExchange();
+            if (s == null) {
+                Thread.sleep(RandomUtil.delay());
+                s = ReserveRpcCall.queryTreeItemsForExchange();
+            }
+            JSONObject jo = new JSONObject(s);
+            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                JSONArray ja = jo.getJSONArray("treeItems");
+                for (int i = 0; i < ja.length(); i++) {
+                    jo = ja.getJSONObject(i);
+                    if (!jo.has("projectType"))
+                        continue;
+                    if (!"RESERVE".equals(jo.getString("projectType"))) {
+                        continue;
+                    }
+                    if (!"AVAILABLE".equals(jo.getString("applyAction"))) {
+                        continue;
+                    }
+                    ReserveIdMap.add(jo.getString("itemId"), jo.getString("itemName") + "(" + jo.getInt("energy") + "g)");
+                }
+                ReserveIdMap.save();
+            } else {
+                Log.i(jo.getString("resultDesc"));
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(t);
+            ReserveIdMap.load();
+        }
+    }
+
+    private static void initBeach() {
+        try {
+            String s = AntOceanRpcCall.queryCultivationList();
+            JSONObject jo = new JSONObject(s);
+            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                JSONArray ja = jo.getJSONArray("cultivationItemVOList");
+                for (int i = 0; i < ja.length(); i++) {
+                    jo = ja.getJSONObject(i);
+                    if (!jo.has("templateSubType")) {
+                        continue;
+                    }
+                    if (!"BEACH".equals(jo.getString("templateSubType"))
+                            && !"COOPERATE_SEA_TREE".equals(jo.getString("templateSubType")) && !"SEA_ANIMAL".equals(jo.getString("templateSubType"))) {
+                        continue;
+                    }
+                    if (!"AVAILABLE".equals(jo.getString("applyAction"))) {
+                        continue;
+                    }
+                    BeachIdMap.add(jo.getString("templateCode"), jo.getString("cultivationName") + "(" + jo.getInt("energy") + "g)");
+                }
+                BeachIdMap.save();
+            } else {
+                Log.i(jo.getString("resultDesc"));
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(t);
+            BeachIdMap.load();
+        }
     }
 
 }

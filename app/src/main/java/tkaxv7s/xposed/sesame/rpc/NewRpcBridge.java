@@ -153,7 +153,7 @@ public class NewRpcBridge implements RpcBridge {
                     if ("2000".equals(errorCode)) {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
-                            NotificationUtil.setContentText("登录超时");
+                            NotificationUtil.updateStatusText("登录超时");
                             if (BaseModel.getTimeoutRestart().getValue()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();
@@ -261,7 +261,7 @@ public class NewRpcBridge implements RpcBridge {
                     if ("2000".equals(errorCode)) {
                         if (!ApplicationHook.isOffline()) {
                             ApplicationHook.setOffline(true);
-                            NotificationUtil.setContentText("登录超时");
+                            NotificationUtil.updateStatusText("登录超时");
                             if (BaseModel.getTimeoutRestart().getValue()) {
                                 Log.record("尝试重新登录");
                                 ApplicationHook.reLoginByBroadcast();

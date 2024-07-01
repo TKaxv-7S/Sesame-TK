@@ -16,7 +16,6 @@ public class FileUtil {
     public static final File MAIN_DIRECTORY_FILE = getMainDirectoryFile();
     public static final File CONFIG_DIRECTORY_FILE = getConfigDirectoryFile();
     public static final File LOG_DIRECTORY_FILE = getLogDirectoryFile();
-    private static File exportedStatisticsFile;
     private static File cityCodeFile;
     private static File wuaFile;
 
@@ -154,22 +153,6 @@ public class FileUtil {
         return file;
     }
 
-    public static File getReserveIdMapFile(String userId) {
-        File file = new File(CONFIG_DIRECTORY_FILE + "/" + userId, "reserve.json");
-        if (file.exists() && file.isDirectory()) {
-            file.delete();
-        }
-        return file;
-    }
-
-    public static File getBeachIdMapFile(String userId) {
-        File file = new File(CONFIG_DIRECTORY_FILE + "/" + userId, "beach.json");
-        if (file.exists() && file.isDirectory()) {
-            file.delete();
-        }
-        return file;
-    }
-
     public static File getStatusFile(String userId) {
         File file = new File(CONFIG_DIRECTORY_FILE + "/" + userId, "status.json");
         if (file.exists() && file.isDirectory()) {
@@ -191,17 +174,31 @@ public class FileUtil {
         return statisticsFile;
     }
 
+    public static File getReserveIdMapFile() {
+        File file = new File(CONFIG_DIRECTORY_FILE, "reserve.json");
+        if (file.exists() && file.isDirectory()) {
+            file.delete();
+        }
+        return file;
+    }
+
+    public static File getBeachIdMapFile() {
+        File file = new File(CONFIG_DIRECTORY_FILE, "beach.json");
+        if (file.exists() && file.isDirectory()) {
+            file.delete();
+        }
+        return file;
+    }
+
     public static File getExportedStatisticsFile() {
-        if (exportedStatisticsFile == null) {
-            String storageDirStr = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + CONFIG_DIRECTORY_NAME;
-            File storageDir = new File(storageDirStr);
-            if (!storageDir.exists()) {
-                storageDir.mkdirs();
-            }
-            exportedStatisticsFile = new File(storageDir, "statistics.json");
-            if (exportedStatisticsFile.exists() && exportedStatisticsFile.isDirectory()) {
-                exportedStatisticsFile.delete();
-            }
+        String storageDirStr = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + CONFIG_DIRECTORY_NAME;
+        File storageDir = new File(storageDirStr);
+        if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+        File exportedStatisticsFile = new File(storageDir, "statistics.json");
+        if (exportedStatisticsFile.exists() && exportedStatisticsFile.isDirectory()) {
+            exportedStatisticsFile.delete();
         }
         return exportedStatisticsFile;
     }

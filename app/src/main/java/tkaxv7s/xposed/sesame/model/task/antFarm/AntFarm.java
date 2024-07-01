@@ -2,7 +2,6 @@ package tkaxv7s.xposed.sesame.model.task.antFarm;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
@@ -1690,6 +1689,8 @@ public class AntFarm extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "getAnimalCount err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            TimeUtil.sleep(1000);
         }
         return 1;
     }
@@ -1709,6 +1710,7 @@ public class AntFarm extends ModelTask {
             JSONObject jo;
             do {
                 s = AntFarmRpcCall.rankingList(pageStartSum);
+                TimeUtil.sleep(1000);
                 jo = new JSONObject(s);
                 String memo = jo.getString("memo");
                 if ("SUCCESS".equals(memo)) {
@@ -1716,9 +1718,9 @@ public class AntFarm extends ModelTask {
                     JSONArray jaRankingList = jo.getJSONArray("rankingList");
                     pageStartSum += jaRankingList.length();
                     for (int i = 0; i < jaRankingList.length(); i++) {
-                        if (dontHireFriendList.getValue().getKey().containsKey(userId)
-                                || userId.equals(UserIdMap.getCurrentUid()))
+                        if (dontHireFriendList.getValue().getKey().containsKey(userId) || userId.equals(UserIdMap.getCurrentUid())) {
                             continue;
+                        }
                         jo = jaRankingList.getJSONObject(i);
                         String userId = jo.getString("userId");
                         String ActionTypeList = jo.getJSONArray("actionTypeList").toString();
@@ -1766,6 +1768,8 @@ public class AntFarm extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "hireAnimal err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            TimeUtil.sleep(1000);
         }
     }
 

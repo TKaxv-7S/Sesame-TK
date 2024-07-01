@@ -16,6 +16,10 @@ public class BeachIdMap {
         return readOnlyIdMap;
     }
 
+    public static String get(String key) {
+        return idMap.get(key);
+    }
+
     public synchronized static void add(String key, String value) {
         idMap.put(key, value);
     }
@@ -24,10 +28,10 @@ public class BeachIdMap {
         idMap.remove(key);
     }
 
-    public synchronized static void load(String userId) {
+    public synchronized static void load() {
         idMap.clear();
         try {
-            String body = FileUtil.readFromFile(FileUtil.getBeachIdMapFile(userId));
+            String body = FileUtil.readFromFile(FileUtil.getBeachIdMapFile());
             if (!body.isEmpty()) {
                 Map<String, String> newMap = JsonUtil.parseObject(body, new TypeReference<Map<String, String>>() {
                 });
@@ -38,8 +42,12 @@ public class BeachIdMap {
         }
     }
 
-    public synchronized static boolean save(String userId) {
-        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(idMap), FileUtil.getBeachIdMapFile(userId));
+    public synchronized static boolean save() {
+        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(idMap), FileUtil.getBeachIdMapFile());
+    }
+
+    public synchronized static void clear() {
+        idMap.clear();
     }
 
 }
