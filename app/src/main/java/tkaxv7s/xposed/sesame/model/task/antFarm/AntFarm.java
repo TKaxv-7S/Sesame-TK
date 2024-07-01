@@ -81,8 +81,10 @@ public class AntFarm extends ModelTask {
     public SelectModelField visitFriendList;
     public BooleanModelField chickenDiary;
     public BooleanModelField enableChouchoule;
-    public BooleanModelField enableStealAnimal;
+    public BooleanModelField enableHireAnimal;
+    public static SelectModelField dontHireFriendList;
     public BooleanModelField enableDdrawGameCenterAward;
+
 
     @Override
     public ModelFields getFields() {
@@ -117,7 +119,8 @@ public class AntFarm extends ModelTask {
         modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", false));
         modelFields.addField(enableChouchoule = new BooleanModelField("enableChouchoule", "开启小鸡抽抽乐", false));
-        modelFields.addField(enableStealAnimal = new BooleanModelField("enableStealAnimal", "自动雇佣小鸡", true));
+        modelFields.addField(enableHireAnimal = new BooleanModelField("enableHireAnimal", "雇佣小鸡", true));
+        modelFields.addField(dontHireFriendList = new SelectModelField("dontHireFriendList", "雇佣小鸡 | 不雇佣好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(enableDdrawGameCenterAward = new BooleanModelField("enableDdrawGameCenterAward", "开宝箱", false));
         return modelFields;
     }
@@ -324,7 +327,7 @@ public class AntFarm extends ModelTask {
             }
 
             // 雇佣小鸡
-            if (enableStealAnimal.getValue()) {
+            if (enableHireAnimal.getValue()) {
                 hireAnimal();
             }
 
@@ -1671,7 +1674,6 @@ public class AntFarm extends ModelTask {
     }
 
     /* 雇佣好友小鸡 */
-
     private static int getAnimalCount() {
         try {
             String s = AntFarmRpcCall.enterFarm("", UserIdMap.getCurrentUid());
@@ -1693,10 +1695,8 @@ public class AntFarm extends ModelTask {
     }
 
     private static void hireAnimal() {
-        // 检测当前有几只小鸡
         int animalCount = getAnimalCount();
         if (animalCount >= 3) {
-            Log.farm("雇佣小鸡👷[小鸡数量已满，跳过雇佣好友小鸡]");
             return;
         } else {
             Log.farm("雇佣小鸡👷[当前可雇佣小鸡数量:" + (3 - animalCount) + "只]");
@@ -1716,6 +1716,9 @@ public class AntFarm extends ModelTask {
                     JSONArray jaRankingList = jo.getJSONArray("rankingList");
                     pageStartSum += jaRankingList.length();
                     for (int i = 0; i < jaRankingList.length(); i++) {
+                        if (dontHireFriendList.getValue().getKey().containsKey(userId)
+                                || userId.equals(UserIdMap.getCurrentUid()))
+                            continue;
                         jo = jaRankingList.getJSONObject(i);
                         String userId = jo.getString("userId");
                         String ActionTypeList = jo.getJSONArray("actionTypeList").toString();
