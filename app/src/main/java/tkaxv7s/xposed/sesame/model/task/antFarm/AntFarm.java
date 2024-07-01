@@ -325,9 +325,8 @@ public class AntFarm extends ModelTask {
 
             // 雇佣小鸡
             if (enableStealAnimal.getValue()) {
-                stealingAnimal();
+                hireAnimal();
             }
-
 
             // 开宝箱
             if (enableDdrawGameCenterAward.getValue()) {
@@ -1673,7 +1672,6 @@ public class AntFarm extends ModelTask {
 
     /* 雇佣好友小鸡 */
 
-    /* 检测当前有几只小鸡 */
     private static int getAnimalCount() {
         try {
             String s = AntFarmRpcCall.enterFarm("", UserIdMap.getCurrentUid());
@@ -1694,13 +1692,13 @@ public class AntFarm extends ModelTask {
         return 1;
     }
 
-    private static void stealingAnimal() {
+    private static void hireAnimal() {
         // 检测当前有几只小鸡
         int animalCount = getAnimalCount();
         if (animalCount >= 3) {
             Log.farm("雇佣小鸡👷[小鸡数量已满，跳过雇佣好友小鸡]");
             return;
-        }else {
+        } else {
             Log.farm("雇佣小鸡👷[当前可雇佣小鸡数量:" + (3 - animalCount) + "只]");
         }
         try {
@@ -1731,7 +1729,7 @@ public class AntFarm extends ModelTask {
                 }
             } while (hasNext && userIdList.size() < 2);
             for (String userId : userIdList) {
-                hireAnimal(userId);
+                hireAnimalAction(userId);
                 animalCount++;
                 if (animalCount >= 3) {
                     break;
@@ -1743,7 +1741,7 @@ public class AntFarm extends ModelTask {
         }
     }
 
-    private static void hireAnimal(String userId) {
+    private static void hireAnimalAction(String userId) {
         try {
             String s = AntFarmRpcCall.enterFarm("", userId);
             JSONObject jo = new JSONObject(s);
