@@ -341,8 +341,12 @@ public class MainActivity extends BaseActivity {
     private void goSettingActivity(int index) {
         UserEntity userEntity = userEntityArray[index];
         Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra("userId", userEntity.getUserId());
-        intent.putExtra("userName", userEntity.getShowName());
+        if (userEntity != null) {
+            intent.putExtra("userId", userEntity.getUserId());
+            intent.putExtra("userName", userEntity.getShowName());
+        } else {
+            intent.putExtra("userName", userNameArray[index]);
+        }
         startActivity(intent);
     }
 
