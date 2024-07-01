@@ -109,6 +109,7 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField antdodoCollect;
     private BooleanModelField totalCertCount;
     private BooleanModelField collectGiftBox;
+    private BooleanModelField medicalHealthFeeds;
     private BooleanModelField animalConsumeProp;
     private SelectModelField.SelectOneModelField sendFriendCard;
     private SelectModelField whoYouWantToGiveTo;
@@ -165,6 +166,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(antdodoCollect = new BooleanModelField("antdodoCollect", "神奇物种开卡", false));
         modelFields.addField(totalCertCount = new BooleanModelField("totalCertCount", "记录证书总数", false));
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
+        modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗能量", false));
         modelFields.addField(sendFriendCard = new SelectModelField.SelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
@@ -191,8 +193,8 @@ public class AntForestV2 extends ModelTask {
     @Override
     public void run() {
         try {
-            Log.record("执行开始-蚂蚁森林");
-            NotificationUtil.setContentTextExec();
+            Log.i("执行开始-蚂蚁森林");
+            NotificationUtil.setStatusTextExec();
 
             selfId = UserIdMap.getCurrentUid();
             tryCountInt = tryCount.getValue();
@@ -286,13 +288,17 @@ public class AntForestV2 extends ModelTask {
                 /* 森林集市 */
                 sendEnergyByAction("GREEN_LIFE");
                 sendEnergyByAction("ANTFOREST");
+
+                if (medicalHealthFeeds.getValue()) {
+                    medicalHealthFeeds();
+                }
             }
         } catch (Throwable t) {
             Log.i(TAG, "checkEnergyRanking.run err:");
             Log.printStackTrace(TAG, t);
         } finally {
-            Log.record("执行结束-蚂蚁森林");
-            NotificationUtil.setContentTextIdle();
+            Log.i("执行结束-蚂蚁森林");
+            NotificationUtil.setStatusTextIdle();
         }
     }
 
@@ -880,7 +886,7 @@ public class AntForestV2 extends ModelTask {
                         if (returnCount > 0) {
                             returnFriendWater(userId, doBizNo, 1, returnCount);
                         }
-                        NotificationUtil.updateContentText("收：" + totalCollected + "，帮：" + totalHelpCollected);
+                        NotificationUtil.updateLastExecText("收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
                     } while (needDouble || thisTryCount < tryCountInt);
                 } catch (Throwable t) {
@@ -974,7 +980,7 @@ public class AntForestV2 extends ModelTask {
                             thisTryCount = 0;
                             continue;
                         }
-                        NotificationUtil.updateContentText("收：" + totalCollected + "，帮：" + totalHelpCollected);
+                        NotificationUtil.updateLastExecText("收：" + totalCollected + "，帮：" + totalHelpCollected);
                         return;
                     } while (needDouble || thisTryCount < tryCountInt);
                 } catch (Exception e) {
@@ -1031,6 +1037,85 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
+    /* 健康医疗 16g*6能量 */
+    private void medicalHealthFeeds() {
+        try {
+            String s = AntForestRpcCall.query_forest_energy();
+            TimeUtil.sleep(1000);
+            JSONObject jo = new JSONObject(s);
+            int countj = 0;
+            if (jo.getBoolean("success")) {
+                JSONObject response = jo.getJSONObject("data").getJSONObject("response");
+                JSONArray energyGeneratedList = response.optJSONArray("energyGeneratedList");
+                if (energyGeneratedList != null && energyGeneratedList.length() > 0) {
+                    harvestForestEnergy(energyGeneratedList);
+                }
+                int remainBubble = response.optInt("remainBubble", 0);
+                if (remainBubble > 0) {
+                    jo = new JSONObject(AntForestRpcCall.medical_health_feeds_query());
+                    TimeUtil.sleep(1000);
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                        response = jo.getJSONObject("data").getJSONObject("response")
+                                .optJSONObject("COMMON_FEEDS_BLOCK_2024041200243259").getJSONObject("data")
+                                .getJSONObject("response");
+                        JSONArray feeds = response.optJSONArray("feeds");
+                        if (feeds != null && feeds.length() > 0) {
+                            for (int i = 0; i < feeds.length(); i++) {
+                                jo = feeds.getJSONObject(i);
+                                String feedId = jo.optString("feedId", "null");
+                                if (!"null".equals(feedId)) {
+                                    jo = new JSONObject(AntForestRpcCall.produce_forest_energy(feedId));
+                                    TimeUtil.sleep(1000);
+                                    if (jo.getBoolean("success")) {
+                                        response = jo.getJSONObject("data").getJSONObject("response");
+                                        int cumulativeEnergy = response.optInt("cumulativeEnergy");
+                                        if (cumulativeEnergy > 0) {
+                                            Log.forest("健康医疗🚑[完成一次]");
+                                            countj++;
+                                        }
+                                        energyGeneratedList = response.optJSONArray("energyGeneratedList");
+                                        if (energyGeneratedList != null && energyGeneratedList.length() > 0) {
+                                            harvestForestEnergy(energyGeneratedList);
+                                        }
+                                    }
+                                }
+                                if (countj >= remainBubble) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                Log.record(jo.getString("resultDesc"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "medicalHealthFeeds err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private void harvestForestEnergy(JSONArray energyGeneratedList) {
+        try {
+            for (int i = 0; i < energyGeneratedList.length(); i++) {
+                JSONObject jo = energyGeneratedList.getJSONObject(i);
+                int energy = jo.optInt("energy");
+                String id = jo.getString("id");
+                try {
+                    jo = new JSONObject(AntForestRpcCall.harvest_forest_energy(energy, id));
+                    if (jo.getBoolean("success")) {
+                        Log.forest("健康医疗🚑[收取能量]#" + energy + "g");
+                    }
+                } finally {
+                    TimeUtil.sleep(1000);
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "harvestForestEnergy err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
     /* 6秒拼手速 打地鼠 */
     private void whackMole() {
         try {
@@ -1048,7 +1133,7 @@ public class AntForestV2 extends ModelTask {
                     if (!whackMoleIdList.isEmpty()) {
                         String token = jo.getString("token");
                         long end = System.currentTimeMillis();
-                        TimeUtil.sleep(6000 - end - start);
+                        TimeUtil.sleep(6000 - end + start);
                         jo = new JSONObject(AntForestRpcCall.settlementWhackMole(token, whackMoleIdList));
                         if ("SUCCESS".equals(jo.getString("resultCode"))) {
                             int totalEnergy = jo.getInt("totalEnergy");

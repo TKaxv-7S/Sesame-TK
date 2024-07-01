@@ -592,7 +592,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         if (context != null) {
             mainHandler.postDelayed(() -> mainTask.startTask(false), delayMillis);
             try {
-                NotificationUtil.updateNextExecTime(System.currentTimeMillis() + delayMillis);
+                NotificationUtil.updateNextExecText(System.currentTimeMillis() + delayMillis);
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }

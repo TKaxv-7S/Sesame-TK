@@ -175,7 +175,7 @@ public class FileUtil {
     }
 
     public static File getReserveIdMapFile() {
-        File file = new File(CONFIG_DIRECTORY_FILE, "reserve.json");
+        File file = new File(MAIN_DIRECTORY_FILE, "reserve.json");
         if (file.exists() && file.isDirectory()) {
             file.delete();
         }
@@ -183,7 +183,7 @@ public class FileUtil {
     }
 
     public static File getBeachIdMapFile() {
-        File file = new File(CONFIG_DIRECTORY_FILE, "beach.json");
+        File file = new File(MAIN_DIRECTORY_FILE, "beach.json");
         if (file.exists() && file.isDirectory()) {
             file.delete();
         }

@@ -21,15 +21,15 @@ public class NotificationUtil {
 
     @Getter
     private static volatile long lastNoticeTime = 0;
-    private static String execTimeText = "";
-    private static String contentText = "";
     private static String statusText = "";
+    private static String nextExecText = "";
+    private static String lastExecText = "";
 
     public static void start(Context context) {
         try {
-            execTimeText = "待启动";
-            contentText = "待收取";
             statusText = "加载";
+            nextExecText = "待执行";
+            lastExecText = "";
             mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Intent it = new Intent(Intent.ACTION_VIEW);
             it.setData(Uri.parse("alipays://platformapi/startapp?appId="));
@@ -77,25 +77,6 @@ public class NotificationUtil {
         }
     }
 
-    public static void updateNextExecTime(long nextExecTime) {
-        try {
-            execTimeText = nextExecTime > 0 ? "下次扫描时间" + TimeUtil.getTimeStr(nextExecTime) + "\n" : "";
-            sendText();
-        } catch (Exception e) {
-            Log.printStackTrace(e);
-        }
-    }
-
-    public static void updateContentText(String content) {
-        try {
-            contentText = TimeUtil.getTimeStr(System.currentTimeMillis()) + " " + content;
-            lastNoticeTime = System.currentTimeMillis();
-            sendText();
-        } catch (Exception e) {
-            Log.printStackTrace(e);
-        }
-    }
-
     public static void updateStatusText(String status) {
         try {
             long forestPauseTime = RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime);
@@ -110,7 +91,26 @@ public class NotificationUtil {
         }
     }
 
-    public static void setContentTextIdle() {
+    public static void updateNextExecText(long nextExecTime) {
+        try {
+            nextExecText = nextExecTime > 0 ? "下次执行 " + TimeUtil.getTimeStr(nextExecTime) : "";
+            sendText();
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+    }
+
+    public static void updateLastExecText(String content) {
+        try {
+            lastExecText = "上次执行 " + TimeUtil.getTimeStr(System.currentTimeMillis()) + " " + content;
+            lastNoticeTime = System.currentTimeMillis();
+            sendText();
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+    }
+
+    public static void setStatusTextIdle() {
         try {
             long lastNoticeTime = NotificationUtil.getLastNoticeTime();
             if (System.currentTimeMillis() - lastNoticeTime > 15_000) {
@@ -119,21 +119,21 @@ public class NotificationUtil {
                 }
                 updateStatusText("空闲");
             } else {
-                ApplicationHook.getMainHandler().postDelayed(NotificationUtil::setContentTextIdle, 15_000);
+                ApplicationHook.getMainHandler().postDelayed(NotificationUtil::setStatusTextIdle, 15_000);
             }
         } catch (Exception e) {
             Log.printStackTrace(e);
         }
     }
 
-    public static void setContentTextExec() {
+    public static void setStatusTextExec() {
         updateStatusText("执行中");
     }
 
     private static void sendText() {
         try {
             Notification.BigTextStyle style = new Notification.BigTextStyle();
-            style.bigText(execTimeText + contentText + " " + statusText);
+            style.bigText(statusText + "，" + nextExecText + (StringUtil.isEmpty(lastExecText) ? "" : "\n" + lastExecText));
 //          Notification.InboxStyle style = new Notification.InboxStyle();
 //          style.addLine(preContent);
 //          style.addLine(contentText);
