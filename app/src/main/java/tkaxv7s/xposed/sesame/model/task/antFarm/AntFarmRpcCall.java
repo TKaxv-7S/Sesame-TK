@@ -408,9 +408,15 @@ public class AntFarmRpcCall {
                 "[{\"bizKey\":\"" + bizKey + "\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
     }
 
-    public static String stealingAnimalListTask() {
-        return ApplicationHook.requestString("com.alipay.antfarm.rankingList",
-                "[{\"pageSize\":100,\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"startNum\":0,\"version\":\"" + VERSION + "\"}]");
+    public static String chouchouleReceiveFarmTaskAward(String taskId) {
+        return ApplicationHook.requestString("com.alipay.antfarm.receiveFarmTaskAward",
+                "[{\"awardType\":\"DRAW_TIMES\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"chouchoule\",\"taskId\":\""
+                        + taskId + "\",\"taskSceneCode\":\"ANTFARM_DRAW_TIMES_TASK\"}]");
+    }
+
+    public static String hireAnimal(String farmId, String animalId) {
+        return ApplicationHook.requestString("com.alipay.antfarm.hireAnimal",
+                "[{\"friendFarmId\":\"" + farmId + "\",\"hireActionType\":\"HIRE_IN_FRIEND_FARM\",\"hireAnimalId\":\"" + animalId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"sendCardChat\":false,\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
     }
 
     public static String DrawPrize() {
