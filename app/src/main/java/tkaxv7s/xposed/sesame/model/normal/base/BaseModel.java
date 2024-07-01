@@ -77,12 +77,14 @@ public class BaseModel extends Model {
     }
 
     public static void initData() {
-        try {
-            initReserve();
-            initBeach();
-        } catch (Exception e) {
-            Log.printStackTrace(e);
-        }
+        new Thread(() -> {
+            try {
+                initReserve();
+                initBeach();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }).start();
     }
 
     public static void destroyData() {
