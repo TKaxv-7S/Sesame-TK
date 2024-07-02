@@ -826,12 +826,14 @@ public class AntForestV2 extends ModelTask {
                 int thisTryCount = 0;
                 do {
                     int collected = 0;
+                    Lock lock = null;
                     try {
                         if (needDouble) {
-                            doubleCollectEnergyLock.lockInterruptibly();
+                            lock = doubleCollectEnergyLock;
                         } else {
-                            collectEnergyLock.lockInterruptibly();
+                            lock = collectEnergyLock;
                         }
+                        lock.lockInterruptibly();
                         thisTryCount++;
                         needDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
@@ -888,14 +890,12 @@ public class AntForestV2 extends ModelTask {
                     } finally {
                         if (needDouble) {
                             TimeUtil.sleep(doubleCollectIntervalEntity.getInterval());
-                            try {
-                                doubleCollectEnergyLock.unlock();
-                            } catch (Throwable ignored) {
-                            }
                         } else {
                             TimeUtil.sleep(collectIntervalEntity.getInterval());
+                        }
+                        if (lock != null) {
                             try {
-                                collectEnergyLock.unlock();
+                                lock.lockInterruptibly();
                             } catch (Throwable ignored) {
                             }
                         }
@@ -943,12 +943,14 @@ public class AntForestV2 extends ModelTask {
                 int thisTryCount = 0;
                 do {
                     int collected = 0;
+                    Lock lock = null;
                     try {
                         if (needDouble) {
-                            doubleCollectEnergyLock.lockInterruptibly();
+                            lock = doubleCollectEnergyLock;
                         } else {
-                            collectEnergyLock.lockInterruptibly();
+                            lock = collectEnergyLock;
                         }
+                        lock.lockInterruptibly();
                         thisTryCount++;
                         needDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIds);
@@ -1010,14 +1012,12 @@ public class AntForestV2 extends ModelTask {
                     } finally {
                         if (needDouble) {
                             TimeUtil.sleep(doubleCollectIntervalEntity.getInterval());
-                            try {
-                                doubleCollectEnergyLock.unlock();
-                            } catch (Throwable ignored) {
-                            }
                         } else {
                             TimeUtil.sleep(collectIntervalEntity.getInterval());
+                        }
+                        if (lock != null) {
                             try {
-                                collectEnergyLock.unlock();
+                                lock.lockInterruptibly();
                             } catch (Throwable ignored) {
                             }
                         }
