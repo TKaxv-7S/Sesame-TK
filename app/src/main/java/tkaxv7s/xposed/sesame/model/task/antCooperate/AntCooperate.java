@@ -22,7 +22,7 @@ public class AntCooperate extends ModelTask {
     }
 
     private final BooleanModelField cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false);
-    private final SelectModelField cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser.getList());
+    private final SelectModelField cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser::getList);
 
     @Override
     public ModelFields getFields() {

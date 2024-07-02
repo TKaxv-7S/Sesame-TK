@@ -85,14 +85,13 @@ public class AntFarm extends ModelTask {
     private SelectModelField dontHireFriendList;
     private BooleanModelField enableDdrawGameCenterAward;
 
-
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(rewardFriend = new BooleanModelField("rewardFriend", "打赏好友", false));
         modelFields.addField(sendBackAnimal = new BooleanModelField("sendBackAnimal", "遣返 | 开启", false));
         modelFields.addField(sendType = new ChoiceModelField("sendType", "遣返 | 方式", SendType.NORMAL, SendType.nickNames));
-        modelFields.addField(dontSendFriendList = new SelectModelField("dontSendFriendList", "遣返 | 不遣返小鸡好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(dontSendFriendList = new SelectModelField("dontSendFriendList", "遣返 | 不遣返小鸡好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(recallAnimalType = new ChoiceModelField("recallAnimalType", "召回小鸡", RecallAnimalType.ALWAYS, RecallAnimalType.nickNames));
         modelFields.addField(receiveFarmToolReward = new BooleanModelField("receiveFarmToolReward", "收取道具奖励", false));
         modelFields.addField(recordFarmGame = new BooleanModelField("recordFarmGame", "游戏改分(星星球、登山赛)", false));
@@ -108,19 +107,19 @@ public class AntFarm extends ModelTask {
         modelFields.addField(receiveFarmTaskAward = new BooleanModelField("receiveFarmTaskAward", "收取饲料奖励", false));
         modelFields.addField(feedAnimal = new BooleanModelField("feedAnimal", "喂小鸡", false));
         modelFields.addField(useAccelerateTool = new BooleanModelField("useAccelerateTool", "使用加速卡", false));
-        modelFields.addField(feedFriendAnimalList = new SelectModelField("feedFriendAnimalList", "喂好友小鸡列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
+        modelFields.addField(feedFriendAnimalList = new SelectModelField("feedFriendAnimalList", "喂好友小鸡列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser::getList));
         List<String> animalSleepTimeList = new ArrayList<>();
         animalSleepTimeList.add("2300-2400");
         animalSleepTimeList.add("0000-0559");
         modelFields.addField(animalSleepTime = new ListModelField.ListJoinCommaToStringModelField("animalSleepTime", "小鸡睡眠时间(范围)", animalSleepTimeList));
         modelFields.addField(notifyFriend = new BooleanModelField("notifyFriend", "赶鸡 | 通知好友", false));
-        modelFields.addField(dontNotifyFriendList = new SelectModelField("dontNotifyFriendList", "赶鸡 | 不通知好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(dontNotifyFriendList = new SelectModelField("dontNotifyFriendList", "赶鸡 | 不通知好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(acceptGift = new BooleanModelField("acceptGift", "收麦子", false));
-        modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
+        modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser::getList));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", false));
         modelFields.addField(enableChouchoule = new BooleanModelField("enableChouchoule", "开启小鸡抽抽乐", false));
         modelFields.addField(enableHireAnimal = new BooleanModelField("enableHireAnimal", "雇佣小鸡", true));
-        modelFields.addField(dontHireFriendList = new SelectModelField("dontHireFriendList", "雇佣小鸡 | 不雇佣好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(dontHireFriendList = new SelectModelField("dontHireFriendList", "雇佣小鸡 | 不雇佣好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(enableDdrawGameCenterAward = new BooleanModelField("enableDdrawGameCenterAward", "开宝箱", false));
         return modelFields;
     }

@@ -146,7 +146,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 1000, 0, 10000));
-        modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "双击卡 | 使用", false));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡 | 使用次数", 6));
         List<String> doubleCardTimeList = new ArrayList<>();
@@ -155,11 +155,11 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "返水 | 10克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "返水 | 18克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "返水 | 33克需收能量(关闭:0)", 0));
-        modelFields.addField(waterFriendList = new SelectModelField("waterFriendList", "浇水 | 好友列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser.getList()));
+        modelFields.addField(waterFriendList = new SelectModelField("waterFriendList", "浇水 | 好友列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser::getList));
         modelFields.addField(waterFriendCount = new IntegerModelField("waterFriendCount", "浇水 | 克数(10 18 33 66)", 66));
         modelFields.addField(helpFriendCollect = new BooleanModelField("helpFriendCollect", "复活能量 | 开启", false));
         modelFields.addField(helpFriendCollectType = new BooleanModelField("helpFriendCollectType", "复活能量 | 动作(复活:开，不复活:关)", false));
-        modelFields.addField(dontHelpCollectList = new SelectModelField("dontHelpCollectList", "复活能量 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(dontHelpCollectList = new SelectModelField("dontHelpCollectList", "复活能量 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(exchangeEnergyDoubleClick = new BooleanModelField("exchangeEnergyDoubleClick", "活力值 | 兑换限时双击卡", false));
         modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "活力值 | 兑换限时双击卡数量", 6));
         modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
@@ -167,7 +167,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", false));
-        modelFields.addField(giveEnergyRainList = new SelectModelField("giveEnergyRainList", "赠送能量雨列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(giveEnergyRainList = new SelectModelField("giveEnergyRainList", "赠送能量雨列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(animalConsumeProp = new BooleanModelField("animalConsumeProp", "派遣动物", false));
         modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "收取森林任务奖励", false));
@@ -176,8 +176,8 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗能量", false));
         modelFields.addField(sendEnergyByAction = new BooleanModelField("sendEnergyByAction", "森林集市", false));
-        modelFields.addField(sendFriendCard = new SelectModelField.SelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
-        modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(sendFriendCard = new SelectModelField.SelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
         modelFields.addField(ecoLifeOpen = new BooleanModelField("ecoLifeOpen", "绿色 | 自动开通", false));
         modelFields.addField(photoGuangPan = new BooleanModelField("photoGuangPan", "绿色 | 光盘行动", false));
@@ -1679,9 +1679,9 @@ public class AntForestV2 extends ModelTask {
 
     private void useDoubleCard() {
         synchronized (doubleCardLockObj) {
-            if (doubleCard.getValue() && doubleEndTime < System.currentTimeMillis()) {
-                if (hasDoubleCardTime() && Status.canDoubleToday()) {
-                    try {
+            try {
+                if (doubleCard.getValue() && doubleEndTime < System.currentTimeMillis()) {
+                    if (hasDoubleCardTime() && Status.canDoubleToday()) {
                         JSONObject jo = new JSONObject(AntForestRpcCall.queryPropList(false));
                         if ("SUCCESS".equals(jo.getString("resultCode"))) {
                             JSONArray forestPropVOList = jo.getJSONArray("forestPropVOList");
@@ -1723,11 +1723,11 @@ public class AntForestV2 extends ModelTask {
                                 }
                             }
                         }
-                    } catch (Throwable th) {
-                        Log.i(TAG, "useDoubleCard err:");
-                        Log.printStackTrace(TAG, th);
                     }
                 }
+            } catch (Throwable th) {
+                Log.i(TAG, "useDoubleCard err:");
+                Log.printStackTrace(TAG, th);
             }
         }
     }

@@ -33,6 +33,8 @@ public class SelectModelField extends ModelField {
     private static final TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>> typeReference = new TypeReference<KVNode<LinkedHashMap<String, Integer>, Boolean>>() {
     };
 
+    private SelectListFunc selectListFunc;
+
     private List<? extends IdAndName> idAndNameList;
 
     public SelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> idAndNameList) {
@@ -40,9 +42,14 @@ public class SelectModelField extends ModelField {
         this.idAndNameList = idAndNameList;
     }
 
+    public SelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, SelectListFunc selectListFunc) {
+        super(code, name, value);
+        this.selectListFunc = selectListFunc;
+    }
+
     @JsonIgnore
     public List<? extends IdAndName> getIdAndNameList() {
-        return idAndNameList;
+        return selectListFunc == null ? idAndNameList : selectListFunc.getList();
     }
 
     @Override
@@ -80,6 +87,10 @@ public class SelectModelField extends ModelField {
             super(code, name, value, idAndNameList);
         }
 
+        public SelectOneModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, SelectListFunc selectListFunc) {
+            super(code, name, value, selectListFunc);
+        }
+
         @Override
         public View getView(Context context) {
             Button btn = new Button(context);
@@ -96,4 +107,7 @@ public class SelectModelField extends ModelField {
         }
     }
 
+    public interface SelectListFunc {
+        List<? extends IdAndName> getList();
+    }
 }

@@ -263,10 +263,10 @@ public class ListDialog {
                                             break;
 
                                         case 2:
-                                            url = "https://render.alipay.com/p/s/i/?scheme=alipays%3a%2f%2fplatformapi%2fstartapp%3fappId%3d20000166%26actionType%3dprofile%26userId%3d";
+                                            /*url = "https://render.alipay.com/p/s/i/?scheme=alipays%3a%2f%2fplatformapi%2fstartapp%3fappId%3d20000166%26actionType%3dprofile%26userId%3d";
                                             break;
 
-                                        case 3:
+                                        case 3:*/
                                             showDeleteDialog(c);
                                     }
                                     if (url != null) {
@@ -306,10 +306,8 @@ public class ListDialog {
                     if (p2 == DialogInterface.BUTTON_POSITIVE) {
                         if (curIdAndName instanceof AlipayUser) {
                             UserIdMap.remove(curIdAndName.id);
-                            AlipayUser.remove(curIdAndName.id);
                         } else if (curIdAndName instanceof CooperateUser) {
                             CooperationIdMap.remove(curIdAndName.id);
-                            CooperateUser.remove(curIdAndName.id);
                         }
                         selectedMap.remove(curIdAndName.id);
                         ListAdapter.get(c).exitFind();
