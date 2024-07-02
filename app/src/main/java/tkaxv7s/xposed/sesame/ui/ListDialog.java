@@ -263,7 +263,7 @@ public class ListDialog {
                                             break;
 
                                         case 2:
-                                            url = "alipays://platformapi/startapp?appId=20000166&actionType=profile&userId%3D";
+                                            url = "https://render.alipay.com/p/s/i/?scheme=alipays%3a%2f%2fplatformapi%2fstartapp%3fappId%3d20000166%26actionType%3dprofile%26userId%3d";
                                             break;
 
                                         case 3:
