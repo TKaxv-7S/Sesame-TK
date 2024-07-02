@@ -112,8 +112,8 @@ public class Statistics {
     }
 
     public static synchronized Statistics load() {
+        File statisticsFile = FileUtil.getStatisticsFile();
         try {
-            File statisticsFile = FileUtil.getStatisticsFile();
             if (statisticsFile.exists()) {
                 String json = FileUtil.readFromFile(statisticsFile);
                 JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
