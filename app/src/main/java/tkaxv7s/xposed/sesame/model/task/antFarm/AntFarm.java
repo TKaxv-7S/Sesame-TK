@@ -1696,10 +1696,12 @@ public class AntFarm extends ModelTask {
 
     private static void hireAnimal() {
         int animalCount = getAnimalCount();
-        if (animalCount >= 3) {
+        int maxHireAnimalCount = 3;
+        int canHireAnimalCount = maxHireAnimalCount - animalCount;
+        if (animalCount >= maxHireAnimalCount) {
             return;
         } else {
-            Log.farm("雇佣小鸡👷[当前可雇佣小鸡数量:" + (3 - animalCount) + "只]");
+            Log.farm("雇佣小鸡👷[当前可雇佣小鸡数量:" + (canHireAnimalCount) + "只]");
         }
         try {
             List<String> userIdList = new ArrayList<String>();
@@ -1716,11 +1718,11 @@ public class AntFarm extends ModelTask {
                     JSONArray jaRankingList = jo.getJSONArray("rankingList");
                     pageStartSum += jaRankingList.length();
                     for (int i = 0; i < jaRankingList.length(); i++) {
-                        if (dontHireFriendList.getValue().getKey().containsKey(userId)
-                                || userId.equals(UserIdMap.getCurrentUid()))
-                            continue;
                         jo = jaRankingList.getJSONObject(i);
                         String userId = jo.getString("userId");
+                        if (dontNotifyFriendList.getValue().getKey().containsKey(userId)
+                                || userId.equals(UserIdMap.getCurrentUid()))
+                            continue;
                         String ActionTypeList = jo.getJSONArray("actionTypeList").toString();
                         if (ActionTypeList.contains("can_hire_action")) {
                             userIdList.add(userId);
@@ -1730,11 +1732,12 @@ public class AntFarm extends ModelTask {
                     Log.record(memo);
                     Log.i(s);
                 }
-            } while (hasNext && userIdList.size() < 2);
+            } while (hasNext && userIdList.size() < canHireAnimalCount);
             for (String userId : userIdList) {
-                hireAnimalAction(userId);
-                animalCount++;
-                if (animalCount >= 3) {
+                if (hireAnimalAction(userId)){
+                    animalCount++;
+                }
+                if (animalCount >= maxHireAnimalCount) {
                     break;
                 }
             }
@@ -1744,7 +1747,7 @@ public class AntFarm extends ModelTask {
         }
     }
 
-    private static void hireAnimalAction(String userId) {
+    private static boolean hireAnimalAction(String userId) {
         try {
             String s = AntFarmRpcCall.enterFarm("", userId);
             JSONObject jo = new JSONObject(s);
@@ -1755,6 +1758,7 @@ public class AntFarm extends ModelTask {
                 jo = new JSONObject(AntFarmRpcCall.hireAnimal(farmId, animalId));
                 if ("SUCCESS".equals(jo.getString("memo"))) {
                     Log.farm("雇佣小鸡👷[" + UserIdMap.getMaskName(userId) + "] 成功");
+                    return true;
                 } else {
                     Log.record(jo.getString("memo"));
                     Log.i(s);
@@ -1767,6 +1771,7 @@ public class AntFarm extends ModelTask {
             Log.i(TAG, "hireAnimal err:");
             Log.printStackTrace(TAG, t);
         }
+        return false;
     }
 
     private static void drawGameCenterAward() {
