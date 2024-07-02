@@ -55,29 +55,29 @@ public class AntStall extends ModelTask {
         return "新村";
     }
 
-    public BooleanModelField stallAutoClose;
-    public BooleanModelField stallAutoOpen;
-    public BooleanModelField stallAutoTicket;
-    public BooleanModelField stallAutoTask;
-    public BooleanModelField stallReceiveAward;
-    public BooleanModelField stallOpenType;
-    public SelectModelField stallOpenList;
-    public SelectModelField stallWhiteList;
-    public SelectModelField stallBlackList;
-    public IntegerModelField stallAllowOpenTime;
-    public IntegerModelField stallSelfOpenTime;
-    public BooleanModelField stallDonate;
-    public BooleanModelField stallInviteRegister;
-    public BooleanModelField stallThrowManure;
-    public SelectModelField stallInviteShopList;
+    private BooleanModelField stallAutoClose;
+    private BooleanModelField stallAutoOpen;
+    private BooleanModelField stallAutoTicket;
+    private BooleanModelField stallAutoTask;
+    private BooleanModelField stallReceiveAward;
+    private BooleanModelField stallOpenType;
+    private SelectModelField stallOpenList;
+    private SelectModelField stallWhiteList;
+    private SelectModelField stallBlackList;
+    private IntegerModelField stallAllowOpenTime;
+    private IntegerModelField stallSelfOpenTime;
+    private BooleanModelField stallDonate;
+    private BooleanModelField stallInviteRegister;
+    private BooleanModelField stallThrowManure;
+    private SelectModelField stallInviteShopList;
     /**
      * 邀请好友开通新村列表
      */
-    public SelectModelField stallInviteRegisterList;
+    private SelectModelField stallInviteRegisterList;
     /**
      * 助力好友列表
      */
-    public SelectModelField assistFriendList;
+    private SelectModelField assistFriendList;
 
     @Override
     public ModelFields getFields() {
@@ -250,7 +250,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void settle(JSONObject seatsMap) {
+    private void settle(JSONObject seatsMap) {
         try {
             JSONObject seat = seatsMap.getJSONObject("MASTER");
             if (seat.has("coinsMap")) {
@@ -360,7 +360,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void openShop(String seatId, String userId, Queue<String> shopIds) {
+    private void openShop(String seatId, String userId, Queue<String> shopIds) {
         String shopId = shopIds.peek();
         String s = AntStallRpcCall.shopOpen(seatId, userId, shopId);
         try {
@@ -375,7 +375,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void friendHomeOpen(List<Seat> seats, Queue<String> shopIds) {
+    private void friendHomeOpen(List<Seat> seats, Queue<String> shopIds) {
         Collections.sort(seats, (e1, e2) -> e2.hot - e1.hot);
         int idx = 0;
         while (seats.size() > idx && !shopIds.isEmpty()) {
@@ -408,7 +408,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void shopClose(String shopId, String billNo, String userId) {
+    private void shopClose(String shopId, String billNo, String userId) {
         String s = AntStallRpcCall.preShopClose(shopId, billNo);
         try {
             JSONObject jo = new JSONObject(s);
@@ -530,7 +530,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void signToday() {
+    private void signToday() {
         String s = AntStallRpcCall.signToday();
         try {
             JSONObject jo = new JSONObject(s);
@@ -563,7 +563,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static boolean finishTask(String taskType) {
+    private boolean finishTask(String taskType) {
         // String s = AntStallRpcCall.finishTask(FriendIdMap.currentUid + "_" +
         // taskType, taskType);
         String s = AntStallRpcCall.finishTask(taskType + "_" + System.currentTimeMillis(), taskType);
@@ -622,7 +622,7 @@ public class AntStall extends ModelTask {
         return false;
     }
 
-    private static void shareP2P() {
+    private void shareP2P() {
         try {
             String s = AntStallRpcCall.shareP2P();
             JSONObject jo = new JSONObject(s);
@@ -683,7 +683,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void achieveBeShareP2P() {
+    private void achieveBeShareP2P() {
         try {
             if (!Status.canStallHelpToday(UserIdMap.getCurrentUid()))
                 return;
@@ -718,7 +718,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void donate() {
+    private void donate() {
         String s = AntStallRpcCall.projectList();
         try {
             JSONObject jo = new JSONObject(s);
@@ -749,7 +749,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void roadmap() {
+    private void roadmap() {
         String s = AntStallRpcCall.roadmap();
         try {
             JSONObject jo = new JSONObject(s);
@@ -794,7 +794,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void collectManure() {
+    private void collectManure() {
         String s = AntStallRpcCall.queryManureInfo();
         try {
             JSONObject jo = new JSONObject(s);
@@ -817,7 +817,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void throwManure(JSONArray dynamicList) {
+    private void throwManure(JSONArray dynamicList) {
         try {
             String s = AntStallRpcCall.throwManure(dynamicList);
             JSONObject jo = new JSONObject(s);
@@ -836,7 +836,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void throwManure() {
+    private void throwManure() {
         try {
             String s = AntStallRpcCall.dynamicLoss();
             JSONObject jo = new JSONObject(s);
@@ -869,7 +869,7 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private static void settleReceivable() {
+    private void settleReceivable() {
         String s = AntStallRpcCall.settleReceivable();
         try {
             JSONObject jo = new JSONObject(s);
@@ -885,7 +885,7 @@ public class AntStall extends ModelTask {
     /**
      * 贴罚单
      */
-    private static void pasteTicket() {
+    private void pasteTicket() {
         try {
             if (Status.canPasteTicketTime()) {
                 return;

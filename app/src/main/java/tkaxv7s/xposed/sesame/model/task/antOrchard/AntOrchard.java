@@ -26,10 +26,10 @@ public class AntOrchard extends ModelTask {
 
     private Integer executeIntervalInt;
 
-    private static IntegerModelField executeInterval;
-    private static BooleanModelField receiveOrchardTaskAward;
-    private static IntegerModelField orchardSpreadManureCount;
-    private static BooleanModelField batchHireAnimal;
+    private IntegerModelField executeInterval;
+    private BooleanModelField receiveOrchardTaskAward;
+    private IntegerModelField orchardSpreadManureCount;
+    private BooleanModelField batchHireAnimal;
     private SelectModelField dontHireList;
     private SelectModelField dontWeedingList;
 

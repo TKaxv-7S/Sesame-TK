@@ -24,7 +24,7 @@ public class Reserve extends ModelTask {
         return "保护地";
     }
 
-    public static SelectModelField reserveList;
+    private SelectModelField reserveList;
 
     @Override
     public ModelFields getFields() {
@@ -50,7 +50,7 @@ public class Reserve extends ModelTask {
         }
     }
 
-    private static void animalReserve() {
+    private void animalReserve() {
         try {
             String s = ReserveRpcCall.queryTreeItemsForExchange();
             if (s == null) {
@@ -93,7 +93,7 @@ public class Reserve extends ModelTask {
         }
     }
 
-    private static boolean queryTreeForExchange(String projectId) {
+    private boolean queryTreeForExchange(String projectId) {
         try {
             String s = ReserveRpcCall.queryTreeForExchange(projectId);
             JSONObject jo = new JSONObject(s);
@@ -123,7 +123,7 @@ public class Reserve extends ModelTask {
         return false;
     }
 
-    private static void exchangeTree(String projectId, String itemName, int count) {
+    private void exchangeTree(String projectId, String itemName, int count) {
         int appliedTimes = 0;
         try {
             String s;

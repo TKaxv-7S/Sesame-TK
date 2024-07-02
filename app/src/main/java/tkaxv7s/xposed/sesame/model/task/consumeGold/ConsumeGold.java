@@ -46,7 +46,7 @@ public class ConsumeGold extends ModelTask {
         }
     }
 
-    private static void taskV2Index(String taskSceneCode) {
+    private void taskV2Index(String taskSceneCode) {
         boolean doubleCheck = false;
         try {
             String s = ConsumeGoldRpcCall.taskV2Index(taskSceneCode);
@@ -83,7 +83,7 @@ public class ConsumeGold extends ModelTask {
         }
     }
 
-    private static void taskV2TriggerReceive(String taskId, String name) {
+    private void taskV2TriggerReceive(String taskId, String name) {
         try {
             String s = ConsumeGoldRpcCall.taskV2TriggerReceive(taskId);
             JSONObject jo = new JSONObject(s);
@@ -97,7 +97,7 @@ public class ConsumeGold extends ModelTask {
         }
     }
 
-    private static void taskV2TriggerSignUp(String taskId) {
+    private void taskV2TriggerSignUp(String taskId) {
         try {
             String s = ConsumeGoldRpcCall.taskV2TriggerSignUp(taskId);
             JSONObject jo = new JSONObject(s);
@@ -110,7 +110,7 @@ public class ConsumeGold extends ModelTask {
         }
     }
 
-    private static void taskV2TriggerSend(String taskId) {
+    private void taskV2TriggerSend(String taskId) {
         try {
             String s = ConsumeGoldRpcCall.taskV2TriggerSend(taskId);
             JSONObject jo = new JSONObject(s);
@@ -123,7 +123,7 @@ public class ConsumeGold extends ModelTask {
         }
     }
 
-    private static void consumeGoldIndex() {
+    private void consumeGoldIndex() {
         try {
             String s = ConsumeGoldRpcCall.consumeGoldIndex();
             JSONObject jo = new JSONObject(s);
@@ -162,7 +162,7 @@ public class ConsumeGold extends ModelTask {
         }
     }
 
-    private static void signinCalendar() {
+    private void signinCalendar() {
         try {
             String s = ConsumeGoldRpcCall.signinCalendar();
             JSONObject jo = new JSONObject(s);

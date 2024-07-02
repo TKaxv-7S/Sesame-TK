@@ -32,7 +32,7 @@ public class AnswerAI extends Model {
     }
 
     @Override
-    public void config() {
+    public void config(ClassLoader classLoader) {
         if (useGeminiAI.getValue()) {
             answerAIInterface = new GenAI(setGeminiAIToken.getValue());
         }
