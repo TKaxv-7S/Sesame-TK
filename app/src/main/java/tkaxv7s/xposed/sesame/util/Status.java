@@ -695,7 +695,7 @@ public class Status {
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 FileUtil.write2File(formatted, FileUtil.getStatusFile(currentUid));
             } catch (JsonMappingException e) {
-                Log.printStackTrace(TAG, t);
+                Log.printStackTrace(TAG, e);
             }
         }
         return INSTANCE;
@@ -705,7 +705,7 @@ public class Status {
         try {
             JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
         } catch (JsonMappingException e) {
-            Log.printStackTrace(TAG, t);
+            Log.printStackTrace(TAG, e);
         }
     }
 
