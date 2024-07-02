@@ -142,7 +142,7 @@ public class Statistics {
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 FileUtil.write2File(formatted, statisticsFile);
             } catch (JsonMappingException e) {
-                Log.printStackTrace(TAG, t);
+                Log.printStackTrace(TAG, e);
             }
         }
         return INSTANCE;
@@ -152,7 +152,7 @@ public class Statistics {
        try {
             JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
         } catch (JsonMappingException e) {
-            Log.printStackTrace(TAG, t);
+            Log.printStackTrace(TAG, e);
         }
     }
 
