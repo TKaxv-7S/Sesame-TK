@@ -702,7 +702,11 @@ public class Status {
     }
 
     public static synchronized void unload() {
-        JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
+        try {
+            JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
+        } catch (JsonMappingException e) {
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void save() {
