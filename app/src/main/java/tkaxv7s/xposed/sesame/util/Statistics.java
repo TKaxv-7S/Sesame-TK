@@ -148,6 +148,10 @@ public class Statistics {
         return INSTANCE;
     }
 
+    public static synchronized void unload() {
+        JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
+    }
+
     private static void save() {
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system(TAG, "保存 statistics.json");
