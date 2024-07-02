@@ -663,8 +663,8 @@ public class Status {
     }
 
     public static synchronized Status load() {
+        String currentUid = UserIdMap.getCurrentUid();
         try {
-            String currentUid = UserIdMap.getCurrentUid();
             if (StringUtil.isEmpty(currentUid)) {
                 Log.i(TAG, "用户为空，状态加载失败");
                 throw new RuntimeException("用户为空，状态加载失败");
