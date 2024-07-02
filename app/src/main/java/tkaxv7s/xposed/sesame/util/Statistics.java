@@ -127,6 +127,7 @@ public class Statistics {
                     FileUtil.write2File(formatted, statisticsFile);
                 }
             } else {
+                JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 Log.i(TAG, "初始化 statistics.json");
                 Log.system(TAG, "初始化 statistics.json");
@@ -138,11 +139,17 @@ public class Statistics {
             Log.system(TAG, "统计文件格式有误，已重置统计文件");
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
+                String formatted = JsonUtil.toJsonString(INSTANCE);
+                FileUtil.write2File(formatted, statisticsFile);
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, t);
             }
         }
         return INSTANCE;
+    }
+
+    public static synchronized void unload() {
+        JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
     }
 
     private static void save() {
