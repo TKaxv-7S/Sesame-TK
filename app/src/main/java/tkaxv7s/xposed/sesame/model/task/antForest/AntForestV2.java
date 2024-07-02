@@ -116,6 +116,7 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField totalCertCount;
     private BooleanModelField collectGiftBox;
     private BooleanModelField medicalHealthFeeds;
+    private BooleanModelField sendEnergyByAction;
     private BooleanModelField animalConsumeProp;
     private SelectModelField.SelectOneModelField sendFriendCard;
     private SelectModelField whoYouWantToGiveTo;
@@ -174,6 +175,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(totalCertCount = new BooleanModelField("totalCertCount", "记录证书总数", false));
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗能量", false));
+        modelFields.addField(sendEnergyByAction = new BooleanModelField("sendEnergyByAction", "森林集市", false));
         modelFields.addField(sendFriendCard = new SelectModelField.SelectOneModelField("sendFriendCard", "送好友卡片(赠送当前图鉴所有卡片)", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具给谁（赠送所有可送道具）", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
@@ -294,8 +296,10 @@ public class AntForestV2 extends ModelTask {
                     exchangeEnergyDoubleClickLongTime(exchangeCount);
                 }
                 /* 森林集市 */
-                sendEnergyByAction("GREEN_LIFE");
-                sendEnergyByAction("ANTFOREST");
+                if (sendEnergyByAction.getValue()) {
+                    sendEnergyByAction("GREEN_LIFE");
+                    sendEnergyByAction("ANTFOREST");
+                }
 
                 if (medicalHealthFeeds.getValue()) {
                     medicalHealthFeeds();

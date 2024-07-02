@@ -10,8 +10,11 @@ import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm;
 import tkaxv7s.xposed.sesame.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.entity.AlipayUser;
+import tkaxv7s.xposed.sesame.entity.KVNode;
+
+import java.util.*;
 
 public class AntOrchard extends ModelTask {
     private static final String TAG = AntOrchard.class.getSimpleName();
@@ -27,6 +30,8 @@ public class AntOrchard extends ModelTask {
     private static BooleanModelField receiveOrchardTaskAward;
     private static IntegerModelField orchardSpreadManureCount;
     private static BooleanModelField batchHireAnimal;
+    private SelectModelField dontHireList;
+    private SelectModelField dontWeedingList;
 
     @Override
     public String getName() {
@@ -40,6 +45,8 @@ public class AntOrchard extends ModelTask {
         modelFields.addField(receiveOrchardTaskAward = new BooleanModelField("receiveOrchardTaskAward", "收取农场任务奖励", false));
         modelFields.addField(orchardSpreadManureCount = new IntegerModelField("orchardSpreadManureCount", "农场每日施肥次数", 0));
         modelFields.addField(batchHireAnimal = new BooleanModelField("batchHireAnimal", "一键捉鸡除草", false));
+        modelFields.addField(dontHireList = new SelectModelField("dontHireList", "除草 | 不雇佣好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
+        modelFields.addField(dontWeedingList = new SelectModelField("dontWeedingList", "除草 | 不除草好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser.getList()));
         return modelFields;
     }
 
@@ -412,12 +419,15 @@ public class AntOrchard extends ModelTask {
                     for (int i = 0; i < recommendGroupList.length(); i++) {
                         jo = recommendGroupList.getJSONObject(i);
                         String animalUserId = jo.getString("animalUserId");
-                        if (AntFarm.dontNotifyFriendList.getValue().getKey().containsKey(animalUserId)) {
+                        if (dontHireList.getValue().getKey().containsKey(animalUserId)) {
                             continue;
                         }
                         int earnManureCount = jo.getInt("earnManureCount");
                         String groupId = jo.getString("groupId");
                         String orchardUserId = jo.getString("orchardUserId");
+                        if (dontWeedingList.getValue().getKey().containsKey(orchardUserId)) {
+                            continue;
+                        }
                         GroupList.add("{\"animalUserId\":\"" + animalUserId + "\",\"earnManureCount\":"
                                 + earnManureCount + ",\"groupId\":\"" + groupId + "\",\"orchardUserId\":\""
                                 + orchardUserId + "\"}");
