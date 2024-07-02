@@ -20,6 +20,7 @@ import tkaxv7s.xposed.sesame.hook.Toast;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm.TaskStatus;
+import tkaxv7s.xposed.sesame.ui.ObjReference;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.text.DateFormat;
@@ -74,6 +75,7 @@ public class AntForestV2 extends ModelTask {
     private volatile long doubleEndTime = 0;
 
     private final Lock collectEnergyLock = new ReentrantLock();
+    private final ObjReference<Long> collectEnergyLockLimit = new ObjReference<>(0L);
 
     private final Object doubleCardLockObj = new Object();
 
@@ -841,7 +843,14 @@ public class AntForestV2 extends ModelTask {
                         thisTryCount++;
                         needDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
-                        ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
+                        synchronized (collectEnergyLockLimit) {
+                            long sleep = 80 - System.currentTimeMillis() + collectEnergyLockLimit.get();
+                            if (sleep > 0) {
+                                TimeUtil.sleep(sleep);
+                            }
+                            ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
+                            collectEnergyLockLimit.set(System.currentTimeMillis());
+                        }
                         if (rpcEntity.getHasError()) {
                             String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                             if ("1004".equals(errorCode)) {
@@ -958,7 +967,14 @@ public class AntForestV2 extends ModelTask {
                         thisTryCount++;
                         needDouble = false;
                         rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIds);
-                        ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
+                        synchronized (collectEnergyLockLimit) {
+                            long sleep = 80 - System.currentTimeMillis() + collectEnergyLockLimit.get();
+                            if (sleep > 0) {
+                                TimeUtil.sleep(sleep);
+                            }
+                            ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
+                            collectEnergyLockLimit.set(System.currentTimeMillis());
+                        }
                         if (rpcEntity.getHasError()) {
                             String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                             if ("1004".equals(errorCode)) {
