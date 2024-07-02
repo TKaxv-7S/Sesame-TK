@@ -680,6 +680,7 @@ public class Status {
                     FileUtil.write2File(formatted, FileUtil.getStatusFile(currentUid));
                 }
             } else {
+                JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 Log.i(TAG, "初始化 status.json");
                 Log.system(TAG, "初始化 status.json");
