@@ -36,7 +36,6 @@ public class ListDialog {
     static ListType listType;
 
     static AlertDialog optionsDialog;
-    static AlertDialog deleteDialog;
 
     static RelativeLayout layout_batch_process;
 
@@ -283,45 +282,24 @@ public class ListDialog {
 
     private static void showDeleteDialog(Context c) {
         try {
-            getDeleteDialog(c).show();
-        } catch (Throwable t) {
-            deleteDialog = null;
-            getDeleteDialog(c).show();
-        }
-        deleteDialog.setTitle("删除 " + curIdAndName.name);
-    }
-
-    private static AlertDialog getDeleteDialog(Context c) {
-        if (deleteDialog == null) {
-            OnClickListener listener = new OnClickListener() {
-                Context c;
-
-                public OnClickListener setContext(Context c) {
-                    this.c = c;
-                    return this;
-                }
-
-                @Override
-                public void onClick(DialogInterface p1, int p2) {
-                    if (p2 == DialogInterface.BUTTON_POSITIVE) {
-                        if (curIdAndName instanceof AlipayUser) {
-                            UserIdMap.remove(curIdAndName.id);
-                        } else if (curIdAndName instanceof CooperateUser) {
-                            CooperationIdMap.remove(curIdAndName.id);
+            new AlertDialog.Builder(c)
+                    .setTitle("删除 " + curIdAndName.name)
+                    .setPositiveButton(c.getString(R.string.ok), (dialog, which) -> {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
+                            if (curIdAndName instanceof AlipayUser) {
+                                UserIdMap.remove(curIdAndName.id);
+                            } else if (curIdAndName instanceof CooperateUser) {
+                                CooperationIdMap.remove(curIdAndName.id);
+                            }
+                            selectedMap.remove(curIdAndName.id);
+                            ListAdapter.get(c).exitFind();
                         }
-                        selectedMap.remove(curIdAndName.id);
-                        ListAdapter.get(c).exitFind();
-                    }
-                    ListAdapter.get(c).notifyDataSetChanged();
-                }
-            }.setContext(c);
-            deleteDialog = new AlertDialog.Builder(c)
-                    .setTitle("title")
-                    .setPositiveButton(c.getString(R.string.ok), listener)
+                        ListAdapter.get(c).notifyDataSetChanged();
+                    })
                     .setNegativeButton(c.getString(R.string.cancel), null)
-                    .create();
+                    .create().show();
+        } catch (Throwable ignored) {
         }
-        return deleteDialog;
     }
 
     static class OnBtnClickListener implements View.OnClickListener {
