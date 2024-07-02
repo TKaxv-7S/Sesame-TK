@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -34,6 +35,8 @@ public class HtmlViewerActivity extends BaseActivity {
         mWebView = findViewById(R.id.mwv_webview);
         pgb = findViewById(R.id.pgb_webview);
 
+        WebSettings settings = mWebView.getSettings();
+        settings.setTextZoom(88);
         mWebView.setWebChromeClient(
                 new WebChromeClient() {
                     @SuppressLint("WrongConstant")

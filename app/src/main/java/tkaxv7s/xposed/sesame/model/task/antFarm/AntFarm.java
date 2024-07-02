@@ -844,10 +844,12 @@ public class AntFarm extends ModelTask {
                             break;
                         case FINISHED:
                             int awardCount = jo.getInt("awardCount");
-                            if (awardCount + foodStock > foodStockLimit) {
-                                unreceiveTaskAward++;
-                                Log.record("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，终止领取");
-                                return;
+                            if (Objects.equals(jo.optString("awardType"), "ALLPURPOSE")) {
+                                if (awardCount + foodStock > foodStockLimit) {
+                                    unreceiveTaskAward++;
+                                    //Log.record("领取" + awardCount + "克饲料后将超过[" + foodStockLimit + "克]上限，终止领取");
+                                    continue;
+                                }
                             }
                             s = AntFarmRpcCall.receiveFarmTaskAward(jo.getString("taskId"));
                             Thread.sleep(5000);
@@ -1701,12 +1703,12 @@ public class AntFarm extends ModelTask {
             for (int i = 0, len = animals.length(); i < len; i++) {
                 JSONObject joo = animals.getJSONObject(i);
                 if (Objects.equals(joo.getString("subAnimalType"), "WORK")) {
-                    String animalId = joo.getString("animalId");
-                    if (hasChildTask("HIRE_" + animalId)) {
+                    String taskId = "HIRE_" + joo.getString("animalId");
+                    if (hasChildTask(taskId)) {
                         continue;
                     }
                     long beHiredEndTime = joo.getLong("beHiredEndTime");
-                    addChildTask(new ChildModelTask(this, animalId, () -> {
+                    addChildTask(new ChildModelTask(this, taskId, () -> {
                         if (enableHireAnimal.getValue()) {
                             hireAnimal();
                         }

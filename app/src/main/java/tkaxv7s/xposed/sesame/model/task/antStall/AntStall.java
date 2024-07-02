@@ -143,6 +143,8 @@ public class AntStall extends ModelTask {
                 }
                 if (stallAutoTask.getValue()) {
                     taskList();
+                    TimeUtil.sleep(1000);
+                    taskList();
                 }
                 if (stallDonate.getValue()) {
                     roadmap();
@@ -447,15 +449,15 @@ public class AntStall extends ModelTask {
             for (int i = 0; i < taskModels.length(); i++) {
                 JSONObject task = taskModels.getJSONObject(i);
                 String taskStatus = task.getString("taskStatus");
+                String taskType = task.getString("taskType");
                 if ("FINISHED".equals(taskStatus)) {
-                    receiveTaskAward(task.getString("taskType"));
+                    receiveTaskAward(taskType);
                     continue;
                 }
                 if (!"TODO".equals(taskStatus)) {
                     continue;
                 }
                 JSONObject bizInfo = new JSONObject(task.getString("bizInfo"));
-                String taskType = task.getString("taskType");
                 String title = bizInfo.optString("title", taskType);
                 if ("VISIT_AUTO_FINISH".equals(bizInfo.getString("actionType"))
                         || taskTypeList.contains(taskType)) {

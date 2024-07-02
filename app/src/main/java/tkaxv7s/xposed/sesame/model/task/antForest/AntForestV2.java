@@ -1042,43 +1042,51 @@ public class AntForestV2 extends ModelTask {
     }
 
     private void updateDoubleTime() throws JSONException {
-        String s = AntForestRpcCall.queryHomePage();
-        JSONObject joHomePage = new JSONObject(s);
-        updateDoubleTime(joHomePage);
+        try {
+            String s = AntForestRpcCall.queryHomePage();
+            JSONObject joHomePage = new JSONObject(s);
+            updateDoubleTime(joHomePage);
+        } finally {
+            TimeUtil.sleep(100);
+        }
     }
 
-    private void updateDoubleTime(JSONObject joHomePage) throws JSONException {
-        JSONArray usingUserPropsNew = joHomePage.getJSONArray("loginUserUsingPropNew");
-        if (usingUserPropsNew.length() == 0) {
-            usingUserPropsNew = joHomePage.getJSONArray("usingUserPropsNew");
-        }
-        for (int i = 0; i < usingUserPropsNew.length(); i++) {
-            JSONObject userUsingProp = usingUserPropsNew.getJSONObject(i);
-            String propGroup = userUsingProp.getString("propGroup");
-            if ("doubleClick".equals(propGroup)) {
-                doubleEndTime = userUsingProp.getLong("endTime");
-                // Log.forest("双倍卡剩余时间⏰" + (doubleEndTime - System.currentTimeMillis()) / 1000);
-            } else if ("robExpandCard".equals(propGroup)) {
-                String extInfo = userUsingProp.optString("extInfo");
-                if (!extInfo.isEmpty()) {
-                    JSONObject extInfoObj = new JSONObject(extInfo);
-                    int leftEnergy = Integer.parseInt(extInfoObj.optString("leftEnergy", "0"));
-                    String overLimitToday = extInfoObj.optString("overLimitToday", "false");
-                    if (leftEnergy > 3000 || ("true".equals(overLimitToday) && leftEnergy >= 1)) {
-                        String propId = userUsingProp.getString("propId");
-                        String propType = userUsingProp.getString("propType");
-                        try {
-                            JSONObject jo = new JSONObject(AntForestRpcCall.collectRobExpandEnergy(propId, propType));
-                            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                                int collectEnergy = jo.optInt("collectEnergy");
-                                Log.forest("额外能量🎄收取[" + collectEnergy + "g]");
+    private void updateDoubleTime(JSONObject joHomePage) {
+        try {
+            JSONArray usingUserPropsNew = joHomePage.getJSONArray("loginUserUsingPropNew");
+            if (usingUserPropsNew.length() == 0) {
+                usingUserPropsNew = joHomePage.getJSONArray("usingUserPropsNew");
+            }
+            for (int i = 0; i < usingUserPropsNew.length(); i++) {
+                JSONObject userUsingProp = usingUserPropsNew.getJSONObject(i);
+                String propGroup = userUsingProp.getString("propGroup");
+                if ("doubleClick".equals(propGroup)) {
+                    doubleEndTime = userUsingProp.getLong("endTime");
+                    // Log.forest("双倍卡剩余时间⏰" + (doubleEndTime - System.currentTimeMillis()) / 1000);
+                } else if ("robExpandCard".equals(propGroup)) {
+                    String extInfo = userUsingProp.optString("extInfo");
+                    if (!extInfo.isEmpty()) {
+                        JSONObject extInfoObj = new JSONObject(extInfo);
+                        double leftEnergy = Double.parseDouble(extInfoObj.optString("leftEnergy", "0"));
+                        if (leftEnergy > 3000 || ("true".equals(extInfoObj.optString("overLimitToday", "false")) && leftEnergy >= 1)) {
+                            String propId = userUsingProp.getString("propId");
+                            String propType = userUsingProp.getString("propType");
+                            try {
+                                JSONObject jo = new JSONObject(AntForestRpcCall.collectRobExpandEnergy(propId, propType));
+                                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                                    int collectEnergy = jo.optInt("collectEnergy");
+                                    Log.forest("额外能量🎄收取[" + collectEnergy + "g]");
+                                }
+                            } finally {
+                                TimeUtil.sleep(1000);
                             }
-                        } finally {
-                            TimeUtil.sleep(1000);
                         }
                     }
                 }
             }
+        } catch (Throwable th) {
+            Log.i(TAG, "updateDoubleTime err:");
+            Log.printStackTrace(TAG, th);
         }
     }
 

@@ -65,10 +65,6 @@ public class FriendManager {
         }.start();
     }
 
-    public static UserEntity addUserObject(Object userObject, Boolean isMaskAccount) {
-        return null;
-    }
-
     public static boolean needUpdateAll(long last) {
         if (last == 0L) {
             return true;
