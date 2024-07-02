@@ -28,6 +28,7 @@ public class OptionsAdapter extends BaseAdapter {
         list = new ArrayList<>();
         list.add("查看森林");
         list.add("查看庄园");
+        //list.add("查看资料");
         list.add("删除");
     }
 

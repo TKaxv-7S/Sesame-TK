@@ -32,8 +32,8 @@ public class AntOcean extends ModelTask {
         return "海洋";
     }
 
-    public static BooleanModelField protectOcean;
-    public static SelectModelField protectOceanList;
+    private BooleanModelField protectOcean;
+    private SelectModelField protectOceanList;
 
     @Override
     public ModelFields getFields() {

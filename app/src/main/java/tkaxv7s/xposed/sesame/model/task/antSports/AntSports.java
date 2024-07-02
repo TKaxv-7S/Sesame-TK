@@ -1,5 +1,6 @@
 package tkaxv7s.xposed.sesame.model.task.antSports;
 
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,28 +13,29 @@ import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.*;
 
+import java.util.Calendar;
 import java.util.HashSet;
 
 public class AntSports extends ModelTask {
     private static final String TAG = AntSports.class.getSimpleName();
 
-    private static final HashSet<String> waitOpenBoxNos = new HashSet<>();
+    private final HashSet<String> waitOpenBoxNos = new HashSet<>();
 
-    private static int tmpStepCount = -1;
+    private int tmpStepCount = -1;
 
     @Override
     public String getName() {
         return "运动";
     }
 
-    public BooleanModelField openTreasureBox;
-    public BooleanModelField receiveCoinAsset;
-    public BooleanModelField donateCharityCoin;
-    public IntegerModelField minExchangeCount;
-    public IntegerModelField latestExchangeTime;
-    public static IntegerModelField syncStepCount;
-    public BooleanModelField tiyubiz;
-    public BooleanModelField battleForFriends;
+    private BooleanModelField openTreasureBox;
+    private BooleanModelField receiveCoinAsset;
+    private BooleanModelField donateCharityCoin;
+    private IntegerModelField minExchangeCount;
+    private IntegerModelField latestExchangeTime;
+    private IntegerModelField syncStepCount;
+    private BooleanModelField tiyubiz;
+    private BooleanModelField battleForFriends;
 
     @Override
     public ModelFields getFields() {
@@ -50,6 +52,31 @@ public class AntSports extends ModelTask {
     }
 
     @Override
+    public void config(ClassLoader classLoader) {
+        try {
+            XposedHelpers.findAndHookMethod("com.alibaba.health.pedometer.core.datasource.PedometerAgent", classLoader,
+                    "readDailyStep", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) {
+                            int originStep = (Integer) param.getResult();
+                            int step = tmpStepCount();
+                            if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 6 || originStep >= step) {
+                                Log.other("当前步数🏃🏻‍♂️[" + originStep + "步]，无需同步");
+                                return;
+                            }
+                            Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
+                            param.setResult(step);
+
+                        }
+                    });
+            Log.i(TAG, "hook readDailyStep successfully");
+        } catch (Throwable t) {
+            Log.i(TAG, "hook readDailyStep err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    @Override
     public Boolean check() {
         return !TaskCommon.IS_ENERGY_TIME;
     }
@@ -59,9 +86,10 @@ public class AntSports extends ModelTask {
         try {
             if (Status.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
                 addChildTask(new ChildModelTask(this, "syncStep", () -> {
-                    int step = AntSports.tmpStepCount();
+                    int step = tmpStepCount();
                     try {
-                        if ((Boolean) XposedHelpers.callMethod(XposedHelpers.callStaticMethod(ApplicationHook.getClassLoader().loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"), "a"), "a", new Object[]{step, Boolean.FALSE, "system"})) {
+                        ClassLoader classLoader = ApplicationHook.getClassLoader();
+                        if ((Boolean) XposedHelpers.callMethod(XposedHelpers.callStaticMethod(classLoader.loadClass("com.alibaba.health.pedometer.intergation.rpc.RpcManager"), "a"), "a", new Object[]{step, Boolean.FALSE, "system"})) {
                             Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
                         } else {
                             Log.record("同步运动步数失败:" + step);
@@ -103,7 +131,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    public static int tmpStepCount() {
+    public int tmpStepCount() {
         if (tmpStepCount >= 0) {
             return tmpStepCount;
         }
@@ -117,7 +145,7 @@ public class AntSports extends ModelTask {
         return tmpStepCount;
     }
 
-    private static void receiveCoinAsset() {
+    private void receiveCoinAsset() {
         try {
             String s = AntSportsRpcCall.queryCoinBubbleModule();
             JSONObject jo = new JSONObject(s);
@@ -146,7 +174,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void queryMyHomePage(ClassLoader loader) {
+    private void queryMyHomePage(ClassLoader loader) {
         try {
             String s = AntSportsRpcCall.queryMyHomePage();
             JSONObject jo = new JSONObject(s);
@@ -200,7 +228,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void join(ClassLoader loader, JSONArray allPathBaseInfoList, JSONArray otherAllPathBaseInfoList,
+    private void join(ClassLoader loader, JSONArray allPathBaseInfoList, JSONArray otherAllPathBaseInfoList,
                              String firstJoinPathTitle) {
         try {
             int index = -1;
@@ -252,7 +280,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void go(ClassLoader loader, String day, String rankCacheKey, int stepCount, String title) {
+    private void go(ClassLoader loader, String day, String rankCacheKey, int stepCount, String title) {
         try {
             String s = AntSportsRpcCall.go(day, rankCacheKey, stepCount);
             JSONObject jo = new JSONObject(s);
@@ -276,7 +304,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void parseTreasureBoxModel(ClassLoader loader, JSONObject jo, String rankCacheKey) {
+    private void parseTreasureBoxModel(ClassLoader loader, JSONObject jo, String rankCacheKey) {
         try {
             String canOpenTime = jo.getString("canOpenTime");
             String issueTime = jo.getString("issueTime");
@@ -335,7 +363,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static int openTreasureBox(ClassLoader loader, String boxNo, String userId) {
+    private int openTreasureBox(ClassLoader loader, String boxNo, String userId) {
         try {
             String s = AntSportsRpcCall.openTreasureBox(boxNo, userId);
             JSONObject jo = new JSONObject(s);
@@ -362,7 +390,7 @@ public class AntSports extends ModelTask {
         return 0;
     }
 
-    private static void queryProjectList(ClassLoader loader) {
+    private void queryProjectList(ClassLoader loader) {
         try {
             String s = AntSportsRpcCall.queryProjectList(0);
             JSONObject jo = new JSONObject(s);
@@ -389,7 +417,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void donate(ClassLoader loader, int donateCharityCoin, String projectId, String title) {
+    private void donate(ClassLoader loader, int donateCharityCoin, String projectId, String title) {
         try {
             String s = AntSportsRpcCall.donate(donateCharityCoin, projectId);
             JSONObject jo = new JSONObject(s);
@@ -454,7 +482,7 @@ public class AntSports extends ModelTask {
     }
 
     /* 文体中心 */// SPORTS_DAILY_SIGN_GROUP SPORTS_DAILY_GROUP
-    private static void userTaskGroupQuery(String groupId) {
+    private void userTaskGroupQuery(String groupId) {
         try {
             String s = AntSportsRpcCall.userTaskGroupQuery(groupId);
             JSONObject jo = new JSONObject(s);
@@ -485,7 +513,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void participate() {
+    private void participate() {
         try {
             String s = AntSportsRpcCall.queryAccount();
             JSONObject jo = new JSONObject(s);
@@ -535,7 +563,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void userTaskRightsReceive() {
+    private void userTaskRightsReceive() {
         try {
             String s = AntSportsRpcCall.userTaskGroupQuery("SPORTS_DAILY_GROUP");
             JSONObject jo = new JSONObject(s);
@@ -574,7 +602,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void pathFeatureQuery() {
+    private void pathFeatureQuery() {
         try {
             String s = AntSportsRpcCall.pathFeatureQuery();
             JSONObject jo = new JSONObject(s);
@@ -613,7 +641,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void pathMapHomepage(String pathId) {
+    private void pathMapHomepage(String pathId) {
         try {
             String s = AntSportsRpcCall.pathMapHomepage(pathId);
             JSONObject jo = new JSONObject(s);
@@ -651,7 +679,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void pathMapJoin(String title, String pathId) {
+    private void pathMapJoin(String title, String pathId) {
         try {
             JSONObject jo = new JSONObject(AntSportsRpcCall.pathMapJoin(pathId));
             if (jo.getBoolean("success")) {
@@ -666,7 +694,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void tiyubizGo(String countDate, String title, int goStepCount, String pathId,
+    private void tiyubizGo(String countDate, String title, int goStepCount, String pathId,
                                   String userPathRecordId) {
         try {
             String s = AntSportsRpcCall.tiyubizGo(countDate, goStepCount, pathId, userPathRecordId);
@@ -690,7 +718,7 @@ public class AntSports extends ModelTask {
     }
 
     /* 抢好友大战 */
-    private static void queryClubHome() {
+    private void queryClubHome() {
         try {
             // 发送 RPC 请求获取 club home 数据
             JSONObject clubHomeData = new JSONObject(AntSportsRpcCall.queryClubHome());
@@ -726,7 +754,7 @@ public class AntSports extends ModelTask {
         }
     }
 
-    private static void queryTrainItem() {
+    private void queryTrainItem() {
         try {
             // 发送 RPC 请求获取 club home 数据
             JSONObject clubHomeData = new JSONObject(AntSportsRpcCall.queryClubHome());

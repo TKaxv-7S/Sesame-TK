@@ -40,6 +40,7 @@ public class SettingsActivity extends BaseActivity {
             userId = intent.getStringExtra("userId");
             userName = intent.getStringExtra("userName");
         }
+        Model.initAllModel(null);
         UserIdMap.setCurrentUserId(userId);
         UserIdMap.load(userId);
         CooperationIdMap.load(userId);

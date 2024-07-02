@@ -195,7 +195,7 @@ public abstract class ModelTask extends Model {
             this(modelTask, id, () -> {}, 0);
         }
 
-        public ChildModelTask(ModelTask modelTask, String id, int execTime) {
+        protected ChildModelTask(ModelTask modelTask, String id, long execTime) {
             this(modelTask, id, null, execTime);
         }
 
@@ -203,7 +203,7 @@ public abstract class ModelTask extends Model {
             this(modelTask, id, runnable, 0);
         }
 
-        public ChildModelTask(ModelTask modelTask, String id, Runnable runnable, int execTime) {
+        public ChildModelTask(ModelTask modelTask, String id, Runnable runnable, long execTime) {
             if (id == null) {
                 id = toString();
             }
@@ -227,24 +227,24 @@ public abstract class ModelTask extends Model {
             }
             String modelTaskId = modelTask.getName();
             childTaskMap.put(id, this);
-            //Log.record("模块:" + modelTaskId + " 添加子任务:" + id);
+            //Log.record("任务模块:" + modelTaskId + " 添加子任务:" + id);
             try {
                 long delay = execTime - System.currentTimeMillis();
                 if (delay > 0) {
                     try {
                         Thread.sleep(delay);
                     } catch (InterruptedException e) {
-                        Log.record("模块:" + modelTaskId + " 中断子任务:" + id);
+                        Log.record("任务模块:" + modelTaskId + " 中断子任务:" + id);
                         return;
                     }
                 }
                 runnable.run();
             } catch (Exception e) {
                 Log.printStackTrace(e);
-                Log.record("模块:" + modelTaskId + " 异常子任务:" + id);
+                Log.record("任务模块:" + modelTaskId + " 异常子任务:" + id);
             } finally {
                 childTaskMap.remove(id);
-                //Log.record("模块:" + modelTaskId + " 移除子任务:" + id);
+                //Log.record("任务模块:" + modelTaskId + " 移除子任务:" + id);
             }
         }
     }
