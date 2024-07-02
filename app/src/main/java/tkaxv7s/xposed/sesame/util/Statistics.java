@@ -127,6 +127,7 @@ public class Statistics {
                     FileUtil.write2File(formatted, statisticsFile);
                 }
             } else {
+                JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 Log.i(TAG, "初始化 statistics.json");
                 Log.system(TAG, "初始化 statistics.json");
