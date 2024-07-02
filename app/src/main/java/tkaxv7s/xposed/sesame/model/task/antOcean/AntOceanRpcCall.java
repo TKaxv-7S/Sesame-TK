@@ -151,4 +151,38 @@ public class AntOceanRpcCall {
                         + "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
+    // 答题
+    public static String getQuestion() {
+        return ApplicationHook.requestString("com.alipay.reading.game.dada.openDailyAnswer.getQuestion",
+                "[{\"activityId\":\"363\",\"dadaVersion\":\"1.3.0\",\"version\":1}]");
+    }
+
+
+    public static String record() {
+        return ApplicationHook.requestString("com.alipay.reading.game.dada.mdap.record",
+                "[{\"behavior\":\"visit\",\"dadaVersion\":\"1.3.0\",\"version\":\"1\"}]");
+    }
+
+
+    public static String submitAnswer(String answer, String questionId) {
+        return ApplicationHook.requestString("com.alipay.reading.game.dada.openDailyAnswer.submitAnswer",
+                "[{\"activityId\":\"363\",\"answer\":\"" + answer + "\",\"dadaVersion\":\"1.3.0\",\"outBizId\":\"ANTOCEAN_DATI_PINTU_722_new\",\"questionId\":\"" + questionId + "\",\"version\":\"1\"}]");
+    }
+
+    // 潘多拉任务
+    public static String PDLqueryReplicaHome() {
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryReplicaHome",
+                "[{\"replicaCode\":\"avatar\",\"source\":\"seaAreaList\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+    }
+
+    public static String PDLqueryTaskList() {
+        return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryTaskList",
+                "[{\"fromAct\":\"dynamic_task\",\"sceneCode\":\"ANTOCEAN_AVATAR_TASK\",\"source\":\"seaAreaList\",\"uniqueId\":\"" + getUniqueId() + "\",\"version\":\"20220707\"}]");
+    }
+
+    public static String PDLreceiveTaskAward(String taskType) {
+        return ApplicationHook.requestString("com.alipay.antiep.receiveTaskAward",
+                "[{\"ignoreLimit\":\"false\",\"requestType\":\"RPC\",\"sceneCode\":\"ANTOCEAN_AVATAR_TASK\",\"source\":\"ANTFOCEAN\",\"taskType\":\"" + taskType + "\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+    }
+
 }
