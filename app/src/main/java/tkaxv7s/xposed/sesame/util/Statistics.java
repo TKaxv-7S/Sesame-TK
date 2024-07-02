@@ -128,10 +128,9 @@ public class Statistics {
                 }
             } else {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
-                String formatted = JsonUtil.toJsonString(INSTANCE);
                 Log.i(TAG, "初始化 statistics.json");
                 Log.system(TAG, "初始化 statistics.json");
-                FileUtil.write2File(formatted, statisticsFile);
+                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), statisticsFile);
             }
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
@@ -139,8 +138,7 @@ public class Statistics {
             Log.system(TAG, "统计文件格式有误，已重置统计文件");
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
-                String formatted = JsonUtil.toJsonString(INSTANCE);
-                FileUtil.write2File(formatted, statisticsFile);
+                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), statisticsFile);
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, e);
             }

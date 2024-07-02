@@ -263,10 +263,10 @@ public class ListDialog {
                                             break;
 
                                         case 2:
-                                            url = "alipays://platformapi/startapp?appId=20000166&actionType=profile&userId%3D";
+                                            /*url = "alipays://platformapi/startapp?appId=20000166&actionType=profile&userId%3D";
                                             break;
 
-                                        case 3:
+                                        case 3:*/
                                             showDeleteDialog(c);
                                     }
                                     if (url != null) {

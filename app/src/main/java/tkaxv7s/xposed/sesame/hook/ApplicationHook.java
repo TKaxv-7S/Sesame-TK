@@ -21,7 +21,6 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.model.task.antMember.AntMemberRpcCall;
-import tkaxv7s.xposed.sesame.model.task.antSports.AntSports;
 import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.RpcBridge;
@@ -113,25 +112,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Log.i(TAG, "hook matchVersion successfully");
             } catch (Throwable t) {
                 Log.i(TAG, "hook matchVersion err:");
-                Log.printStackTrace(TAG, t);
-            }
-            try {
-                XposedHelpers.findAndHookMethod("com.alibaba.health.pedometer.core.datasource.PedometerAgent", classLoader,
-                        "readDailyStep", new XC_MethodHook() {
-                            @Override
-                            protected void afterHookedMethod(MethodHookParam param) {
-                                int originStep = (Integer) param.getResult();
-                                int step = AntSports.tmpStepCount();
-                                if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 6 || originStep >= step) {
-                                    return;
-                                }
-                                param.setResult(step);
-
-                            }
-                        });
-                Log.i(TAG, "hook readDailyStep successfully");
-            } catch (Throwable t) {
-                Log.i(TAG, "hook readDailyStep err:");
                 Log.printStackTrace(TAG, t);
             }
             try {
@@ -338,6 +318,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Log.i(TAG, "hook MiscUtils err:");
                 Log.printStackTrace(TAG, t);
             }
+            Model.initAllModel(classLoader);
             hooked = true;
             Log.i(TAG, "load success: " + lpparam.packageName);
         }
@@ -438,7 +419,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return false;
                 }
-                Model.destroyAllModel();
+                Model.initAllModel(classLoader);
                 Log.record("开始加载");
                 ConfigV2.load(UserIdMap.getCurrentUid());
                 if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
@@ -496,7 +477,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                         Object object = param.args[15];
                                         Object[] recordArray = rpcHookMap.remove(object);
                                         if (recordArray != null) {
-                                            Log.debug("\n时间: " + recordArray[0] + "\n方法: " + recordArray[1] + "\n参数: " + recordArray[2] + "\n数据: " + recordArray[3] + "\n");
+                                            Log.debug("记录\n时间: " + recordArray[0] + "\n方法: " + recordArray[1] + "\n参数: " + recordArray[2] + "\n数据: " + recordArray[3] + "\n");
                                         } else {
                                             Log.debug("删除记录ID: " + object.hashCode());
                                         }

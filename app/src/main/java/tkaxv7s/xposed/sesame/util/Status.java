@@ -681,10 +681,9 @@ public class Status {
                 }
             } else {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
-                String formatted = JsonUtil.toJsonString(INSTANCE);
                 Log.i(TAG, "初始化 status.json");
                 Log.system(TAG, "初始化 status.json");
-                FileUtil.write2File(formatted, FileUtil.getStatusFile(currentUid));
+                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
             }
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
@@ -692,8 +691,7 @@ public class Status {
             Log.system(TAG, "状态文件格式有误，已重置");
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
-                String formatted = JsonUtil.toJsonString(INSTANCE);
-                FileUtil.write2File(formatted, FileUtil.getStatusFile(currentUid));
+                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, e);
             }

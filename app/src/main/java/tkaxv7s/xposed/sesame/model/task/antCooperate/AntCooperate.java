@@ -21,14 +21,14 @@ public class AntCooperate extends ModelTask {
         return "合种";
     }
 
-    public static BooleanModelField cooperateWater;
-    public static SelectModelField cooperateWaterList;
+    private final BooleanModelField cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false);
+    private final SelectModelField cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser.getList());
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false));
-        modelFields.addField(cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser.getList()));
+        modelFields.addField(cooperateWater);
+        modelFields.addField(cooperateWaterList);
         return modelFields;
     }
 
