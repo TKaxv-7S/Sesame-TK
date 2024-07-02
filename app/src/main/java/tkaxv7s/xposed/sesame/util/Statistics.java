@@ -149,7 +149,11 @@ public class Statistics {
     }
 
     public static synchronized void unload() {
-        JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
+       try {
+            JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
+        } catch (JsonMappingException e) {
+            Log.printStackTrace(TAG, t);
+        }
     }
 
     private static void save() {
