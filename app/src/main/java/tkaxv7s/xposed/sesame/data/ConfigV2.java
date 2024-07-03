@@ -175,7 +175,7 @@ public class ConfigV2 {
                     userName = userEntity.getShowName();
                 }
             }
-            Log.record("加载配置: "+ userName);
+            Log.record("加载配置: " + userName);
             if (configV2File.exists()) {
                 String json = FileUtil.readFromFile(configV2File);
                 JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);

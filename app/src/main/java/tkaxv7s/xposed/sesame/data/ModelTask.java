@@ -83,7 +83,9 @@ public abstract class ModelTask extends Model {
 
     public void addChildTask(ChildModelTask childTask) {
         String childId = childTask.getId();
-        removeChildTask(childId);
+        if (hasChildTask(childId)) {
+            removeChildTask(childId);
+        }
         ThreadPoolExecutor groupThreadPool = getChildGroupThreadPool(childTask.getGroup());
         groupThreadPool.execute(() -> {
             if (!addChildTaskInner(childTask)) {
