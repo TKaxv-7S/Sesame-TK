@@ -85,7 +85,9 @@ public class ListAdapter extends BaseAdapter {
         }
         int start = findIndex;
         int last = list.size() - 1;
-        if (start > last) {
+        if (start < 0) {
+            start = 0;
+        } else if (start > last) {
             start = last;
         }
         int current = start;
@@ -119,6 +121,8 @@ public class ListAdapter extends BaseAdapter {
         int last = list.size() - 1;
         if (start < 0) {
             start = 0;
+        } else if (start > last) {
+            start = last;
         }
         int current = start;
         for (; ; ) {
