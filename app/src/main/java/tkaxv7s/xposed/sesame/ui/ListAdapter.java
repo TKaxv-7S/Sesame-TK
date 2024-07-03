@@ -7,15 +7,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.util.Log;
+
+import java.util.*;
 
 public class ListAdapter extends BaseAdapter {
     private static ListAdapter adapter;
@@ -23,14 +19,20 @@ public class ListAdapter extends BaseAdapter {
     private static ListDialog.ListType listType;
 
     public static ListAdapter get(Context c) {
-        if (adapter == null)
+        if (adapter == null) {
             adapter = new ListAdapter(c);
+        }
+        return adapter;
+    }
+
+    public static ListAdapter getClear(Context c) {
+        ListAdapter adapter = get(c);
         adapter.findIndex = -1;
         adapter.findWord = null;
         return adapter;
     }
 
-    public static ListAdapter get(Context c, ListDialog.ListType listType) {
+    public static ListAdapter getClear(Context c, ListDialog.ListType listType) {
         if (adapter == null) {
             adapter = new ListAdapter(c);
             viewHolderList = new ArrayList<>();
@@ -45,7 +47,7 @@ public class ListAdapter extends BaseAdapter {
     List<? extends IdAndName> list;
     Map<String, Integer> selectedMap;
     int findIndex = -1;
-    CharSequence findWord = null;
+    String findWord = null;
 
     private ListAdapter(Context c) {
         context = c;
@@ -72,46 +74,65 @@ public class ListAdapter extends BaseAdapter {
         }
     }
 
-    public int findLast(CharSequence cs) {
-        if (list == null || list.isEmpty())
+    public int findLast(String findThis) {
+        if (list == null || list.isEmpty()) {
             return -1;
-        if (!cs.equals(findWord)) {
-            findIndex = -1;
-            findWord = cs;
         }
-        int i = findIndex;
-        if (i < 0)
-            i = list.size();
+        findThis = findThis.toLowerCase();
+        if (!Objects.equals(findThis, findWord)) {
+            findIndex = -1;
+            findWord = findThis;
+        }
+        int start = findIndex;
+        int last = list.size() - 1;
+        if (start > last) {
+            start = last;
+        }
+        int current = start;
         for (; ; ) {
-            i = (i + list.size() - 1) % list.size();
-            IdAndName ai = list.get(i);
-            if (ai.name.contains(cs)) {
-                findIndex = i;
+            current--;
+            if (current < 0) {
+                current = last;
+            }
+            if (list.get(current).name.toLowerCase().contains(findThis)) {
+                findIndex = current;
                 break;
             }
-            if (findIndex < 0 && i == 0)
+            if (current == start) {
                 break;
+            }
         }
         notifyDataSetChanged();
         return findIndex;
     }
 
-    public int findNext(CharSequence cs) {
-        if (list == null || list.isEmpty())
+    public int findNext(String findThis) {
+        if (list == null || list.isEmpty()) {
             return -1;
-        if (!cs.equals(findWord)) {
-            findIndex = -1;
-            findWord = cs;
         }
-        for (int i = findIndex; ; ) {
-            i = (i + 1) % list.size();
-            IdAndName ai = list.get(i);
-            if (ai.name.contains(cs)) {
-                findIndex = i;
+        findThis = findThis.toLowerCase();
+        if (!Objects.equals(findThis, findWord)) {
+            findIndex = -1;
+            findWord = findThis;
+        }
+        int start = findIndex;
+        int last = list.size() - 1;
+        if (start < 0) {
+            start = 0;
+        }
+        int current = start;
+        for (; ; ) {
+            current++;
+            if (current > last) {
+                current = 0;
+            }
+            if (list.get(current).name.toLowerCase().contains(findThis)) {
+                findIndex = current;
                 break;
             }
-            if (findIndex < 0 && i == list.size() - 1)
+            if (current == start) {
                 break;
+            }
         }
         notifyDataSetChanged();
         return findIndex;

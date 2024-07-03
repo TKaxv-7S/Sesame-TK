@@ -85,7 +85,7 @@ public class AntSports extends ModelTask {
     public void run() {
         try {
             if (Status.canSyncStepToday(UserIdMap.getCurrentUid()) && TimeUtil.isNowAfterOrCompareTimeStr("0600")) {
-                addChildTask(new ChildModelTask(this, "syncStep", () -> {
+                addChildTask(new ChildModelTask("syncStep", () -> {
                     int step = tmpStepCount();
                     try {
                         ClassLoader classLoader = ApplicationHook.getClassLoader();

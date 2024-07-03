@@ -26,9 +26,9 @@ import tkaxv7s.xposed.sesame.util.*;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,6 +60,8 @@ public class AntForestV2 extends ModelTask {
 
     private final AtomicLong offsetTime = new AtomicLong(0);
 
+    private final AtomicInteger taskCount = new AtomicInteger(0);
+
     private String selfId;
 
     private Integer tryCountInt;
@@ -74,7 +76,6 @@ public class AntForestV2 extends ModelTask {
 
     private volatile long doubleEndTime = 0;
 
-    private final Lock collectEnergyLock = new ReentrantLock();
     private final ObjReference<Long> collectEnergyLockLimit = new ObjReference<>(0L);
 
     private final Object doubleCardLockObj = new Object();
@@ -139,14 +140,14 @@ public class AntForestV2 extends ModelTask {
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(collectEnergy = new BooleanModelField("collectEnergy", "收集能量", false));
-        modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", false));
         modelFields.addField(queryInterval = new StringModelField("queryInterval", "查询间隔(毫秒或毫秒范围)", "500-1000"));
         modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "1000-1500"));
         modelFields.addField(doubleCollectInterval = new StringModelField("doubleCollectInterval", "双击收取间隔(毫秒或毫秒范围)", "50-150"));
-        modelFields.addField(balanceNetworkDelay = new BooleanModelField("balanceNetworkDelay", "平衡网络延迟", true));
+        modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", false));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 1000, 0, 10000));
+        modelFields.addField(balanceNetworkDelay = new BooleanModelField("balanceNetworkDelay", "平衡网络延迟", true));
         modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "双击卡 | 使用", false));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡 | 使用次数", 6));
@@ -201,19 +202,25 @@ public class AntForestV2 extends ModelTask {
     }
 
     @Override
+    public Boolean isSync() {
+        return true;
+    }
+
+    @Override
     public void run() {
         try {
-            Log.i("执行开始-蚂蚁森林");
+            Log.record("执行开始-蚂蚁森林");
             NotificationUtil.setStatusTextExec();
 
+            taskCount.set(0);
             selfId = UserIdMap.getCurrentUid();
             tryCountInt = tryCount.getValue();
             retryIntervalInt = retryInterval.getValue();
             dontCollectMap = dontCollectList.getValue().getKey();
 
-            queryIntervalEntity = new FixedOrRangeIntervalEntity(queryInterval.getValue(), 0, 10000);
-            collectIntervalEntity = new FixedOrRangeIntervalEntity(collectInterval.getValue(), 0, 10000);
-            doubleCollectIntervalEntity = new FixedOrRangeIntervalEntity(doubleCollectInterval.getValue(), 0, 5000);
+            queryIntervalEntity = new FixedOrRangeIntervalEntity(queryInterval.getValue(), 10, 10000);
+            collectIntervalEntity = new FixedOrRangeIntervalEntity(collectInterval.getValue(), 50, 10000);
+            doubleCollectIntervalEntity = new FixedOrRangeIntervalEntity(doubleCollectInterval.getValue(), 20, 5000);
 
             if (!balanceNetworkDelay.getValue()) {
                 offsetTime.set(0);
@@ -310,8 +317,35 @@ public class AntForestV2 extends ModelTask {
             Log.i(TAG, "checkEnergyRanking.run err:");
             Log.printStackTrace(TAG, t);
         } finally {
-            Log.i("执行结束-蚂蚁森林");
-            NotificationUtil.setStatusTextIdle();
+            try {
+                synchronized (AntForestV2.this) {
+                    int count = taskCount.get();
+                    if (count > 10) {
+                        AntForestV2.this.wait(TimeUnit.MINUTES.toMillis(30));
+                        count = taskCount.get();
+                    }
+                    if (count > 10) {
+                        Log.record("执行超时-蚂蚁森林");
+                    } else if (count == 0) {
+                        Log.record("执行结束-蚂蚁森林");
+                        NotificationUtil.setStatusTextIdle();
+                    } else {
+                        Log.record("执行完成-蚂蚁森林");
+                        NotificationUtil.setStatusTextIdle();
+                    }
+                }
+            } catch (InterruptedException ie) {
+                Log.i(TAG, "执行中断-蚂蚁森林");
+                NotificationUtil.setStatusTextIdle();
+            }
+        }
+    }
+
+    private void notifyMain() {
+        if (taskCount.decrementAndGet() < 1) {
+            synchronized (AntForestV2.this) {
+                AntForestV2.this.notifyAll();
+            }
         }
     }
 
@@ -461,9 +495,9 @@ public class AntForestV2 extends ModelTask {
                                     break;
                                 }
                                 addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
-                                Log.record("添加[" + userName + "]蹲点收取任务, 在[" + DateFormat.getDateTimeInstance().format(produceTime) + "]执行");
+                                Log.record("蹲点收取🪂 [" + userName + "]在[" + DateFormat.getDateTimeInstance().format(produceTime) + "]执行");
                             } else {
-                                Log.i(TAG, "用户[" + UserIdMap.getMaskName(userId) + "]能量成熟时间: " + DateFormat.getDateTimeInstance().format(produceTime));
+                                Log.i("用户[" + UserIdMap.getMaskName(userId) + "]能量成熟时间: " + DateFormat.getDateTimeInstance().format(produceTime));
                             }
                             break;
                     }
@@ -828,89 +862,80 @@ public class AntForestV2 extends ModelTask {
                 boolean isDouble = false;
                 String doBizNo = bizNo;
                 boolean needDouble = false;
-                boolean isDone = false;
+                boolean needRetry = false;
                 int thisTryCount = 0;
                 do {
                     int collected = 0;
-                    Lock lock = null;
-                    try {
+                    thisTryCount++;
+                    rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
+                    synchronized (collectEnergyLockLimit) {
+                        long sleep;
                         if (needDouble) {
-                            TimeUtil.sleep(doubleCollectIntervalEntity.getInterval());
+                            needDouble = false;
+                            sleep = doubleCollectIntervalEntity.getInterval() - System.currentTimeMillis() + collectEnergyLockLimit.get();
+                        } else if (needRetry) {
+                            needRetry = false;
+                            sleep = retryIntervalInt - System.currentTimeMillis() + collectEnergyLockLimit.get();
                         } else {
-                            lock = collectEnergyLock;
-                            lock.lockInterruptibly();
+                            sleep = collectIntervalEntity.getInterval() - System.currentTimeMillis() + collectEnergyLockLimit.get();
                         }
-                        thisTryCount++;
-                        needDouble = false;
-                        rpcEntity = AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId);
-                        synchronized (collectEnergyLockLimit) {
-                            long sleep = 80 - System.currentTimeMillis() + collectEnergyLockLimit.get();
-                            if (sleep > 0) {
-                                TimeUtil.sleep(sleep);
-                            }
-                            ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
-                            collectEnergyLockLimit.set(System.currentTimeMillis());
+                        if (sleep > 0) {
+                            TimeUtil.sleep(sleep);
                         }
-                        if (rpcEntity.getHasError()) {
-                            String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
-                            if ("1004".equals(errorCode)) {
-                                if (BaseModel.getWaitWhenException().getValue() > 0) {
-                                    long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
-                                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                                    NotificationUtil.updateStatusText("异常");
-                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                                    return;
-                                }
-                                try {
-                                    Thread.sleep(600 + RandomUtil.delay());
-                                } catch (InterruptedException e) {
-                                    Log.printStackTrace(e);
-                                }
-                            }
-                            continue;
-                        }
-                        JSONObject jo = new JSONObject(rpcEntity.getResponseString());
-                        String resultCode = jo.getString("resultCode");
-                        if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
-                            if ("PARAM_ILLEGAL2".equals(resultCode)) {
-                                Log.record("[" + UserIdMap.getMaskName(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
+                        long start = System.currentTimeMillis();
+                        ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
+                        long end = System.currentTimeMillis();
+                        collectEnergyLockLimit.set((start + end) / 2);
+                    }
+                    if (rpcEntity.getHasError()) {
+                        String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
+                        if ("1004".equals(errorCode)) {
+                            if (BaseModel.getWaitWhenException().getValue() > 0) {
+                                long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
+                                RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                NotificationUtil.updateStatusText("异常");
+                                Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 return;
                             }
-                            Log.record("[" + UserIdMap.getMaskName(userId) + "]" + jo.getString("resultDesc"));
-                            continue;
-                        }
-                        JSONArray jaBubbles = jo.getJSONArray("bubbles");
-                        jo = jaBubbles.getJSONObject(0);
-                        collected += jo.getInt("collectedEnergy");
-                        FriendManager.friendWatch(userId, collected);
-                        if (collected > 0) {
-                            String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (isDouble ? "[双击卡]" : "");
-                            Log.forest(str);
-                            Toast.show(str);
-                            totalCollected += collected;
-                            Statistics.addData(Statistics.DataType.COLLECTED, collected);
-                        } else {
-                            Log.record("收取[" + UserIdMap.getMaskName(userId) + "]的能量失败");
-                            Log.i("，UserID：" + userId + "，BubbleId：" + bubbleId);
-                        }
-                        if (jo.getBoolean("canBeRobbedAgain")) {
-                            doBizNo = null;
-                            isDouble = true;
-                            needDouble = true;
-                            thisTryCount = 0;
-                            continue;
-                        }
-                        isDone = true;
-                    } finally {
-                        if (!needDouble && !isDone) {
-                            TimeUtil.sleep(collectIntervalEntity.getInterval());
-                        }
-                        if (lock != null) {
                             try {
-                                lock.lockInterruptibly();
-                            } catch (Throwable ignored) {
+                                Thread.sleep(600 + RandomUtil.delay());
+                            } catch (InterruptedException e) {
+                                Log.printStackTrace(e);
                             }
                         }
+                        continue;
+                    }
+                    JSONObject jo = new JSONObject(rpcEntity.getResponseString());
+                    String resultCode = jo.getString("resultCode");
+                    if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
+                        if ("PARAM_ILLEGAL2".equals(resultCode)) {
+                            Log.record("[" + UserIdMap.getMaskName(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
+                            return;
+                        }
+                        Log.record("[" + UserIdMap.getMaskName(userId) + "]" + jo.getString("resultDesc"));
+                        needRetry = true;
+                        continue;
+                    }
+                    JSONArray jaBubbles = jo.getJSONArray("bubbles");
+                    jo = jaBubbles.getJSONObject(0);
+                    collected += jo.getInt("collectedEnergy");
+                    FriendManager.friendWatch(userId, collected);
+                    if (collected > 0) {
+                        String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (isDouble ? "[双击卡]" : "");
+                        Log.forest(str);
+                        Toast.show(str);
+                        totalCollected += collected;
+                        Statistics.addData(Statistics.DataType.COLLECTED, collected);
+                    } else {
+                        Log.record("收取[" + UserIdMap.getMaskName(userId) + "]的能量失败");
+                        Log.i("，UserID：" + userId + "，BubbleId：" + bubbleId);
+                    }
+                    if (jo.getBoolean("canBeRobbedAgain")) {
+                        doBizNo = null;
+                        isDouble = true;
+                        needDouble = true;
+                        thisTryCount = 0;
+                        continue;
                     }
                     if (doBizNo == null || doBizNo.isEmpty()) {
                         return;
@@ -932,18 +957,21 @@ public class AntForestV2 extends ModelTask {
             } catch (Throwable t) {
                 Log.i(TAG, "collectUserEnergy err:");
                 Log.printStackTrace(TAG, t);
+            } finally {
+                notifyMain();
             }
         };
         if (joinThread) {
             runnable.run();
         } else {
-            addChildTask(new ChildModelTask(this, "NC|" + userId + "|" + bubbleId, runnable));
+            addChildTask(new ChildModelTask("CE|NC|" + userId + "|" + bubbleId, "CE", runnable));
+            taskCount.incrementAndGet();
         }
     }
 
     private void collectUserBatchEnergy(String userId, final List<Long> bubbleIdList) {
         String bubbleIds = StringUtil.collectionJoinString(",", bubbleIdList);
-        addChildTask(new ChildModelTask(this, "BC|" + userId + "|" + bubbleIds, () -> {
+        addChildTask(new ChildModelTask("CE|BC|" + userId + "|" + bubbleIds, "CE", () -> {
             try {
                 if (doubleCard.getValue() && !Objects.equals(selfId, userId) && doubleEndTime < System.currentTimeMillis()) {
                     useDoubleCard();
@@ -952,94 +980,85 @@ public class AntForestV2 extends ModelTask {
                 boolean isDouble = false;
                 String doBubbleIds = bubbleIds;
                 boolean needDouble = false;
-                boolean isDone = false;
+                boolean needRetry = false;
                 int thisTryCount = 0;
                 do {
                     int collected = 0;
-                    Lock lock = null;
-                    try {
+                    thisTryCount++;
+                    rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIds);
+                    synchronized (collectEnergyLockLimit) {
+                        long sleep;
                         if (needDouble) {
-                            TimeUtil.sleep(doubleCollectIntervalEntity.getInterval());
+                            needDouble = false;
+                            sleep = doubleCollectIntervalEntity.getInterval() - System.currentTimeMillis() + collectEnergyLockLimit.get();
+                        } else if (needRetry) {
+                            needRetry = false;
+                            sleep = retryIntervalInt - System.currentTimeMillis() + collectEnergyLockLimit.get();
                         } else {
-                            lock = collectEnergyLock;
-                            lock.lockInterruptibly();
+                            sleep = collectIntervalEntity.getInterval() - System.currentTimeMillis() + collectEnergyLockLimit.get();
                         }
-                        thisTryCount++;
-                        needDouble = false;
-                        rpcEntity = AntForestRpcCall.getCollectBatchEnergyRpcEntity(userId, doBubbleIds);
-                        synchronized (collectEnergyLockLimit) {
-                            long sleep = 80 - System.currentTimeMillis() + collectEnergyLockLimit.get();
-                            if (sleep > 0) {
-                                TimeUtil.sleep(sleep);
-                            }
-                            ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
-                            collectEnergyLockLimit.set(System.currentTimeMillis());
+                        if (sleep > 0) {
+                            TimeUtil.sleep(sleep);
                         }
-                        if (rpcEntity.getHasError()) {
-                            String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
-                            if ("1004".equals(errorCode)) {
-                                if (BaseModel.getWaitWhenException().getValue() > 0) {
-                                    long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
-                                    RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
-                                    NotificationUtil.updateStatusText("异常");
-                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
-                                    return;
-                                }
-                                try {
-                                    Thread.sleep(600 + RandomUtil.delay());
-                                } catch (InterruptedException e) {
-                                    Log.printStackTrace(e);
-                                }
-                            }
-                            continue;
-                        }
-                        JSONObject jo = new JSONObject(rpcEntity.getResponseString());
-                        String resultCode = jo.getString("resultCode");
-                        if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
-                            if ("PARAM_ILLEGAL2".equals(resultCode)) {
-                                Log.record("[" + UserIdMap.getMaskName(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
+                        long start = System.currentTimeMillis();
+                        ApplicationHook.requestObject(rpcEntity, 0, retryIntervalInt);
+                        long end = System.currentTimeMillis();
+                        collectEnergyLockLimit.set((start + end) / 2);
+                    }
+                    if (rpcEntity.getHasError()) {
+                        String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
+                        if ("1004".equals(errorCode)) {
+                            if (BaseModel.getWaitWhenException().getValue() > 0) {
+                                long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
+                                RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
+                                NotificationUtil.updateStatusText("异常");
+                                Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
                                 return;
                             }
-                            Log.record("[" + UserIdMap.getMaskName(userId) + "]" + jo.getString("resultDesc"));
-                            continue;
-                        }
-                        JSONArray jaBubbles = jo.getJSONArray("bubbles");
-                        List<Long> newBubbleIdList = new ArrayList<>();
-                        for (int i = 0; i < jaBubbles.length(); i++) {
-                            JSONObject bubble = jaBubbles.getJSONObject(i);
-                            if (bubble.getBoolean("canBeRobbedAgain")) {
-                                newBubbleIdList.add(bubble.getLong("id"));
-                            }
-                            collected += bubble.getInt("collectedEnergy");
-                        }
-                        if (collected > 0) {
-                            FriendManager.friendWatch(userId, collected);
-                            String str = "一键收取🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (isDouble ? "[双击卡]" : "");
-                            Log.forest(str);
-                            Toast.show(str);
-                            totalCollected += collected;
-                            Statistics.addData(Statistics.DataType.COLLECTED, collected);
-                        } else {
-                            Log.record("一键收取[" + UserIdMap.getMaskName(userId) + "]的能量失败" + " " + "，UserID：" + userId + "，BubbleId：" + newBubbleIdList);
-                        }
-                        if (!newBubbleIdList.isEmpty()) {
-                            doBubbleIds = StringUtil.collectionJoinString(",", newBubbleIdList);
-                            isDouble = true;
-                            needDouble = true;
-                            thisTryCount = 0;
-                            continue;
-                        }
-                        isDone = true;
-                    } finally {
-                        if (!needDouble && !isDone) {
-                            TimeUtil.sleep(collectIntervalEntity.getInterval());
-                        }
-                        if (lock != null) {
                             try {
-                                lock.lockInterruptibly();
-                            } catch (Throwable ignored) {
+                                Thread.sleep(600 + RandomUtil.delay());
+                            } catch (InterruptedException e) {
+                                Log.printStackTrace(e);
                             }
                         }
+                        continue;
+                    }
+                    JSONObject jo = new JSONObject(rpcEntity.getResponseString());
+                    String resultCode = jo.getString("resultCode");
+                    if (!"SUCCESS".equalsIgnoreCase(resultCode)) {
+                        if ("PARAM_ILLEGAL2".equals(resultCode)) {
+                            Log.record("[" + UserIdMap.getMaskName(userId) + "]" + "能量已被收取,取消重试 错误:" + jo.getString("resultDesc"));
+                            return;
+                        }
+                        Log.record("[" + UserIdMap.getMaskName(userId) + "]" + jo.getString("resultDesc"));
+                        needRetry = true;
+                        continue;
+                    }
+                    JSONArray jaBubbles = jo.getJSONArray("bubbles");
+                    List<Long> newBubbleIdList = new ArrayList<>();
+                    for (int i = 0; i < jaBubbles.length(); i++) {
+                        JSONObject bubble = jaBubbles.getJSONObject(i);
+                        if (bubble.getBoolean("canBeRobbedAgain")) {
+                            newBubbleIdList.add(bubble.getLong("id"));
+                        }
+                        collected += bubble.getInt("collectedEnergy");
+                    }
+                    if (collected > 0) {
+                        FriendManager.friendWatch(userId, collected);
+                        String str = "一键收取🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (isDouble ? "[双击卡]" : "");
+                        Log.forest(str);
+                        Toast.show(str);
+                        totalCollected += collected;
+                        Statistics.addData(Statistics.DataType.COLLECTED, collected);
+                    } else {
+                        Log.record("一键收取[" + UserIdMap.getMaskName(userId) + "]的能量失败" + " " + "，UserID：" + userId + "，BubbleId：" + newBubbleIdList);
+                    }
+                    if (!newBubbleIdList.isEmpty()) {
+                        doBubbleIds = StringUtil.collectionJoinString(",", newBubbleIdList);
+                        isDouble = true;
+                        needDouble = true;
+                        thisTryCount = 0;
+                        continue;
                     }
                     NotificationUtil.updateLastExecText("收：" + totalCollected + "，帮：" + totalHelpCollected);
                     return;
@@ -1048,12 +1067,10 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "collectUserBatchEnergy err:");
                 Log.printStackTrace(TAG, e);
             } finally {
-                try {
-                    Thread.sleep(collectIntervalEntity.getInterval());
-                } catch (InterruptedException ignored) {
-                }
+                notifyMain();
             }
         }));
+        taskCount.incrementAndGet();
     }
 
     private void updateDoubleTime() throws JSONException {
@@ -2495,7 +2512,7 @@ public class AntForestV2 extends ModelTask {
          * Instantiates a new Bubble timer task.
          */
         BubbleTimerTask(String ui, long bi, long pt) {
-            super(AntForestV2.this, AntForestV2.getBubbleTimerTid(ui, bi), (int) (pt - 3000 - advanceTime.getValue()));
+            super(AntForestV2.getBubbleTimerTid(ui, bi), (int) (pt - 3000 - advanceTime.getValue()));
             userId = ui;
             bubbleId = bi;
             produceTime = pt;
@@ -2505,7 +2522,7 @@ public class AntForestV2 extends ModelTask {
         public Runnable setRunnable() {
             return () -> {
                 String userName = UserIdMap.getMaskName(userId);
-                long readyTime = produceTime + offsetTime.get() - System.currentTimeMillis() - advanceTime.getValue();
+                long readyTime = produceTime - advanceTime.getValue() + offsetTime.get() - System.currentTimeMillis();
                 if (readyTime > 0) {
                     try {
                         Thread.sleep(readyTime);
@@ -2514,14 +2531,14 @@ public class AntForestV2 extends ModelTask {
                         return;
                     }
                 }
-                Log.record("执行[" + userName + "]蹲点收取任务");
+                Log.record("执行蹲点收取🪂 [" + userName + "]");
                 collectUserEnergy(userId, bubbleId, null, true);
             };
         }
     }
 
-
     public static String getBubbleTimerTid(String ui, long bi) {
-        return "DD|" + ui + "|" + bi;
+        return "BT|" + ui + "|" + bi;
     }
+
 }

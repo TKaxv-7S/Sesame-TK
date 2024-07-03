@@ -107,7 +107,6 @@ public class Statistics {
         }
         Log.system(TAG, "重置 statistics.json");
         save();
-        Status.dayClear();
         return true;
     }
 
@@ -117,9 +116,6 @@ public class Statistics {
             if (statisticsFile.exists()) {
                 String json = FileUtil.readFromFile(statisticsFile);
                 JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
-                if (INSTANCE.resetByCalendar(Calendar.getInstance())) {
-                    return INSTANCE;
-                }
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 if (formatted != null && !formatted.equals(json)) {
                     Log.i(TAG, "重新格式化 statistics.json");
