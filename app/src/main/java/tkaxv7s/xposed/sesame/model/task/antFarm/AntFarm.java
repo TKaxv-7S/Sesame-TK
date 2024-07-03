@@ -1713,7 +1713,7 @@ public class AntFarm extends ModelTask {
                             hireAnimal();
                         }
                     }, beHiredEndTime));
-                    Log.record("蹲点雇佣👷 在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
+                    Log.record("添加蹲点雇佣👷在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
                 }
             }
             int animalCount = animals.length();
@@ -1787,7 +1787,7 @@ public class AntFarm extends ModelTask {
                                             hireAnimal();
                                         }
                                     }, beHiredEndTime));
-                                    Log.record("蹲点雇佣👷 在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
+                                    Log.record("添加蹲点雇佣👷在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
                                     break;
                                 }
                             }
