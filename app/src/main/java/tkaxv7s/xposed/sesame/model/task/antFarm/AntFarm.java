@@ -1708,12 +1708,12 @@ public class AntFarm extends ModelTask {
                         continue;
                     }
                     long beHiredEndTime = joo.getLong("beHiredEndTime");
-                    addChildTask(new ChildModelTask(this, taskId, () -> {
+                    addChildTask(new ChildModelTask(taskId, "HIRE", () -> {
                         if (enableHireAnimal.getValue()) {
                             hireAnimal();
                         }
                     }, beHiredEndTime));
-                    Log.record("蹲点雇佣👷, 在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
+                    Log.record("蹲点雇佣👷 在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
                 }
             }
             int animalCount = animals.length();
@@ -1721,8 +1721,8 @@ public class AntFarm extends ModelTask {
                 return;
             }
             Log.farm("雇佣小鸡👷[当前可雇佣小鸡数量:" + (3 - animalCount) + "只]");
-            List<String> userIdList = new ArrayList<>();
-            boolean hasNext = false;
+            Map<String, Integer> dontHireFriendMap = dontHireFriendList.getValue().getKey();
+            boolean hasNext;
             int pageStartSum = 0;
             String s;
             JSONObject jo;
@@ -1738,60 +1738,66 @@ public class AntFarm extends ModelTask {
                     for (int i = 0; i < jaRankingList.length(); i++) {
                         JSONObject joo = jaRankingList.getJSONObject(i);
                         String userId = joo.getString("userId");
-                        if (dontHireFriendList.getValue().getKey().containsKey(userId) || userId.equals(UserIdMap.getCurrentUid())) {
+                        if (dontHireFriendMap.containsKey(userId) || userId.equals(UserIdMap.getCurrentUid())) {
                             continue;
                         }
                         String actionTypeListStr = joo.getJSONArray("actionTypeList").toString();
                         if (actionTypeListStr.contains("can_hire_action")) {
-                            userIdList.add(userId);
+                            if (hireAnimalAction(userId)) {
+                                animalCount++;
+                                break;
+                            }
                         }
                     }
                 } else {
                     Log.record(memo);
                     Log.i(s);
-                }
-            } while (hasNext && userIdList.size() < 2);
-            for (String userId : userIdList) {
-                hireAnimalAction(userId);
-                animalCount++;
-                if (animalCount >= 3) {
                     break;
                 }
-            }
+            } while (hasNext && animalCount < 3);
         } catch (Throwable t) {
-            Log.i(TAG, "stealingAnimal err:");
+            Log.i(TAG, "hireAnimal err:");
             Log.printStackTrace(TAG, t);
         }
     }
 
-    private void hireAnimalAction(String userId) {
+    private boolean hireAnimalAction(String userId) {
         try {
             String s = AntFarmRpcCall.enterFarm("", userId);
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("memo"))) {
                 JSONObject farmVO = jo.getJSONObject("farmVO");
-                String farmId = farmVO.getJSONObject("subFarmVO").getString("farmId");
-                String animalId = farmVO.getJSONObject("subFarmVO").getJSONArray("animals").getJSONObject(0).getString("animalId");
-                jo = new JSONObject(AntFarmRpcCall.hireAnimal(farmId, animalId));
-                if ("SUCCESS".equals(jo.getString("memo"))) {
-                    Log.farm("雇佣小鸡👷[" + UserIdMap.getMaskName(userId) + "] 成功");
-                    JSONArray animals = jo.getJSONArray("animals");
-                    for (int i = 0, len = animals.length(); i < len; i++) {
-                        JSONObject joo = animals.getJSONObject(i);
-                        if (Objects.equals(joo.getString("animalId"), animalId)) {
-                            long beHiredEndTime = joo.getLong("beHiredEndTime");
-                            addChildTask(new ChildModelTask(this, "HIRE_" + animalId, () -> {
-                                if (enableHireAnimal.getValue()) {
-                                    hireAnimal();
+                JSONObject subFarmVO = farmVO.getJSONObject("subFarmVO");
+                String farmId = subFarmVO.getString("farmId");
+                JSONArray animals = subFarmVO.getJSONArray("animals");
+                for (int i = 0, len = animals.length(); i < len; i++) {
+                    JSONObject animal = animals.getJSONObject(i);
+                    if (Objects.equals(animal.getJSONObject("masterUserInfoVO").getString("userId"), userId)) {
+                        String animalId = animal.getString("animalId");
+                        jo = new JSONObject(AntFarmRpcCall.hireAnimal(farmId, animalId));
+                        if ("SUCCESS".equals(jo.getString("memo"))) {
+                            Log.farm("雇佣小鸡👷[" + UserIdMap.getMaskName(userId) + "] 成功");
+                            JSONArray newAnimals = jo.getJSONArray("animals");
+                            for (int ii = 0, newLen = newAnimals.length(); ii < newLen; ii++) {
+                                JSONObject joo = newAnimals.getJSONObject(ii);
+                                if (Objects.equals(joo.getString("animalId"), animalId)) {
+                                    long beHiredEndTime = joo.getLong("beHiredEndTime");
+                                    addChildTask(new ChildModelTask("HIRE_" + animalId, "HIRE", () -> {
+                                        if (enableHireAnimal.getValue()) {
+                                            hireAnimal();
+                                        }
+                                    }, beHiredEndTime));
+                                    Log.record("蹲点雇佣👷 在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
+                                    break;
                                 }
-                            }, beHiredEndTime));
-                            Log.record("蹲点雇佣👷, 在[" + DateFormat.getDateTimeInstance().format(beHiredEndTime) + "]执行");
-                            break;
+                            }
+                            return true;
+                        } else {
+                            Log.record(jo.getString("memo"));
+                            Log.i(s);
                         }
+                        return false;
                     }
-                } else {
-                    Log.record(jo.getString("memo"));
-                    Log.i(s);
                 }
             } else {
                 Log.record(jo.getString("memo"));
@@ -1803,6 +1809,7 @@ public class AntFarm extends ModelTask {
         } finally {
             TimeUtil.sleep(1000);
         }
+        return false;
     }
 
     private void drawGameCenterAward() {

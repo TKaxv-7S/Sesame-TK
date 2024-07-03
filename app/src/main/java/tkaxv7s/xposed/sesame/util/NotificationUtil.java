@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Build;
 import lombok.Getter;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
-import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 
 import java.text.DateFormat;
@@ -111,19 +110,7 @@ public class NotificationUtil {
     }
 
     public static void setStatusTextIdle() {
-        try {
-            long lastNoticeTime = NotificationUtil.getLastNoticeTime();
-            if (System.currentTimeMillis() - lastNoticeTime > 15_000) {
-                if (ApplicationHook.isOffline() || RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime) > System.currentTimeMillis()) {
-                    return;
-                }
-                updateStatusText("");
-            } else {
-                ApplicationHook.getMainHandler().postDelayed(NotificationUtil::setStatusTextIdle, 15_000);
-            }
-        } catch (Exception e) {
-            Log.printStackTrace(e);
-        }
+        updateStatusText("");
     }
 
     public static void setStatusTextExec() {
