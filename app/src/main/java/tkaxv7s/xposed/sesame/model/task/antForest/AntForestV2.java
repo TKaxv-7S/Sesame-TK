@@ -495,7 +495,7 @@ public class AntForestV2 extends ModelTask {
                                     break;
                                 }
                                 addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
-                                Log.record("蹲点收取🪂 [" + userName + "]在[" + DateFormat.getDateTimeInstance().format(produceTime) + "]执行");
+                                Log.record("添加蹲点收取🪂[" + userName + "]在[" + DateFormat.getDateTimeInstance().format(produceTime) + "]执行");
                             } else {
                                 Log.i("用户[" + UserIdMap.getMaskName(userId) + "]能量成熟时间: " + DateFormat.getDateTimeInstance().format(produceTime));
                             }
@@ -2531,7 +2531,7 @@ public class AntForestV2 extends ModelTask {
                         return;
                     }
                 }
-                Log.record("执行蹲点收取🪂 [" + userName + "]");
+                Log.record("蹲点收取🪂[" + userName + "]");
                 collectUserEnergy(userId, bubbleId, null, true);
             };
         }
