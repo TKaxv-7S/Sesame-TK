@@ -51,13 +51,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static volatile boolean init = false;
 
-    private static volatile Calendar dayCalendar = Calendar.getInstance();
+    private static volatile Calendar dayCalendar;
 
     @Getter
     private static volatile boolean offline = false;
 
     @Getter
-    private static volatile AtomicInteger reLoginCount = new AtomicInteger(0);
+    private static final AtomicInteger reLoginCount = new AtomicInteger(0);
 
     @Getter
     private static volatile ClassLoader classLoader;
@@ -250,6 +250,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     }
                                 });
                                 registerBroadcastReceiver(appService);
+                                NotificationUtil.start(service);
+                                dayCalendar = Calendar.getInstance();
                                 canInit = true;
                                 String targetUid = getUserId();
                                 if (targetUid != null) {
@@ -273,10 +275,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         if (!ClassUtil.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
                             return;
                         }
-                        NotificationUtil.updateStatusText("支付宝前台服务被销毁");
                         destroyHandler(true);
-                        Log.record("支付宝前台服务被销毁");
+                        NotificationUtil.updateStatusText("支付宝前台服务被销毁");
+                        NotificationUtil.stop();
                         restartByBroadcast();
+                        Log.record("支付宝前台服务被销毁");
                     }
                 });
                 Log.i(TAG, "hook service onDestroy successfully");
@@ -511,7 +514,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Status.load();
                 updateDay();
                 BaseModel.initData();
-                NotificationUtil.start(service);
                 Log.record("加载完成");
                 Toast.show("芝麻粒加载成功");
             }
@@ -531,7 +533,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             if (force) {
                 if (context != null) {
                     stopHandler();
-                    NotificationUtil.stop(service, false);
                     BaseModel.destroyData();
                     Status.unload();
                     Statistics.unload();
