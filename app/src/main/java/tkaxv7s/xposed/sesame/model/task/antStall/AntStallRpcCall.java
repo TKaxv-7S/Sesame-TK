@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 public class AntStallRpcCall {
     //0.1.2406171355.5
-    private static final String VERSION = "0.1.2406171355.5";
+    private static final String VERSION = "0.1.2312271038.27";
 
     public static String home() {
         return ApplicationHook.requestString("com.alipay.antstall.self.home",

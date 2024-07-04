@@ -199,4 +199,19 @@ public class AntSportsRpcCall {
                 "[{\"chInfo\":\"healthstep\",\"itemType\":\"" + itemType + "\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\"}]");
     }
 
+    public static String queryMemberPriceRanking(String coinBalance) {
+        return ApplicationHook.requestString("alipay.antsports.club.ranking.queryMemberPriceRanking",
+                "[{\"buyMember\":\"true\",\"chInfo\":\"healthstep\",\"coinBalance\":\"" + coinBalance + "\"}]");
+    }
+
+    public static String queryClubMember(String memberId, String originBossId) {
+        return ApplicationHook.requestString("alipay.antsports.club.trade.queryClubMember",
+                "[{\"chInfo\":\"healthstep\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\"}]");
+    }
+
+    public static String buyMember(String currentBossId, String memberId, String originBossId, String priceInfo, String roomId) {
+        String requestData = "[{\"chInfo\":\"healthstep\",\"currentBossId\":\"" + currentBossId + "\",\"memberId\":\"" + memberId + "\",\"originBossId\":\"" + originBossId + "\",\"priceInfo\":" + priceInfo + ",\"roomId\":\"" + roomId + "\"}]";
+        return ApplicationHook.requestString("alipay.antsports.club.trade.buyMember", requestData);
+    }
+
 }

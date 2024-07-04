@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.util;
 import android.app.*;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import lombok.Getter;
@@ -12,10 +13,10 @@ import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import java.text.DateFormat;
 
 public class NotificationUtil {
+    private static Context context;
     private static final int NOTIFICATION_ID = 99;
     private static final String CHANNEL_ID = "tkaxv7s.xposed.sesame.ANTFOREST_NOTIFY_CHANNEL";
     private static NotificationManager mNotifyManager;
-    private static Notification mNotification;
     private static Notification.Builder builder;
 
     @Getter
@@ -26,8 +27,10 @@ public class NotificationUtil {
 
     public static void start(Context context) {
         try {
+            NotificationUtil.context = context;
+            NotificationUtil.stop();
             statusText = "加载";
-            nextExecText = "待执行";
+            nextExecText = "";
             lastExecText = "";
             mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Intent it = new Intent(Intent.ACTION_VIEW);
@@ -41,18 +44,23 @@ public class NotificationUtil {
                 notificationChannel.enableVibration(false);
                 notificationChannel.setShowBadge(false);
                 mNotifyManager.createNotificationChannel(notificationChannel);
-                builder = new android.app.Notification.Builder(context, CHANNEL_ID);
+                builder = new Notification.Builder(context, CHANNEL_ID);
             } else {
-                builder = new android.app.Notification.Builder(context).setPriority(android.app.Notification.PRIORITY_LOW);
+                builder = new Notification.Builder(context).setPriority(Notification.PRIORITY_LOW);
             }
-            builder.setSmallIcon(android.R.drawable.sym_def_app_icon)
-                    .setContentTitle("芝麻粒")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                builder.setCategory(Notification.CATEGORY_NAVIGATION);
+            }
+            builder
+                    .setSmallIcon(android.R.drawable.sym_def_app_icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.sym_def_app_icon))
+                    .setSubText("芝麻粒")
                     .setAutoCancel(false)
                     .setContentIntent(pi);
             if (BaseModel.getEnableOnGoing().getValue()) {
                 builder.setOngoing(true);
             }
-            mNotification = builder.build();
+            Notification mNotification = builder.build();
             if (context instanceof Service) {
                 ((Service) context).startForeground(NOTIFICATION_ID, mNotification);
             } else {
@@ -63,14 +71,18 @@ public class NotificationUtil {
         }
     }
 
-    public static void stop(Context context, boolean remove) {
+    public static void stop() {
         try {
             if (context instanceof Service) {
-                ((Service) context).stopForeground(remove);
+                ((Service) context).stopForeground(true);
             } else {
-                mNotifyManager.cancel(NOTIFICATION_ID);
+                if (mNotifyManager != null) {
+                    mNotifyManager.cancel(NOTIFICATION_ID);
+                } else {
+                    ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
+                }
             }
-            mNotification = null;
+            mNotifyManager = null;
         } catch (Exception e) {
             Log.printStackTrace(e);
         }
@@ -119,14 +131,27 @@ public class NotificationUtil {
 
     private static void sendText() {
         try {
-            Notification.BigTextStyle style = new Notification.BigTextStyle();
-            style.bigText((StringUtil.isEmpty(statusText) ? "" : statusText + "，") + nextExecText + (StringUtil.isEmpty(lastExecText) ? "" : "\n" + lastExecText));
-//          Notification.InboxStyle style = new Notification.InboxStyle();
-//          style.addLine(preContent);
-//          style.addLine(contentText);
-            builder.setStyle(style);
-            mNotification = builder.build();
-            mNotifyManager.notify(NOTIFICATION_ID, mNotification);
+            boolean hasStatus = !StringUtil.isEmpty(statusText);
+            boolean hasNextExecText = !StringUtil.isEmpty(nextExecText);
+            builder.setContentTitle((hasStatus ? statusText : "") + (hasStatus && hasNextExecText ? "，" : "") + (hasNextExecText ? nextExecText : ""));
+            builder.setContentText(lastExecText);
+            /*Notification.InboxStyle style = new Notification.InboxStyle();
+            if (hasStatus) {
+                if (hasNextExecText) {
+                    style.addLine(statusText + "，" + nextExecText);
+                } else {
+                    style.addLine(statusText);
+                }
+            } else if (hasNextExecText) {
+                style.addLine(nextExecText);
+            }
+            if (!StringUtil.isEmpty(lastExecText)) {
+                style.addLine(lastExecText);
+            }*/
+            builder.setWhen(System.currentTimeMillis());
+            //Notification.BigTextStyle style = new Notification.BigTextStyle();
+            //builder.setStyle(style);
+            mNotifyManager.notify(NOTIFICATION_ID, builder.build());
         } catch (Exception e) {
             Log.printStackTrace(e);
         }
