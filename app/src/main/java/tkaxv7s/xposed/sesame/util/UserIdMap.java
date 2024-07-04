@@ -45,6 +45,10 @@ public class UserIdMap {
         currentUid = userId;
     }
 
+    public static String getCurrentMaskName() {
+        return getMaskName(currentUid);
+    }
+
     public static String getMaskName(String userId) {
         UserEntity userEntity = userMap.get(userId);
         if (userEntity == null) {

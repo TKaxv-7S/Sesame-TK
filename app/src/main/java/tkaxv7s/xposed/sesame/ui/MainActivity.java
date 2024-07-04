@@ -24,6 +24,7 @@ import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -99,11 +100,11 @@ public class MainActivity extends BaseActivity {
         } else {
             registerReceiver(broadcastReceiver, intentFilter);
         }
-        new AlertDialog.Builder(this)
+        /*new AlertDialog.Builder(this)
                 .setTitle("提示")
                 .setMessage("本APP是为了学习研究开发，免费提供，不得进行任何形式的转发、发布、传播。请于24小时内卸载本APP。如果您是购买的可能已经被骗，请联系卖家退款。")
                 .setNegativeButton("我知道了", null)
-                .create().show();
+                .create().show();*/
     }
 
     @Override
@@ -177,6 +178,7 @@ public class MainActivity extends BaseActivity {
             }
             try {
                 Statistics.load();
+                Statistics.INSTANCE.resetByCalendar(Calendar.getInstance());
                 tvStatistics.setText(Statistics.getText());
             } catch (Exception e) {
                 Log.printStackTrace(e);

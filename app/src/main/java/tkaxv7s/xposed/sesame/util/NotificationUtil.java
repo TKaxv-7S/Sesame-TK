@@ -134,7 +134,11 @@ public class NotificationUtil {
             boolean hasStatus = !StringUtil.isEmpty(statusText);
             boolean hasNextExecText = !StringUtil.isEmpty(nextExecText);
             builder.setContentTitle((hasStatus ? statusText : "") + (hasStatus && hasNextExecText ? "，" : "") + (hasNextExecText ? nextExecText : ""));
-            builder.setContentText(lastExecText);
+            if (!StringUtil.isEmpty(lastExecText)) {
+                builder.setContentText(lastExecText);
+            }
+            //Notification.BigTextStyle style = new Notification.BigTextStyle();
+            //builder.setStyle(style);
             /*Notification.InboxStyle style = new Notification.InboxStyle();
             if (hasStatus) {
                 if (hasNextExecText) {
@@ -148,9 +152,6 @@ public class NotificationUtil {
             if (!StringUtil.isEmpty(lastExecText)) {
                 style.addLine(lastExecText);
             }*/
-            builder.setWhen(System.currentTimeMillis());
-            //Notification.BigTextStyle style = new Notification.BigTextStyle();
-            //builder.setStyle(style);
             mNotifyManager.notify(NOTIFICATION_ID, builder.build());
         } catch (Exception e) {
             Log.printStackTrace(e);
