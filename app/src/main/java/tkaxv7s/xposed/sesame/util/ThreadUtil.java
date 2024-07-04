@@ -36,7 +36,7 @@ public class ThreadUtil {
         if (pool != null && !pool.isShutdown()) {
             pool.shutdown();
             try {
-                if (!pool.awaitTermination(3, TimeUnit.SECONDS)) {
+                if (!pool.awaitTermination(1, TimeUnit.SECONDS)) {
                     pool.shutdownNow();
                     if (!pool.awaitTermination(timeout, unit)) {
                         Log.i(TAG, "thread pool can't close");

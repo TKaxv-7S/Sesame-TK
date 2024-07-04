@@ -232,7 +232,7 @@ public abstract class ModelTask extends Model {
 
     public synchronized void stopTask() {
         for (ThreadPoolExecutor childThreadPool : childGroupThreadPoolMap.values()) {
-            ThreadUtil.shutdownAndAwaitTermination(childThreadPool, 10, TimeUnit.SECONDS);
+            ThreadUtil.shutdownAndAwaitTermination(childThreadPool, 3, TimeUnit.SECONDS);
         }
         childGroupThreadPoolMap.clear();
         childTaskMap.clear();

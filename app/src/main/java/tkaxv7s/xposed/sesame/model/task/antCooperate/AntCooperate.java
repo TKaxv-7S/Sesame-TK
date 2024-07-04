@@ -61,17 +61,21 @@ public class AntCooperate extends ModelTask {
                         String name = jo.getString("name");
                         int waterDayLimit = jo.getInt("waterDayLimit");
                         CooperationIdMap.add(cooperationId, name);
-                        if (!Status.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
+                        if (!Status.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId)) {
                             continue;
+                        }
                         Integer num = cooperateWaterList.getValue().getKey().get(cooperationId);
                         if (num != null) {
                             Integer limitNum = cooperateWaterTotalLimitList.getValue().getKey().get(cooperationId);
-                            if (limitNum != null)
+                            if (limitNum != null) {
                                 num = calculatedWaterNum(UserIdMap.getCurrentUid(), cooperationId, num, limitNum);
-                            if (num > waterDayLimit)
+                            }
+                            if (num > waterDayLimit) {
                                 num = waterDayLimit;
-                            if (num > userCurrentEnergy)
+                            }
+                            if (num > userCurrentEnergy) {
                                 num = userCurrentEnergy;
+                            }
                             if (num > 0) {
                                 cooperateWater(UserIdMap.getCurrentUid(), cooperationId, num, name);
                             }
@@ -101,6 +105,8 @@ public class AntCooperate extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "cooperateWater err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            TimeUtil.sleep(500);
         }
     }
 
@@ -115,9 +121,10 @@ public class AntCooperate extends ModelTask {
                     String userId = joItem.getString("userId");
                     if (userId.equals(uid)) {
                         int energySummation = joItem.optInt("energySummation", 0);
-                        if (num > limitNum - energySummation)
+                        if (num > limitNum - energySummation) {
                             num = limitNum - energySummation;
                             break;
+                        }
                     }
                 }
             }
