@@ -8,16 +8,17 @@ import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.entity.AlipayUser;
+import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.*;
 
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
-import tkaxv7s.xposed.sesame.entity.AlipayUser;
-import tkaxv7s.xposed.sesame.entity.KVNode;
-
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 public class AntSports extends ModelTask {
     private static final String TAG = AntSports.class.getSimpleName();
@@ -839,6 +840,7 @@ public class AntSports extends ModelTask {
         try {
             // 发送 RPC 请求获取 club home 数据
             String clubHomeResponse = AntSportsRpcCall.queryClubHome();
+            TimeUtil.sleep(500);
             JSONObject clubHomeJson = new JSONObject(clubHomeResponse);
             // 获取 coinBalance 的值
             JSONObject assetsInfo = clubHomeJson.getJSONObject("assetsInfo");
@@ -854,6 +856,7 @@ public class AntSports extends ModelTask {
                     String roomId = room.getString("roomId");
                     // 调用 queryMemberPriceRanking 方法并传递 coinBalance 的值
                     String memberPriceResult = AntSportsRpcCall.queryMemberPriceRanking(String.valueOf(coinBalance));
+                    TimeUtil.sleep(500);
                     JSONObject memberPriceJson = new JSONObject(memberPriceResult);
                     // 检查是否存在 rank 字段
                     if (memberPriceJson.has("rank") && memberPriceJson.getJSONObject("rank").has("data")) {
@@ -866,6 +869,7 @@ public class AntSports extends ModelTask {
                             if (originBossIdList.getValue().getKey().containsKey(originBossId)) {
                                 // 在这里调用 queryClubMember 方法并传递 memberId 和 originBossId 的值
                                 String clubMemberResult = AntSportsRpcCall.queryClubMember(dataObj.getString("memberId"), originBossId);
+                                TimeUtil.sleep(500);
                                 // 解析 queryClubMember 返回的 JSON 数据
                                 JSONObject clubMemberJson = new JSONObject(clubMemberResult);
                                 if (clubMemberJson.has("member")) {
@@ -876,6 +880,7 @@ public class AntSports extends ModelTask {
                                     String priceInfo = memberObj.getString("priceInfo");
                                     // 调用 buyMember 方法
                                     String buyMemberResult = AntSportsRpcCall.buyMember(currentBossId, memberId, originBossId, priceInfo, roomId);
+                                    TimeUtil.sleep(500);
                                     // 处理 buyMember 的返回结果
                                     JSONObject buyMemberResponse = new JSONObject(buyMemberResult);
                                     if ("SUCCESS".equals(buyMemberResponse.getString("resultCode"))) {
