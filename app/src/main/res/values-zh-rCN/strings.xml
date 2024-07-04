@@ -40,6 +40,7 @@
     <string name="harvest_produce">收获爱心鸡蛋</string>
     <string name="answer_question">回答问题</string>
     <string name="donation">捐赠爱心鸡蛋</string>
+    <string name="donation_type">捐蛋类型</string>
     <string name="receive_farm_task_award">收取饲料奖励</string>
     <string name="feed_animal">喂小鸡</string>
     <string name="use_accelerate_tool">使用加速卡</string>

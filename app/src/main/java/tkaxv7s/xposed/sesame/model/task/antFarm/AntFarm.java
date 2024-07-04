@@ -1,6 +1,7 @@
 package tkaxv7s.xposed.sesame.model.task.antFarm;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.ModelTask;
@@ -78,6 +79,7 @@ public class AntFarm extends ModelTask {
     private BooleanModelField useNewEggTool;
     private BooleanModelField harvestProduce;
     private BooleanModelField donation;
+    private ChoiceModelField donationType;
     private BooleanModelField answerQuestion;
     private BooleanModelField receiveFarmTaskAward;
     private BooleanModelField feedAnimal;
@@ -103,7 +105,7 @@ public class AntFarm extends ModelTask {
         modelFields.addField(dontSendFriendList = new SelectModelField("dontSendFriendList", "遣返 | 不遣返小鸡好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(recallAnimalType = new ChoiceModelField("recallAnimalType", "召回小鸡", RecallAnimalType.ALWAYS, RecallAnimalType.nickNames));
         modelFields.addField(receiveFarmToolReward = new BooleanModelField("receiveFarmToolReward", "收取道具奖励", false));
-        modelFields.addField(recordFarmGame = new BooleanModelField("recordFarmGame", "游戏改分(星星球、登山赛)", false));
+        modelFields.addField(recordFarmGame = new BooleanModelField("recordFarmGame", "游戏改分(星星球、登山赛、飞行赛、揍小鸡)", false));
         List<String> farmGameTimeList = new ArrayList<>();
         farmGameTimeList.add("2200-2400");
         modelFields.addField(farmGameTime = new ListModelField.ListJoinCommaToStringModelField("farmGameTime", "小鸡游戏时间(范围)", farmGameTimeList));
@@ -111,7 +113,8 @@ public class AntFarm extends ModelTask {
         modelFields.addField(useSpecialFood = new BooleanModelField("useSpecialFood", "使用特殊食品", false));
         modelFields.addField(useNewEggTool = new BooleanModelField("useNewEggTool", "使用新蛋卡", false));
         modelFields.addField(harvestProduce = new BooleanModelField("harvestProduce", "收获爱心鸡蛋", false));
-        modelFields.addField(donation = new BooleanModelField("donation", "捐赠爱心鸡蛋", false));
+        modelFields.addField(donation = new BooleanModelField("donation", "捐赠 | 一个爱心鸡蛋", false));
+        modelFields.addField(donationType = new ChoiceModelField("donationType", "捐赠 | 捐蛋类型", DonationType.ONE, DonationType.nickNames));
         modelFields.addField(answerQuestion = new BooleanModelField("answerQuestion", "开启答题", false));
         modelFields.addField(receiveFarmTaskAward = new BooleanModelField("receiveFarmTaskAward", "收取饲料奖励", false));
         modelFields.addField(feedAnimal = new BooleanModelField("feedAnimal", "喂小鸡", false));
@@ -127,7 +130,7 @@ public class AntFarm extends ModelTask {
         modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser::getList));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", false));
         modelFields.addField(enableChouchoule = new BooleanModelField("enableChouchoule", "开启小鸡抽抽乐", false));
-        modelFields.addField(enableHireAnimal = new BooleanModelField("enableHireAnimal", "雇佣小鸡", true));
+        modelFields.addField(enableHireAnimal = new BooleanModelField("enableHireAnimal", "雇佣小鸡", false));
         modelFields.addField(dontHireFriendList = new SelectModelField("dontHireFriendList", "雇佣小鸡 | 不雇佣好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(enableDdrawGameCenterAward = new BooleanModelField("enableDdrawGameCenterAward", "开宝箱", false));
         return modelFields;
@@ -282,7 +285,14 @@ public class AntFarm extends ModelTask {
             }
 
             if (donation.getValue() && Status.canDonationEgg(userId) && harvestBenevolenceScore >= 1) {
-                donation();
+                switch (donationType.getValue()) {
+                    case DonationType.ONE:
+                        handleDonation(DonationType.ONE);
+                        break;
+                    case DonationType.ALL:
+                        handleDonation(DonationType.ALL);
+                        break;
+                }
             }
 
             if (answerQuestion.getValue() && Status.canAnswerQuestionToday(UserIdMap.getCurrentUid())) {
@@ -583,7 +593,8 @@ public class AntFarm extends ModelTask {
         }
     }
 
-    private void donation() {
+    /* 捐赠爱心鸡蛋 */
+    private void handleDonation(int donationType) {
         try {
             String s = AntFarmRpcCall.listActivityInfo();
             JSONObject jo = new JSONObject(s);
@@ -596,24 +607,14 @@ public class AntFarm extends ModelTask {
                     if (!jo.get("donationTotal").equals(jo.get("donationLimit"))) {
                         activityId = jo.getString("activityId");
                         activityName = jo.optString("projectName", activityId);
-                        break;
+                        performDonation(activityId, activityName);
+                        if (donationType == DonationType.ONE) {
+                            break;
+                        }
                     }
                 }
                 if (activityId == null) {
                     Log.record("今日已无可捐赠的活动");
-                } else {
-                    s = AntFarmRpcCall.donation(activityId, 1);
-                    jo = new JSONObject(s);
-                    memo = jo.getString("memo");
-                    if ("SUCCESS".equals(memo)) {
-                        jo = jo.getJSONObject("donation");
-                        harvestBenevolenceScore = jo.getDouble("harvestBenevolenceScore");
-                        Log.farm("捐赠活动❤️[" + activityName + "]#累计捐赠" + jo.getInt("donationTimesStat") + "次");
-                        Status.donationEgg(userId);
-                    } else {
-                        Log.record(memo);
-                        Log.i(s);
-                    }
                 }
             } else {
                 Log.record(memo);
@@ -622,6 +623,21 @@ public class AntFarm extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "donation err:");
             Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private void performDonation(String activityId, String activityName) throws JSONException {
+        String s = AntFarmRpcCall.donation(activityId, 1);
+        JSONObject donationResponse = new JSONObject(s);
+        String memo = donationResponse.getString("memo");
+        if ("SUCCESS".equals(memo)) {
+            JSONObject donationDetails = donationResponse.getJSONObject("donation");
+            harvestBenevolenceScore = donationDetails.getDouble("harvestBenevolenceScore");
+            Log.farm("捐赠活动❤️[" + activityName + "]#累计捐赠" + donationDetails.getInt("donationTimesStat") + "次");
+            Status.donationEgg(userId);
+        } else {
+            Log.record(memo);
+            Log.i(s);
         }
     }
 
@@ -1858,6 +1874,15 @@ public class AntFarm extends ModelTask {
             Log.i(TAG, "queryChickenDiaryList err:");
             Log.printStackTrace(TAG, t);
         }
+    }
+
+    public interface DonationType {
+
+        int ONE = 0;
+        int ALL = 1;
+
+        String[] nickNames = {"随机一个项目", "全部项目"};
+
     }
 
     public interface RecallAnimalType {
