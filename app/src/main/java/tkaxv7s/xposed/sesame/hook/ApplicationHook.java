@@ -531,6 +531,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private static void destroyHandler(Boolean force) {
         try {
             if (force) {
+                ModelTask.destroyAllModel();
                 if (context != null) {
                     stopHandler();
                     BaseModel.destroyData();
@@ -551,7 +552,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     rpcBridge.unload();
                     rpcBridge = null;
                 }
-                ModelTask.destroyAllModel();
             } else {
                 ModelTask.stopAllTask();
             }

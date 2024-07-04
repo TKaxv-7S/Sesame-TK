@@ -102,6 +102,9 @@ public abstract class Model {
             Model model = modelArray[i];
             if (model != null) {
                 try {
+                    if (ModelType.TASK == model.getType()) {
+                        ((ModelTask) model).stopTask();
+                    }
                     model.destroy();
                 } catch (Exception e) {
                     Log.printStackTrace(e);

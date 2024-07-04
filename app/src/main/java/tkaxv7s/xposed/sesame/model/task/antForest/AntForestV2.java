@@ -2430,7 +2430,7 @@ public class AntForestV2 extends ModelTask {
          * Instantiates a new Bubble timer task.
          */
         BubbleTimerTask(String ui, long bi, long pt) {
-            super(AntForestV2.getBubbleTimerTid(ui, bi), (int) (pt - 3000 - advanceTime.getValue()));
+            super(AntForestV2.getBubbleTimerTid(ui, bi), pt - 3000 - advanceTime.getValue());
             userId = ui;
             bubbleId = bi;
             produceTime = pt;
