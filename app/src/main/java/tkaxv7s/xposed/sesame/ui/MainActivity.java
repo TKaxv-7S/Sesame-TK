@@ -24,6 +24,7 @@ import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -177,6 +178,7 @@ public class MainActivity extends BaseActivity {
             }
             try {
                 Statistics.load();
+                Statistics.INSTANCE.resetByCalendar(Calendar.getInstance());
                 tvStatistics.setText(Statistics.getText());
             } catch (Exception e) {
                 Log.printStackTrace(e);

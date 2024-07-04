@@ -4,6 +4,7 @@ import android.os.Build;
 import lombok.Getter;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
+import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,13 +94,13 @@ public abstract class ModelTask extends Model {
             }
             String id = childTask.getId();
             String modelTaskId = getName();
-            //Log.record("任务模块:" + modelTaskId + " 添加子任务:" + id);
+            //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);
             try {
                 long delay = childTask.getExecTime() - System.currentTimeMillis();
                 if (delay > 0) {
                     try {
                         Thread.sleep(delay);
-                    } catch (InterruptedException e) {
+                    } catch (Exception e) {
                         Log.record("任务模块:" + modelTaskId + " 中断子任务:" + id);
                         return;
                     }
@@ -110,7 +111,7 @@ public abstract class ModelTask extends Model {
                 Log.record("任务模块:" + modelTaskId + " 异常子任务:" + id);
             } finally {
                 removeChildTask(id);
-                //Log.record("任务模块:" + modelTaskId + " 移除子任务:" + id);
+                //Log.i("任务模块:" + modelTaskId + " 移除子任务:" + id);
             }
         });
     }
@@ -231,8 +232,9 @@ public abstract class ModelTask extends Model {
 
     public synchronized void stopTask() {
         for (ThreadPoolExecutor childThreadPool : childGroupThreadPoolMap.values()) {
-            childThreadPool.purge();
+            ThreadUtil.shutdownAndAwaitTermination(childThreadPool, 3, TimeUnit.SECONDS);
         }
+        childGroupThreadPoolMap.clear();
         childTaskMap.clear();
         MAIN_THREAD_POOL.remove(mainRunnable);
         MAIN_TASK_MAP.remove(this);
@@ -261,8 +263,12 @@ public abstract class ModelTask extends Model {
     public static void stopAllTask() {
         for (Model model : getModelArray()) {
             if (model != null) {
-                if (ModelType.TASK == model.getType()) {
-                    ((ModelTask) model).stopTask();
+                try {
+                    if (ModelType.TASK == model.getType()) {
+                        ((ModelTask) model).stopTask();
+                    }
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
                 }
             }
         }
@@ -280,15 +286,18 @@ public abstract class ModelTask extends Model {
         private final long execTime;
 
         public ChildModelTask() {
-            this(null, null, () -> {}, 0);
+            this(null, null, () -> {
+            }, 0);
         }
 
         public ChildModelTask(String id) {
-            this(id, null, () -> {}, 0);
+            this(id, null, () -> {
+            }, 0);
         }
 
         public ChildModelTask(String id, String group) {
-            this(id, group, () -> {}, 0);
+            this(id, group, () -> {
+            }, 0);
         }
 
         protected ChildModelTask(String id, long execTime) {

@@ -23,12 +23,13 @@ public class AntCooperate extends ModelTask {
 
     private final BooleanModelField cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false);
     private final SelectModelField cooperateWaterList = new SelectModelField("cooperateWaterList", "合种浇水列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser::getList);
-
+    private final SelectModelField cooperateWaterTotalLimitList = new SelectModelField("cooperateWaterTotalLimitList", "浇水总量限制列表", new KVNode<>(new LinkedHashMap<>(), true), CooperateUser::getList);
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(cooperateWater);
         modelFields.addField(cooperateWaterList);
+        modelFields.addField(cooperateWaterTotalLimitList);
         return modelFields;
     }
 
@@ -60,16 +61,24 @@ public class AntCooperate extends ModelTask {
                         String name = jo.getString("name");
                         int waterDayLimit = jo.getInt("waterDayLimit");
                         CooperationIdMap.add(cooperationId, name);
-                        if (!Status.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId))
+                        if (!Status.canCooperateWaterToday(UserIdMap.getCurrentUid(), cooperationId)) {
                             continue;
+                        }
                         Integer num = cooperateWaterList.getValue().getKey().get(cooperationId);
                         if (num != null) {
-                            if (num > waterDayLimit)
+                            Integer limitNum = cooperateWaterTotalLimitList.getValue().getKey().get(cooperationId);
+                            if (limitNum != null) {
+                                num = calculatedWaterNum(UserIdMap.getCurrentUid(), cooperationId, num, limitNum);
+                            }
+                            if (num > waterDayLimit) {
                                 num = waterDayLimit;
-                            if (num > userCurrentEnergy)
+                            }
+                            if (num > userCurrentEnergy) {
                                 num = userCurrentEnergy;
-                            if (num > 0)
+                            }
+                            if (num > 0) {
                                 cooperateWater(UserIdMap.getCurrentUid(), cooperationId, num, name);
+                            }
                         }
                     }
                 } else {
@@ -96,7 +105,35 @@ public class AntCooperate extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "cooperateWater err:");
             Log.printStackTrace(TAG, t);
+        } finally {
+            TimeUtil.sleep(500);
         }
     }
 
+    private static int calculatedWaterNum(String uid, String coopId, int num, int limitNum) {
+        try{
+            String s = AntCooperateRpcCall.queryCooperateRank("A", coopId);
+            JSONObject jo = new JSONObject(s);
+            if (jo.optBoolean("success", false)) {
+                JSONArray jaList = jo.getJSONArray("cooperateRankInfos");
+                for (int i = 0; i < jaList.length(); i++) {
+                    JSONObject joItem = jaList.getJSONObject(i);
+                    String userId = joItem.getString("userId");
+                    if (userId.equals(uid)) {
+                        int energySummation = joItem.optInt("energySummation", 0);
+                        if (num > limitNum - energySummation) {
+                            num = limitNum - energySummation;
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "calculatedWaterNum err:");
+            Log.printStackTrace(TAG, t);
+        } finally {
+            return num;
+        }
+
+    }
 }

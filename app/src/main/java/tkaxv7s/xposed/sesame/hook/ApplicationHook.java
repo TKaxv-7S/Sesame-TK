@@ -536,6 +536,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     BaseModel.destroyData();
                     Status.unload();
                     Statistics.unload();
+                    ConfigV2.unload();
+                    ModelTask.destroyAllModel();
                 }
                 if (rpcResponseUnhook != null) {
                     rpcResponseUnhook.unhook();
@@ -551,7 +553,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     rpcBridge.unload();
                     rpcBridge = null;
                 }
-                ModelTask.destroyAllModel();
             } else {
                 ModelTask.stopAllTask();
             }

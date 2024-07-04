@@ -45,6 +45,10 @@ public class UserIdMap {
         currentUid = userId;
     }
 
+    public static String getCurrentMaskName() {
+        return getMaskName(currentUid);
+    }
+
     public static String getMaskName(String userId) {
         UserEntity userEntity = userMap.get(userId);
         if (userEntity == null) {
@@ -93,6 +97,10 @@ public class UserIdMap {
         }
     }
 
+    public synchronized static void unload() {
+        userMap.clear();
+    }
+
     public synchronized static boolean save(String userId) {
         return FileUtil.write2File(JsonUtil.toNoFormatJsonString(userMap), FileUtil.getFriendIdMapFile(userId));
     }
@@ -113,10 +121,6 @@ public class UserIdMap {
 
     public synchronized static boolean saveSelf(UserEntity userEntity) {
         return FileUtil.write2File(JsonUtil.toNoFormatJsonString(userEntity), FileUtil.getSelfIdFile(userEntity.getUserId()));
-    }
-
-    public synchronized static void clear() {
-        userMap.clear();
     }
 
 }

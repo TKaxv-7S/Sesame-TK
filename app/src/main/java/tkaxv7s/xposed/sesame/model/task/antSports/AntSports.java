@@ -842,6 +842,12 @@ public class AntSports extends ModelTask {
             String clubHomeResponse = AntSportsRpcCall.queryClubHome();
             TimeUtil.sleep(500);
             JSONObject clubHomeJson = new JSONObject(clubHomeResponse);
+            // 判断 clubAuth 字段是否为 "ENABLE"
+            if (!clubHomeJson.optString("clubAuth").equals("ENABLE")) {
+                // 如果 clubAuth 不是 "ENABLE"，停止执行
+                Log.record("抢好友大战🧑‍🤝‍🧑未授权开启");
+                return;
+            }
             // 获取 coinBalance 的值
             JSONObject assetsInfo = clubHomeJson.getJSONObject("assetsInfo");
             int coinBalance = assetsInfo.getInt("coinBalance");

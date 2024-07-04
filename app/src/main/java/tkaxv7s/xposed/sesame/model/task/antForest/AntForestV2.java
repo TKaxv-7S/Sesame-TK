@@ -979,7 +979,7 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "collectUserBatchEnergy err:");
                 Log.printStackTrace(TAG, e);
             } finally {
-                NotificationUtil.updateLastExecText("收：" + totalCollected + "，帮：" + totalHelpCollected);
+                NotificationUtil.updateLastExecText("收：" + totalCollected + " 帮：" + totalHelpCollected);
                 notifyMain();
             }
         });
@@ -2430,7 +2430,7 @@ public class AntForestV2 extends ModelTask {
          * Instantiates a new Bubble timer task.
          */
         BubbleTimerTask(String ui, long bi, long pt) {
-            super(AntForestV2.getBubbleTimerTid(ui, bi), (int) (pt - 3000 - advanceTime.getValue()));
+            super(AntForestV2.getBubbleTimerTid(ui, bi), pt - 3000 - advanceTime.getValue());
             userId = ui;
             bubbleId = bi;
             produceTime = pt;

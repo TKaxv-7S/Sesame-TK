@@ -16,15 +16,15 @@ public class CooperationIdMap {
         return readOnlyIdMap;
     }
 
-    public synchronized static void add(String key, String value) {
+    public static synchronized void add(String key, String value) {
         idMap.put(key, value);
     }
 
-    public synchronized static void remove(String key) {
+    public static synchronized void remove(String key) {
         idMap.remove(key);
     }
 
-    public synchronized static void load(String userId) {
+    public static synchronized void load(String userId) {
         idMap.clear();
         try {
             String body = FileUtil.readFromFile(FileUtil.getCooperationIdMapFile(userId));
@@ -38,7 +38,7 @@ public class CooperationIdMap {
         }
     }
 
-    public synchronized static boolean save(String userId) {
+    public static synchronized boolean save(String userId) {
         return FileUtil.write2File(JsonUtil.toNoFormatJsonString(idMap), FileUtil.getCooperationIdMapFile(userId));
     }
 
