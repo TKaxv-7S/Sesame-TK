@@ -45,6 +45,7 @@
     <string name="harvest_produce">Harvest produce</string>
     <string name="answer_question">Answer question</string>
     <string name="donation">Donation</string>
+    <string name="donation_type">Donation type</string>
     <string name="receive_farm_task_award">Receive farm task award</string>
     <string name="feed_animal">Feed animal</string>
     <string name="use_accelerate_tool">Use accelerate tool</string>
