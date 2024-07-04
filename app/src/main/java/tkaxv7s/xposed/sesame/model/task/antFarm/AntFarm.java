@@ -40,15 +40,24 @@ public class AntFarm extends ModelTask {
         bizKeyList = new ArrayList<>();
         bizKeyList.add("ADD_GONGGE_NEW");
         bizKeyList.add("USER_STARVE_PUSH");
+        bizKeyList.add("YEB_PURCHASE");
+        bizKeyList.add("WIDGET_addzujian");//添加庄园小组件
         bizKeyList.add("HIRE_LOW_ACTIVITY");//雇佣小鸡拿饲料
         bizKeyList.add("HEART_DONATION_ADVANCED_FOOD_V2");//爱心美食任务
-        bizKeyList.add("YEB_PURCHASE");
         bizKeyList.add("DIANTAOHUANDUAN");//去点淘逛一逛
         bizKeyList.add("TAO_GOLDEN_V2");//去逛一逛淘金币小镇
-        bizKeyList.add("WIDGET_addzujian");
         bizKeyList.add("SHANGYEHUA_90_1");//去杂货铺逛一逛
         bizKeyList.add("TAOBAO_tab2gzy");// 去逛一逛淘宝视频
         bizKeyList.add("YITAO_appgyg");// 去一淘APP逛逛
+        bizKeyList.add("ANTFARM_chouchoule");// 【抽抽乐】好运装扮来袭！
+        bizKeyList.add("TB_qiandao2023");// 去淘宝签到逛一逛
+        bizKeyList.add("BABAFARM_TB");// 去逛一逛淘宝芭芭农场
+        bizKeyList.add("TB_chongzhi");// 逛一逛小羊农场
+        bizKeyList.add("ALIPAIMAI_gygzy");// 逛一逛淘花岛
+        bizKeyList.add("BABA_FARM_SPREAD_MANURE");// 去芭芭农场给果树施肥
+        bizKeyList.add("ELM_hudong2024");// 去饿了么游乐园逛一逛
+        bizKeyList.add("2024XIANYU_huanduan");// 去闲鱼逛一逛
+        bizKeyList.add("JINGTAN_FEED_FISH");// 去鲸探喂鱼集福气
     }
 
     @Override
