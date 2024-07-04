@@ -111,16 +111,6 @@ public class ConfigV2 {
         return (T) getModelField(modelCode, fieldCode);
     }*/
 
-    public void reset() {
-        for (ModelFields modelFields : modelFieldsMap.values()) {
-            for (ModelField modelField : modelFields.values()) {
-                if (modelField != null) {
-                    modelField.reset();
-                }
-            }
-        }
-    }
-
     public static Boolean isModify(String userId) {
         String json = null;
         File configV2File;
@@ -194,7 +184,7 @@ public class ConfigV2 {
                     Log.system(TAG, "复制新配置: " + userName);
                     FileUtil.write2File(json, configV2File);
                 } else {
-                    INSTANCE.reset();
+                    unload();
                     Log.i(TAG, "初始新配置: " + userName);
                     Log.system(TAG, "初始新配置: " + userName);
                     FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), configV2File);
@@ -205,7 +195,7 @@ public class ConfigV2 {
             Log.i(TAG, "重置配置: " + userName);
             Log.system(TAG, "重置配置: " + userName);
             try {
-                INSTANCE.reset();
+                unload();
                 if (configV2File != null) {
                     FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), configV2File);
                 }
@@ -216,6 +206,16 @@ public class ConfigV2 {
         INSTANCE.setInit(true);
         Log.i(TAG, "加载配置成功");
         return INSTANCE;
+    }
+
+    public static synchronized void unload() {
+        for (ModelFields modelFields : INSTANCE.modelFieldsMap.values()) {
+            for (ModelField modelField : modelFields.values()) {
+                if (modelField != null) {
+                    modelField.reset();
+                }
+            }
+        }
     }
 
 }

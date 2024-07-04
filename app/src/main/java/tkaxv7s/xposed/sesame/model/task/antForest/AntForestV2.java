@@ -979,7 +979,7 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "collectUserBatchEnergy err:");
                 Log.printStackTrace(TAG, e);
             } finally {
-                NotificationUtil.updateLastExecText("收：" + totalCollected + "，帮：" + totalHelpCollected);
+                NotificationUtil.updateLastExecText("收：" + totalCollected + " 帮：" + totalHelpCollected);
                 notifyMain();
             }
         });

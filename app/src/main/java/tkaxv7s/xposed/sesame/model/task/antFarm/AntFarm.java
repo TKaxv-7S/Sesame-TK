@@ -258,11 +258,8 @@ public class AntFarm extends ModelTask {
                 harvestProduce(ownerFarmId);
             }
 
-            if (donation.getValue() && harvestBenevolenceScore >= 1) {
-                Integer donationCountValue = donationCount.getValue();
-                if (donationCountValue == DonationCount.ALL || Status.canDonationEgg(userId)) {
-                    handleDonation(donationCountValue);
-                }
+            if (donation.getValue() && Status.canDonationEgg(userId) && harvestBenevolenceScore >= 1) {
+                handleDonation(donationCount.getValue());
             }
 
             if (answerQuestion.getValue() && Status.canAnswerQuestionToday(UserIdMap.getCurrentUid())) {
@@ -296,19 +293,21 @@ public class AntFarm extends ModelTask {
                     enterFarm();
                 }
 
-                try {
-                    Long startEatTime = ownerAnimal.startEatTime;
-                    double allFoodHaveEatten = 0d;
-                    double allConsumeSpeed = 0d;
-                    for (Animal animal : animals) {
-                        allFoodHaveEatten += animal.foodHaveEatten;
-                        allConsumeSpeed += animal.consumeSpeed;
+                if (feedAnimal.getValue()) {
+                    try {
+                        Long startEatTime = ownerAnimal.startEatTime;
+                        double allFoodHaveEatten = 0d;
+                        double allConsumeSpeed = 0d;
+                        for (Animal animal : animals) {
+                            allFoodHaveEatten += animal.foodHaveEatten;
+                            allConsumeSpeed += animal.consumeSpeed;
+                        }
+                        long nextFeedTime = startEatTime + (long) ((180 - (allFoodHaveEatten)) / (allConsumeSpeed)) * 1000;
+                        addChildTask(new ChildModelTask("FA|" + ownerFarmId, "FA", () -> feedAnimal(ownerFarmId), nextFeedTime));
+                        Log.record("添加蹲点投喂🥣[" + UserIdMap.getCurrentMaskName() + "]在[" + DateFormat.getDateTimeInstance().format(nextFeedTime) + "]执行");
+                    } catch (Exception e) {
+                        Log.printStackTrace(e);
                     }
-                    long nextFeedTime = startEatTime + (long) ((180 - (allFoodHaveEatten)) / (allConsumeSpeed)) * 1000;
-                    addChildTask(new ChildModelTask("FA|" + ownerFarmId, "FA", () -> feedAnimal(ownerFarmId), nextFeedTime));
-                    Log.record("添加蹲点投喂🥣[" + UserIdMap.getCurrentMaskName() + "]在[" + DateFormat.getDateTimeInstance().format(nextFeedTime) + "]执行");
-                } catch (Exception e) {
-                    Log.printStackTrace(e);
                 }
 
                 if (unreceiveTaskAward > 0) {
@@ -637,18 +636,22 @@ public class AntFarm extends ModelTask {
             if ("SUCCESS".equals(memo)) {
                 JSONArray jaActivityInfos = jo.getJSONArray("activityInfos");
                 String activityId = null, activityName = null;
+                boolean isDonation = false;
                 for (int i = 0; i < jaActivityInfos.length(); i++) {
                     jo = jaActivityInfos.getJSONObject(i);
                     if (!jo.get("donationTotal").equals(jo.get("donationLimit"))) {
                         activityId = jo.getString("activityId");
                         activityName = jo.optString("projectName", activityId);
                         if (performDonation(activityId, activityName)) {
+                            isDonation = true;
                             if (donationType == DonationCount.ONE) {
-                                Status.donationEgg(userId);
                                 break;
                             }
                         }
                     }
+                }
+                if (isDonation) {
+                    Status.donationEgg(userId);
                 }
                 if (activityId == null) {
                     Log.record("今日已无可捐赠的活动");

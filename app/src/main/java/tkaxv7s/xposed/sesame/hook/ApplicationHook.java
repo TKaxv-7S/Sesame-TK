@@ -531,12 +531,13 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     private static void destroyHandler(Boolean force) {
         try {
             if (force) {
-                ModelTask.destroyAllModel();
                 if (context != null) {
                     stopHandler();
                     BaseModel.destroyData();
                     Status.unload();
                     Statistics.unload();
+                    ConfigV2.unload();
+                    ModelTask.destroyAllModel();
                 }
                 if (rpcResponseUnhook != null) {
                     rpcResponseUnhook.unhook();

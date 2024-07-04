@@ -30,7 +30,7 @@ public class FriendManager {
                     return;
                 }
                 try {
-                    UserIdMap.clear();
+                    UserIdMap.unload();
                     String selfId = ApplicationHook.getUserId();
                     Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
                     Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
