@@ -2,7 +2,7 @@ package tkaxv7s.xposed.sesame.util;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Data;
-import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
 
@@ -37,7 +37,6 @@ public class Status {
 
     // farm
     private ArrayList<String> answerQuestionList = new ArrayList<>();
-    private String questionHint;
     private ArrayList<FeedFriendLog> feedFriendLogList = new ArrayList<>();
     private ArrayList<VisitFriendLog> visitFriendLogList = new ArrayList<>();
     private ArrayList<StallShareIdLog> stallShareIdLogList = new ArrayList<>();
@@ -172,14 +171,6 @@ public class Status {
         Status stat = INSTANCE;
         if (!stat.answerQuestionList.contains(uid)) {
             stat.answerQuestionList.add(uid);
-            save();
-        }
-    }
-
-    public static void setQuestionHint(String s) {
-        Status stat = INSTANCE;
-        if (stat.questionHint == null && s != null) {
-            stat.questionHint = s;
             save();
         }
     }
@@ -631,37 +622,6 @@ public class Status {
             return;
         }
         INSTANCE.greenFinancePrizesMap.put(UserIdMap.getCurrentUid(), TimeUtil.getWeekNumber(new Date()));
-        save();
-    }
-
-    public static void dayClear() {
-        Log.system(TAG, "重置 status.json");
-        Status stat = INSTANCE;
-        stat.waterFriendLogList.clear();
-        stat.cooperateWaterList.clear();
-        stat.syncStepList.clear();
-        stat.exchangeList.clear();
-        stat.protectBubbleList.clear();
-        stat.reserveLogList.clear();
-        stat.beachTodayList.clear();
-        stat.ancientTreeCityCodeList.clear();
-        stat.answerQuestionList.clear();
-        stat.feedFriendLogList.clear();
-        stat.visitFriendLogList.clear();
-        stat.stallHelpedCountLogList.clear();
-        stat.questionHint = null;
-        stat.donationEggList.clear();
-        stat.spreadManureList.clear();
-        stat.stallP2PHelpedList.clear();
-        stat.memberSignInList.clear();
-        stat.kbSignIn = 0;
-        stat.exchangeDoubleCard = 0;
-        stat.exchangeTimes = 0;
-        stat.exchangeTimesLongTime = 0;
-        stat.doubleTimes = 0;
-        stat.antStallAssistFriend.clear();
-        stat.canPasteTicketTime.clear();
-        stat.greenFinancePointFriend.clear();
         save();
     }
 

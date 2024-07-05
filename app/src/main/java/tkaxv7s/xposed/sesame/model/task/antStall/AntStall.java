@@ -4,7 +4,7 @@ import android.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
@@ -506,6 +506,7 @@ public class AntStall extends ModelTask {
                             jo = new JSONObject(s);
                             if (!jo.has("playingResult")) {
                                 Log.i(TAG, "taskList.xlightPlugin err:" + jo.optString("resultDesc"));
+                                continue;
                             }
                             jo = jo.getJSONObject("playingResult");
                             String pid = jo.getString("playingBizId");

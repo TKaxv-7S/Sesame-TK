@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.data;
 
 import lombok.Getter;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.model.base.ModelOrder;
 import tkaxv7s.xposed.sesame.util.Log;
 

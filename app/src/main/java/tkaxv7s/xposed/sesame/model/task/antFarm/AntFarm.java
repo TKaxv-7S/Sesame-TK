@@ -4,11 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ListModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
@@ -774,13 +774,11 @@ public class AntFarm extends ModelTask {
                                 break;
 
                             case RECEIVED:
-                                Status.setQuestionHint(null);
                                 Log.record("今日答题已完成");
                                 Status.answerQuestionToday(UserIdMap.getCurrentUid());
                                 break;
 
                             case FINISHED:
-                                Status.setQuestionHint(null);
                                 Log.record("已经答过题了，饲料待领取");
                                 Status.answerQuestionToday(UserIdMap.getCurrentUid());
                                 break;
@@ -944,9 +942,6 @@ public class AntFarm extends ModelTask {
                             }
                             break;
                         case RECEIVED:
-                            if ("庄园小课堂".equals(taskTitle)) {
-                                Status.setQuestionHint(null);
-                            }
                             break;
                     }
                 }

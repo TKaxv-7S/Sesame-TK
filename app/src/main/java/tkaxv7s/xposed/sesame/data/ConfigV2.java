@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.UserEntity;
 import tkaxv7s.xposed.sesame.util.*;
 
