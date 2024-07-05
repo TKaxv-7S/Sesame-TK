@@ -21,17 +21,15 @@ public class NotificationUtil {
 
     @Getter
     private static volatile long lastNoticeTime = 0;
-    private static String statusText = "";
-    private static String nextExecText = "";
-    private static String lastExecText = "";
+    private static String titleText = "";
+    private static String contentText = "";
 
     public static void start(Context context) {
         try {
             NotificationUtil.context = context;
             NotificationUtil.stop();
-            statusText = "加载";
-            nextExecText = "";
-            lastExecText = "";
+            titleText = "启动中";
+            contentText = "暂无消息";
             mNotifyManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Intent it = new Intent(Intent.ACTION_VIEW);
             it.setData(Uri.parse("alipays://platformapi/startapp?appId="));
@@ -94,7 +92,7 @@ public class NotificationUtil {
             if (forestPauseTime > System.currentTimeMillis()) {
                 status = "触发异常，等待至" + DateFormat.getDateTimeInstance().format(forestPauseTime);
             }
-            statusText = status;
+            titleText = status;
             lastNoticeTime = System.currentTimeMillis();
             sendText();
         } catch (Exception e) {
@@ -104,7 +102,7 @@ public class NotificationUtil {
 
     public static void updateNextExecText(long nextExecTime) {
         try {
-            nextExecText = nextExecTime > 0 ? "下次执行 " + TimeUtil.getTimeStr(nextExecTime) : "";
+            titleText = nextExecTime > 0 ? "下次执行 " + TimeUtil.getTimeStr(nextExecTime) : "";
             sendText();
         } catch (Exception e) {
             Log.printStackTrace(e);
@@ -113,16 +111,12 @@ public class NotificationUtil {
 
     public static void updateLastExecText(String content) {
         try {
-            lastExecText = "上次执行 " + TimeUtil.getTimeStr(System.currentTimeMillis()) + " " + content;
+            contentText = "上次执行  " + TimeUtil.getTimeStr(System.currentTimeMillis()) + " " + content;
             lastNoticeTime = System.currentTimeMillis();
             sendText();
         } catch (Exception e) {
             Log.printStackTrace(e);
         }
-    }
-
-    public static void setStatusTextIdle() {
-        updateStatusText("");
     }
 
     public static void setStatusTextExec() {
@@ -131,11 +125,9 @@ public class NotificationUtil {
 
     private static void sendText() {
         try {
-            boolean hasStatus = !StringUtil.isEmpty(statusText);
-            boolean hasNextExecText = !StringUtil.isEmpty(nextExecText);
-            builder.setContentTitle((hasStatus ? statusText : "") + (hasStatus && hasNextExecText ? "，" : "") + (hasNextExecText ? nextExecText : ""));
-            if (!StringUtil.isEmpty(lastExecText)) {
-                builder.setContentText(lastExecText);
+            builder.setContentTitle(titleText);
+            if (!StringUtil.isEmpty(contentText)) {
+                builder.setContentText(contentText);
             }
             //Notification.BigTextStyle style = new Notification.BigTextStyle();
             //builder.setStyle(style);
