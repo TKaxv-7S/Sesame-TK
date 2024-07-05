@@ -319,7 +319,7 @@ public class GreenFinance extends ModelTask {
      */
     private void prizes() {
         try {
-            if (Status.canGreenFinancePrizesMap()) {
+            if (!Status.canGreenFinancePrizesMap()) {
                 return;
             }
             String campId = "CP14664674";
@@ -372,7 +372,7 @@ public class GreenFinance extends ModelTask {
      */
     private void batchStealFriend() {
         try {
-            if (Status.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
+            if (!Status.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
                 return;
             }
             int n = 0;

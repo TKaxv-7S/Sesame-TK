@@ -652,7 +652,7 @@ public class AntStall extends ModelTask {
      */
     private void assistFriend() {
         try {
-            if (Status.canAntStallAssistFriendToday()) {
+            if (!Status.canAntStallAssistFriendToday()) {
                 return;
             }
             Map<String, Integer> friendList = assistFriendList.getValue().getKey();
@@ -894,7 +894,7 @@ public class AntStall extends ModelTask {
      */
     private void pasteTicket() {
         try {
-            if (Status.canPasteTicketTime()) {
+            if (!Status.canPasteTicketTime()) {
                 return;
             }
             while (true) {
