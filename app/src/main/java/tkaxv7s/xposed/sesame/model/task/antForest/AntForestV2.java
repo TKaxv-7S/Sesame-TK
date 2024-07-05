@@ -325,17 +325,14 @@ public class AntForestV2 extends ModelTask {
                         Log.record("执行超时-蚂蚁森林");
                     } else if (count == 0) {
                         Log.record("执行结束-蚂蚁森林");
-                        NotificationUtil.setStatusTextIdle();
                     } else {
                         Log.record("执行完成-蚂蚁森林");
-                        NotificationUtil.setStatusTextIdle();
                     }
                 }
             } catch (InterruptedException ie) {
                 Log.i(TAG, "执行中断-蚂蚁森林");
-                NotificationUtil.setStatusTextIdle();
             }
-            NotificationUtil.updateLastExecText("收：" + totalCollected + " 帮：" + totalHelpCollected);
+            NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
         }
     }
 
@@ -980,7 +977,7 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "collectUserBatchEnergy err:");
                 Log.printStackTrace(TAG, e);
             } finally {
-                NotificationUtil.updateLastExecText("收：" + totalCollected + " 帮：" + totalHelpCollected);
+                NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
                 notifyMain();
             }
         });

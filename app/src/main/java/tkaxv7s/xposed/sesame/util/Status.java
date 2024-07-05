@@ -64,6 +64,9 @@ public class Status {
      */
     private Map<String, Integer> greenFinancePrizesMap = new HashMap<String, Integer>();
 
+    // 保存时间
+    private Long saveTime = 0L;
+
     public static boolean canWaterFriendToday(String id, int count) {
         id = UserIdMap.getCurrentUid() + "-" + id;
         Status stat = INSTANCE;
@@ -696,6 +699,9 @@ public class Status {
                 Log.printStackTrace(TAG, e);
             }
         }
+        if (INSTANCE.saveTime == 0) {
+            INSTANCE.saveTime = System.currentTimeMillis();
+        }
         return INSTANCE;
     }
 
@@ -707,16 +713,23 @@ public class Status {
         }
     }
 
-    private static synchronized void save() {
+    public static synchronized void save() {
         ApplicationHook.updateDay();
-        String json = JsonUtil.toJsonString(INSTANCE);
-        Log.system(TAG, "保存 status.json");
-        String currentUid = UserIdMap.getCurrentUid();
-        if (StringUtil.isEmpty(currentUid)) {
-            Log.i(TAG, "用户为空，状态保存失败");
-            throw new RuntimeException("用户为空，状态保存失败");
+        long lastSaveTime = INSTANCE.saveTime;
+        try {
+            INSTANCE.saveTime = System.currentTimeMillis();
+            String json = JsonUtil.toJsonString(INSTANCE);
+            Log.system(TAG, "保存 status.json");
+            String currentUid = UserIdMap.getCurrentUid();
+            if (StringUtil.isEmpty(currentUid)) {
+                Log.i(TAG, "用户为空，状态保存失败");
+                throw new RuntimeException("用户为空，状态保存失败");
+            }
+            FileUtil.write2File(json, FileUtil.getStatusFile(currentUid));
+        } catch (Exception e){
+            INSTANCE.saveTime = lastSaveTime;
+            throw e;
         }
-        FileUtil.write2File(json, FileUtil.getStatusFile(currentUid));
     }
 
     @Data

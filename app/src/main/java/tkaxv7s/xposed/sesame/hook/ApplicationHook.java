@@ -51,8 +51,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
 
     private static volatile boolean init = false;
 
-    private static volatile Calendar dayCalendar;
-
     @Getter
     private static volatile boolean offline = false;
 
@@ -251,7 +249,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 });
                                 registerBroadcastReceiver(appService);
                                 NotificationUtil.start(service);
-                                dayCalendar = Calendar.getInstance();
                                 canInit = true;
                                 String targetUid = getUserId();
                                 if (targetUid != null) {
@@ -588,14 +585,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
     public static void updateDay() {
         try {
             Calendar nowCalendar = Calendar.getInstance();
+            Calendar dayCalendar = (Calendar) nowCalendar.clone();
+            dayCalendar.setTimeInMillis(Status.INSTANCE.getSaveTime());
             int nowYear = nowCalendar.get(Calendar.YEAR);
             int nowMonth = nowCalendar.get(Calendar.MONTH);
             int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
             if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
-                nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
-                nowCalendar.set(Calendar.MINUTE, 0);
-                nowCalendar.set(Calendar.SECOND, 0);
-                dayCalendar = nowCalendar;
                 Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
                 try {
                     setWakenAtTimeAlarm();
@@ -608,7 +603,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     Log.printStackTrace(e);
                 }
                 try {
-                    Status.dayClear();
+                    Status.unload();
+                    Status.save();
                 } catch (Exception e) {
                     Log.printStackTrace(e);
                 }
