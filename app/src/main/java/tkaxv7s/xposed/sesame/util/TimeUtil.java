@@ -177,4 +177,30 @@ public class TimeUtil {
         return calendar.get(Calendar.WEEK_OF_YEAR);
     }
 
+    /**
+     * 比较第一个时间戳的天数是否小于第二个时间戳的天数
+     * @param firstdTimestamp 第一个时间戳
+     * @param SecondTimestamp 第二个时间戳
+     * @return boolean 如果小于，则为true，否则为false
+     */
+    public static boolean isLessThanSecondOfDays(Long firstdTimestamp, Long secondTimestamp) {
+        final long gmt8 = 8 * 60 * 60 * 1000;
+        final long day = 24 * 60 * 60 * 1000;
+        firstdTimestamp = firstdTimestamp + gmt8;
+        secondTimestamp = secondTimestamp + gmt8;
+        if (firstdTimestamp / day < secondTimestamp / day) {
+            return true;
+        }
+        return false;
+    }
+
+        /**
+     * 通过时间戳比较传入的时间戳的天数是否小于当前时间戳的天数
+     * @param timestamp 时间戳
+     * @return boolean 如果小于当前时间戳所计算的天数，则为true，否则为false
+     */
+    public static boolean isLessThanNowOfDays(Long timestamp) {
+        return isLessThanSecondOfDays(timestamp, System.currentTimeMillis());
+    }
+
 }
