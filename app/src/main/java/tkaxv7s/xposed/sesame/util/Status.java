@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.util;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
 
 import java.io.File;
@@ -62,10 +63,6 @@ public class Status {
      * 绿色经营，评级领奖已完成用户
      */
     private Map<String, Integer> greenFinancePrizesMap = new HashMap<String, Integer>();
-
-    // 保存时间
-    private Long saveTime = 0L;
-
 
     public static boolean canWaterFriendToday(String id, int count) {
         id = UserIdMap.getCurrentUid() + "-" + id;
@@ -682,10 +679,6 @@ public class Status {
                     Log.system(TAG, "重新格式化 status.json");
                     FileUtil.write2File(formatted, FileUtil.getStatusFile(currentUid));
                 }
-                if (TimeUtil.isLessThanNowOfDays(INSTANCE.saveTime)) {
-                    // 配置文件中的saveTime计算得到的天数小于现在
-                    dayClear();
-                }
             } else {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
                 Log.i(TAG, "初始化 status.json");
@@ -714,8 +707,8 @@ public class Status {
         }
     }
 
-    private static void save() {
-        INSTANCE.saveTime = System.currentTimeMillis();
+    private static synchronized void save() {
+        ApplicationHook.updateDay();
         String json = JsonUtil.toJsonString(INSTANCE);
         Log.system(TAG, "保存 status.json");
         String currentUid = UserIdMap.getCurrentUid();

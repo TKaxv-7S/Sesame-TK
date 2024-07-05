@@ -303,8 +303,13 @@ public class AntFarm extends ModelTask {
                             allConsumeSpeed += animal.consumeSpeed;
                         }
                         long nextFeedTime = startEatTime + (long) ((180 - (allFoodHaveEatten)) / (allConsumeSpeed)) * 1000;
-                        addChildTask(new ChildModelTask("FA|" + ownerFarmId, "FA", () -> feedAnimal(ownerFarmId), nextFeedTime));
-                        Log.record("添加蹲点投喂🥣[" + UserIdMap.getCurrentMaskName() + "]在[" + DateFormat.getDateTimeInstance().format(nextFeedTime) + "]执行");
+                        String id = "FA|" + ownerFarmId;
+                        if (!hasChildTask(id)) {
+                            addChildTask(new ChildModelTask(id, "FA", () -> feedAnimal(ownerFarmId), nextFeedTime));
+                            Log.record("添加蹲点投喂🥣[" + UserIdMap.getCurrentMaskName() + "]在[" + DateFormat.getDateTimeInstance().format(nextFeedTime) + "]执行");
+                        } else {
+                            addChildTask(new ChildModelTask(id, "FA", () -> feedAnimal(ownerFarmId), nextFeedTime));
+                        }
                     } catch (Exception e) {
                         Log.printStackTrace(e);
                     }

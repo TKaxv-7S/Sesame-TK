@@ -180,7 +180,7 @@ public class TimeUtil {
     /**
      * 比较第一个时间戳的天数是否小于第二个时间戳的天数
      * @param firstdTimestamp 第一个时间戳
-     * @param SecondTimestamp 第二个时间戳
+     * @param secondTimestamp 第二个时间戳
      * @return boolean 如果小于，则为true，否则为false
      */
     public static boolean isLessThanSecondOfDays(Long firstdTimestamp, Long secondTimestamp) {

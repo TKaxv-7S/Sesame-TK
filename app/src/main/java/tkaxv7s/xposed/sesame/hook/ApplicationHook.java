@@ -585,32 +585,36 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private void updateDay() {
-        Calendar nowCalendar = Calendar.getInstance();
-        int nowYear = nowCalendar.get(Calendar.YEAR);
-        int nowMonth = nowCalendar.get(Calendar.MONTH);
-        int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
-        if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
-            nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
-            nowCalendar.set(Calendar.MINUTE, 0);
-            nowCalendar.set(Calendar.SECOND, 0);
-            dayCalendar = nowCalendar;
-            Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
-            try {
-                setWakenAtTimeAlarm();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
+    public static void updateDay() {
+        try {
+            Calendar nowCalendar = Calendar.getInstance();
+            int nowYear = nowCalendar.get(Calendar.YEAR);
+            int nowMonth = nowCalendar.get(Calendar.MONTH);
+            int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
+            if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
+                nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                nowCalendar.set(Calendar.MINUTE, 0);
+                nowCalendar.set(Calendar.SECOND, 0);
+                dayCalendar = nowCalendar;
+                Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
+                try {
+                    setWakenAtTimeAlarm();
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
+                try {
+                    Statistics.INSTANCE.resetByCalendar(nowCalendar);
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
+                try {
+                    Status.dayClear();
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
             }
-            try {
-                Statistics.INSTANCE.resetByCalendar(nowCalendar);
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
-            try {
-                Status.dayClear();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
     }
 
