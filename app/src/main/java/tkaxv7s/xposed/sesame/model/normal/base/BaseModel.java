@@ -62,7 +62,7 @@ public class BaseModel extends Model {
         modelFields.addField(stayAwake);
         modelFields.addField(checkInterval);
         modelFields.addField(execAtTimeList);
-        //modelFields.addField(wakenAtTimeList);
+        modelFields.addField(wakenAtTimeList);
         modelFields.addField(timeoutRestart);
         modelFields.addField(waitWhenException);
         modelFields.addField(batteryPerm);

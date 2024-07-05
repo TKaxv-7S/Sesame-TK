@@ -596,11 +596,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             nowCalendar.set(Calendar.SECOND, 0);
             dayCalendar = nowCalendar;
             Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
-            /*try {
+            try {
                 setWakenAtTimeAlarm();
             } catch (Exception e) {
                 Log.printStackTrace(e);
-            }*/
+            }
             try {
                 Statistics.INSTANCE.resetByCalendar(nowCalendar);
             } catch (Exception e) {
