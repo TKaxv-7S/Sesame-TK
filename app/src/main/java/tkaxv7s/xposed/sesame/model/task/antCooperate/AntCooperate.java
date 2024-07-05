@@ -3,7 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.antCooperate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.CooperateUser;

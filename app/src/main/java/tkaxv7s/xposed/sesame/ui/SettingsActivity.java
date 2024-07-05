@@ -9,6 +9,7 @@ import android.view.*;
 import android.widget.*;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;

@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.Model;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ListModelField;
 import tkaxv7s.xposed.sesame.model.task.antOcean.AntOceanRpcCall;
@@ -26,25 +27,27 @@ public class BaseModel extends Model {
     @Getter
     private static final ListModelField.ListJoinCommaToStringModelField wakenAtTimeList = new ListModelField.ListJoinCommaToStringModelField("wakenAtTimeList", "定时唤醒(关闭:-1)", ListUtil.newArrayList("0650", "2350"));
     @Getter
+    private static final ChoiceModelField timedTaskModel = new ChoiceModelField("timedTaskModel", "定时任务模式", TimedTaskModel.SYSTEM, TimedTaskModel.nickNames);
+    @Getter
     private static final BooleanModelField timeoutRestart = new BooleanModelField("timeoutRestart", "超时重启", true);
     @Getter
     private static final IntegerModelField waitWhenException = new IntegerModelField.MultiplyIntegerModelField("waitWhenException", "异常等待时间(分钟)", 60 * 60_000, 0, 24 * 60 * 60_000, 60_000);
-    @Getter
-    private static final BooleanModelField batteryPerm = new BooleanModelField("batteryPerm", "为支付宝申请后台运行权限", true);
     @Getter
     private static final BooleanModelField newRpc = new BooleanModelField("newRpc", "使用新接口(最低支持v10.3.96.8100)", true);
     @Getter
     private static final BooleanModelField debugMode = new BooleanModelField("debugMode", "开启抓包(基于新接口)", false);
     @Getter
+    private static final BooleanModelField batteryPerm = new BooleanModelField("batteryPerm", "为支付宝申请后台运行权限", true);
+    @Getter
     private static final BooleanModelField recordLog = new BooleanModelField("recordLog", "记录日志", true);
-    @Getter
-    private static final BooleanModelField enableOnGoing = new BooleanModelField("enableOnGoing", "开启状态栏禁删", false);
-    @Getter
-    private static final BooleanModelField languageSimplifiedChinese = new BooleanModelField("languageSimplifiedChinese", "只显示中文并设置时区", true);
     @Getter
     private static final BooleanModelField showToast = new BooleanModelField("showToast", "气泡提示", true);
     @Getter
     private static final IntegerModelField toastOffsetY = new IntegerModelField("toastOffsetY", "气泡纵向偏移", 0);
+    @Getter
+    private static final BooleanModelField languageSimplifiedChinese = new BooleanModelField("languageSimplifiedChinese", "只显示中文并设置时区", true);
+    @Getter
+    private static final BooleanModelField enableOnGoing = new BooleanModelField("enableOnGoing", "开启状态栏禁删", false);
 
     @Override
     public String getName() {
@@ -156,6 +159,16 @@ public class BaseModel extends Model {
             Log.printStackTrace(t);
             BeachIdMap.load();
         }
+    }
+
+    public interface TimedTaskModel {
+
+        int SYSTEM = 0;
+
+        int PROGRAM = 1;
+
+        String[] nickNames = {"系统计时", "程序计时"};
+
     }
 
 }

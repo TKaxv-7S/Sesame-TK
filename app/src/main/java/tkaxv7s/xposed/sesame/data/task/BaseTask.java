@@ -1,4 +1,4 @@
-package tkaxv7s.xposed.sesame.data;
+package tkaxv7s.xposed.sesame.data.task;
 
 import android.os.Build;
 import lombok.Getter;
