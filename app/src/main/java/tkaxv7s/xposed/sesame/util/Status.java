@@ -178,7 +178,7 @@ public class Status {
 
     public static void setQuestionHint(String s) {
         Status stat = INSTANCE;
-        if (stat.questionHint == null) {
+        if (stat.questionHint == null && s != null) {
             stat.questionHint = s;
             save();
         }
@@ -421,12 +421,12 @@ public class Status {
     }
 
     /**
-     * 是否新村助力已到上限
+     * 是否可以新村助力
      *
      * @return true是，false否
      */
     public static boolean canAntStallAssistFriendToday() {
-        return INSTANCE.antStallAssistFriend.contains(UserIdMap.getCurrentUid());
+        return !INSTANCE.antStallAssistFriend.contains(UserIdMap.getCurrentUid());
     }
 
     /**
@@ -521,12 +521,12 @@ public class Status {
     }
 
     /**
-     * 罚单是否贴完
+     * 是否可以贴罚单
      *
      * @return true是，false否
      */
     public static boolean canPasteTicketTime() {
-        return INSTANCE.canPasteTicketTime.contains(UserIdMap.getCurrentUid());
+        return !INSTANCE.canPasteTicketTime.contains(UserIdMap.getCurrentUid());
     }
 
     /**
@@ -589,19 +589,19 @@ public class Status {
     }
 
     /**
-     * 绿色经营-收好友金币是否做完
+     * 绿色经营-是否可以收好友金币
      *
      * @return true是，false否
      */
     public static boolean canGreenFinancePointFriend() {
-        return INSTANCE.greenFinancePointFriend.contains(UserIdMap.getCurrentUid());
+        return !INSTANCE.greenFinancePointFriend.contains(UserIdMap.getCurrentUid());
     }
 
     /**
      * 绿色经营-收好友金币完了
      */
     public static void greenFinancePointFriend() {
-        if (canGreenFinancePointFriend()) {
+        if (!canGreenFinancePointFriend()) {
             return;
         }
         INSTANCE.greenFinancePointFriend.add(UserIdMap.getCurrentUid());
@@ -609,7 +609,7 @@ public class Status {
     }
 
     /**
-     * 绿色经营-评级任务是否做完
+     * 绿色经营-是否可以做评级任务
      *
      * @return true是，false否
      */
@@ -618,16 +618,16 @@ public class Status {
         String currentUid = UserIdMap.getCurrentUid();
         if (INSTANCE.greenFinancePrizesMap.containsKey(currentUid)) {
             Integer storedWeek = INSTANCE.greenFinancePrizesMap.get(currentUid);
-            return storedWeek != null && storedWeek == week;
+            return storedWeek == null || storedWeek != week;
         }
-        return false;
+        return true;
     }
 
     /**
      * 绿色经营-评级任务完了
      */
     public static void greenFinancePrizesMap() {
-        if (canGreenFinancePrizesMap()) {
+        if (!canGreenFinancePrizesMap()) {
             return;
         }
         INSTANCE.greenFinancePrizesMap.put(UserIdMap.getCurrentUid(), TimeUtil.getWeekNumber(new Date()));
