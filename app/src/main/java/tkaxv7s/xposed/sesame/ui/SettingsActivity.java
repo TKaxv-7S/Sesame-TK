@@ -9,6 +9,7 @@ import android.view.*;
 import android.widget.*;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
@@ -40,7 +41,7 @@ public class SettingsActivity extends BaseActivity {
             userId = intent.getStringExtra("userId");
             userName = intent.getStringExtra("userName");
         }
-        Model.initAllModel(null);
+        Model.initAllModel();
         UserIdMap.setCurrentUserId(userId);
         UserIdMap.load(userId);
         CooperationIdMap.load(userId);

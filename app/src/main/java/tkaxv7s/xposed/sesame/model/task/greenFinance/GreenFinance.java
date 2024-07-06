@@ -3,7 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.greenFinance;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ModelTask;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
@@ -319,7 +319,7 @@ public class GreenFinance extends ModelTask {
      */
     private void prizes() {
         try {
-            if (Status.canGreenFinancePrizesMap()) {
+            if (!Status.canGreenFinancePrizesMap()) {
                 return;
             }
             String campId = "CP14664674";
@@ -372,7 +372,7 @@ public class GreenFinance extends ModelTask {
      */
     private void batchStealFriend() {
         try {
-            if (Status.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
+            if (!Status.canGreenFinancePointFriend() || !greenFinancePointFriend.getValue()) {
                 return;
             }
             int n = 0;

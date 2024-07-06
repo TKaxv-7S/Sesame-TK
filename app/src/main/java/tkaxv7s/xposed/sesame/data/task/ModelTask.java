@@ -1,10 +1,13 @@
-package tkaxv7s.xposed.sesame.data;
+package tkaxv7s.xposed.sesame.data.task;
 
 import android.os.Build;
 import lombok.Getter;
+import tkaxv7s.xposed.sesame.data.Model;
+import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelType;
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
-import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,9 +23,7 @@ public abstract class ModelTask extends Model {
 
     private final Map<String, ChildModelTask> childTaskMap = new ConcurrentHashMap<>();
 
-    private final Map<String, ThreadPoolExecutor> childGroupThreadPoolMap = new ConcurrentHashMap<>();
-
-    private final int childThreadSize;
+    private ChildTaskExecutor childTaskExecutor;
 
     @Getter
     private final Runnable mainRunnable = new Runnable() {
@@ -47,11 +48,14 @@ public abstract class ModelTask extends Model {
     };
 
     public ModelTask() {
-        this(0);
     }
 
-    public ModelTask(int childThreadSize) {
-        this.childThreadSize = childThreadSize;
+    @Override
+    public void boot(ClassLoader classLoader) {
+        super.boot(classLoader);
+        if (classLoader != null) {
+            childTaskExecutor = newTimedTaskExecutor();
+        }
     }
 
     public String getId() {
@@ -82,58 +86,34 @@ public abstract class ModelTask extends Model {
         return childTaskMap.get(childId);
     }
 
-    public void addChildTask(ChildModelTask childTask) {
+    public Boolean addChildTask(ChildModelTask childTask) {
         String childId = childTask.getId();
         if (hasChildTask(childId)) {
             removeChildTask(childId);
         }
-        ThreadPoolExecutor groupThreadPool = getChildGroupThreadPool(childTask.getGroup());
-        groupThreadPool.execute(() -> {
-            if (!addChildTaskInner(childTask)) {
-                return;
-            }
-            String id = childTask.getId();
-            String modelTaskId = getName();
-            //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);
-            try {
-                long delay = childTask.getExecTime() - System.currentTimeMillis();
-                if (delay > 0) {
-                    try {
-                        Thread.sleep(delay);
-                    } catch (Exception e) {
-                        Log.record("任务模块:" + modelTaskId + " 中断子任务:" + id);
-                        return;
-                    }
-                }
-                childTask.run();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-                Log.record("任务模块:" + modelTaskId + " 异常子任务:" + id);
-            } finally {
-                removeChildTask(id);
-                //Log.i("任务模块:" + modelTaskId + " 移除子任务:" + id);
-            }
-        });
-    }
-
-    private Boolean addChildTaskInner(ChildModelTask childTask) {
-        String childId = childTask.getId();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return childTask == childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
                     return value;
                 }
-                value = childTask;
-                return value;
+                childTask.modelTask = this;
+                if (childTaskExecutor.addChildTask(childTask)) {
+                    return childTask;
+                }
+                return null;
             });
         } else {
             synchronized (childTaskMap) {
                 ChildModelTask oldTask = childTaskMap.get(childId);
                 if (oldTask != null) {
-                    return childTask == oldTask;
+                    return false;
                 }
-                childTaskMap.put(childId, childTask);
-                return true;
+                childTask.modelTask = this;
+                if (childTaskExecutor.addChildTask(childTask)) {
+                    childTaskMap.put(childId, childTask);
+                    return true;
+                }
+                return false;
             }
         }
     }
@@ -142,61 +122,18 @@ public abstract class ModelTask extends Model {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
-                    childGroupThreadPoolMap.compute(value.getGroup(), (keyInner, valueInner) -> {
-                        if (valueInner != null) {
-                            valueInner.remove(value);
-                        }
-                        return valueInner;
-                    });
+                    childTaskExecutor.removeChildTask(value);
                 }
                 return null;
             });
         } else {
             synchronized (childTaskMap) {
-                ChildModelTask oldTask = childTaskMap.get(childId);
-                if (oldTask != null) {
-                    ThreadPoolExecutor groupThreadPool = childGroupThreadPoolMap.get(oldTask.getGroup());
-                    if (groupThreadPool != null) {
-                        groupThreadPool.remove(oldTask);
-                    }
+                ChildModelTask childTask = childTaskMap.get(childId);
+                if (childTask != null) {
+                    childTaskExecutor.removeChildTask(childTask);
                 }
                 childTaskMap.remove(childId);
             }
-        }
-    }
-
-    public Boolean hasChildGroupThreadPool(String group) {
-        return childGroupThreadPoolMap.containsKey(group);
-    }
-
-    public ThreadPoolExecutor getChildGroupThreadPool(String group) {
-        ThreadPoolExecutor groupThreadPool = childGroupThreadPoolMap.get(group);
-        if (groupThreadPool != null) {
-            return groupThreadPool;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            groupThreadPool = childGroupThreadPoolMap.compute(group, (keyInner, valueInner) -> {
-                if (valueInner == null) {
-                    valueInner = new ThreadPoolExecutor(childThreadSize, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
-                }
-                return valueInner;
-            });
-        } else {
-            synchronized (childGroupThreadPoolMap) {
-                groupThreadPool = childGroupThreadPoolMap.get(group);
-                if (groupThreadPool == null) {
-                    groupThreadPool = new ThreadPoolExecutor(childThreadSize, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
-                    childGroupThreadPoolMap.put(group, groupThreadPool);
-                }
-            }
-        }
-        return groupThreadPool;
-    }
-
-    public void removeChildGroupThreadPool(String group) {
-        ThreadPoolExecutor childThreadPool = childGroupThreadPoolMap.get(group);
-        if (childThreadPool != null) {
-            childThreadPool.purge();
         }
     }
 
@@ -231,10 +168,14 @@ public abstract class ModelTask extends Model {
     }
 
     public synchronized void stopTask() {
-        for (ThreadPoolExecutor childThreadPool : childGroupThreadPoolMap.values()) {
-            ThreadUtil.shutdownAndAwaitTermination(childThreadPool, 3, TimeUnit.SECONDS);
+        for (ChildModelTask childModelTask : childTaskMap.values()) {
+            try {
+                childModelTask.cancel();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
         }
-        childGroupThreadPoolMap.clear();
+        childTaskExecutor.clearAllChildTask();
         childTaskMap.clear();
         MAIN_THREAD_POOL.remove(mainRunnable);
         MAIN_TASK_MAP.remove(this);
@@ -274,49 +215,72 @@ public abstract class ModelTask extends Model {
         }
     }
 
-    @Getter
+    private ChildTaskExecutor newTimedTaskExecutor() {
+        ChildTaskExecutor childTaskExecutor;
+        Integer timedTaskModel = BaseModel.getTimedTaskModel().getValue();
+        if (timedTaskModel == BaseModel.TimedTaskModel.SYSTEM) {
+            childTaskExecutor = new SystemChildTaskExecutor();
+        } else if (timedTaskModel == BaseModel.TimedTaskModel.PROGRAM) {
+            childTaskExecutor = new ProgramChildTaskExecutor();
+        } else {
+            throw new RuntimeException("not found childTaskExecutor");
+        }
+        return childTaskExecutor;
+    }
+
     public static class ChildModelTask implements Runnable {
 
+        @Getter
+        private ModelTask modelTask;
+
+        @Getter
         private final String id;
 
+        @Getter
         private final String group;
 
         private final Runnable runnable;
 
-        private final long execTime;
+        @Getter
+        private final Long execTime;
+
+        private CancelTask cancelTask;
+
+        @Getter
+        private Boolean isCancel = false;
 
         public ChildModelTask() {
             this(null, null, () -> {
-            }, 0);
+            }, 0L);
         }
 
         public ChildModelTask(String id) {
             this(id, null, () -> {
-            }, 0);
+            }, 0L);
         }
 
         public ChildModelTask(String id, String group) {
             this(id, group, () -> {
-            }, 0);
+            }, 0L);
         }
 
         protected ChildModelTask(String id, long execTime) {
             this(id, null, null, execTime);
         }
 
-        protected ChildModelTask(String id, String group, long execTime) {
-            this(id, group, null, execTime);
-        }
+        /*protected ChildModelTask(String id, String group, Long time) {
+            this(id, group, null, time);
+        }*/
 
         public ChildModelTask(String id, Runnable runnable) {
-            this(id, null, runnable, 0);
+            this(id, null, runnable, 0L);
         }
 
         public ChildModelTask(String id, String group, Runnable runnable) {
-            this(id, group, runnable, 0);
+            this(id, group, runnable, 0L);
         }
 
-        public ChildModelTask(String id, String group, Runnable runnable, long execTime) {
+        public ChildModelTask(String id, String group, Runnable runnable, Long execTime) {
             if (StringUtil.isEmpty(id)) {
                 id = toString();
             }
@@ -339,5 +303,24 @@ public abstract class ModelTask extends Model {
         public final void run() {
             runnable.run();
         }
+
+        protected void setCancelTask(CancelTask cancelTask) {
+            this.cancelTask = cancelTask;
+        }
+
+        public final void cancel() {
+            if (cancelTask != null) {
+                cancelTask.cancel();
+                isCancel = true;
+            }
+        }
+
     }
+
+    public interface CancelTask {
+
+        void cancel();
+
+    }
+
 }

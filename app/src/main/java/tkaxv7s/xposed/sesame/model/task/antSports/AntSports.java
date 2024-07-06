@@ -5,10 +5,10 @@ import de.robv.android.xposed.XposedHelpers;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
@@ -58,7 +58,7 @@ public class AntSports extends ModelTask {
     }
 
     @Override
-    public void config(ClassLoader classLoader) {
+    public void boot(ClassLoader classLoader) {
         try {
             XposedHelpers.findAndHookMethod("com.alibaba.health.pedometer.core.datasource.PedometerAgent", classLoader,
                     "readDailyStep", new XC_MethodHook() {
@@ -70,7 +70,6 @@ public class AntSports extends ModelTask {
                                 Log.other("当前步数🏃🏻‍♂️[" + originStep + "步]，无需同步");
                                 return;
                             }
-                            Log.other("同步步数🏃🏻‍♂️[" + step + "步]");
                             param.setResult(step);
 
                         }

@@ -18,7 +18,12 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import lombok.Getter;
-import tkaxv7s.xposed.sesame.data.*;
+import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.data.Model;
+import tkaxv7s.xposed.sesame.data.RunType;
+import tkaxv7s.xposed.sesame.data.ViewAppInfo;
+import tkaxv7s.xposed.sesame.data.task.BaseTask;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
@@ -315,7 +320,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                 Log.i(TAG, "hook MiscUtils err:");
                 Log.printStackTrace(TAG, t);
             }
-            Model.initAllModel(classLoader);
             hooked = true;
             Log.i(TAG, "load success: " + lpparam.packageName);
         }
@@ -416,7 +420,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return false;
                 }
-                Model.initAllModel(classLoader);
+                Model.initAllModel();
                 Log.record("开始加载");
                 ConfigV2.load(UserIdMap.getCurrentUid());
                 if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
@@ -510,6 +514,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.printStackTrace(TAG, t);
                     }
                 }
+                Model.bootAllModel(classLoader);
                 Statistics.load();
                 Status.load();
                 updateDay();
@@ -585,32 +590,32 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         }
     }
 
-    private void updateDay() {
+    public static void updateDay() {
         Calendar nowCalendar = Calendar.getInstance();
-        int nowYear = nowCalendar.get(Calendar.YEAR);
-        int nowMonth = nowCalendar.get(Calendar.MONTH);
-        int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
-        if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
-            nowCalendar.set(Calendar.HOUR_OF_DAY, 0);
-            nowCalendar.set(Calendar.MINUTE, 0);
-            nowCalendar.set(Calendar.SECOND, 0);
-            dayCalendar = nowCalendar;
-            Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
-            /*try {
+        try {
+            int nowYear = nowCalendar.get(Calendar.YEAR);
+            int nowMonth = nowCalendar.get(Calendar.MONTH);
+            int nowDay = nowCalendar.get(Calendar.DAY_OF_MONTH);
+            if (dayCalendar.get(Calendar.YEAR) != nowYear || dayCalendar.get(Calendar.MONTH) != nowMonth || dayCalendar.get(Calendar.DAY_OF_MONTH) != nowDay) {
+                dayCalendar = (Calendar) nowCalendar.clone();
+                dayCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                dayCalendar.set(Calendar.MINUTE, 0);
+                dayCalendar.set(Calendar.SECOND, 0);
+                Log.record("日期更新为：" + nowYear + "-" + (nowMonth + 1) + "-" + nowDay);
                 setWakenAtTimeAlarm();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }*/
-            try {
-                Statistics.INSTANCE.resetByCalendar(nowCalendar);
-            } catch (Exception e) {
-                Log.printStackTrace(e);
             }
-            try {
-                Status.dayClear();
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+        try {
+            Statistics.save(nowCalendar);
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+        try {
+            Status.save(nowCalendar);
+        } catch (Exception e) {
+            Log.printStackTrace(e);
         }
     }
 

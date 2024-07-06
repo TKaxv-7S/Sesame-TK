@@ -7,9 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.ModelTask;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.*;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.hook.FriendManager;
@@ -311,7 +311,7 @@ public class AntForestV2 extends ModelTask {
                 }
             }
         } catch (Throwable t) {
-            Log.i(TAG, "checkEnergyRanking.run err:");
+            Log.i(TAG, "AntForestV2.run err:");
             Log.printStackTrace(TAG, t);
         } finally {
             try {
@@ -325,16 +325,14 @@ public class AntForestV2 extends ModelTask {
                         Log.record("执行超时-蚂蚁森林");
                     } else if (count == 0) {
                         Log.record("执行结束-蚂蚁森林");
-                        NotificationUtil.setStatusTextIdle();
                     } else {
                         Log.record("执行完成-蚂蚁森林");
-                        NotificationUtil.setStatusTextIdle();
                     }
                 }
             } catch (InterruptedException ie) {
                 Log.i(TAG, "执行中断-蚂蚁森林");
-                NotificationUtil.setStatusTextIdle();
             }
+            NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
         }
     }
 
@@ -979,7 +977,7 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "collectUserBatchEnergy err:");
                 Log.printStackTrace(TAG, e);
             } finally {
-                NotificationUtil.updateLastExecText("收：" + totalCollected + " 帮：" + totalHelpCollected);
+                NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
                 notifyMain();
             }
         });
