@@ -51,9 +51,11 @@ public abstract class ModelTask extends Model {
     }
 
     @Override
-    public void boot() {
-        super.boot();
-        childTaskExecutor = newTimedTaskExecutor();
+    public void boot(ClassLoader classLoader) {
+        super.boot(classLoader);
+        if (classLoader != null) {
+            childTaskExecutor = newTimedTaskExecutor();
+        }
     }
 
     public String getId() {
@@ -173,7 +175,9 @@ public abstract class ModelTask extends Model {
                 Log.printStackTrace(e);
             }
         }
-        childTaskExecutor.clearAllChildTask();
+        if (childTaskExecutor != null) {
+            childTaskExecutor.clearAllChildTask();
+        }
         childTaskMap.clear();
         MAIN_THREAD_POOL.remove(mainRunnable);
         MAIN_TASK_MAP.remove(this);
@@ -229,6 +233,9 @@ public abstract class ModelTask extends Model {
     public static class ChildModelTask implements Runnable {
 
         @Getter
+        private ModelTask modelTask;
+
+        @Getter
         private final String id;
 
         @Getter
@@ -237,10 +244,7 @@ public abstract class ModelTask extends Model {
         private final Runnable runnable;
 
         @Getter
-        private final long execTime;
-
-        @Getter
-        private ModelTask modelTask;
+        private final Long execTime;
 
         private CancelTask cancelTask;
 
@@ -249,36 +253,36 @@ public abstract class ModelTask extends Model {
 
         public ChildModelTask() {
             this(null, null, () -> {
-            }, 0);
+            }, 0L);
         }
 
         public ChildModelTask(String id) {
             this(id, null, () -> {
-            }, 0);
+            }, 0L);
         }
 
         public ChildModelTask(String id, String group) {
             this(id, group, () -> {
-            }, 0);
+            }, 0L);
         }
 
         protected ChildModelTask(String id, long execTime) {
             this(id, null, null, execTime);
         }
 
-        protected ChildModelTask(String id, String group, long execTime) {
-            this(id, group, null, execTime);
-        }
+        /*protected ChildModelTask(String id, String group, Long time) {
+            this(id, group, null, time);
+        }*/
 
         public ChildModelTask(String id, Runnable runnable) {
-            this(id, null, runnable, 0);
+            this(id, null, runnable, 0L);
         }
 
         public ChildModelTask(String id, String group, Runnable runnable) {
-            this(id, group, runnable, 0);
+            this(id, group, runnable, 0L);
         }
 
-        public ChildModelTask(String id, String group, Runnable runnable, long execTime) {
+        public ChildModelTask(String id, String group, Runnable runnable, Long execTime) {
             if (StringUtil.isEmpty(id)) {
                 id = toString();
             }

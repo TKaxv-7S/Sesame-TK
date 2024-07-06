@@ -1,5 +1,6 @@
 package tkaxv7s.xposed.sesame.model.base;
 
+import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 
 public class TaskCommon {
@@ -10,8 +11,7 @@ public class TaskCommon {
 
     public static void update() {
         long currentTimeMillis = System.currentTimeMillis();
-        IS_ENERGY_TIME = (TimeUtil.isAfterOrCompareTimeStr(currentTimeMillis, "00") && TimeUtil.isBeforeOrCompareTimeStr(currentTimeMillis, "0005"))
-                || (TimeUtil.isAfterOrCompareTimeStr(currentTimeMillis, "0700") && TimeUtil.isBeforeOrCompareTimeStr(currentTimeMillis, "0730"));
+        IS_ENERGY_TIME = TimeUtil.checkInTimeRange(currentTimeMillis, BaseModel.getEnergyTime().getValue());
         IS_AFTER_8AM = TimeUtil.isAfterOrCompareTimeStr(currentTimeMillis, "0800");
     }
 

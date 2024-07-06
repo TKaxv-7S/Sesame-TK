@@ -698,7 +698,7 @@ public class Status {
     }
 
     public static Boolean updateDay(Calendar nowCalendar) {
-        if (TimeUtil.isLessThanNowOfDays(nowCalendar.getTimeInMillis())) {
+        if (TimeUtil.isLessThanSecondOfDays(INSTANCE.saveTime, nowCalendar.getTimeInMillis())) {
             Status.unload();
             return true;
         } else {
