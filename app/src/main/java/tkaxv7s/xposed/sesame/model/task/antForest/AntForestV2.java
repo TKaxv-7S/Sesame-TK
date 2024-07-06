@@ -311,7 +311,7 @@ public class AntForestV2 extends ModelTask {
                 }
             }
         } catch (Throwable t) {
-            Log.i(TAG, "checkEnergyRanking.run err:");
+            Log.i(TAG, "AntForestV2.run err:");
             Log.printStackTrace(TAG, t);
         } finally {
             try {

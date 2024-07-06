@@ -54,6 +54,8 @@ public abstract class Model {
 
     public void config(ClassLoader classLoader) {}
 
+    public void boot() {}
+
     public void destroy() {}
 
     public static Map<String, ModelConfig> getModelConfigMap() {
@@ -91,6 +93,18 @@ public abstract class Model {
             try {
                 if (model.getEnableField().getValue()) {
                     model.config(classLoader);
+                }
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
+        }
+    }
+
+    public static synchronized void bootAllModel() {
+        for (Model model : modelArray) {
+            try {
+                if (model.getEnableField().getValue()) {
+                    model.boot();
                 }
             } catch (Exception e) {
                 Log.printStackTrace(e);
