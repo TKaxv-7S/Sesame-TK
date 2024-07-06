@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.util;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Constanline
@@ -12,6 +13,15 @@ public class TimeUtil {
 
     public static Boolean checkNowInTimeRange(String timeRange) {
         return checkInTimeRange(System.currentTimeMillis(), timeRange);
+    }
+
+    public static Boolean checkInTimeRange(Long timeMillis, List<String> timeRangeList) {
+        for (String timeRange : timeRangeList) {
+            if (checkInTimeRange(timeMillis, timeRange)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Boolean checkInTimeRange(Long timeMillis, String timeRange) {
@@ -188,10 +198,7 @@ public class TimeUtil {
         final long day = 24 * 60 * 60 * 1000;
         firstdTimestamp = firstdTimestamp + gmt8;
         secondTimestamp = secondTimestamp + gmt8;
-        if (firstdTimestamp / day < secondTimestamp / day) {
-            return true;
-        }
-        return false;
+        return firstdTimestamp / day < secondTimestamp / day;
     }
 
     /**

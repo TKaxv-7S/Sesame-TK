@@ -148,9 +148,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(dontCollectList = new SelectModelField("dontCollectList", "不收取能量列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "双击卡 | 使用", false));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡 | 使用次数", 6));
-        List<String> doubleCardTimeList = new ArrayList<>();
-        doubleCardTimeList.add("0700-0730");
-        modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "双击卡 | 使用时间(范围)", doubleCardTimeList));
+        modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "双击卡 | 使用时间(范围)", ListUtil.newArrayList("0700-0730")));
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "返水 | 10克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "返水 | 18克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "返水 | 33克需收能量(关闭:0)", 0));
@@ -317,11 +315,11 @@ public class AntForestV2 extends ModelTask {
             try {
                 synchronized (AntForestV2.this) {
                     int count = taskCount.get();
-                    if (count > 10) {
+                    if (count > 0) {
                         AntForestV2.this.wait(TimeUnit.MINUTES.toMillis(30));
                         count = taskCount.get();
                     }
-                    if (count > 10) {
+                    if (count > 0) {
                         Log.record("执行超时-蚂蚁森林");
                     } else if (count == 0) {
                         Log.record("执行结束-蚂蚁森林");
@@ -1690,12 +1688,7 @@ public class AntForestV2 extends ModelTask {
 
     private boolean hasDoubleCardTime() {
         long currentTimeMillis = System.currentTimeMillis();
-        for (String doubleTime : doubleCardTime.getValue()) {
-            if (TimeUtil.checkInTimeRange(currentTimeMillis, doubleTime)) {
-                return true;
-            }
-        }
-        return false;
+        return TimeUtil.checkInTimeRange(currentTimeMillis, doubleCardTime.getValue());
     }
 
     /* 赠送道具 */
