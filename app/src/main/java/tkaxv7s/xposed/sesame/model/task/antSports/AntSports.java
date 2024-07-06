@@ -67,11 +67,9 @@ public class AntSports extends ModelTask {
                             int originStep = (Integer) param.getResult();
                             int step = tmpStepCount();
                             if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 6 || originStep >= step) {
-                                Log.other("当前步数🏃🏻‍♂️[" + originStep + "步]，无需同步");
                                 return;
                             }
                             param.setResult(step);
-
                         }
                     });
             Log.i(TAG, "hook readDailyStep successfully");

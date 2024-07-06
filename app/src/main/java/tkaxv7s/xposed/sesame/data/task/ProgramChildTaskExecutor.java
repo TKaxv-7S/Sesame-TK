@@ -18,6 +18,9 @@ public class ProgramChildTaskExecutor implements ChildTaskExecutor {
         long time = childTask.getExecTime();
         if (time > 0) {
             future = threadPoolExecutor.submit(() -> {
+                if (childTask.getIsCancel()) {
+                    return;
+                }
                 //String modelTaskId = getName();
                 //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);
                 try {

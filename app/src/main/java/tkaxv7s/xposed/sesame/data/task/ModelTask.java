@@ -175,7 +175,9 @@ public abstract class ModelTask extends Model {
                 Log.printStackTrace(e);
             }
         }
-        childTaskExecutor.clearAllChildTask();
+        if (childTaskExecutor != null) {
+            childTaskExecutor.clearAllChildTask();
+        }
         childTaskMap.clear();
         MAIN_THREAD_POOL.remove(mainRunnable);
         MAIN_TASK_MAP.remove(this);
