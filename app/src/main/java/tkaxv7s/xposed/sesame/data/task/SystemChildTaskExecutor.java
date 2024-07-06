@@ -41,7 +41,7 @@ public class SystemChildTaskExecutor implements ChildTaskExecutor {
         childTask.setCancelTask(() -> handler.removeCallbacks(runnable));
         long execTime = childTask.getExecTime();
         if (execTime > 0) {
-            handler.postAtTime(runnable, execTime);
+            handler.postDelayed(runnable, execTime - System.currentTimeMillis());
         } else {
             handler.post(runnable);
         }

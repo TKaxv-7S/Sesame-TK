@@ -52,9 +52,7 @@ public abstract class Model {
 
     public abstract ModelFields getFields();
 
-    public void config(ClassLoader classLoader) {}
-
-    public void boot() {}
+    public void boot(ClassLoader classLoader) {}
 
     public void destroy() {}
 
@@ -75,7 +73,7 @@ public abstract class Model {
         return readOnlyModelList;
     }
 
-    public static synchronized void initAllModel(ClassLoader classLoader) {
+    public static synchronized void initAllModel() {
         destroyAllModel();
         for (int i = 0, len = modelClazzList.size(); i < len; i++) {
             Class<Model> modelClazz = modelClazzList.get(i);
@@ -89,22 +87,13 @@ public abstract class Model {
                 Log.printStackTrace(e);
             }
         }
-        for (Model model : modelArray) {
-            try {
-                if (model.getEnableField().getValue()) {
-                    model.config(classLoader);
-                }
-            } catch (Exception e) {
-                Log.printStackTrace(e);
-            }
-        }
     }
 
-    public static synchronized void bootAllModel() {
+    public static synchronized void bootAllModel(ClassLoader classLoader) {
         for (Model model : modelArray) {
             try {
                 if (model.getEnableField().getValue()) {
-                    model.boot();
+                    model.boot(classLoader);
                 }
             } catch (Exception e) {
                 Log.printStackTrace(e);

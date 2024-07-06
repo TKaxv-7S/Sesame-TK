@@ -420,7 +420,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     }, 2000);
                     return false;
                 }
-                Model.initAllModel(classLoader);
+                Model.initAllModel();
                 Log.record("开始加载");
                 ConfigV2.load(UserIdMap.getCurrentUid());
                 if (!Model.getModel(BaseModel.class).getEnableField().getValue()) {
@@ -514,7 +514,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.printStackTrace(TAG, t);
                     }
                 }
-                Model.bootAllModel();
+                Model.bootAllModel(classLoader);
                 Statistics.load();
                 Status.load();
                 updateDay();
