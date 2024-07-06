@@ -514,6 +514,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.printStackTrace(TAG, t);
                     }
                 }
+                Model.bootAllModel();
                 Statistics.load();
                 Status.load();
                 updateDay();
