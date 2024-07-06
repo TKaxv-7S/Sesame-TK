@@ -3,7 +3,6 @@ package tkaxv7s.xposed.sesame.util;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
-import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
 
 import java.io.File;
@@ -674,21 +673,36 @@ public class Status {
     }
 
     public static synchronized void save() {
-        ApplicationHook.updateDay();
+        save(Calendar.getInstance());
+    }
+
+    public static synchronized void save(Calendar nowCalendar) {
+        String currentUid = UserIdMap.getCurrentUid();
+        if (StringUtil.isEmpty(currentUid)) {
+            Log.record("用户为空，状态保存失败");
+            throw new RuntimeException("用户为空，状态保存失败");
+        }
+        if (updateDay(nowCalendar)) {
+            Log.system(TAG, "重置 statistics.json");
+        } else {
+            Log.system(TAG, "保存 status.json");
+        }
         long lastSaveTime = INSTANCE.saveTime;
         try {
             INSTANCE.saveTime = System.currentTimeMillis();
-            String json = JsonUtil.toJsonString(INSTANCE);
-            Log.system(TAG, "保存 status.json");
-            String currentUid = UserIdMap.getCurrentUid();
-            if (StringUtil.isEmpty(currentUid)) {
-                Log.i(TAG, "用户为空，状态保存失败");
-                throw new RuntimeException("用户为空，状态保存失败");
-            }
-            FileUtil.write2File(json, FileUtil.getStatusFile(currentUid));
+            FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
         } catch (Exception e){
             INSTANCE.saveTime = lastSaveTime;
             throw e;
+        }
+    }
+
+    public static Boolean updateDay(Calendar nowCalendar) {
+        if (TimeUtil.isLessThanNowOfDays(nowCalendar.getTimeInMillis())) {
+            Status.unload();
+            return true;
+        } else {
+            return false;
         }
     }
 

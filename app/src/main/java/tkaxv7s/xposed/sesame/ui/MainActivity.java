@@ -178,7 +178,7 @@ public class MainActivity extends BaseActivity {
             }
             try {
                 Statistics.load();
-                Statistics.INSTANCE.resetByCalendar(Calendar.getInstance());
+                Statistics.updateDay(Calendar.getInstance());
                 tvStatistics.setText(Statistics.getText());
             } catch (Exception e) {
                 Log.printStackTrace(e);

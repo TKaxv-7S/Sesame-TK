@@ -2,56 +2,73 @@ package tkaxv7s.xposed.sesame.data.task;
 
 import android.os.Build;
 import android.os.Handler;
+import tkaxv7s.xposed.sesame.hook.ApplicationHook;
+import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.ThreadUtil;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 
 public class SystemChildTaskExecutor implements ChildTaskExecutor {
 
-    private final Map<String, Handler> childGroupHandlerMap = new ConcurrentHashMap<>();
+    private final Handler handler;
+
+    private final Map<String, ThreadPoolExecutor> groupChildTaskExecutorMap = new ConcurrentHashMap<>();
+
+    public SystemChildTaskExecutor() {
+        handler = ApplicationHook.getMainHandler();
+    }
 
     @Override
     public Boolean addChildTask(ModelTask.ChildModelTask childTask) {
-        Handler handler = getChildGroupHandler(childTask.getGroup());
-        handler.postAtTime(childTask.getRealRunnable(), childTask.getExecTime());
+        ThreadPoolExecutor threadPoolExecutor = getChildGroupHandler(childTask.getGroup());
+        Runnable runnable = () -> {
+            //String modelTaskId = getName();
+            //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);
+            Future<?> future = threadPoolExecutor.submit(() -> {
+                try {
+                    childTask.run();
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                    //Log.record("任务模块:" + modelTaskId + " 异常子任务:" + id);
+                } finally {
+                    childTask.getModelTask().removeChildTask(childTask.getId());
+                    //Log.i("任务模块:" + modelTaskId + " 移除子任务:" + id);
+                }
+            });
+            childTask.setCancelTask(() -> future.cancel(true));
+        };
+        childTask.setCancelTask(() -> handler.removeCallbacks(runnable));
+        long execTime = childTask.getExecTime();
+        if (execTime > 0) {
+            handler.postAtTime(runnable, execTime);
+        } else {
+            handler.post(runnable);
+        }
         return true;
     }
 
     @Override
     public Boolean removeChildTask(ModelTask.ChildModelTask childTask) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childGroupHandlerMap.compute(childTask.getGroup(), (keyInner, valueInner) -> {
-                if (valueInner != null) {
-                    valueInner.removeCallbacks(childTask.getRealRunnable());
-                }
-                return valueInner;
-            });
-        } else {
-            synchronized (childGroupHandlerMap) {
-                Handler handler = childGroupHandlerMap.get(childTask.getGroup());
-                if (handler != null) {
-                    handler.removeCallbacks(childTask.getRealRunnable());
-                }
-            }
-        }
+        childTask.cancel();
         return true;
     }
 
     @Override
     public Boolean clearGroupChildTask(String group) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            childGroupHandlerMap.compute(group, (keyInner, valueInner) -> {
+            groupChildTaskExecutorMap.compute(group, (keyInner, valueInner) -> {
                 if (valueInner != null) {
-                    valueInner.removeCallbacksAndMessages(null);
+                    ThreadUtil.shutdownAndAwaitTermination(valueInner, 3, TimeUnit.SECONDS);
                 }
                 return null;
             });
         } else {
-            synchronized (childGroupHandlerMap) {
-                Handler handler = childGroupHandlerMap.get(group);
-                if (handler != null) {
-                    handler.removeCallbacksAndMessages(null);
-                    childGroupHandlerMap.remove(group);
+            synchronized (groupChildTaskExecutorMap) {
+                ThreadPoolExecutor threadPoolExecutor = groupChildTaskExecutorMap.get(group);
+                if (threadPoolExecutor != null) {
+                    ThreadUtil.shutdownAndAwaitTermination(threadPoolExecutor, 3, TimeUnit.SECONDS);
+                    groupChildTaskExecutorMap.remove(group);
                 }
             }
         }
@@ -60,35 +77,35 @@ public class SystemChildTaskExecutor implements ChildTaskExecutor {
 
     @Override
     public Boolean clearAllChildTask() {
-        for (Handler childHandler : childGroupHandlerMap.values()) {
-            childHandler.removeCallbacksAndMessages(null);
+        for (ThreadPoolExecutor threadPoolExecutor : groupChildTaskExecutorMap.values()) {
+            ThreadUtil.shutdownAndAwaitTermination(threadPoolExecutor, 3, TimeUnit.SECONDS);
         }
-        childGroupHandlerMap.clear();
+        groupChildTaskExecutorMap.clear();
         return true;
     }
 
-    private Handler getChildGroupHandler(String group) {
-        Handler groupThreadPool = childGroupHandlerMap.get(group);
-        if (groupThreadPool != null) {
-            return groupThreadPool;
+    private ThreadPoolExecutor getChildGroupHandler(String group) {
+        ThreadPoolExecutor threadPoolExecutor = groupChildTaskExecutorMap.get(group);
+        if (threadPoolExecutor != null) {
+            return threadPoolExecutor;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            groupThreadPool = childGroupHandlerMap.compute(group, (keyInner, valueInner) -> {
+            threadPoolExecutor = groupChildTaskExecutorMap.compute(group, (keyInner, valueInner) -> {
                 if (valueInner == null) {
-                    valueInner = new Handler();
+                    valueInner = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
                 }
                 return valueInner;
             });
         } else {
-            synchronized (childGroupHandlerMap) {
-                groupThreadPool = childGroupHandlerMap.get(group);
-                if (groupThreadPool == null) {
-                    groupThreadPool = new Handler();
-                    childGroupHandlerMap.put(group, groupThreadPool);
+            synchronized (groupChildTaskExecutorMap) {
+                threadPoolExecutor = groupChildTaskExecutorMap.get(group);
+                if (threadPoolExecutor == null) {
+                    threadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 30L, TimeUnit.SECONDS, new SynchronousQueue<>(), new ThreadPoolExecutor.CallerRunsPolicy());
+                    groupChildTaskExecutorMap.put(group, threadPoolExecutor);
                 }
             }
         }
-        return groupThreadPool;
+        return threadPoolExecutor;
     }
 
 }

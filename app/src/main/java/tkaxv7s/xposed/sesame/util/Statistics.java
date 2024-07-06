@@ -2,7 +2,6 @@ package tkaxv7s.xposed.sesame.util;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Data;
-import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 
 import java.io.File;
 import java.util.Calendar;
@@ -90,30 +89,9 @@ public class Statistics {
         return sb.toString();
     }
 
-    public Boolean resetByCalendar(Calendar calendar) {
-        int ye = calendar.get(Calendar.YEAR);
-        int mo = calendar.get(Calendar.MONTH) + 1;
-        int da = calendar.get(Calendar.DAY_OF_MONTH);
-        if (ye != year.time) {
-            year.reset(ye);
-            month.reset(mo);
-            day.reset(da);
-        } else if (mo != month.time) {
-            month.reset(mo);
-            day.reset(da);
-        } else if (da != day.time) {
-            day.reset(da);
-        } else {
-            return false;
-        }
-        Log.system(TAG, "重置 statistics.json");
-        save();
-        return true;
-    }
-
     public static synchronized Statistics load() {
-        File statisticsFile = FileUtil.getStatisticsFile();
         try {
+            File statisticsFile = FileUtil.getStatisticsFile();
             if (statisticsFile.exists()) {
                 String json = FileUtil.readFromFile(statisticsFile);
                 JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
@@ -135,7 +113,7 @@ public class Statistics {
             Log.system(TAG, "统计文件格式有误，已重置统计文件");
             try {
                 JsonUtil.MAPPER.updateValue(INSTANCE, new Statistics());
-                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), statisticsFile);
+                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatisticsFile());
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, e);
             }
@@ -151,11 +129,38 @@ public class Statistics {
         }
     }
 
-    private static synchronized void save() {
-        ApplicationHook.updateDay();
-        String json = JsonUtil.toJsonString(INSTANCE);
-        Log.system(TAG, "保存 statistics.json");
-        FileUtil.write2File(json, FileUtil.getStatisticsFile());
+    public static synchronized void save() {
+        save(Calendar.getInstance());
+    }
+
+    public static synchronized void save(Calendar nowCalendar) {
+        if (updateDay(nowCalendar)) {
+            Log.system(TAG, "重置 statistics.json");
+        } else {
+            Log.system(TAG, "保存 statistics.json");
+        }
+        FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatisticsFile());
+    }
+
+    public static Boolean updateDay(Calendar nowCalendar) {
+        int ye = nowCalendar.get(Calendar.YEAR);
+        int mo = nowCalendar.get(Calendar.MONTH) + 1;
+        int da = nowCalendar.get(Calendar.DAY_OF_MONTH);
+        if (ye != INSTANCE.year.time) {
+            INSTANCE.year.reset(ye);
+            INSTANCE.month.reset(mo);
+            INSTANCE.day.reset(da);
+        } else if (mo != INSTANCE.month.time) {
+            INSTANCE.month.reset(mo);
+            INSTANCE.day.reset(da);
+            return true;
+        } else if (da != INSTANCE.day.time) {
+            INSTANCE.day.reset(da);
+            return true;
+        } else {
+            return false;
+        }
+        return true;
     }
 
     public enum TimeType {
