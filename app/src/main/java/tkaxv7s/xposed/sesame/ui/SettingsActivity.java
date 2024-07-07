@@ -119,10 +119,14 @@ public class SettingsActivity extends BaseActivity {
         if (isSave) {
             if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
                 Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-                try {
-                    sendBroadcast(new Intent("com.eg.android.AlipayGphone.sesame.restart"));
-                } catch (Throwable th) {
-                    Log.printStackTrace(th);
+                if (!StringUtil.isEmpty(userId)) {
+                    try {
+                        Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
+                        intent.putExtra("userId", userId);
+                        sendBroadcast(intent);
+                    } catch (Throwable th) {
+                        Log.printStackTrace(th);
+                    }
                 }
             }
             if (!StringUtil.isEmpty(userId)) {

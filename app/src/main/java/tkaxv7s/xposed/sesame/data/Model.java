@@ -52,6 +52,8 @@ public abstract class Model {
 
     public abstract ModelFields getFields();
 
+    public void prepare() {}
+
     public void boot(ClassLoader classLoader) {}
 
     public void destroy() {}
@@ -91,6 +93,11 @@ public abstract class Model {
 
     public static synchronized void bootAllModel(ClassLoader classLoader) {
         for (Model model : modelArray) {
+            try {
+                model.prepare();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+            }
             try {
                 if (model.getEnableField().getValue()) {
                     model.boot(classLoader);
