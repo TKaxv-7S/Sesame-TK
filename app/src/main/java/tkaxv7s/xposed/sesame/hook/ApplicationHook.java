@@ -34,10 +34,7 @@ import tkaxv7s.xposed.sesame.rpc.RpcBridge;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -203,15 +200,21 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                                 reLogin();
                                                 return;
                                             }
+                                            lastExecTime = System.currentTimeMillis();
                                             try {
                                                 FutureTask<Boolean> checkTask = new FutureTask<>(AntMemberRpcCall::check);
                                                 Thread checkThread = new Thread(checkTask);
                                                 checkThread.start();
                                                 if (!checkTask.get(10, TimeUnit.SECONDS)) {
+                                                    long waitTime = 10000 - System.currentTimeMillis() + lastExecTime;
+                                                    if (waitTime > 0) {
+                                                        Thread.sleep(waitTime);
+                                                    }
                                                     Log.record("执行失败：检查超时");
                                                     reLogin();
                                                     return;
                                                 }
+                                                reLoginCount.set(0);
                                             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                                                 Log.record("执行失败：检查中断");
                                                 reLogin();
@@ -743,8 +746,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         if (context != null) {
             mainHandler.post(() -> {
                 if (reLoginCount.get() < 5) {
-                    int andIncrement = reLoginCount.getAndIncrement();
-                    execDelayedHandler(andIncrement * 5000L);
+                    execDelayedHandler(reLoginCount.getAndIncrement() * 5000L);
                 } else {
                     execDelayedHandler(Math.max(BaseModel.getCheckInterval().getValue(), 180_000));
                 }
@@ -774,7 +776,12 @@ public class ApplicationHook implements IXposedHookLoadPackage {
             if (action != null) {
                 switch (action) {
                     case "com.eg.android.AlipayGphone.sesame.restart":
-                        initHandler(true);
+                        String userId = intent.getStringExtra("userId");
+                        if (StringUtil.isEmpty(userId)) {
+                            initHandler(true);
+                        } else if (Objects.equals(UserIdMap.getCurrentUid(), userId)) {
+                            initHandler(true);
+                        }
                         break;
                     case "com.eg.android.AlipayGphone.sesame.execute":
                         initHandler(false);

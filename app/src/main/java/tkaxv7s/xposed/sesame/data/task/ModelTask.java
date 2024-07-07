@@ -51,11 +51,8 @@ public abstract class ModelTask extends Model {
     }
 
     @Override
-    public void boot(ClassLoader classLoader) {
-        super.boot(classLoader);
-        if (classLoader != null) {
-            childTaskExecutor = newTimedTaskExecutor();
-        }
+    public final void prepare() {
+        childTaskExecutor = newTimedTaskExecutor();
     }
 
     public String getId() {
