@@ -44,6 +44,7 @@ public class Status {
     private ArrayList<String> donationEggList = new ArrayList<>();
     private ArrayList<String> spreadManureList = new ArrayList<>();
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
+    private Boolean canOrnament = true;
     /**
      * 新村助力好友，已上限的用户
      */
@@ -703,6 +704,17 @@ public class Status {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public static boolean canOrnamentToday() {
+        return INSTANCE.canOrnament;
+    }
+
+    public static void setOrnamentToday() {
+        if (INSTANCE.canOrnament) {
+            INSTANCE.canOrnament = false;
+            save();
         }
     }
 

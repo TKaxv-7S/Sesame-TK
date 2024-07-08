@@ -251,10 +251,10 @@ public class ListDialog {
                                                         break;
 
                                                     case 2:
-                                                        /*url = "https://render.alipay.com/p/s/i/?scheme=alipays%3a%2f%2fplatformapi%2fstartapp%3fappId%3d20000166%26actionType%3dprofile%26userId%3d";
+                                                        url = "alipays://platformapi/startapp?appId=20000166&actionType=profile&userId=";
                                                         break;
 
-                                                    case 3:*/
+                                                    case 3:
                                                         try {
                                                             new AlertDialog.Builder(c)
                                                                     .setTitle("删除 " + curIdAndName.name)

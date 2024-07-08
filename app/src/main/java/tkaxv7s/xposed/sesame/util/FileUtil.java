@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.hook.Toast;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -474,8 +475,33 @@ public class FileUtil {
         return success;
     }
 
-    public static boolean copyTo(File f1, File f2) {
-        return write2File(readFromFile(f1), f2);
+    public static boolean copyTo(File source, File dest) {
+        FileChannel inputChannel = null;
+        FileChannel outputChannel = null;
+        try {
+            inputChannel = new FileInputStream(source).getChannel();
+            outputChannel = new FileOutputStream(dest).getChannel();
+            outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+            return true;
+        } catch (IOException e) {
+            Log.printStackTrace(e);
+        } finally {
+            try {
+                if (inputChannel != null) {
+                    inputChannel.close();
+                }
+            } catch (IOException e) {
+                Log.printStackTrace(e);
+            }
+            try {
+                if (outputChannel != null) {
+                    outputChannel.close();
+                }
+            } catch (IOException e) {
+                Log.printStackTrace(e);
+            }
+        }
+        return false;
     }
 
     public static void close(Closeable c) {

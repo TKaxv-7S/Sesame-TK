@@ -29,6 +29,11 @@ public class AntFarmRpcCall {
         return ApplicationHook.requestString("com.alipay.antfarm.sleep", args1);
     }
 
+    public static String wakeUp() {
+        String args1 = "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"LOVECABIN\",\"version\":\"unknown\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.wakeUp", args1);
+    }
+
     public static String queryLoveCabin(String userId) {
         String args1 = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ENTERFARM\",\"userId\":\"" +
                 userId + "\",\"version\":\"" + VERSION + "\"}]";
@@ -432,5 +437,16 @@ public class AntFarmRpcCall {
     public static String queryGameList() {
         return ApplicationHook.requestString("com.alipay.antfarm.queryGameList",
                 "[{\"commonDegradeResult\":{\"deviceLevel\":\"high\",\"resultReason\":0,\"resultType\":0},\"platform\":\"Android\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    // 小鸡换装
+    public static String listOrnaments() {
+        return ApplicationHook.requestString("com.alipay.antfarm.listOrnaments",
+                "[{\"pageNo\":\"1\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"setsType\":\"ACHIEVEMENTSETS\",\"source\":\"H5\",\"subType\":\"sets\",\"type\":\"apparels\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    public static String saveOrnaments(String animalId, String farmId, String ornaments) {
+        return ApplicationHook.requestString("com.alipay.antfarm.saveOrnaments",
+                "[{\"animalId\":\"" + animalId + "\",\"farmId\":\"" + farmId + "\",\"ornaments\":\"" + ornaments + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION + "\"}]");
     }
 }

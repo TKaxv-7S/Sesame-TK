@@ -4,10 +4,11 @@ import android.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
@@ -60,7 +61,7 @@ public class AntStall extends ModelTask {
     private BooleanModelField stallAutoTicket;
     private BooleanModelField stallAutoTask;
     private BooleanModelField stallReceiveAward;
-    private BooleanModelField stallOpenType;
+    private ChoiceModelField stallOpenType;
     private SelectModelField stallOpenList;
     private SelectModelField stallWhiteList;
     private SelectModelField stallBlackList;
@@ -87,8 +88,8 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallAutoTicket = new BooleanModelField("stallAutoTicket", "新村自动贴罚单", false));
         modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
         modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
-        modelFields.addField(stallOpenType = new BooleanModelField("stallOpenType", "摊位类型(打开:摆摊列表/关闭:不摆列表)", false));
-        modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摊位列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(stallOpenType = new ChoiceModelField("stallOpenType", "摆摊 | 动作", StallOpenType.OPEN, StallOpenType.nickNames));
+        modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摆摊 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "不请走列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "禁摆摊列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "允许他人摆摊时长", 121));
@@ -340,12 +341,11 @@ public class AntStall extends ModelTask {
                     JSONObject friendRank = friendRankList.getJSONObject(i);
                     if (friendRank.getBoolean("canOpenShop")) {
                         String userId = friendRank.getString("userId");
-                        Map<String, Integer> map = stallOpenList.getValue().getKey();
-                        if (stallOpenType.getValue()) {
-                            if (!map.containsKey(userId)) {
-                                continue;
-                            }
-                        } else if (map.containsKey(userId)) {
+                        boolean isStallOpen = stallOpenList.getValue().getKey().containsKey(userId);
+                        if (stallOpenType.getValue() == StallOpenType.CLOSE) {
+                            isStallOpen = !isStallOpen;
+                        }
+                        if (!isStallOpen) {
                             continue;
                         }
                         int hot = friendRank.getInt("hot");
@@ -971,4 +971,14 @@ public class AntStall extends ModelTask {
             Log.printStackTrace(TAG, th);
         }
     }
+
+    public interface StallOpenType {
+
+        int OPEN = 0;
+        int CLOSE = 1;
+
+        String[] nickNames = {"摆摊", "不摆摊"};
+
+    }
+
 }

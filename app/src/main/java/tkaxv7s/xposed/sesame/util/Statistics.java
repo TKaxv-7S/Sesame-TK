@@ -19,7 +19,6 @@ public class Statistics {
 
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
-        //resetToday();
         switch (dt) {
             case COLLECTED:
                 stat.day.collected += i;
@@ -37,7 +36,6 @@ public class Statistics {
                 stat.year.watered += i;
                 break;
         }
-        save();
     }
 
     public static int getData(TimeType tt, DataType dt) {
@@ -153,10 +151,8 @@ public class Statistics {
         } else if (mo != INSTANCE.month.time) {
             INSTANCE.month.reset(mo);
             INSTANCE.day.reset(da);
-            return true;
         } else if (da != INSTANCE.day.time) {
             INSTANCE.day.reset(da);
-            return true;
         } else {
             return false;
         }

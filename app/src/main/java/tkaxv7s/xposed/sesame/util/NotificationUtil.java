@@ -90,7 +90,7 @@ public class NotificationUtil {
         try {
             long forestPauseTime = RuntimeInfo.getInstance().getLong(RuntimeInfo.RuntimeInfoKey.ForestPauseTime);
             if (forestPauseTime > System.currentTimeMillis()) {
-                status = "触发异常，等待至" + DateFormat.getDateTimeInstance().format(forestPauseTime);
+                status = "触发异常，等待至" + TimeUtil.getCommonDate(forestPauseTime);
             }
             titleText = status;
             lastNoticeTime = System.currentTimeMillis();

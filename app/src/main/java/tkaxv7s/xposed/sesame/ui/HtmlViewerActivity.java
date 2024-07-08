@@ -36,7 +36,7 @@ public class HtmlViewerActivity extends BaseActivity {
         pgb = findViewById(R.id.pgb_webview);
 
         WebSettings settings = mWebView.getSettings();
-        settings.setTextZoom(88);
+        settings.setTextZoom(85);
         mWebView.setWebChromeClient(
                 new WebChromeClient() {
                     @SuppressLint("WrongConstant")
