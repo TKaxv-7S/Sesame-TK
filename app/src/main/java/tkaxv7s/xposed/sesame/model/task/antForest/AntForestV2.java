@@ -1060,7 +1060,10 @@ public class AntForestV2 extends ModelTask {
                         JSONArray feeds = response.optJSONArray("feeds");
                         if (feeds != null && feeds.length() > 0) {
                             for (int i = 0; i < feeds.length(); i++) {
-                                jo = feeds.getJSONObject(i);
+                                jo = feeds.optJSONObject(i);
+                                if (jo == null) {
+                                    continue;
+                                }
                                 String feedId = jo.optString("feedId", "null");
                                 if (!"null".equals(feedId)) {
                                     jo = new JSONObject(AntForestRpcCall.produce_forest_energy(feedId));
