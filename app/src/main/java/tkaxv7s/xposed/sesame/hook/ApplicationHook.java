@@ -125,9 +125,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 if (!init) {
                                     if (canInit) {
                                         UserIdMap.initUser(targetUid);
-                                        if (initHandler(true)) {
-                                            init = true;
-                                        }
+                                        new Thread(() -> {
+                                            if (initHandler(true)) {
+                                                init = true;
+                                            }
+                                        }).start();
                                     }
                                     return;
                                 }
@@ -135,9 +137,11 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 if (!targetUid.equals(currentUid)) {
                                     UserIdMap.initUser(targetUid);
                                     if (currentUid != null) {
-                                        initHandler(true);
-                                        Log.record("用户已切换");
-                                        Toast.show("用户已切换");
+                                        new Thread(() -> {
+                                            initHandler(true);
+                                            Log.record("用户已切换");
+                                            Toast.show("用户已切换");
+                                        }).start();
                                         return;
                                     }
                                 }
