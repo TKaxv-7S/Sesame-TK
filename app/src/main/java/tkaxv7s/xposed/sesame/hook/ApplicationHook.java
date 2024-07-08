@@ -258,7 +258,6 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                     }
                                 });
                                 registerBroadcastReceiver(appService);
-                                NotificationUtil.start(service);
                                 dayCalendar = Calendar.getInstance();
                                 canInit = true;
                                 String targetUid = getUserId();
@@ -283,9 +282,8 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         if (!ClassUtil.CURRENT_USING_SERVICE.equals(service.getClass().getCanonicalName())) {
                             return;
                         }
-                        destroyHandler(true);
                         NotificationUtil.updateStatusText("支付宝前台服务被销毁");
-                        NotificationUtil.stop();
+                        destroyHandler(true);
                         restartByBroadcast();
                         Log.record("支付宝前台服务被销毁");
                     }
@@ -517,6 +515,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                         Log.printStackTrace(TAG, t);
                     }
                 }
+                NotificationUtil.start(service);
                 Model.bootAllModel(classLoader);
                 Statistics.load();
                 Status.load();
@@ -544,6 +543,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     BaseModel.destroyData();
                     Status.unload();
                     Statistics.unload();
+                    NotificationUtil.stop();
                     ConfigV2.unload();
                     ModelTask.destroyAllModel();
                 }

@@ -48,12 +48,12 @@ public class AntSports extends ModelTask {
         modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));
         modelFields.addField(receiveCoinAsset = new BooleanModelField("receiveCoinAsset", "收运动币", false));
         modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币", false));
+        modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友大战", false));
+        modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
         modelFields.addField(minExchangeCount = new IntegerModelField("minExchangeCount", "最小捐步步数", 0));
         modelFields.addField(latestExchangeTime = new IntegerModelField("latestExchangeTime", "最晚捐步时间(24小时制)", 22));
         modelFields.addField(syncStepCount = new IntegerModelField("syncStepCount", "自定义同步步数", 22000));
-        modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
-        modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友大战", false));
-        modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         return modelFields;
     }
 

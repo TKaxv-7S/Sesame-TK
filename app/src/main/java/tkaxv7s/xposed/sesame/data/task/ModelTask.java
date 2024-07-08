@@ -91,7 +91,7 @@ public abstract class ModelTask extends Model {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return childTask == childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
-                    return value;
+                    value.cancel();
                 }
                 childTask.modelTask = this;
                 if (childTaskExecutor.addChildTask(childTask)) {
@@ -103,7 +103,7 @@ public abstract class ModelTask extends Model {
             synchronized (childTaskMap) {
                 ChildModelTask oldTask = childTaskMap.get(childId);
                 if (oldTask != null) {
-                    return false;
+                    oldTask.cancel();
                 }
                 childTask.modelTask = this;
                 if (childTaskExecutor.addChildTask(childTask)) {
@@ -309,8 +309,12 @@ public abstract class ModelTask extends Model {
 
         public final void cancel() {
             if (cancelTask != null) {
-                cancelTask.cancel();
-                isCancel = true;
+                try {
+                    cancelTask.cancel();
+                    isCancel = true;
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
             }
         }
 

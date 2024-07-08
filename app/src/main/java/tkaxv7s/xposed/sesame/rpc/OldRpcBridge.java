@@ -113,7 +113,7 @@ public class OldRpcBridge implements RpcBridge {
                                     long waitTime = System.currentTimeMillis() + BaseModel.getWaitWhenException().getValue();
                                     RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
                                     NotificationUtil.updateStatusText("异常");
-                                    Log.record("触发异常,等待至" + DateFormat.getDateTimeInstance().format(waitTime));
+                                    Log.record("触发异常,等待至" + TimeUtil.getCommonDate(waitTime));
                                 }
                                 if (retryInterval < 0) {
                                     try {

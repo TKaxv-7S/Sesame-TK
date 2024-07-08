@@ -29,6 +29,11 @@ public class AntFarmRpcCall {
         return ApplicationHook.requestString("com.alipay.antfarm.sleep", args1);
     }
 
+    public static String wakeUp() {
+        String args1 = "[{\"requestType\":\"RPC\",\"sceneCode\":\"ANTFARM\",\"source\":\"LOVECABIN\",\"version\":\"unknown\"}]";
+        return ApplicationHook.requestString("com.alipay.antfarm.wakeUp", args1);
+    }
+
     public static String queryLoveCabin(String userId) {
         String args1 = "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"ENTERFARM\",\"userId\":\"" +
                 userId + "\",\"version\":\"" + VERSION + "\"}]";

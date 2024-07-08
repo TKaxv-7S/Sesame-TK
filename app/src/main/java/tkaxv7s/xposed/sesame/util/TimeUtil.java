@@ -1,6 +1,9 @@
 package tkaxv7s.xposed.sesame.util;
 
+import android.annotation.SuppressLint;
+
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -208,6 +211,16 @@ public class TimeUtil {
      */
     public static boolean isLessThanNowOfDays(Long timestamp) {
         return isLessThanSecondOfDays(timestamp, System.currentTimeMillis());
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static DateFormat getCommonDateFormat() {
+        return new SimpleDateFormat("dd日HH:mm:ss");
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String getCommonDate(Long timestamp) {
+        return getCommonDateFormat().format(timestamp);
     }
 
 }
