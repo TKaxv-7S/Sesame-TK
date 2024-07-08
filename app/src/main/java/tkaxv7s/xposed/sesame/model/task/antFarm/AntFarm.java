@@ -93,6 +93,7 @@ public class AntFarm extends ModelTask {
     private SelectModelField visitFriendList;
     private BooleanModelField chickenDiary;
     private BooleanModelField enableChouchoule;
+    private BooleanModelField listOrnaments;
     private BooleanModelField enableHireAnimal;
     private SelectModelField dontHireFriendList;
     private BooleanModelField enableDdrawGameCenterAward;
@@ -131,6 +132,7 @@ public class AntFarm extends ModelTask {
         modelFields.addField(visitFriendList = new SelectModelField("visitFriendList", "送麦子名单", new KVNode<>(new LinkedHashMap<>(), true), AlipayUser::getList));
         modelFields.addField(chickenDiary = new BooleanModelField("chickenDiary", "小鸡日记", false));
         modelFields.addField(enableChouchoule = new BooleanModelField("enableChouchoule", "开启小鸡抽抽乐", false));
+        modelFields.addField(listOrnaments = new BooleanModelField("listOrnaments", "开启小鸡换装", false));
         modelFields.addField(enableHireAnimal = new BooleanModelField("enableHireAnimal", "雇佣小鸡", false));
         modelFields.addField(dontHireFriendList = new SelectModelField("dontHireFriendList", "雇佣小鸡 | 不雇佣好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(enableDdrawGameCenterAward = new BooleanModelField("enableDdrawGameCenterAward", "开宝箱", false));
@@ -972,6 +974,10 @@ public class AntFarm extends ModelTask {
                 JSONObject joSign = new JSONObject(AntFarmRpcCall.sign());
                 if ("SUCCESS".equals(joSign.getString("memo"))) {
                     Log.farm("庄园签到📅获得饲料" + awardCount + "g");
+                    // 小鸡换装
+                    if (listOrnaments.getValue()) {
+                        listOrnaments();
+                    }
                 } else {
                     Log.i(TAG, joSign.toString());
                 }
@@ -1931,6 +1937,84 @@ public class AntFarm extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "queryChickenDiaryList err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    // 小鸡换装
+    private void listOrnaments() {
+        try {
+            String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
+            JSONObject jsonObject = new JSONObject(s);
+            if ("SUCCESS".equals(jsonObject.getString("memo"))) {
+                JSONObject ownAnimal = jsonObject.getJSONObject("ownAnimal");
+                String animalId = ownAnimal.getString("animalId");
+                String farmId = ownAnimal.getString("farmId");
+                String listResult = AntFarmRpcCall.listOrnaments();
+                JSONObject jolistOrnaments = new JSONObject(listResult);
+                // 检查是否有 achievementOrnaments 数组
+                if (!jolistOrnaments.has("achievementOrnaments")) {
+                    return; // 数组为空，直接返回
+                }
+                JSONArray achievementOrnaments = jolistOrnaments.getJSONArray("achievementOrnaments");
+                Random random = new Random();
+                List<String> possibleOrnaments = new ArrayList<>(); // 收集所有可保存的套装组合
+                for (int i = 0; i < achievementOrnaments.length(); i++) {
+                    JSONObject ornament = achievementOrnaments.getJSONObject(i);
+                    if (ornament.getBoolean("acquired")) {
+                        JSONArray sets = ornament.getJSONArray("sets");
+                        List<JSONObject> availableSets = new ArrayList<>();
+                        // 收集所有带有 cap 和 coat 的套装组合
+                        for (int j = 0; j < sets.length(); j++) {
+                            JSONObject set = sets.getJSONObject(j);
+                            if ("cap".equals(set.getString("subType")) || "coat".equals(set.getString("subType"))) {
+                                availableSets.add(set);
+                            }
+                        }
+                        // 如果有可用的帽子和外套套装组合
+                        if (availableSets.size() >= 2) {
+                            // 将所有可保存的套装组合添加到 possibleOrnaments 列表中
+                            for (int j = 0; j < availableSets.size() - 1; j++) {
+                                JSONObject selectedCoat = availableSets.get(j);
+                                JSONObject selectedCap = availableSets.get(j + 1);
+                                String id1 = selectedCoat.getString("id"); // 外套 ID
+                                String id2 = selectedCap.getString("id"); // 帽子 ID
+                                String ornaments = id1 + "," + id2;
+                                possibleOrnaments.add(ornaments);
+                            }
+                        }
+                    }
+                }
+                // 如果有可保存的套装组合，则随机选择一个进行保存
+                if (!possibleOrnaments.isEmpty()) {
+                    String ornamentsToSave = possibleOrnaments.get(random.nextInt(possibleOrnaments.size()));
+                    String saveResult = AntFarmRpcCall.saveOrnaments(animalId, farmId, ornamentsToSave);
+                    JSONObject saveResultJson = new JSONObject(saveResult);
+                    // 判断保存是否成功并输出日志
+                    if (saveResultJson.getBoolean("success")) {
+                        // 获取保存的整套服装名称
+                        String[] ornamentIds = ornamentsToSave.split(",");
+                        String wholeSetName = ""; // 整套服装名称
+                        // 遍历 achievementOrnaments 查找对应的套装名称
+                        for (int i = 0; i < achievementOrnaments.length(); i++) {
+                            JSONObject ornament = achievementOrnaments.getJSONObject(i);
+                            JSONArray sets = ornament.getJSONArray("sets");
+                            // 找到对应的整套服装名称
+                            if (sets.length() == 2 && sets.getJSONObject(0).getString("id").equals(ornamentIds[0])
+                                    && sets.getJSONObject(1).getString("id").equals(ornamentIds[1])) {
+                                wholeSetName = ornament.getString("name");
+                                break;
+                            }
+                        }
+                        // 输出日志
+                        Log.farm("庄园小鸡💞[换装:" + wholeSetName + "]");
+                    } else {
+                        Log.i(TAG, "保存时装失败，错误码： " + saveResultJson.toString());
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "listOrnaments err: " + t.getMessage());
             Log.printStackTrace(TAG, t);
         }
     }
