@@ -2131,7 +2131,7 @@ public class AntFarm extends ModelTask {
         int BACK = 0;
         int NOT_BACK = 1;
 
-        String[] nickNames = {"遣返", "不遣返"};
+        String[] nickNames = {"选中遣返", "选中不遣返"};
 
     }
 
@@ -2205,7 +2205,7 @@ public class AntFarm extends ModelTask {
         int HIRE = 0;
         int DONT_HIRE = 1;
 
-        String[] nickNames = {"雇佣", "不雇佣"};
+        String[] nickNames = {"选中雇佣", "选中不雇佣"};
 
     }
 
@@ -2214,7 +2214,7 @@ public class AntFarm extends ModelTask {
         int NOTIFY = 0;
         int DONT_NOTIFY = 1;
 
-        String[] nickNames = {"通知", "不通知"};
+        String[] nickNames = {"选中通知", "选中不通知"};
 
     }
 }

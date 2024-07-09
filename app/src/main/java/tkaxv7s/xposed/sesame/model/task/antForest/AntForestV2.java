@@ -2460,7 +2460,7 @@ public class AntForestV2 extends ModelTask {
         int HELP = 0;
         int DONT_HELP = 1;
 
-        String[] nickNames = {"复活", "不复活"};
+        String[] nickNames = {"选中复活", "选中不复活"};
 
     }
 }

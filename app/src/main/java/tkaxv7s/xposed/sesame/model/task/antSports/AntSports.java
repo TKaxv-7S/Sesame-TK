@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
@@ -40,6 +41,7 @@ public class AntSports extends ModelTask {
     private IntegerModelField syncStepCount;
     private BooleanModelField tiyubiz;
     private BooleanModelField battleForFriends;
+    private ChoiceModelField battleForFriendType;
     private SelectModelField originBossIdList;
 
     @Override
@@ -48,8 +50,9 @@ public class AntSports extends ModelTask {
         modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));
         modelFields.addField(receiveCoinAsset = new BooleanModelField("receiveCoinAsset", "收运动币", false));
         modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币", false));
-        modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友大战", false));
-        modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友 | 开启", false));
+        modelFields.addField(battleForFriendType = new ChoiceModelField("battleForFriendType", "抢好友 | 动作", BattleForFriendType.ROB, BattleForFriendType.nickNames));
+        modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
         modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
         modelFields.addField(minExchangeCount = new IntegerModelField("minExchangeCount", "最小捐步步数", 0));
         modelFields.addField(latestExchangeTime = new IntegerModelField("latestExchangeTime", "最晚捐步时间(24小时制)", 22));
@@ -869,7 +872,11 @@ public class AntSports extends ModelTask {
                             JSONObject dataObj = dataArray.getJSONObject(j);
                             String originBossId = dataObj.getString("originBossId");
                             // 检查 originBossId 是否在 originBossIdList 中
-                            if (originBossIdList.getValue().getKey().containsKey(originBossId)) {
+                            boolean isBattleForFriend = originBossIdList.getValue().getKey().containsKey(originBossId);
+                            if (battleForFriendType.getValue() == BattleForFriendType.DONT_ROB) {
+                                isBattleForFriend = !isBattleForFriend;
+                            }
+                            if (isBattleForFriend) {
                                 // 在这里调用 queryClubMember 方法并传递 memberId 和 originBossId 的值
                                 String clubMemberResult = AntSportsRpcCall.queryClubMember(dataObj.getString("memberId"), originBossId);
                                 TimeUtil.sleep(500);
@@ -908,4 +915,12 @@ public class AntSports extends ModelTask {
         }
     }
 
+    public interface BattleForFriendType {
+
+        int ROB = 0;
+        int DONT_ROB = 1;
+
+        String[] nickNames = {"选中抢", "选中不抢"};
+
+    }
 }
