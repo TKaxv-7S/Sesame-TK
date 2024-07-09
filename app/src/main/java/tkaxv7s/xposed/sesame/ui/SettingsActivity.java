@@ -11,10 +11,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.*;
 import android.widget.Toast;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.Model;
 import tkaxv7s.xposed.sesame.data.ModelConfig;
+import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.util.*;
 
@@ -134,6 +139,21 @@ public class SettingsActivity extends BaseActivity {
 
     private class WebViewCallback {
 
+        private final ObjectMapper showMapper;
+
+        private final ObjectMapper infoMapper;
+
+        public WebViewCallback() {
+            showMapper = JsonUtil.copyMapper();
+            SimpleFilterProvider showFilterProvider = new SimpleFilterProvider();
+            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("expandValue"));
+            showMapper.setFilterProvider(showFilterProvider);
+            infoMapper = JsonUtil.copyMapper();
+            SimpleFilterProvider editFilterProvider = new SimpleFilterProvider();
+            editFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.serializeAll());
+            infoMapper.setFilterProvider(editFilterProvider);
+        }
+
         @JavascriptInterface
         public String getTabs() {
             return JsonUtil.toNoFormatJsonString(tabList);
@@ -146,7 +166,28 @@ public class SettingsActivity extends BaseActivity {
 
         @JavascriptInterface
         public String getConfig(String modelCode) {
-            return JsonUtil.toNoFormatJsonString(ModelTask.getModelConfigMap().get(modelCode));
+            try {
+                return showMapper.writeValueAsString(ModelTask.getModelConfigMap().get(modelCode));
+            } catch (JsonProcessingException e) {
+                Log.printStackTrace(e);
+            }
+            return null;
+        }
+
+        @JavascriptInterface
+        public String getConfigField(String modelCode, String fieldCode) {
+            try {
+                ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
+                if (modelConfig != null) {
+                    ModelField modelField = modelConfig.getModelField(fieldCode);
+                    if (modelField != null) {
+                        return infoMapper.writeValueAsString(modelField);
+                    }
+                }
+            } catch (JsonProcessingException e) {
+                Log.printStackTrace(e);
+            }
+            return null;
         }
 
     }
