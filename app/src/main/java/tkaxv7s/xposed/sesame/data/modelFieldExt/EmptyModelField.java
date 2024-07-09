@@ -28,6 +28,11 @@ public class EmptyModelField extends ModelField {
     }
 
     @Override
+    public String getType() {
+        return "EMPTY";
+    }
+
+    @Override
     public void setValue(Object value) {
     }
 

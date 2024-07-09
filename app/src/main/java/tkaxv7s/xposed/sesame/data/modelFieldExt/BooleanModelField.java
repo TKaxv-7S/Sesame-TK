@@ -16,6 +16,11 @@ public class BooleanModelField extends ModelField {
     }
 
     @Override
+    public String getType() {
+        return "BOOLEAN";
+    }
+
+    @Override
     public void setValue(Object value) {
         if (value == null) {
             value = defaultValue;
