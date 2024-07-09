@@ -2114,7 +2114,7 @@ public class AntFarm extends ModelTask {
         int WHEN_HUNGRY = 2;
         int NEVER = 3;
 
-        CharSequence[] nickNames = {"始终召回", "偷吃时召回", "饥饿时召回", "不召回"};
+        String[] nickNames = {"始终召回", "偷吃时召回", "饥饿时召回", "不召回"};
     }
 
     public interface SendBackAnimalWay {

@@ -19,6 +19,11 @@ public class StringModelField extends ModelField {
     }
 
     @Override
+    public String getType() {
+        return "STRING";
+    }
+
+    @Override
     public void setValue(Object value) {
         if (value == null) {
             value = defaultValue;

@@ -36,6 +36,10 @@ public class JsonUtil {
         MAPPER.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
     }
 
+    public static ObjectMapper copyMapper() {
+        return MAPPER.copy();
+    }
+
     public static String toNoFormatJsonString(Object object) {
         try {
             return MAPPER.writeValueAsString(object);
