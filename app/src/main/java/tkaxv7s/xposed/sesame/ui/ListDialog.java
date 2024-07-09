@@ -42,7 +42,7 @@ public class ListDialog {
 
     public static void show(Context c, CharSequence title, SelectModelField selectModelField, ListType listType) {
         KVNode<Map<String, Integer>, Boolean> kvNode = selectModelField.getValue();
-        show(c, title, selectModelField.getIdAndNameList(), kvNode.getKey(), kvNode.getValue(), listType);
+        show(c, title, selectModelField.getExpandValue(), kvNode.getKey(), kvNode.getValue(), listType);
     }
 
     public static void show(Context c, CharSequence title, List<? extends IdAndName> bl, Map<String, Integer> selectedMap, Boolean hasCount) {

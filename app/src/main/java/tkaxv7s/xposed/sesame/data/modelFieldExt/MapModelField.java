@@ -16,6 +16,11 @@ public class MapModelField extends ModelField {
     }
 
     @Override
+    public String getType() {
+        return "MAP";
+    }
+
+    @Override
     public void setValue(Object value) {
         if (value == null) {
             value = defaultValue;

@@ -1,6 +1,10 @@
 package tkaxv7s.xposed.sesame.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.UserEntity;
@@ -22,6 +26,19 @@ public class ConfigV2 {
     private boolean init;
 
     private final Map<String, ModelFields> modelFieldsMap = new ConcurrentHashMap<>();
+
+    private static final ObjectMapper saveMapper;
+
+    static {
+        saveMapper = JsonUtil.copyMapper();
+        SimpleFilterProvider saveFilterProvider = new SimpleFilterProvider();
+        saveFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("value"));
+        saveMapper.setFilterProvider(saveFilterProvider);
+    }
+
+    public static ObjectMapper copySaveMapper() {
+        return saveMapper.copy();
+    }
 
     public void setModelFieldsMap(Map<String, ModelFields> newModels) {
         modelFieldsMap.clear();
@@ -124,7 +141,7 @@ public class ConfigV2 {
             json = FileUtil.readFromFile(configV2File);
         }
         if (json != null) {
-            String formatted = JsonUtil.toJsonString(INSTANCE);
+            String formatted = toSaveStr();
             return formatted == null || !formatted.equals(json);
         }
         return true;
@@ -136,8 +153,7 @@ public class ConfigV2 {
                 return true;
             }
         }
-        String json = JsonUtil.toJsonString(INSTANCE);
-
+        String json = toSaveStr();
         boolean success;
         if (StringUtil.isEmpty(userId)) {
             userId = "默认";
@@ -169,8 +185,8 @@ public class ConfigV2 {
             Log.record("加载配置: " + userName);
             if (configV2File.exists()) {
                 String json = FileUtil.readFromFile(configV2File);
-                JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
-                String formatted = JsonUtil.toJsonString(INSTANCE);
+                saveMapper.readerForUpdating(INSTANCE).readValue(json);
+                String formatted = toSaveStr();
                 if (formatted != null && !formatted.equals(json)) {
                     Log.i(TAG, "格式化配置: " + userName);
                     Log.system(TAG, "格式化配置: " + userName);
@@ -180,7 +196,7 @@ public class ConfigV2 {
                 File defaultConfigV2File = FileUtil.getDefaultConfigV2File();
                 if (defaultConfigV2File.exists()) {
                     String json = FileUtil.readFromFile(defaultConfigV2File);
-                    JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
+                    saveMapper.readerForUpdating(INSTANCE).readValue(json);
                     Log.i(TAG, "复制新配置: " + userName);
                     Log.system(TAG, "复制新配置: " + userName);
                     FileUtil.write2File(json, configV2File);
@@ -188,7 +204,7 @@ public class ConfigV2 {
                     unload();
                     Log.i(TAG, "初始新配置: " + userName);
                     Log.system(TAG, "初始新配置: " + userName);
-                    FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), configV2File);
+                    FileUtil.write2File(toSaveStr(), configV2File);
                 }
             }
         } catch (Throwable t) {
@@ -198,7 +214,7 @@ public class ConfigV2 {
             try {
                 unload();
                 if (configV2File != null) {
-                    FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), configV2File);
+                    FileUtil.write2File(toSaveStr(), configV2File);
                 }
             } catch (Exception e) {
                 Log.printStackTrace(TAG, t);
@@ -216,6 +232,15 @@ public class ConfigV2 {
                     modelField.reset();
                 }
             }
+        }
+    }
+
+    public static String toSaveStr() {
+        try {
+            return saveMapper.writerWithDefaultPrettyPrinter().writeValueAsString(INSTANCE);
+        } catch (JsonProcessingException e) {
+            Log.printStackTrace(e);
+            return null;
         }
     }
 

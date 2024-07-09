@@ -26,6 +26,11 @@ public class ListModelField extends ModelField {
     }
 
     @Override
+    public String getType() {
+        return "LIST";
+    }
+
+    @Override
     public void setValue(Object value) {
         if (value == null) {
             value = defaultValue;
