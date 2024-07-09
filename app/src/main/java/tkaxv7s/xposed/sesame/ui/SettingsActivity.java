@@ -146,7 +146,7 @@ public class SettingsActivity extends BaseActivity {
         public WebViewCallback() {
             showMapper = JsonUtil.copyMapper();
             SimpleFilterProvider showFilterProvider = new SimpleFilterProvider();
-            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("expandValue"));
+            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("name", "type", "value"));
             showMapper.setFilterProvider(showFilterProvider);
             infoMapper = JsonUtil.copyMapper();
             SimpleFilterProvider editFilterProvider = new SimpleFilterProvider();
@@ -165,7 +165,7 @@ public class SettingsActivity extends BaseActivity {
         }*/
 
         @JavascriptInterface
-        public String getConfig(String modelCode) {
+        public String getModel(String modelCode) {
             try {
                 return showMapper.writeValueAsString(ModelTask.getModelConfigMap().get(modelCode));
             } catch (JsonProcessingException e) {
@@ -175,7 +175,7 @@ public class SettingsActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public String getConfigField(String modelCode, String fieldCode) {
+        public String getField(String modelCode, String fieldCode) {
             try {
                 ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
                 if (modelConfig != null) {
@@ -188,6 +188,29 @@ public class SettingsActivity extends BaseActivity {
                 Log.printStackTrace(e);
             }
             return null;
+        }
+
+        @JavascriptInterface
+        public String setField(String modelCode, String fieldObject) {
+            ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
+            if (modelConfig != null) {
+                try {
+                    ModelField modelField = JsonUtil.parseObject(fieldObject, ModelField.class);
+                    if (modelField != null) {
+                        Object value = modelField.getValue();
+                        if (value != null) {
+                            ModelField configModelField = modelConfig.getModelField(modelField.getCode());
+                            if (configModelField != null) {
+                                configModelField.setValue(value);
+                                return "SUCCESS";
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
+            }
+            return "FAILED";
         }
 
     }

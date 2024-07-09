@@ -34,12 +34,37 @@
     <input id="configSelectIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <button id="configBtn" type="button" style="font-size: 18px;">GetConfig</button>
+    <button id="configBtn" type="button" style="font-size: 18px;">GetModel</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="fieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="modelCodeIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="fieldCodeIpt" type="text" value="execAtTimeList" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="fieldBtn" type="button" style="font-size: 18px;">GetField</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="updateTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="modelCodeIpt1" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="updateCodeIpt" type="text" value='{"code":"execAtTimeList","value":["-1", "2400"]}' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="updateBtn" type="button" style="font-size: 18px;">UpdateField</button>
 </div>
 
 <script type="application/javascript">
     window.onload = async function () {
-
 
         document.getElementById("tabsBtn").onclick = async function () {
             document.getElementById("tabsTextIpt").value = window.HOOK.getTabs();
@@ -50,7 +75,15 @@
         }*/
 
         document.getElementById("configBtn").onclick = async function () {
-            document.getElementById("configTextIpt").value = window.HOOK.getConfig(document.getElementById("configSelectIpt").value);
+            document.getElementById("configTextIpt").value = window.HOOK.getModel(document.getElementById("configSelectIpt").value);
+        }
+
+        document.getElementById("fieldBtn").onclick = async function () {
+            document.getElementById("fieldTextIpt").value = window.HOOK.getField(document.getElementById("modelCodeIpt").value, document.getElementById("fieldCodeIpt").value);
+        }
+
+        document.getElementById("updateBtn").onclick = async function () {
+            document.getElementById("updateTextIpt").value = window.HOOK.setField(document.getElementById("modelCodeIpt1").value, document.getElementById("updateCodeIpt").value);
         }
 
     }
