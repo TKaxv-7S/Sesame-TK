@@ -24,7 +24,6 @@ import java.util.TreeMap;
 public class GreenFinance extends ModelTask {
     private static final String TAG = GreenFinance.class.getSimpleName();
 
-    private final Integer executeIntervalInt = 5000;
     private BooleanModelField greenFinanceLsxd;
     private BooleanModelField greenFinanceLsbg;
     private BooleanModelField greenFinanceLscg;
@@ -132,12 +131,6 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "batchSelfCollect err:");
             Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
         }
     }
 
@@ -170,12 +163,6 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "signIn err:");
             Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
         }
     }
 
@@ -239,12 +226,6 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "doTick err:");
             Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
         }
     }
 
@@ -315,12 +296,6 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "donation err:");
             Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
         }
     }
 
@@ -370,12 +345,6 @@ public class GreenFinance extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "prizes err:");
             Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
         }
     }
 
@@ -447,17 +416,12 @@ public class GreenFinance extends ModelTask {
                     }
                 } catch (Exception e) {
                     Log.printStackTrace(e);
+                    break;
                 }
             }
         } catch (Throwable th) {
             Log.i(TAG, "batchStealFriend err:");
             Log.printStackTrace(TAG, th);
-        } finally {
-            try {
-                Thread.sleep(executeIntervalInt);
-            } catch (InterruptedException e) {
-                Log.printStackTrace(e);
-            }
         }
     }
 

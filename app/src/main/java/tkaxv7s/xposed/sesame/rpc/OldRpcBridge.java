@@ -10,7 +10,6 @@ import tkaxv7s.xposed.sesame.util.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
 
 public class OldRpcBridge implements RpcBridge {
 
@@ -94,6 +93,7 @@ public class OldRpcBridge implements RpcBridge {
                                 null, method, data, "", true, null, null, false, curH5PageImpl, 0, "", false, -1, "");
                     }
                 } catch (Throwable t) {
+                    rpcEntity.setError();
                     Log.i(TAG, "old rpc request | id: " + id + " | method: " + method + " err:");
                     Log.printStackTrace(TAG, t);
                     if (t instanceof InvocationTargetException) {
@@ -132,7 +132,6 @@ public class OldRpcBridge implements RpcBridge {
                                 try {
                                     String jsonString = "{\"resultCode\":\"FAIL\",\"memo\":\"MMTPException\",\"resultDesc\":\"MMTPException\"}";
                                     rpcEntity.setResponseObject(new JSONObject(jsonString), jsonString);
-                                    rpcEntity.setError();
                                     return rpcEntity;
                                 } catch (JSONException e) {
                                     Log.printStackTrace(e);

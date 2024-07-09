@@ -12,7 +12,6 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.*;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.hook.FriendManager;
 import tkaxv7s.xposed.sesame.hook.Toast;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
@@ -330,6 +329,7 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "执行中断-蚂蚁森林");
             }
             Statistics.save();
+            FriendWatch.save();
             NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
         }
     }
@@ -915,7 +915,7 @@ public class AntForestV2 extends ModelTask {
                         collected += bubble.getInt("collectedEnergy");
                     }
                     if (collected > 0) {
-                        FriendManager.friendWatch(userId, collected);
+                        FriendWatch.friendWatch(userId, collected);
                         String str = "一键收取🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (needDouble ? "[双击卡]" : "");
                         Log.forest(str);
                         Toast.show(str);
@@ -934,7 +934,7 @@ public class AntForestV2 extends ModelTask {
                 } else if (jaBubbleLength == 1) {
                     JSONObject bubble = jaBubbles.getJSONObject(0);
                     collected += bubble.getInt("collectedEnergy");
-                    FriendManager.friendWatch(userId, collected);
+                    FriendWatch.friendWatch(userId, collected);
                     if (collected > 0) {
                         String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (needDouble ? "[双击卡]" : "");
                         Log.forest(str);
@@ -972,8 +972,8 @@ public class AntForestV2 extends ModelTask {
                     }
                 }
             } catch (Exception e) {
-                Log.i(TAG, "collectUserBatchEnergy err:");
-                Log.printStackTrace(TAG, e);
+                Log.i("collectEnergy err:");
+                Log.printStackTrace(e);
             } finally {
                 Statistics.save();
                 NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
@@ -2144,61 +2144,62 @@ public class AntForestV2 extends ModelTask {
     private void queryUserPatrol() {
         try {
             do {
-                try {
-                    JSONObject jo = new JSONObject(AntForestRpcCall.queryUserPatrol());
-                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                        JSONObject resData = new JSONObject(AntForestRpcCall.queryMyPatrolRecord());
-                        if (resData.optBoolean("canSwitch")) {
-                            JSONArray records = resData.getJSONArray("records");
-                            for (int i = 0; i < records.length(); i++) {
-                                JSONObject record = records.getJSONObject(i);
-                                JSONObject userPatrol = record.getJSONObject("userPatrol");
-                                if (userPatrol.getInt("unreachedNodeCount") > 0) {
-                                    if ("silent".equals(userPatrol.getString("mode"))) {
-                                        JSONObject patrolConfig = record.getJSONObject("patrolConfig");
-                                        String patrolId = patrolConfig.getString("patrolId");
-                                        resData = new JSONObject(AntForestRpcCall.switchUserPatrol(patrolId));
-                                        if ("SUCCESS".equals(resData.getString("resultCode"))) {
-                                            Log.forest("巡护⚖️-切换地图至" + patrolId);
-                                        }
-                                        continue;
+                JSONObject jo = new JSONObject(AntForestRpcCall.queryUserPatrol());
+                TimeUtil.sleep(500);
+                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                    JSONObject resData = new JSONObject(AntForestRpcCall.queryMyPatrolRecord());
+                    TimeUtil.sleep(500);
+                    if (resData.optBoolean("canSwitch")) {
+                        JSONArray records = resData.getJSONArray("records");
+                        for (int i = 0; i < records.length(); i++) {
+                            JSONObject record = records.getJSONObject(i);
+                            JSONObject userPatrol = record.getJSONObject("userPatrol");
+                            if (userPatrol.getInt("unreachedNodeCount") > 0) {
+                                if ("silent".equals(userPatrol.getString("mode"))) {
+                                    JSONObject patrolConfig = record.getJSONObject("patrolConfig");
+                                    String patrolId = patrolConfig.getString("patrolId");
+                                    resData = new JSONObject(AntForestRpcCall.switchUserPatrol(patrolId));
+                                    TimeUtil.sleep(500);
+                                    if ("SUCCESS".equals(resData.getString("resultCode"))) {
+                                        Log.forest("巡护⚖️-切换地图至" + patrolId);
                                     }
-                                    break;
-                                }
-                            }
-                        }
-
-                        JSONObject userPatrol = jo.getJSONObject("userPatrol");
-                        int currentNode = userPatrol.getInt("currentNode");
-                        String currentStatus = userPatrol.getString("currentStatus");
-                        int patrolId = userPatrol.getInt("patrolId");
-                        JSONObject chance = userPatrol.getJSONObject("chance");
-                        int leftChance = chance.getInt("leftChance");
-                        int leftStep = chance.getInt("leftStep");
-                        int usedStep = chance.getInt("usedStep");
-                        if ("STANDING".equals(currentStatus)) {
-                            if (leftChance > 0) {
-                                jo = new JSONObject(AntForestRpcCall.patrolGo(currentNode, patrolId));
-                                patrolKeepGoing(jo.toString(), currentNode, patrolId);
-                                continue;
-                            } else if (leftStep >= 2000 && usedStep < 10000) {
-                                jo = new JSONObject(AntForestRpcCall.exchangePatrolChance(leftStep));
-                                if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                                    int addedChance = jo.optInt("addedChance", 0);
-                                    Log.forest("步数兑换⚖️[巡护次数*" + addedChance + "]");
                                     continue;
-                                } else {
-                                    Log.i(TAG, jo.getString("resultDesc"));
                                 }
+                                break;
                             }
-                        } else if ("GOING".equals(currentStatus)) {
-                            patrolKeepGoing(null, currentNode, patrolId);
                         }
-                    } else {
-                        Log.i(TAG, jo.getString("resultDesc"));
                     }
-                } finally {
-                    Thread.sleep(3000);
+
+                    JSONObject userPatrol = jo.getJSONObject("userPatrol");
+                    int currentNode = userPatrol.getInt("currentNode");
+                    String currentStatus = userPatrol.getString("currentStatus");
+                    int patrolId = userPatrol.getInt("patrolId");
+                    JSONObject chance = userPatrol.getJSONObject("chance");
+                    int leftChance = chance.getInt("leftChance");
+                    int leftStep = chance.getInt("leftStep");
+                    int usedStep = chance.getInt("usedStep");
+                    if ("STANDING".equals(currentStatus)) {
+                        if (leftChance > 0) {
+                            jo = new JSONObject(AntForestRpcCall.patrolGo(currentNode, patrolId));
+                            TimeUtil.sleep(500);
+                            patrolKeepGoing(jo.toString(), currentNode, patrolId);
+                            continue;
+                        } else if (leftStep >= 2000 && usedStep < 10000) {
+                            jo = new JSONObject(AntForestRpcCall.exchangePatrolChance(leftStep));
+                            TimeUtil.sleep(1000);
+                            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                                int addedChance = jo.optInt("addedChance", 0);
+                                Log.forest("步数兑换⚖️[巡护次数*" + addedChance + "]");
+                                continue;
+                            } else {
+                                Log.i(TAG, jo.getString("resultDesc"));
+                            }
+                        }
+                    } else if ("GOING".equals(currentStatus)) {
+                        patrolKeepGoing(null, currentNode, patrolId);
+                    }
+                } else {
+                    Log.i(TAG, jo.getString("resultDesc"));
                 }
                 break;
             } while (true);
