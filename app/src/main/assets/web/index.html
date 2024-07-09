@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title></title>
+    <style>
+        html, body {
+            font-size: 8px;
+        }
+
+    </style>
+</head>
+<body style="text-align: center;">
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="tabsTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="tabsBtn" type="button" style="font-size: 18px;">GetTabs</button>
+</div>
+
+<!--<div style="text-align: center;margin-top: 80px;">
+    <input id="allConfigTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="allConfigBtn" type="button" style="font-size: 18px;">GetAllConfig</button>
+</div>-->
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="configTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="configSelectIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="configBtn" type="button" style="font-size: 18px;">GetConfig</button>
+</div>
+
+<script type="application/javascript">
+    window.onload = async function () {
+
+
+        document.getElementById("tabsBtn").onclick = async function () {
+            document.getElementById("tabsTextIpt").value = window.HOOK.getTabs();
+        }
+
+        /*document.getElementById("allConfigBtn").onclick = async function () {
+            document.getElementById("allConfigTextIpt").value = window.HOOK.getAllConfig();
+        }*/
+
+        document.getElementById("configBtn").onclick = async function () {
+            document.getElementById("configTextIpt").value = window.HOOK.getConfig(document.getElementById("configSelectIpt").value);
+        }
+
+    }
+
+</script>
+</body>
+</html>

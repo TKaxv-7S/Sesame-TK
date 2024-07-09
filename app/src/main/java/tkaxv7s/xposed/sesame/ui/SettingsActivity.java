@@ -4,26 +4,37 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.*;
-import android.widget.*;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.webkit.*;
+import android.widget.Toast;
 import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.*;
+import tkaxv7s.xposed.sesame.data.ConfigV2;
+import tkaxv7s.xposed.sesame.data.Model;
+import tkaxv7s.xposed.sesame.data.ModelConfig;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SettingsActivity extends BaseActivity {
 
     private Context context;
-    private Boolean isDraw = false;
-    private TabHost tabHost;
-    private ScrollView svTabs;
-    private String userId;
-    private Boolean isSave;
-    //private GestureDetector gestureDetector;
+
+    private Boolean isSave = true;
+    private String userId = null;
+    private String userName = null;
+    private Boolean debug = false;
+
+    private List<Map<String, String>> tabList = new ArrayList<>();
 
     @Override
     public String getBaseSubtitle() {
@@ -35,11 +46,13 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userId = null;
-        String userName = null;
+        userName = null;
+        debug = true;
         Intent intent = getIntent();
         if (intent != null) {
             userId = intent.getStringExtra("userId");
             userName = intent.getStringExtra("userName");
+            debug = intent.getBooleanExtra("debug", debug);
         }
         Model.initAllModel();
         UserIdMap.setCurrentUserId(userId);
@@ -56,61 +69,86 @@ public class SettingsActivity extends BaseActivity {
         setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
 
         context = this;
-        tabHost = findViewById(R.id.tab_settings);
-        svTabs = findViewById(R.id.sv_tabs);
-        tabHost.setup();
+
+        WebView webView = findViewById(R.id.webView);
+        WebSettings settings = webView.getSettings();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
+        settings.setJavaScriptEnabled(true);
+        settings.setDatabaseEnabled(true);
+        settings.setDomStorageEnabled(true);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            settings.setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
+        }
+        //settings.setPluginsEnabled(true);
+        settings.setUseWideViewPort(true);
+        settings.setLoadWithOverviewMode(true);
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setAllowFileAccess(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setLoadsImagesAutomatically(true);
+        settings.setDefaultTextEncodingName(StandardCharsets.UTF_8.name());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                // 强制在当前 WebView 中加载 url
+                Uri requestUrl = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    requestUrl = request.getUrl();
+                }
+                String scheme = requestUrl.getScheme();
+                if (
+                        scheme.equalsIgnoreCase("http")
+                                || scheme.equalsIgnoreCase("https")
+                                || scheme.equalsIgnoreCase("ws")
+                                || scheme.equalsIgnoreCase("wss")
+                ) {
+                    view.loadUrl(requestUrl.toString());
+                    return true;
+                }
+                view.stopLoading();
+                Toast.makeText(context, "Forbidden Scheme:\"" + scheme + "\"", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+        });
+        if (debug) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
+        webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
+        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
         for (Map.Entry<String, ModelConfig> configEntry : modelConfigMap.entrySet()) {
-            String modelCode = configEntry.getKey();
-            ModelConfig modelConfig = configEntry.getValue();
-            ModelFields modelFields = modelConfig.getFields();
-
-            tabHost.addTab(tabHost.newTabSpec(modelCode)
-                    .setIndicator(modelConfig.getName())
-                    .setContent(new TabHost.TabContentFactory() {
-                        @Override
-                        public View createTabContent(String tag) {
-                            LinearLayout linearLayout = new LinearLayout(context);
-                            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                            linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-                            linearLayout.setOrientation(LinearLayout.VERTICAL);
-                            for (ModelField modelField : modelFields.values()) {
-                                View view = modelField.getView(context);
-                                if (view != null) {
-                                    linearLayout.addView(view);
-                                }
-                            }
-                            return linearLayout;
-                        }
-                    })
-            );
-
+            Map<String, String> tab = new HashMap<>();
+            tab.put("modelCode", configEntry.getKey());
+            tab.put("modelName", configEntry.getValue().getName());
+            tabList.add(tab);
         }
-        tabHost.setCurrentTab(0);
+    }
 
-        /*int size = modelConfigMap.size() - 1;
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (Math.abs(e1.getX() - e2.getX()) > 250) {
-                    return false;
-                    }
-                int currentView = tabHost.getCurrentTab();
-                if (e1.getY() - e2.getY() > 120 && Math.abs(velocityY) > 200) {
-                    if (currentView < size) {
-                        currentView++;
-                    }
-                    tabHost.setCurrentTab(currentView);
-                } else if (e2.getY() - e1.getY() > 120 && Math.abs(velocityY) > 200) {
-                    if (currentView > 0) {
-                        currentView--;
-                    }
-                    tabHost.setCurrentTab(currentView);
-                }
-                return true;
-            }
-        });*/
+    private class WebViewCallback {
+
+        @JavascriptInterface
+        public String getTabs() {
+            return JsonUtil.toNoFormatJsonString(tabList);
+        }
+
+        /*@JavascriptInterface
+        public String getAllConfig() {
+            return JsonUtil.toNoFormatJsonString(ModelTask.getModelConfigMap());
+        }*/
+
+        @JavascriptInterface
+        public String getConfig(String modelCode) {
+            return JsonUtil.toNoFormatJsonString(ModelTask.getModelConfigMap().get(modelCode));
+        }
+
     }
 
     @Override
@@ -141,28 +179,6 @@ public class SettingsActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         isSave = true;
-    }
-/*@Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (gestureDetector.onTouchEvent(event)) {
-            event.setAction(MotionEvent.ACTION_CANCEL);
-        }
-        return super.dispatchTouchEvent(event);
-    }*/
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!isDraw && hasFocus) {
-            int width = svTabs.getWidth();
-            TabWidget tabWidget = tabHost.getTabWidget();
-            int childCount = tabWidget.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                tabWidget.getChildAt(i).getLayoutParams().width = width;
-            }
-            tabWidget.requestLayout();
-            isDraw = true;
-        }
     }
 
     @Override
