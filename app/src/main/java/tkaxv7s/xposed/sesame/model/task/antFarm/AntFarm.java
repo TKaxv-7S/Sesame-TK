@@ -470,8 +470,8 @@ public class AntFarm extends ModelTask {
                 }
             }
         } catch (Throwable t) {
-            Log.i(TAG, "sleep err:");
-            Log.printStackTrace(TAG, t);
+            Log.i(TAG, "animalSleepNow err:");
+            Log.printStackTrace(t);
         }
     }
 
@@ -492,8 +492,8 @@ public class AntFarm extends ModelTask {
                 }
             }
         } catch (Throwable t) {
-            Log.i(TAG, "sleep err:");
-            Log.printStackTrace(TAG, t);
+            Log.i(TAG, "animalWakeUpNow err:");
+            Log.printStackTrace(t);
         }
     }
 
@@ -979,7 +979,7 @@ public class AntFarm extends ModelTask {
             if ("SUCCESS".equals(memo)) {
                 JSONObject signList = jo.getJSONObject("signList");
                 sign(signList);
-                Thread.sleep(2000);
+                Thread.sleep(1000);
                 JSONArray jaFarmTaskList = jo.getJSONArray("farmTaskList");
                 for (int i = 0; i < jaFarmTaskList.length(); i++) {
                     jo = jaFarmTaskList.getJSONObject(i);
@@ -999,12 +999,12 @@ public class AntFarm extends ModelTask {
                                 }
                             }
                             s = AntFarmRpcCall.receiveFarmTaskAward(jo.getString("taskId"));
-                            Thread.sleep(5000);
+                            Thread.sleep(1000);
                             jo = new JSONObject(s);
                             memo = jo.getString("memo");
                             if ("SUCCESS".equals(memo)) {
                                 if (jo.has("foodStock")) {
-                                    foodStock = jo.getInt("foodStock");
+                                    add2FoodStock(awardCount);
                                     Log.farm("领取奖励🎖️[" + taskTitle + "]#" + awardCount + "g");
                                 }
                                 if (unreceiveTaskAward > 0)
@@ -1389,10 +1389,12 @@ public class AntFarm extends ModelTask {
 
     private void add2FoodStock(int i) {
         foodStock += i;
-        if (foodStock > foodStockLimit)
+        if (foodStock > foodStockLimit) {
             foodStock = foodStockLimit;
-        if (foodStock < 0)
+        }
+        if (foodStock < 0) {
             foodStock = 0;
+        }
     }
 
     private void collectDailyFoodMaterial(String userId) {
@@ -1794,7 +1796,7 @@ public class AntFarm extends ModelTask {
                             int prizeNum = jo.optInt("prizeNum", 0);
                             Log.farm("庄园小鸡🎁[领取:抽抽乐" + title + "*" + prizeNum + "]");
                         }
-                        Thread.sleep(3000L);
+                        Thread.sleep(1000L);
                     }
                 }
             }

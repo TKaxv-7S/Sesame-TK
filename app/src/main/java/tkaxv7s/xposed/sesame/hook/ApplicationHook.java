@@ -546,7 +546,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     stopHandler();
                     BaseModel.destroyData();
                     Status.unload();
-                    Statistics.unload();
+                    //Statistics.unload();
                     NotificationUtil.stop();
                     ConfigV2.unload();
                     ModelTask.destroyAllModel();
