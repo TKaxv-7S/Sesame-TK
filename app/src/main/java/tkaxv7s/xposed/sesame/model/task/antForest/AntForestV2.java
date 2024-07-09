@@ -12,7 +12,6 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.*;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.hook.FriendManager;
 import tkaxv7s.xposed.sesame.hook.Toast;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
@@ -330,6 +329,7 @@ public class AntForestV2 extends ModelTask {
                 Log.i(TAG, "执行中断-蚂蚁森林");
             }
             Statistics.save();
+            FriendWatch.save();
             NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
         }
     }
@@ -915,7 +915,7 @@ public class AntForestV2 extends ModelTask {
                         collected += bubble.getInt("collectedEnergy");
                     }
                     if (collected > 0) {
-                        FriendManager.friendWatch(userId, collected);
+                        FriendWatch.friendWatch(userId, collected);
                         String str = "一键收取🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (needDouble ? "[双击卡]" : "");
                         Log.forest(str);
                         Toast.show(str);
@@ -934,7 +934,7 @@ public class AntForestV2 extends ModelTask {
                 } else if (jaBubbleLength == 1) {
                     JSONObject bubble = jaBubbles.getJSONObject(0);
                     collected += bubble.getInt("collectedEnergy");
-                    FriendManager.friendWatch(userId, collected);
+                    FriendWatch.friendWatch(userId, collected);
                     if (collected > 0) {
                         String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g" + (needDouble ? "[双击卡]" : "");
                         Log.forest(str);

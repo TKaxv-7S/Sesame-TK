@@ -66,6 +66,8 @@ public class AntFarm extends ModelTask {
         return "庄园";
     }
 
+    private ListModelField.ListJoinCommaToStringModelField wakeUpAtTime;
+    private ListModelField.ListJoinCommaToStringModelField sleepAtTime;
     private BooleanModelField feedAnimal;
     private BooleanModelField rewardFriend;
     private BooleanModelField sendBackAnimal;
@@ -86,8 +88,6 @@ public class AntFarm extends ModelTask {
     private BooleanModelField receiveFarmTaskAward;
     private BooleanModelField useAccelerateTool;
     private SelectModelField feedFriendAnimalList;
-    private ListModelField.ListJoinCommaToStringModelField animalSleepAtTime;
-    private ListModelField.ListJoinCommaToStringModelField animalWakeUpAtTime;
     private BooleanModelField notifyFriend;
     private ChoiceModelField notifyFriendType;
     private SelectModelField notifyFriendList;
@@ -104,8 +104,8 @@ public class AntFarm extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(animalSleepAtTime = new ListModelField.ListJoinCommaToStringModelField("animalSleepAtTime", "小鸡睡眠时间(关闭:-1)", ListUtil.newArrayList("2000")));
-        modelFields.addField(animalWakeUpAtTime = new ListModelField.ListJoinCommaToStringModelField("animalWakeUpAtTime", "小鸡起床时间(关闭:-1)", ListUtil.newArrayList("2955")));
+        modelFields.addField(wakeUpAtTime = new ListModelField.ListJoinCommaToStringModelField("wakeUpAtTime", "小鸡起床时间(关闭:-1)", ListUtil.newArrayList("0555")));
+        modelFields.addField(sleepAtTime = new ListModelField.ListJoinCommaToStringModelField("sleepAtTime", "小鸡睡眠时间(关闭:-1)", ListUtil.newArrayList("2000")));
         modelFields.addField(recallAnimalType = new ChoiceModelField("recallAnimalType", "召回小鸡", RecallAnimalType.ALWAYS, RecallAnimalType.nickNames));
         modelFields.addField(rewardFriend = new BooleanModelField("rewardFriend", "打赏好友", false));
         modelFields.addField(feedAnimal = new BooleanModelField("feedAnimal", "自动喂小鸡", false));
@@ -287,7 +287,7 @@ public class AntFarm extends ModelTask {
                 }
 
                 if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
-                    Log.record("小鸡正双手并用着加速吃饲料");
+                    Log.record("小鸡在加速吃饭");
                 } else if (useAccelerateTool.getValue() && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
                     // 加速卡
                     if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
@@ -362,16 +362,16 @@ public class AntFarm extends ModelTask {
                 drawGameCenterAward();
             }
 
-            //小鸡睡觉
-            List<String> animalSleepTimes = animalSleepAtTime.getValue();
-            if (animalSleepTimes != null && !animalSleepTimes.isEmpty()) {
-                animalSleep(animalSleepTimes);
-            }
-
             //小鸡起床
-            List<String> animalWakeUpTimes = animalWakeUpAtTime.getValue();
+            List<String> animalWakeUpTimes = wakeUpAtTime.getValue();
             if (animalWakeUpTimes != null && !animalWakeUpTimes.isEmpty()) {
                 animalWake(animalWakeUpTimes);
+            }
+
+            //小鸡睡觉
+            List<String> animalSleepTimes = sleepAtTime.getValue();
+            if (animalSleepTimes != null && !animalSleepTimes.isEmpty()) {
+                animalSleep(animalSleepTimes);
             }
 
         } catch (Throwable t) {
@@ -380,26 +380,10 @@ public class AntFarm extends ModelTask {
         }
     }
 
-    private void animalSleep(List<String> animalSleepTimes) {
-        for (String animalSleepTime : animalSleepTimes) {
-            Calendar animalSleepTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(animalSleepTime);
-            if (animalSleepTimeCalendar != null) {
-                long animalSleepTimeInMillis = animalSleepTimeCalendar.getTimeInMillis();
-                String taskId = "AS|" + animalSleepTime;
-                if (!hasChildTask(taskId)) {
-                    addChildTask(new ChildModelTask(taskId, "AS", this::animalSleepNow, animalSleepTimeInMillis));
-                    Log.record("添加定时睡觉🛌[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalSleepTimeInMillis) + "]执行");
-                } else {
-                    addChildTask(new ChildModelTask(taskId, "AS", this::animalSleepNow, animalSleepTimeInMillis));
-                }
-            }
-        }
-    }
-
     private void animalWake(List<String> animalWakeUpTimes) {
         for (String animalWakeUpTime : animalWakeUpTimes) {
             Calendar animalWakeUpTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(animalWakeUpTime);
-            if (animalWakeUpTimeCalendar != null) {
+            if (animalWakeUpTimeCalendar != null && animalWakeUpTimeCalendar.compareTo(TimeUtil.getNow()) > 0) {
                 long animalWakeUpTimeInMillis = animalWakeUpTimeCalendar.getTimeInMillis();
                 String taskId = "AW|" + animalWakeUpTime;
                 if (!hasChildTask(taskId)) {
@@ -407,6 +391,22 @@ public class AntFarm extends ModelTask {
                     Log.record("添加定时起床\uD83D\uDD06[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalWakeUpTimeInMillis) + "]执行");
                 } else {
                     addChildTask(new ChildModelTask(taskId, "AW", this::animalWakeUpNow, animalWakeUpTimeInMillis));
+                }
+            }
+        }
+    }
+
+    private void animalSleep(List<String> animalSleepTimes) {
+        for (String animalSleepTime : animalSleepTimes) {
+            Calendar animalSleepTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(animalSleepTime);
+            if (animalSleepTimeCalendar != null && animalSleepTimeCalendar.compareTo(TimeUtil.getNow()) > 0) {
+                long animalSleepTimeInMillis = animalSleepTimeCalendar.getTimeInMillis();
+                String taskId = "AS|" + animalSleepTime;
+                if (!hasChildTask(taskId)) {
+                    addChildTask(new ChildModelTask(taskId, "AS", this::animalSleepNow, animalSleepTimeInMillis));
+                    Log.record("添加定时睡觉🛌[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalSleepTimeInMillis) + "]执行");
+                } else {
+                    addChildTask(new ChildModelTask(taskId, "AS", this::animalSleepNow, animalSleepTimeInMillis));
                 }
             }
         }
@@ -453,28 +453,6 @@ public class AntFarm extends ModelTask {
         return false;
     }
 
-    private void animalSleepNow() {
-        try {
-            String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("memo"))) {
-                JSONObject sleepNotifyInfo = jo.getJSONObject("sleepNotifyInfo");
-                if (sleepNotifyInfo.optBoolean("canSleep", false)) {
-                    s = AntFarmRpcCall.sleep();
-                    jo = new JSONObject(s);
-                    if ("SUCCESS".equals(jo.getString("memo"))) {
-                        Log.farm("小鸡睡觉🛌");
-                    }
-                } else {
-                    Log.farm("小鸡已经睡觉🛌");
-                }
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "animalSleepNow err:");
-            Log.printStackTrace(t);
-        }
-    }
-
     private void animalWakeUpNow() {
         try {
             String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
@@ -493,6 +471,28 @@ public class AntFarm extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "animalWakeUpNow err:");
+            Log.printStackTrace(t);
+        }
+    }
+
+    private void animalSleepNow() {
+        try {
+            String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
+            JSONObject jo = new JSONObject(s);
+            if ("SUCCESS".equals(jo.getString("memo"))) {
+                JSONObject sleepNotifyInfo = jo.getJSONObject("sleepNotifyInfo");
+                if (sleepNotifyInfo.optBoolean("canSleep", false)) {
+                    s = AntFarmRpcCall.sleep();
+                    jo = new JSONObject(s);
+                    if ("SUCCESS".equals(jo.getString("memo"))) {
+                        Log.farm("小鸡睡觉🛌");
+                    }
+                } else {
+                    Log.farm("小鸡当前无法睡觉🛌");
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "animalSleepNow err:");
             Log.printStackTrace(t);
         }
     }
@@ -1422,8 +1422,6 @@ public class AntFarm extends ModelTask {
                     } else {
                         Log.i(TAG, jo.toString());
                     }
-                } else {
-                    Log.record("明日可领食材");
                 }
                 if (garbageAmount > 0) {
                     jo = new JSONObject(AntFarmRpcCall.collectKitchenGarbage());
@@ -1455,8 +1453,6 @@ public class AntFarm extends ModelTask {
                     } else {
                         Log.i(TAG, jo.toString());
                     }
-                } else {
-                    Log.record("已领取每日限量食材");
                 }
             } else {
                 Log.i(TAG, jo.toString());

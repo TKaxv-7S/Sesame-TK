@@ -104,31 +104,43 @@ public class TimeUtil {
     }
 
     public static Calendar getTodayCalendarByTimeStr(String timeStr) {
-        return getCalendarByTimeStr(null, timeStr);
+        return getCalendarByTimeStr((Long) null, timeStr);
     }
 
     public static Calendar getCalendarByTimeStr(Long timeMillis, String timeStr) {
         try {
             Calendar timeCalendar = getCalendarByTimeMillis(timeMillis);
-            timeCalendar.set(Calendar.MILLISECOND, 0);
+            return getCalendarByTimeStr(timeCalendar, timeStr);
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+        return null;
+    }
+
+    public static Calendar getCalendarByTimeStr(Calendar timeCalendar, String timeStr) {
+        try {
             int length = timeStr.length();
             switch (length) {
                 case 6:
                     timeCalendar.set(Calendar.SECOND, Integer.parseInt(timeStr.substring(4)));
                     timeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeStr.substring(2, 4)));
                     timeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeStr.substring(0, 2)));
-                    return timeCalendar;
+                    break;
                 case 4:
                     timeCalendar.set(Calendar.SECOND, 0);
                     timeCalendar.set(Calendar.MINUTE, Integer.parseInt(timeStr.substring(2, 4)));
                     timeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeStr.substring(0, 2)));
-                    return timeCalendar;
+                    break;
                 case 2:
                     timeCalendar.set(Calendar.SECOND, 0);
                     timeCalendar.set(Calendar.MINUTE, 0);
                     timeCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(timeStr.substring(0, 2)));
-                    return timeCalendar;
+                    break;
+                default:
+                    return null;
             }
+            timeCalendar.set(Calendar.MILLISECOND, 0);
+            return timeCalendar;
         } catch (Exception e) {
             Log.printStackTrace(e);
         }
@@ -166,6 +178,10 @@ public class TimeUtil {
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
         return c;
+    }
+
+    public static Calendar getNow() {
+        return Calendar.getInstance();
     }
 
     public static void sleep(long millis) {
