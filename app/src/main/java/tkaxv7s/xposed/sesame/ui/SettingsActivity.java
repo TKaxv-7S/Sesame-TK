@@ -122,7 +122,7 @@ public class SettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("http://192.168.255.10:5501/app/src/main/assets/web/index.html");
+        webView.loadUrl("file:///android_asset/web/index.html");
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
@@ -163,10 +163,13 @@ public class SettingsActivity extends BaseActivity {
 
         @JavascriptInterface
         public String getModel(String modelCode) {
-            try {
-                return headMapper.writeValueAsString(ModelTask.getModelConfigMap().get(modelCode));
-            } catch (JsonProcessingException e) {
-                Log.printStackTrace(e);
+            ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
+            if (modelConfig != null) {
+                try {
+                    return headMapper.writeValueAsString(modelConfig.getFields().values());
+                } catch (JsonProcessingException e) {
+                    Log.printStackTrace(e);
+                }
             }
             return null;
         }
