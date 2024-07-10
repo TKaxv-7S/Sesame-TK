@@ -1,0 +1,148 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 14px !important;
+  font: inherit;
+  vertical-align: baseline;
+}
+#app {
+  display: flex;
+}
+.van-dialog__header {
+  padding: 10px 0 0 20px !important;
+  text-align: start !important;
+}
+.van-field {
+  height: 28px !important;
+  padding: 0 0 0 10px !important;
+  border: 1px solid #e5dbdb;
+  border-radius: 4px;
+}
+.mt5 {
+  margin-bottom: 5px;
+}
+.mt10 {
+  margin-bottom: 10px;
+}
+.mt15 {
+  margin-bottom: 15px;
+}
+.mt20 {
+  margin-bottom: 20px;
+}
+
+.w80 {
+  width: 80px;
+}
+.title {
+  max-width: calc(100vw - 200px);
+  white-space: warp;
+}
+
+.flex-space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.left-tabs {
+  width: 80px;
+
+  .van-sidebar-item--select {
+    color: #1989fa;
+  }
+}
+
+.right-content {
+  width: calc(100vw - 80px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 20px;
+}

@@ -1,113 +1,217 @@
 <!doctype html>
 <html lang="zh">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title></title>
-    <style>
-        html, body {
-            font-size: 8px;
-        }
-
-    </style>
+    <link rel="stylesheet" href="./vant.css" />
+    <link rel="stylesheet" href="./index.css" />
 </head>
-<body style="text-align: center;">
 
-<div style="text-align: center;margin-top: 80px;">
-    <input id="tabsTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <button id="tabsBtn" type="button" style="font-size: 18px;">GetTabs</button>
-</div>
+<body>
+    <script src="./vue3.js"></script>
+    <script src="./vant.js"></script>
+    <script src="./default.js"></script>
+    <div id="app">
+        <div class="left-tabs">
+            <van-sidebar v-model="currentTab" @change="(index)=>{currentTab=index}">
+                <van-sidebar-item :title="item.modelName" v-for="(item,index) in tabs" />
+            </van-sidebar>
+        </div>
+        <div class="right-content">
+            <!-- 基础模块的设置 -->
+            <div class="BaseModel" v-show="currentTab===0">
+                <div class="flex-space-between mt15">
+                    <div class="title">启用模块</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.enable.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">保持唤醒</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.stayAwake.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">执行间隔(分钟)</div>
+                    <div class="w80"><van-field v-model="BaseModel.checkInterval.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="mt15">
+                    <div class="mt5 title">定时执行(关闭：-1)</div>
+                    <div><van-field v-model="BaseModel.execAtTimeList.value" placeholder="请输入..." /></div>
+                </div>
 
-<!--<div style="text-align: center;margin-top: 80px;">
-    <input id="allConfigTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <button id="allConfigBtn" type="button" style="font-size: 18px;">GetAllConfig</button>
-</div>-->
+                <div class="mt15">
+                    <div class="mt5 title">定时唤醒(关闭:-1)</div>
+                    <div><van-field v-model="BaseModel.wakenAtTimeList.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="mt15">
+                    <div class="mt5 title">只收能量时间(范围)</div>
+                    <div><van-field v-model="BaseModel.energyTime.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="mt15">
+                    <div class="mt5 title">定时任务模式</div>
+                    <div class="flex-space-between">
+                        <van-radio-group v-model="BaseModel.timedTaskModel.value" direction="horizontal">
+                            <van-radio :name="Number(0)">系统计时</van-radio>
+                            <van-radio :name="Number(1)">程序计时</van-radio>
+                        </van-radio-group>
+                    </div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">超时重启</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.timeoutRestart.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">异常等待时间(分钟)</div>
+                    <div class="w80"><van-field v-model="BaseModel.waitWhenException.value" placeholder="请输入..." />
+                    </div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">为支付宝申请后台运行权限</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.batteryPerm.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">使用新接口(最低支持v10.3.96.8100)</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.newRpc.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">开启抓包(基于新接口)</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.debugMode.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">记录日志</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.recordLog.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">开启状态栏禁删</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.enableOnGoing.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">只显示中文并设置时区</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.languageSimplifiedChinese.value"
+                            size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div class="title">气泡提示</div>
+                    <div class="flex-center"><van-switch v-model="BaseModel.showToast.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">气泡纵向偏移</div>
+                    <div class="w80"><van-field v-model="BaseModel.toastOffsetY.value" placeholder="请输入..." />
+                    </div>
+                </div>
+            </div>
+            <!-- 森林模块的设置 -->
+            <div class="BaseModel" v-show="currentTab===1">
+                <div class="flex-space-between mt15">
+                    <div class="title">开启森林</div>
+                    <div class="flex-center"><van-switch v-model="AntForestV2.enable.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div>收集能量</div>
+                    <div class="flex-center"><van-switch v-model="AntForestV2.collectEnergy.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div>一键收取</div>
+                    <div class="flex-center"><van-switch v-model="AntForestV2.batchRobEnergy.value" size="16px" /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">查询间隔(毫秒或毫秒范围)</div>
+                    <div class="w80"><van-field v-model="AntForestV2.queryInterval.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">收取间隔(毫秒或毫秒范围)</div>
+                    <div class="w80"><van-field v-model="AntForestV2.collectInterval.value" placeholder="请输入..." />
+                    </div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">双击收取间隔(毫秒或毫秒范围)</div>
+                    <div class="w80"><van-field v-model="AntForestV2.doubleCollectInterval.value"
+                            placeholder="请输入..." /></div>
+                </div>
+                <div class="flex-space-between mt15">
+                    <div>平衡网络延迟</div>
+                    <div class="flex-center"><van-switch v-model="AntForestV2.balanceNetworkDelay.value" size="16px" />
+                    </div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">提前时间(毫秒)</div>
+                    <div class="w80"><van-field v-model="AntForestV2.advanceTime.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">尝试收取(次数)</div>
+                    <div class="w80"><van-field v-model="AntForestV2.tryCount.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title">重试间隔(亳秒)</div>
+                    <div class="w80"><van-field v-model="AntForestV2.retryInterval.value" placeholder="请输入..." /></div>
+                </div>
+                <div class="flex-space-between  mt15">
+                    <div class="title" @click="noCollectEnergyVisible=true">不收取能量列表</div>
+                </div>
+            </div>
+        </div>
+        <!-- 不收取能量列表弹窗 -->
+        <van-dialog v-model:show="noCollectEnergyVisible" title="不收取能量列表" show-cancel-button>
+            1111
+        </van-dialog>
+    </div>
 
-<div style="text-align: center;margin-top: 80px;">
-    <input id="getModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="getModelSelectIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <button id="getModelBtn" type="button" style="font-size: 18px;">GetModel</button>
-</div>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { Field, Button, showToast } = vant;
+        const { default_BaseModel, default_AntForestV2 } = defaultJson;
+        createApp({
+            setup() {
+                // 左侧导航菜单
+                const tabs = ref([]);
+                const currentTab = ref(1);
+                //基础设置  默认值
+                const BaseModel = ref(default_BaseModel);
+                const AntForestV2 = ref(default_AntForestV2)
 
-<div style="text-align: center;margin-top: 80px;">
-    <input id="setModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="setModelCodeIpt" type="text" value='BaseModel' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="setModelFieldsIpt" type="text" value='{"enable":{"configValue":"true"},"stayAwake":{"configValue":"true"},"checkInterval":{"configValue":"720"},"execAtTimeList":{"configValue":"2400"},"wakenAtTimeList":{"configValue":"0650,2350"},"energyTime":{"configValue":"0700-0731"},"timedTaskModel":{"configValue":"0"}}' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <button id="setModelBtn" type="button" style="font-size: 18px;">SetModel</button>
-</div>
+                // 不收取能量列表弹窗
+                const noCollectEnergyVisible = ref(false)
+                const noCollectEnergyVisibleList = ref([])
 
-<div style="text-align: center;margin-top: 80px;">
-    <input id="getFieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="getFieldModelCodeIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="getFieldCodeIpt" type="text" value="execAtTimeList" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <button id="getFieldBtn" type="button" style="font-size: 18px;">GetField</button>
-</div>
+                onMounted(() => {
 
-<div style="text-align: center;margin-top: 80px;">
-    <input id="setFieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="setFieldModelCodeIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="setFieldCodeIpt" type="text" value='execAtTimeList' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <input id="setFieldValueIpt" type="text" value='["-1", "2400"]' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
-</div>
-<div style="text-align: center;margin-top: 20px;">
-    <button id="setFieldBtn" type="button" style="font-size: 18px;">SetField</button>
-</div>
 
-<script type="application/javascript">
-    window.onload = async function () {
+                    // document.getElementById("tabsBtn").onclick = async function () {
+                    //     document.getElementById("tabsTextIpt").value = window.HOOK.getTabs();
+                    // }
 
-        document.getElementById("tabsBtn").onclick = async function () {
-            document.getElementById("tabsTextIpt").value = window.HOOK.getTabs();
-        }
+                    // /*document.getElementById("allConfigBtn").onclick = async function () {
+                    //     document.getElementById("allConfigTextIpt").value = window.HOOK.getAllConfig();
+                    // }*/
 
-        /*document.getElementById("allConfigBtn").onclick = async function () {
-            document.getElementById("allConfigTextIpt").value = window.HOOK.getAllConfig();
-        }*/
+                    // document.getElementById("configBtn").onclick = async function () {
+                    //     document.getElementById("configTextIpt").value = window.HOOK.getModel(document.getElementById("configSelectIpt").value);
+                    // }
 
-        document.getElementById("getModelBtn").onclick = async function () {
-            document.getElementById("getModelTextIpt").value = window.HOOK.getModel(document.getElementById("getModelSelectIpt").value);
-        }
+                    // document.getElementById("fieldBtn").onclick = async function () {
+                    //     document.getElementById("fieldTextIpt").value = window.HOOK.getField(document.getElementById("modelCodeIpt").value, document.getElementById("fieldCodeIpt").value);
+                    // }
 
-        document.getElementById("setModelBtn").onclick = async function () {
-            document.getElementById("setModelTextIpt").value = window.HOOK.setModel(document.getElementById("setModelCodeIpt").value, document.getElementById("setModelFieldsIpt").value);
-        }
+                    // document.getElementById("updateBtn").onclick = async function () {
+                    //     document.getElementById("updateTextIpt").value = window.HOOK.setField(document.getElementById("modelCodeIpt1").value, document.getElementById("updateCodeIpt").value);
+                    // }
+                    console.log('11111111', JSON.parse(window.HOOK.getModel('AntForestV2')).fields, JSON.parse(window.HOOK.getField('AntForestV2', 'dontCollectList')));
+                    tabs.value = JSON.parse(window.HOOK.getTabs());
+                    BaseModel.value = JSON.parse(window.HOOK.getModel('BaseModel')).fields;
+                    AntForestV2.value = JSON.parse(window.HOOK.getModel('AntForestV2')).fields;
+                    noCollectEnergyVisibleList.value = JSON.parse(window.HOOK.getField('AntForestV2', 'dontCollectList'));
+                });
 
-        document.getElementById("getFieldBtn").onclick = async function () {
-            document.getElementById("getFieldTextIpt").value = window.HOOK.getField(document.getElementById("getFieldModelCodeIpt").value, document.getElementById("getFieldCodeIpt").value);
-        }
-
-        document.getElementById("setFieldBtn").onclick = async function () {
-            document.getElementById("setFieldTextIpt").value = window.HOOK.setField(document.getElementById("setFieldModelCodeIpt").value, document.getElementById("setFieldCodeIpt").value, document.getElementById("setFieldValueIpt").value);
-        }
-
-    }
-
-</script>
+                return {
+                    tabs,
+                    currentTab,
+                    BaseModel,
+                    AntForestV2,
+                    noCollectEnergyVisible
+                };
+            }
+        }).use(vant).use(vant.Lazyload).mount('#app');
+    </script>
 </body>
+
 </html>
