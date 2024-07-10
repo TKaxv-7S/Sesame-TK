@@ -16,10 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import tkaxv7s.xposed.sesame.R;
-import tkaxv7s.xposed.sesame.data.ConfigV2;
-import tkaxv7s.xposed.sesame.data.Model;
-import tkaxv7s.xposed.sesame.data.ModelConfig;
-import tkaxv7s.xposed.sesame.data.ModelField;
+import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.util.*;
 
@@ -139,18 +136,18 @@ public class SettingsActivity extends BaseActivity {
 
     private class WebViewCallback {
 
-        private final ObjectMapper showMapper;
+        private final ObjectMapper headMapper;
 
         private final ObjectMapper infoMapper;
 
         public WebViewCallback() {
-            showMapper = JsonUtil.copyMapper();
+            headMapper = JsonUtil.copyMapper();
             SimpleFilterProvider showFilterProvider = new SimpleFilterProvider();
-            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("name", "type", "value"));
-            showMapper.setFilterProvider(showFilterProvider);
+            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("name", "type", "configValue"));
+            headMapper.setFilterProvider(showFilterProvider);
             infoMapper = JsonUtil.copyMapper();
             SimpleFilterProvider editFilterProvider = new SimpleFilterProvider();
-            editFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.serializeAll());
+            editFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.serializeAllExcept("value", "defaultValue"));
             infoMapper.setFilterProvider(editFilterProvider);
         }
 
@@ -167,11 +164,32 @@ public class SettingsActivity extends BaseActivity {
         @JavascriptInterface
         public String getModel(String modelCode) {
             try {
-                return showMapper.writeValueAsString(ModelTask.getModelConfigMap().get(modelCode));
+                return headMapper.writeValueAsString(ModelTask.getModelConfigMap().get(modelCode));
             } catch (JsonProcessingException e) {
                 Log.printStackTrace(e);
             }
             return null;
+        }
+
+        @JavascriptInterface
+        public String setModel(String modelCode, String fieldsValue) {
+            ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
+            if (modelConfig != null) {
+                try {
+                    ModelFields modelFields = modelConfig.getFields();
+                    ModelFields newModelFields = JsonUtil.parseObject(fieldsValue, ModelFields.class);
+                    for (ModelField modelField : modelFields.values()) {
+                        ModelField newModelField = newModelFields.get(modelField.getCode());
+                        if (newModelField != null) {
+                            modelField.setConfigValue(newModelField.getConfigValue());
+                        }
+                    }
+                    return "SUCCESS";
+                } catch (Exception e) {
+                    Log.printStackTrace(e);
+                }
+            }
+            return "FAILED";
         }
 
         @JavascriptInterface
@@ -191,20 +209,14 @@ public class SettingsActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public String setField(String modelCode, String fieldObject) {
+        public String setField(String modelCode, String fieldCode, String fieldValue) {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {
                 try {
-                    ModelField modelField = JsonUtil.parseObject(fieldObject, ModelField.class);
+                    ModelField modelField = modelConfig.getModelField(fieldCode);
                     if (modelField != null) {
-                        Object value = modelField.getValue();
-                        if (value != null) {
-                            ModelField configModelField = modelConfig.getModelField(modelField.getCode());
-                            if (configModelField != null) {
-                                configModelField.setValue(value);
-                                return "SUCCESS";
-                            }
-                        }
+                        modelField.setConfigValue(fieldValue);
+                        return "SUCCESS";
                     }
                 } catch (Exception e) {
                     Log.printStackTrace(e);

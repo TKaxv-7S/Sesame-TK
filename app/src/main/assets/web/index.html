@@ -28,39 +28,55 @@
 </div>-->
 
 <div style="text-align: center;margin-top: 80px;">
-    <input id="configTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="getModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <input id="configSelectIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="getModelSelectIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <button id="configBtn" type="button" style="font-size: 18px;">GetModel</button>
+    <button id="getModelBtn" type="button" style="font-size: 18px;">GetModel</button>
 </div>
 
 <div style="text-align: center;margin-top: 80px;">
-    <input id="fieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="setModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <input id="modelCodeIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="setModelCodeIpt" type="text" value='BaseModel' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <input id="fieldCodeIpt" type="text" value="execAtTimeList" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="setModelFieldsIpt" type="text" value='{"enable":{"configValue":"true"},"stayAwake":{"configValue":"true"},"checkInterval":{"configValue":"720"},"execAtTimeList":{"configValue":"2400"},"wakenAtTimeList":{"configValue":"0650,2350"},"energyTime":{"configValue":"0700-0731"},"timedTaskModel":{"configValue":"0"}}' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <button id="fieldBtn" type="button" style="font-size: 18px;">GetField</button>
+    <button id="setModelBtn" type="button" style="font-size: 18px;">SetModel</button>
 </div>
 
 <div style="text-align: center;margin-top: 80px;">
-    <input id="updateTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="getFieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <input id="modelCodeIpt1" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="getFieldModelCodeIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <input id="updateCodeIpt" type="text" value='{"code":"execAtTimeList","value":["-1", "2400"]}' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+    <input id="getFieldCodeIpt" type="text" value="execAtTimeList" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
-    <button id="updateBtn" type="button" style="font-size: 18px;">UpdateField</button>
+    <button id="getFieldBtn" type="button" style="font-size: 18px;">GetField</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="setFieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setFieldModelCodeIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setFieldCodeIpt" type="text" value='execAtTimeList' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setFieldValueIpt" type="text" value='["-1", "2400"]' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="setFieldBtn" type="button" style="font-size: 18px;">SetField</button>
 </div>
 
 <script type="application/javascript">
@@ -74,16 +90,20 @@
             document.getElementById("allConfigTextIpt").value = window.HOOK.getAllConfig();
         }*/
 
-        document.getElementById("configBtn").onclick = async function () {
-            document.getElementById("configTextIpt").value = window.HOOK.getModel(document.getElementById("configSelectIpt").value);
+        document.getElementById("getModelBtn").onclick = async function () {
+            document.getElementById("getModelTextIpt").value = window.HOOK.getModel(document.getElementById("getModelSelectIpt").value);
         }
 
-        document.getElementById("fieldBtn").onclick = async function () {
-            document.getElementById("fieldTextIpt").value = window.HOOK.getField(document.getElementById("modelCodeIpt").value, document.getElementById("fieldCodeIpt").value);
+        document.getElementById("setModelBtn").onclick = async function () {
+            document.getElementById("setModelTextIpt").value = window.HOOK.setModel(document.getElementById("setModelCodeIpt").value, document.getElementById("setModelFieldsIpt").value);
         }
 
-        document.getElementById("updateBtn").onclick = async function () {
-            document.getElementById("updateTextIpt").value = window.HOOK.setField(document.getElementById("modelCodeIpt1").value, document.getElementById("updateCodeIpt").value);
+        document.getElementById("getFieldBtn").onclick = async function () {
+            document.getElementById("getFieldTextIpt").value = window.HOOK.getField(document.getElementById("getFieldModelCodeIpt").value, document.getElementById("getFieldCodeIpt").value);
+        }
+
+        document.getElementById("setFieldBtn").onclick = async function () {
+            document.getElementById("setFieldTextIpt").value = window.HOOK.setField(document.getElementById("setFieldModelCodeIpt").value, document.getElementById("setFieldCodeIpt").value, document.getElementById("setFieldValueIpt").value);
         }
 
     }
