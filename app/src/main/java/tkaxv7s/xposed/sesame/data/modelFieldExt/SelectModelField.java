@@ -69,7 +69,7 @@ public class SelectModelField extends ModelField {
     }
 
     public String getConfigValue() {
-        return JsonUtil.toJsonString(value);
+        return JsonUtil.toNoFormatJsonString(value);
     }
 
     @Override
