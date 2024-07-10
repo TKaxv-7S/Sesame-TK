@@ -3,11 +3,10 @@ package tkaxv7s.xposed.sesame.model.task.ancientTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AreaCode;
-import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.Status;
@@ -15,7 +14,7 @@ import tkaxv7s.xposed.sesame.util.Status;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 
 public class AncientTree extends ModelTask {
@@ -33,7 +32,7 @@ public class AncientTree extends ModelTask {
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(ancientTreeOnlyWeek = new BooleanModelField("ancientTreeOnlyWeek", "仅星期一、三、五运行保护古树", false));
-        modelFields.addField(ancientTreeCityCodeList = new SelectModelField("ancientTreeCityCodeList", "古树区划代码列表", new KVNode<>(new LinkedHashMap<>(), false), AreaCode::getList));
+        modelFields.addField(ancientTreeCityCodeList = new SelectModelField("ancientTreeCityCodeList", "古树区划代码列表", new LinkedHashSet<>(), AreaCode::getList));
         return modelFields;
     }
 
@@ -54,7 +53,7 @@ public class AncientTree extends ModelTask {
     public void run() {
         try {
             Log.record("开始检测古树保护");
-            ancientTree(ancientTreeCityCodeList.getValue().getKey().keySet());
+            ancientTree(ancientTreeCityCodeList.getValue());
         } catch (Throwable t) {
             Log.i(TAG, "start.run err:");
             Log.printStackTrace(TAG, t);

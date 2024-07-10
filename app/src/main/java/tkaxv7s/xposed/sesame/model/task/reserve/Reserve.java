@@ -3,10 +3,9 @@ package tkaxv7s.xposed.sesame.model.task.reserve;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectAndCountModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.entity.AlipayReserve;
-import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
@@ -24,12 +23,12 @@ public class Reserve extends ModelTask {
         return "保护地";
     }
 
-    private SelectModelField reserveList;
+    private SelectAndCountModelField reserveList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(reserveList = new SelectModelField("reserveList", "保护地列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayReserve::getList));
+        modelFields.addField(reserveList = new SelectAndCountModelField("reserveList", "保护地列表", new LinkedHashMap<>(), AlipayReserve::getList));
         return modelFields;
     }
 
@@ -73,7 +72,7 @@ public class Reserve extends ModelTask {
                     }
                     String projectId = jo.getString("itemId");
                     String itemName = jo.getString("itemName");
-                    Map<String, Integer> map = reserveList.getValue().getKey();
+                    Map<String, Integer> map = reserveList.getValue();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), projectId)) {
                             Integer count = entry.getValue();

@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.RunType;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
 import tkaxv7s.xposed.sesame.entity.UserEntity;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
@@ -222,7 +223,7 @@ public class MainActivity extends BaseActivity {
                 return;
 
             case R.id.btn_friend_watch:
-                ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), new LinkedHashMap<>(), false, ListDialog.ListType.SHOW);
+                ListDialog.show(this, getString(R.string.friend_watch), FriendWatch.getList(), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
                 return;
         }
         Intent it = new Intent(this, HtmlViewerActivity.class);
