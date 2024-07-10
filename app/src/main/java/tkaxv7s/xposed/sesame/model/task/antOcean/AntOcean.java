@@ -3,11 +3,10 @@ package tkaxv7s.xposed.sesame.model.task.antOcean;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
-import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
-import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectAndCountModelField;
+import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayBeach;
-import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestRpcCall;
@@ -34,13 +33,13 @@ public class AntOcean extends ModelTask {
     }
 
     private BooleanModelField protectOcean;
-    private SelectModelField protectOceanList;
+    private SelectAndCountModelField protectOceanList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(protectOcean = new BooleanModelField("protectOcean", "保护 | 开启", false));
-        modelFields.addField(protectOceanList = new SelectModelField("protectOceanList", "保护 | 海洋列表", new KVNode<>(new LinkedHashMap<>(), true), AlipayBeach::getList));
+        modelFields.addField(protectOceanList = new SelectAndCountModelField("protectOceanList", "保护 | 海洋列表", new LinkedHashMap<>(), AlipayBeach::getList));
         return modelFields;
     }
 
@@ -405,7 +404,7 @@ public class AntOcean extends ModelTask {
         try {
             String userId = fillFlag.getString("userId");
             AntForestV2 task = ModelTask.getModel(AntForestV2.class);
-            if (task == null || task.getDontCollectMap().containsKey(userId)) {
+            if (task == null || task.getDontCollectMap().contains(userId)) {
                 return;
             }
             String s = AntOceanRpcCall.queryFriendPage(userId);
@@ -646,7 +645,7 @@ public class AntOcean extends ModelTask {
                     String templateCode = jo.getString("templateCode");
                     JSONObject projectConfig = jo.getJSONObject("projectConfigVO");
                     String projectCode = projectConfig.getString("code");
-                    Map<String, Integer> map = protectOceanList.getValue().getKey();
+                    Map<String, Integer> map = protectOceanList.getValue();
                     for (Map.Entry<String, Integer> entry : map.entrySet()) {
                         if (Objects.equals(entry.getKey(), templateCode)) {
                             Integer count = entry.getValue();

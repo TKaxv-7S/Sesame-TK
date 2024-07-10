@@ -16,37 +16,37 @@ import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.ui.ListDialog;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * 数据结构说明
- * Set<String> 表示已选择的数据
+ * Map<String, Integer> 表示已选择的数据与已经设置的数量映射关系
  * List<? extends IdAndName> 需要选择的数据
  */
-public class SelectModelField extends ModelField implements SelectModelFieldFunc {
+public class SelectAndCountModelField extends ModelField implements SelectModelFieldFunc {
 
-    private static final TypeReference<LinkedHashSet<String>> typeReference = new TypeReference<LinkedHashSet<String>>() {
+    private static final TypeReference<LinkedHashMap<String, Integer>> typeReference = new TypeReference<LinkedHashMap<String, Integer>>() {
     };
 
     private SelectListFunc selectListFunc;
 
     private List<? extends IdAndName> expandValue;
 
-    public SelectModelField(String code, String name, Set<String> value, List<? extends IdAndName> expandValue) {
+    public SelectAndCountModelField(String code, String name, Map<String, Integer> value, List<? extends IdAndName> expandValue) {
         super(code, name, value);
         this.expandValue = expandValue;
     }
 
-    public SelectModelField(String code, String name, Set<String> value, SelectListFunc selectListFunc) {
+    public SelectAndCountModelField(String code, String name, Map<String, Integer> value, SelectListFunc selectListFunc) {
         super(code, name, value);
         this.selectListFunc = selectListFunc;
     }
 
     @Override
     public String getType() {
-        return "SELECT";
+        return "SELECT_AND_COUNT";
     }
 
     public List<? extends IdAndName> getExpandValue() {
@@ -62,8 +62,8 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
     }
 
     @Override
-    public Set<String> getValue() {
-        return (Set<String>) value;
+    public Map<String, Integer> getValue() {
+        return (Map<String, Integer>) value;
     }
 
     public String getConfigValue() {
@@ -93,12 +93,12 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
 
     @Override
     public Integer get(String id) {
-        return 0;
+        return getValue().get(id);
     }
 
     @Override
     public void add(String id, Integer count) {
-        getValue().add(id);
+        getValue().put(id, count);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
 
     @Override
     public Boolean contains(String id) {
-        return getValue().contains(id);
+        return getValue().containsKey(id);
     }
 
     public interface SelectListFunc {

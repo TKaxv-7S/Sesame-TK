@@ -10,7 +10,6 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
-import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.readingDada.ReadingDada;
 import tkaxv7s.xposed.sesame.util.*;
@@ -89,17 +88,17 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
         modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
         modelFields.addField(stallOpenType = new ChoiceModelField("stallOpenType", "摆摊 | 动作", StallOpenType.OPEN, StallOpenType.nickNames));
-        modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摆摊 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
-        modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "不请走列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
-        modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "禁摆摊列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摆摊 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "不请走列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "禁摆摊列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "允许他人摆摊时长", 121));
         modelFields.addField(stallSelfOpenTime = new IntegerModelField("stallSelfOpenTime", "自己收摊时长", 120));
         modelFields.addField(stallDonate = new BooleanModelField("stallDonate", "新村自动捐赠", false));
         modelFields.addField(stallInviteRegister = new BooleanModelField("stallInviteRegister", "邀请 | 邀请好友开通新村", false));
-        modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
-        modelFields.addField(assistFriendList = new SelectModelField("assistFriendList", "助力好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(assistFriendList = new SelectModelField("assistFriendList", "助力好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(stallThrowManure = new BooleanModelField("stallThrowManure", "新村丢肥料", false));
-        modelFields.addField(stallInviteShopList = new SelectModelField("stallInviteShopList", "新村邀请摆摊列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(stallInviteShopList = new SelectModelField("stallInviteShopList", "新村邀请摆摊列表", new LinkedHashSet<>(), AlipayUser::getList));
         return modelFields;
     }
 
@@ -200,7 +199,7 @@ public class AntStall extends ModelTask {
                 for (int i = 0; i < friendRankList.length(); i++) {
                     JSONObject friend = friendRankList.getJSONObject(i);
                     String friendUserId = friend.getString("userId");
-                    if (!stallInviteShopList.getValue().getKey().containsKey(friendUserId)) {
+                    if (!stallInviteShopList.getValue().contains(friendUserId)) {
                         continue;
                     }
                     if (friend.getBoolean("canInviteOpenShop")) {
@@ -232,13 +231,13 @@ public class AntStall extends ModelTask {
                 }
                 String rentLastUser = seat.getString("rentLastUser");
                 // 白名单直接跳过
-                if (stallWhiteList.getValue().getKey().containsKey(rentLastUser)) {
+                if (stallWhiteList.getValue().contains(rentLastUser)) {
                     continue;
                 }
                 String rentLastBill = seat.getString("rentLastBill");
                 String rentLastShop = seat.getString("rentLastShop");
                 // 黑名单直接赶走
-                if (stallBlackList.getValue().getKey().containsKey(rentLastUser)) {
+                if (stallBlackList.getValue().contains(rentLastUser)) {
                     sendBack(rentLastBill, seatId, rentLastShop, rentLastUser);
                     continue;
                 }
@@ -341,7 +340,7 @@ public class AntStall extends ModelTask {
                     JSONObject friendRank = friendRankList.getJSONObject(i);
                     if (friendRank.getBoolean("canOpenShop")) {
                         String userId = friendRank.getString("userId");
-                        boolean isStallOpen = stallOpenList.getValue().getKey().containsKey(userId);
+                        boolean isStallOpen = stallOpenList.getValue().contains(userId);
                         if (stallOpenType.getValue() == StallOpenType.CLOSE) {
                             isStallOpen = !isStallOpen;
                         }
@@ -612,7 +611,7 @@ public class AntStall extends ModelTask {
                 }
                 /* 名单筛选 */
                 String userId = friend.getString("userId");
-                if (!stallInviteRegisterList.getValue().getKey().containsKey(userId)) {
+                if (!stallInviteRegisterList.getValue().contains(userId)) {
                     continue;
                 }
                 jo = new JSONObject(AntStallRpcCall.friendInviteRegister(userId));
@@ -656,8 +655,8 @@ public class AntStall extends ModelTask {
             if (!Status.canAntStallAssistFriendToday()) {
                 return;
             }
-            Map<String, Integer> friendList = assistFriendList.getValue().getKey();
-            for (String uid : friendList.keySet()) {
+            Set<String> friendSet = assistFriendList.getValue();
+            for (String uid : friendSet) {
                 String shareId = Base64.encodeToString((uid + "-m5o3bANUTSALTML_2PA_SHARE").getBytes(), Base64.NO_WRAP);
                 String str = AntStallRpcCall.achieveBeShareP2P(shareId);
                 JSONObject jsonObject = new JSONObject(str);

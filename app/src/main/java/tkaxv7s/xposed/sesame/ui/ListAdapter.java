@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.util.Log;
 
@@ -45,7 +46,7 @@ public class ListAdapter extends BaseAdapter {
 
     Context context;
     List<? extends IdAndName> list;
-    Map<String, Integer> selectedMap;
+    SelectModelFieldFunc selectModelFieldFunc;
     int findIndex = -1;
     String findWord = null;
 
@@ -59,14 +60,14 @@ public class ListAdapter extends BaseAdapter {
         list = l;
     }
 
-    public void setSelectedList(Map<String, Integer> selectedMap) {
-        this.selectedMap = selectedMap;
+    public void setSelectedList(SelectModelFieldFunc selectModelFieldFunc) {
+        this.selectModelFieldFunc = selectModelFieldFunc;
         try {
             Collections.sort(list, (o1, o2) -> {
-                if (this.selectedMap.containsKey(o1.id) == this.selectedMap.containsKey(o2.id)) {
+                if (this.selectModelFieldFunc.contains(o1.id) == this.selectModelFieldFunc.contains(o2.id)) {
                     return o1.compareTo(o2);
                 }
-                return this.selectedMap.containsKey(o1.id) ? -1 : 1;
+                return this.selectModelFieldFunc.contains(o1.id) ? -1 : 1;
             });
         } catch (Throwable t) {
             Log.i("ListAdapter err");
@@ -147,19 +148,19 @@ public class ListAdapter extends BaseAdapter {
     }
 
     public void selectAll() {
-        selectedMap.clear();
+        selectModelFieldFunc.clear();
         for (IdAndName ai : list) {
-            selectedMap.put(ai.id, 0);
+            selectModelFieldFunc.add(ai.id, 0);
         }
         notifyDataSetChanged();
     }
 
     public void SelectInvert() {
         for (IdAndName ai : list) {
-            if (!selectedMap.containsKey(ai.id)) {
-                selectedMap.put(ai.id, 0);
+            if (!selectModelFieldFunc.contains(ai.id)) {
+                selectModelFieldFunc.add(ai.id, 0);
             } else {
-                selectedMap.remove(ai.id);
+                selectModelFieldFunc.remove(ai.id);
             }
         }
         notifyDataSetChanged();
@@ -200,7 +201,7 @@ public class ListAdapter extends BaseAdapter {
         IdAndName ai = list.get(p1);
         vh.tv.setText(ai.name);
         vh.tv.setTextColor(findIndex == p1 ? Color.RED : Color.BLACK);
-        vh.cb.setChecked(selectedMap != null && selectedMap.containsKey(ai.id));
+        vh.cb.setChecked(selectModelFieldFunc != null && selectModelFieldFunc.contains(ai.id));
         return p2;
     }
 

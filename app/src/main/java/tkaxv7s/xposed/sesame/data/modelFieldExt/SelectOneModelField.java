@@ -1,6 +1,5 @@
 package tkaxv7s.xposed.sesame.data.modelFieldExt;
 
-
 import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
@@ -8,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
@@ -16,37 +14,28 @@ import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.ui.ListDialog;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
-/**
- * 数据结构说明
- * Set<String> 表示已选择的数据
- * List<? extends IdAndName> 需要选择的数据
- */
-public class SelectModelField extends ModelField implements SelectModelFieldFunc {
-
-    private static final TypeReference<LinkedHashSet<String>> typeReference = new TypeReference<LinkedHashSet<String>>() {
-    };
+public class SelectOneModelField extends ModelField implements SelectModelFieldFunc {
 
     private SelectListFunc selectListFunc;
 
     private List<? extends IdAndName> expandValue;
 
-    public SelectModelField(String code, String name, Set<String> value, List<? extends IdAndName> expandValue) {
+    public SelectOneModelField(String code, String name, String value, List<? extends IdAndName> expandValue) {
         super(code, name, value);
         this.expandValue = expandValue;
     }
 
-    public SelectModelField(String code, String name, Set<String> value, SelectListFunc selectListFunc) {
+    public SelectOneModelField(String code, String name, String value, SelectListFunc selectListFunc) {
         super(code, name, value);
         this.selectListFunc = selectListFunc;
     }
 
     @Override
     public String getType() {
-        return "SELECT";
+        return "SELECT_ONE";
     }
 
     public List<? extends IdAndName> getExpandValue() {
@@ -58,12 +47,12 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
         if (value == null) {
             value = defaultValue;
         }
-        this.value = JsonUtil.parseObject(value, typeReference);
+        this.value = String.valueOf(value);
     }
 
     @Override
-    public Set<String> getValue() {
-        return (Set<String>) value;
+    public String getValue() {
+        return (String) value;
     }
 
     public String getConfigValue() {
@@ -79,16 +68,15 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
         btn.setBackground(context.getResources().getDrawable(R.drawable.button));
         btn.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         btn.setMinHeight(150);
-        btn.setMaxHeight(180);
         btn.setPaddingRelative(40, 0, 40, 0);
         btn.setAllCaps(false);
-        btn.setOnClickListener(v -> ListDialog.show(v.getContext(), ((Button) v).getText(), this));
+        btn.setOnClickListener(v -> ListDialog.show(v.getContext(), ((Button) v).getText(), this, ListDialog.ListType.RADIO));
         return btn;
     }
 
     @Override
     public void clear() {
-        getValue().clear();
+        value = defaultValue;
     }
 
     @Override
@@ -98,17 +86,19 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
 
     @Override
     public void add(String id, Integer count) {
-        getValue().add(id);
+        value = id;
     }
 
     @Override
     public void remove(String id) {
-        getValue().remove(id);
+        if (Objects.equals(value, id)) {
+            value = defaultValue;
+        }
     }
 
     @Override
     public Boolean contains(String id) {
-        return getValue().contains(id);
+        return Objects.equals(value, id);
     }
 
     public interface SelectListFunc {

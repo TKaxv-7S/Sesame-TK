@@ -11,14 +11,13 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
-import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.Calendar;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 public class AntSports extends ModelTask {
 
@@ -50,7 +49,7 @@ public class AntSports extends ModelTask {
         modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币", false));
         modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友 | 开启", false));
         modelFields.addField(battleForFriendType = new ChoiceModelField("battleForFriendType", "抢好友 | 动作", BattleForFriendType.ROB, BattleForFriendType.nickNames));
-        modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友 | 好友列表", new KVNode<>(new LinkedHashMap<>(), false), AlipayUser::getList));
+        modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(tiyubiz = new BooleanModelField("tiyubiz", "文体中心", false));
         modelFields.addField(minExchangeCount = new IntegerModelField("minExchangeCount", "最小捐步步数", 0));
         modelFields.addField(latestExchangeTime = new IntegerModelField("latestExchangeTime", "最晚捐步时间(24小时制)", 22));
@@ -850,7 +849,7 @@ public class AntSports extends ModelTask {
                             JSONObject dataObj = dataArray.getJSONObject(j);
                             String originBossId = dataObj.getString("originBossId");
                             // 检查 originBossId 是否在 originBossIdList 中
-                            boolean isBattleForFriend = originBossIdList.getValue().getKey().containsKey(originBossId);
+                            boolean isBattleForFriend = originBossIdList.getValue().contains(originBossId);
                             if (battleForFriendType.getValue() == BattleForFriendType.DONT_ROB) {
                                 isBattleForFriend = !isBattleForFriend;
                             }
