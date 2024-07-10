@@ -839,7 +839,7 @@ public class AntForestV2 extends ModelTask {
     private void collectEnergy(CollectEnergyEntity collectEnergyEntity, Boolean joinThread) {
         String userId = collectEnergyEntity.getUserId();
         RpcEntity rpcEntity = collectEnergyEntity.getRpcEntity();
-        ChildModelTask childTask = new ChildModelTask("CE|" + userId + "|" + rpcEntity.hashCode(), "CE", () -> {
+        Runnable runnable = () -> {
             try {
                 if (doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId)) {
                     useDoubleCard();
@@ -979,11 +979,11 @@ public class AntForestV2 extends ModelTask {
                 NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
                 notifyMain();
             }
-        });
+        };
         if (joinThread) {
-            childTask.run();
+            runnable.run();
         } else {
-            addChildTask(childTask);
+            addChildTask(new ChildModelTask("CE|" + userId + "|" + rpcEntity.hashCode(), "CE", runnable));
             taskCount.incrementAndGet();
         }
     }
