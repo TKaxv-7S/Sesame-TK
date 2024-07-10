@@ -13,6 +13,7 @@ import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
 import tkaxv7s.xposed.sesame.util.Log;
+import tkaxv7s.xposed.sesame.util.StringUtil;
 
 @Getter
 public class IntegerModelField extends ModelField {
@@ -87,7 +88,7 @@ public class IntegerModelField extends ModelField {
         private final Integer multiple;
 
         public MultiplyIntegerModelField(String code, String name, Integer value, Integer minLimit, Integer maxLimit, Integer multiple) {
-            super(code, name, value, minLimit, maxLimit);
+            super(code, name, value * multiple, minLimit * multiple, maxLimit * multiple);
             this.multiple = multiple;
         }
 
@@ -97,25 +98,17 @@ public class IntegerModelField extends ModelField {
         }
 
         @Override
-        public void setValue(Object value) {
-            Integer newValue;
+        public void setConfigValue(String value) {
             if (value == null) {
-                newValue = (Integer) defaultValue;
-            } else {
-                try {
-                    newValue = Integer.parseInt(value.toString()) * multiple;
-                } catch (Exception e) {
-                    Log.printStackTrace(e);
-                    newValue = (Integer) defaultValue;
-                }
+                setValue(null);
+                return;
             }
-            if (minLimit != null) {
-                newValue = Math.max(minLimit * multiple, newValue);
+            try {
+                setValue(Integer.parseInt(value) * multiple);
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                setValue(null);
             }
-            if (maxLimit != null) {
-                newValue = Math.min(maxLimit * multiple, newValue);
-            }
-            this.value = newValue;
         }
 
         @Override
