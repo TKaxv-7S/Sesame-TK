@@ -378,10 +378,8 @@ public class AntFarm extends ModelTask {
         if (animalSleepTimeCalendar == null) {
             return;
         }
-        boolean isSleep = false;
         if (TimeUtil.getNow().compareTo(animalSleepTimeCalendar) >= 0) {
             animalSleepNow();
-            isSleep = true;
         } else {
             long animalSleepTimeInMillis = animalSleepTimeCalendar.getTimeInMillis();
             String sleepTaskId = "AS|" + animalSleepTime;
@@ -402,9 +400,6 @@ public class AntFarm extends ModelTask {
         if (TimeUtil.getNow().compareTo(animalWakeUpTimeCalendar) >= 0) {
             animalWakeUpNow();
         } else {
-            if (!isSleep) {
-                animalSleepNow();
-            }
             long animalWakeUpTimeInMillis = animalWakeUpTimeCalendar.getTimeInMillis();
             String wakeUpTaskId = "AW|" + animalWakeUpTime;
             if (!hasChildTask(wakeUpTaskId)) {
