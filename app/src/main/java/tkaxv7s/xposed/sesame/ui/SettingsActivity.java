@@ -143,7 +143,7 @@ public class SettingsActivity extends BaseActivity {
         public WebViewCallback() {
             headMapper = JsonUtil.copyMapper();
             SimpleFilterProvider showFilterProvider = new SimpleFilterProvider();
-            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("name", "type", "configValue"));
+            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("code", "name", "type", "configValue"));
             headMapper.setFilterProvider(showFilterProvider);
             infoMapper = JsonUtil.copyMapper();
             SimpleFilterProvider editFilterProvider = new SimpleFilterProvider();
