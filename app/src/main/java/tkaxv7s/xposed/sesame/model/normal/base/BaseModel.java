@@ -21,7 +21,7 @@ public class BaseModel extends Model {
     @Getter
     private static final BooleanModelField stayAwake = new BooleanModelField("stayAwake", "保持唤醒", true);
     @Getter
-    private static final IntegerModelField.MultiplyIntegerModelField checkInterval = new IntegerModelField.MultiplyIntegerModelField("checkInterval", "执行间隔(分钟)", 30, 1, 12 * 60, 60_000);
+    private static final IntegerModelField.MultiplyIntegerModelField checkInterval = new IntegerModelField.MultiplyIntegerModelField("checkInterval", "执行间隔(分钟)", 60, 1, 12 * 60, 60_000);
     @Getter
     private static final ListModelField.ListJoinCommaToStringModelField execAtTimeList = new ListModelField.ListJoinCommaToStringModelField("execAtTimeList", "定时执行(关闭:-1)", ListUtil.newArrayList("065530", "2359", "24"));
     @Getter

@@ -63,8 +63,8 @@ public class AntFarm extends ModelTask {
         return "庄园";
     }
 
-    private StringModelField wakeUpTime;
     private StringModelField sleepTime;
+    private IntegerModelField sleepMinutes;
     private BooleanModelField feedAnimal;
     private BooleanModelField rewardFriend;
     private BooleanModelField sendBackAnimal;
@@ -101,8 +101,8 @@ public class AntFarm extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(wakeUpTime = new StringModelField("wakeUpTime", "小鸡起床时间(关闭:-1)", "0555"));
         modelFields.addField(sleepTime = new StringModelField("sleepTime", "小鸡睡觉时间(关闭:-1)", "2001"));
+        modelFields.addField(sleepMinutes = new IntegerModelField("sleepMinutes", "小鸡睡觉时长(分钟)", 10 * 59, 0, 10 * 60));
         modelFields.addField(recallAnimalType = new ChoiceModelField("recallAnimalType", "召回小鸡", RecallAnimalType.ALWAYS, RecallAnimalType.nickNames));
         modelFields.addField(rewardFriend = new BooleanModelField("rewardFriend", "打赏好友", false));
         modelFields.addField(feedAnimal = new BooleanModelField("feedAnimal", "自动喂小鸡", false));
@@ -369,45 +369,53 @@ public class AntFarm extends ModelTask {
     }
 
     private void animalSleepAndWake() {
-        String animalSleepTime = sleepTime.getValue();
-        String animalWakeUpTime = wakeUpTime.getValue();
-        if ("-1".equals(animalSleepTime)) {
+        if (!Status.canAnimalSleep()) {
             return;
         }
-        Calendar animalSleepTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(animalSleepTime);
+        String sleepTime = this.sleepTime.getValue();
+        if ("-1".equals(sleepTime)) {
+            return;
+        }
+        Calendar animalSleepTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(sleepTime);
         if (animalSleepTimeCalendar == null) {
             return;
         }
-        if (TimeUtil.getNow().compareTo(animalSleepTimeCalendar) >= 0) {
-            animalSleepNow();
+        Integer sleepMinutesInt = sleepMinutes.getValue();
+        Calendar animalWakeUpTimeCalendar = (Calendar) animalSleepTimeCalendar.clone();
+        animalWakeUpTimeCalendar.add(Calendar.MINUTE, sleepMinutesInt);
+        long animalSleepTime = animalSleepTimeCalendar.getTimeInMillis();
+        long animalWakeUpTime = animalWakeUpTimeCalendar.getTimeInMillis();
+        if (animalSleepTime > animalWakeUpTime) {
+            Log.record("小鸡睡觉设置有误，请重新设置");
+            return;
+        }
+        Calendar now = TimeUtil.getNow();
+        boolean afterSleepTime = now.compareTo(animalSleepTimeCalendar) > 0;
+        boolean afterWakeUpTime = now.compareTo(animalWakeUpTimeCalendar) > 0;
+        if (afterSleepTime && afterWakeUpTime) {
+            Status.animalSleep();
+            Log.record("已错过小鸡今日睡觉时间");
+            return;
+        }
+        if (afterSleepTime) {
+            if (!animalSleepNow()) {
+                return;
+            }
         } else {
-            long animalSleepTimeInMillis = animalSleepTimeCalendar.getTimeInMillis();
             String sleepTaskId = "AS|" + animalSleepTime;
             if (!hasChildTask(sleepTaskId)) {
-                addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTimeInMillis));
-                Log.record("添加定时睡觉🛌[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalSleepTimeInMillis) + "]执行");
+                addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTime));
+                Log.record("添加定时睡觉🛌[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalSleepTime) + "]执行");
             } else {
-                addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTimeInMillis));
+                addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTime));
             }
         }
-        if ("-1".equals(animalWakeUpTime)) {
-            return;
-        }
-        Calendar animalWakeUpTimeCalendar = TimeUtil.getTodayCalendarByTimeStr(animalWakeUpTime);
-        if (animalWakeUpTimeCalendar == null) {
-            return;
-        }
-        if (TimeUtil.getNow().compareTo(animalWakeUpTimeCalendar) >= 0) {
-            animalWakeUpNow();
+        String wakeUpTaskId = "AW|" + animalWakeUpTime;
+        if (!hasChildTask(wakeUpTaskId)) {
+            addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTime));
+            Log.record("添加定时起床\uD83D\uDD06[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalWakeUpTime) + "]执行");
         } else {
-            long animalWakeUpTimeInMillis = animalWakeUpTimeCalendar.getTimeInMillis();
-            String wakeUpTaskId = "AW|" + animalWakeUpTime;
-            if (!hasChildTask(wakeUpTaskId)) {
-                addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTimeInMillis));
-                Log.record("添加定时起床\uD83D\uDD06[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalWakeUpTimeInMillis) + "]执行");
-            } else {
-                addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTimeInMillis));
-            }
+            addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTime));
         }
     }
 
@@ -452,7 +460,7 @@ public class AntFarm extends ModelTask {
         return false;
     }
 
-    private void animalSleepNow() {
+    private Boolean animalSleepNow() {
         try {
             String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
             JSONObject jo = new JSONObject(s);
@@ -463,18 +471,21 @@ public class AntFarm extends ModelTask {
                     jo = new JSONObject(s);
                     if ("SUCCESS".equals(jo.getString("memo"))) {
                         Log.farm("小鸡睡觉🛌");
+                        Status.animalSleep();
+                        return true;
                     }
                 } else {
-                    Log.farm("小鸡无需睡觉🛌");
+                    Log.farm("小鸡无法睡觉🛌");
                 }
             }
         } catch (Throwable t) {
             Log.i(TAG, "animalSleepNow err:");
             Log.printStackTrace(t);
         }
+        return false;
     }
 
-    private void animalWakeUpNow() {
+    private Boolean animalWakeUpNow() {
         try {
             String s = AntFarmRpcCall.queryLoveCabin(UserIdMap.getCurrentUid());
             JSONObject jo = new JSONObject(s);
@@ -485,6 +496,7 @@ public class AntFarm extends ModelTask {
                     jo = new JSONObject(s);
                     if ("SUCCESS".equals(jo.getString("memo"))) {
                         Log.farm("小鸡起床\uD83D\uDD06");
+                        return true;
                     }
                 } else {
                     Log.farm("小鸡无需起床\uD83D\uDD06");
@@ -494,6 +506,7 @@ public class AntFarm extends ModelTask {
             Log.i(TAG, "animalWakeUpNow err:");
             Log.printStackTrace(t);
         }
+        return false;
     }
 
     private void syncAnimalStatus(String farmId) {

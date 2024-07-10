@@ -45,6 +45,7 @@ public class Status {
     private ArrayList<String> spreadManureList = new ArrayList<>();
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
     private Boolean canOrnament = true;
+    private Boolean animalSleep = false;
     /**
      * 新村助力好友，已上限的用户
      */
@@ -65,6 +66,18 @@ public class Status {
 
     // 保存时间
     private Long saveTime = 0L;
+
+    public static boolean canAnimalSleep() {
+        return !INSTANCE.animalSleep;
+    }
+
+    public static void animalSleep() {
+        Status stat = INSTANCE;
+        if (!stat.animalSleep) {
+            stat.animalSleep = true;
+            save();
+        }
+    }
 
     public static boolean canWaterFriendToday(String id, int count) {
         id = UserIdMap.getCurrentUid() + "-" + id;

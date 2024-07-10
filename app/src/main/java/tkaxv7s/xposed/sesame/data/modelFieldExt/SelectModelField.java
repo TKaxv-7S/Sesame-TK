@@ -68,6 +68,10 @@ public class SelectModelField extends ModelField {
         return (KVNode<Map<String, Integer>, Boolean>) value;
     }
 
+    public String getConfigValue() {
+        return JsonUtil.toNoFormatJsonString(value);
+    }
+
     @Override
     public View getView(Context context) {
         Button btn = new Button(context);

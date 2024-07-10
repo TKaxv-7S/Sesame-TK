@@ -23,9 +23,9 @@ public class ModelField implements Serializable {
 
     private String name;
 
-    protected volatile Object value;
-
     protected Object defaultValue;
+
+    protected volatile Object value;
 
     public ModelField() {
     }
