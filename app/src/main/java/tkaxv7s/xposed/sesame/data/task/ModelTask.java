@@ -85,9 +85,6 @@ public abstract class ModelTask extends Model {
 
     public Boolean addChildTask(ChildModelTask childTask) {
         String childId = childTask.getId();
-        if (hasChildTask(childId)) {
-            removeChildTask(childId);
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return childTask == childTaskMap.compute(childId, (key, value) -> {
                 if (value != null) {
