@@ -14,142 +14,43 @@
     <script src="./vant.js"></script>
     <script src="./default.js"></script>
     <div id="app">
-        <div class="left-tabs">
-            <van-sidebar v-model="currentTab" @change="(index)=>{currentTab=index}">
-                <van-sidebar-item :title="item.modelName" v-for="(item,index) in tabs" />
-            </van-sidebar>
-        </div>
-        <div class="right-content">
-            <!-- 基础模块的设置 -->
-            <div class="BaseModel" v-show="currentTab===0">
-                <div class="flex-space-between mt15">
-                    <div class="title">启用模块</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.enable.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">保持唤醒</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.stayAwake.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">执行间隔(分钟)</div>
-                    <div class="w80"><van-field v-model="BaseModel.checkInterval.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="mt15">
-                    <div class="mt5 title">定时执行(关闭：-1)</div>
-                    <div><van-field v-model="BaseModel.execAtTimeList.value" placeholder="请输入..." /></div>
-                </div>
+        <div class="content">
+            <van-collapse v-model="currentTab" accordion>
+                <van-collapse-item :title="item.modelName" :name="index" :key='item.modelCode'
+                    v-for="(item,index) in tabs">
+                    <div class="content-box">
+                        <div v-for="(item,index) in setData[currentTab]" :key="index">
+                            <div class="flex-space-between mt15" v-if="item.type==='BOOLEAN'">
+                                <div class="title">{{item.name}}</div>
+                                <div class="flex-center"><van-switch v-model="item.configValue" size="1rem" /></div>
+                            </div>
+                            <div class="flex-space-between  mt15"
+                                v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER'].includes(item.type)">
+                                <div class="mt5 title">{{item.name}}</div>
+                                <div class="w160"><van-field v-model="item.configValue" placeholder="请输入..." />
+                                </div>
+                            </div>
 
-                <div class="mt15">
-                    <div class="mt5 title">定时唤醒(关闭:-1)</div>
-                    <div><van-field v-model="BaseModel.wakenAtTimeList.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="mt15">
-                    <div class="mt5 title">只收能量时间(范围)</div>
-                    <div><van-field v-model="BaseModel.energyTime.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="mt15">
-                    <div class="mt5 title">定时任务模式</div>
-                    <div class="flex-space-between">
-                        <van-radio-group v-model="BaseModel.timedTaskModel.value" direction="horizontal">
-                            <van-radio :name="Number(0)">系统计时</van-radio>
-                            <van-radio :name="Number(1)">程序计时</van-radio>
-                        </van-radio-group>
+                            <!-- <div class="mt15" v-if="item.type==='CHOICE'">
+                                                    <div class="mt5 title">{{item.name}}</div>
+                                                    <div class="flex-space-between">
+                                                        <van-radio-group v-model="item.configValue" direction="horizontal">
+                                                            <van-radio :name="Number(0)">系统计时</van-radio>
+                                                            <van-radio :name="Number(1)">程序计时</van-radio>
+                                                        </van-radio-group>
+                                                    </div>
+                                                </div> -->
+
+
+                        </div>
                     </div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">超时重启</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.timeoutRestart.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">异常等待时间(分钟)</div>
-                    <div class="w80"><van-field v-model="BaseModel.waitWhenException.value" placeholder="请输入..." />
-                    </div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">为支付宝申请后台运行权限</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.batteryPerm.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">使用新接口(最低支持v10.3.96.8100)</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.newRpc.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">开启抓包(基于新接口)</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.debugMode.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">记录日志</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.recordLog.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">开启状态栏禁删</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.enableOnGoing.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">只显示中文并设置时区</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.languageSimplifiedChinese.value"
-                            size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div class="title">气泡提示</div>
-                    <div class="flex-center"><van-switch v-model="BaseModel.showToast.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">气泡纵向偏移</div>
-                    <div class="w80"><van-field v-model="BaseModel.toastOffsetY.value" placeholder="请输入..." />
-                    </div>
-                </div>
-            </div>
-            <!-- 森林模块的设置 -->
-            <div class="BaseModel" v-show="currentTab===1">
-                <div class="flex-space-between mt15">
-                    <div class="title">开启森林</div>
-                    <div class="flex-center"><van-switch v-model="AntForestV2.enable.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div>收集能量</div>
-                    <div class="flex-center"><van-switch v-model="AntForestV2.collectEnergy.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div>一键收取</div>
-                    <div class="flex-center"><van-switch v-model="AntForestV2.batchRobEnergy.value" size="16px" /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">查询间隔(毫秒或毫秒范围)</div>
-                    <div class="w80"><van-field v-model="AntForestV2.queryInterval.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">收取间隔(毫秒或毫秒范围)</div>
-                    <div class="w80"><van-field v-model="AntForestV2.collectInterval.value" placeholder="请输入..." />
-                    </div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">双击收取间隔(毫秒或毫秒范围)</div>
-                    <div class="w80"><van-field v-model="AntForestV2.doubleCollectInterval.value"
-                            placeholder="请输入..." /></div>
-                </div>
-                <div class="flex-space-between mt15">
-                    <div>平衡网络延迟</div>
-                    <div class="flex-center"><van-switch v-model="AntForestV2.balanceNetworkDelay.value" size="16px" />
-                    </div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">提前时间(毫秒)</div>
-                    <div class="w80"><van-field v-model="AntForestV2.advanceTime.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">尝试收取(次数)</div>
-                    <div class="w80"><van-field v-model="AntForestV2.tryCount.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title">重试间隔(亳秒)</div>
-                    <div class="w80"><van-field v-model="AntForestV2.retryInterval.value" placeholder="请输入..." /></div>
-                </div>
-                <div class="flex-space-between  mt15">
-                    <div class="title" @click="noCollectEnergyVisible=true">不收取能量列表</div>
-                </div>
-            </div>
+                </van-collapse-item>
+            </van-collapse>
+            <!-- <van-sidebar v-model="currentTab" @change="(index)=>{currentTab=index}">
+                <van-sidebar-item :title="item.modelName" v-for="(item,index) in tabs" />
+            </van-sidebar> -->
         </div>
+
         <!-- 不收取能量列表弹窗 -->
         <van-dialog v-model:show="noCollectEnergyVisible" title="不收取能量列表" show-cancel-button>
             1111
@@ -157,16 +58,19 @@
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
         const { Field, Button, showToast } = vant;
         const { default_BaseModel, default_AntForestV2 } = defaultJson;
         createApp({
             setup() {
                 // 左侧导航菜单
-                const tabs = ref([]);
-                const currentTab = ref(1);
-                //基础设置  默认值
-                const BaseModel = ref(default_BaseModel);
+                const tabs = ref(JSON.parse(window.HOOK.getTabs()));
+                const currentTab = ref(0);
+                //设置默认值
+                const setData = ref(tabs.value.map(item => {
+                    return JSON.parse(window.HOOK.getModel(item.modelCode))
+                }))
+                const BaseModel = ref(JSON.parse(window.HOOK.getModel('BaseModel')).fields);
                 const AntForestV2 = ref(default_AntForestV2)
 
                 // 不收取能量列表弹窗
@@ -174,8 +78,6 @@
                 const noCollectEnergyVisibleList = ref([])
 
                 onMounted(() => {
-
-
                     // document.getElementById("tabsBtn").onclick = async function () {
                     //     document.getElementById("tabsTextIpt").value = window.HOOK.getTabs();
                     // }
@@ -195,19 +97,24 @@
                     // document.getElementById("updateBtn").onclick = async function () {
                     //     document.getElementById("updateTextIpt").value = window.HOOK.setField(document.getElementById("modelCodeIpt1").value, document.getElementById("updateCodeIpt").value);
                     // }
-                    console.log('11111111', JSON.parse(window.HOOK.getModel('AntForestV2')).fields, JSON.parse(window.HOOK.getField('AntForestV2', 'dontCollectList')));
+                    console.log('11111111', setData.value, JSON.parse(window.HOOK.getTabs()), JSON.parse(window.HOOK.getModel('AntForestV2')).fields, JSON.parse(window.HOOK.getField('AntForestV2', 'dontCollectList')));
                     tabs.value = JSON.parse(window.HOOK.getTabs());
                     BaseModel.value = JSON.parse(window.HOOK.getModel('BaseModel')).fields;
                     AntForestV2.value = JSON.parse(window.HOOK.getModel('AntForestV2')).fields;
                     noCollectEnergyVisibleList.value = JSON.parse(window.HOOK.getField('AntForestV2', 'dontCollectList'));
                 });
 
+                onUnmounted(() => {
+                    console.log('unmounted');
+                })
+
                 return {
                     tabs,
                     currentTab,
                     BaseModel,
                     AntForestV2,
-                    noCollectEnergyVisible
+                    noCollectEnergyVisible,
+                    setData
                 };
             }
         }).use(vant).use(vant.Lazyload).mount('#app');
