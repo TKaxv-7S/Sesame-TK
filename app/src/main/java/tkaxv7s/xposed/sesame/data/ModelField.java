@@ -51,6 +51,10 @@ public class ModelField implements Serializable {
         return "DEFAULT";
     }
 
+    public Object getExpandKey() {
+        return null;
+    }
+
     public Object getExpandValue() {
         return null;
     }
