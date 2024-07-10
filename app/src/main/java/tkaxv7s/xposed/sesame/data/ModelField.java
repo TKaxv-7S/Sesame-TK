@@ -51,6 +51,10 @@ public class ModelField implements Serializable {
         return "DEFAULT";
     }
 
+    public Object getExpandKey() {
+        return null;
+    }
+
     public Object getExpandValue() {
         return null;
     }
@@ -59,12 +63,10 @@ public class ModelField implements Serializable {
         value = defaultValue;
     }
 
-    @JsonIgnore
     public String getConfigValue() {
         return String.valueOf(getValue());
     }
 
-    @JsonIgnore
     public void setConfigValue(String value) {
         setValue(value);
     }

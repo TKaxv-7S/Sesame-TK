@@ -837,13 +837,13 @@ public class AntForestV2 extends ModelTask {
     }
 
     private void collectEnergy(CollectEnergyEntity collectEnergyEntity, Boolean joinThread) {
-        String userId = collectEnergyEntity.getUserId();
-        RpcEntity rpcEntity = collectEnergyEntity.getRpcEntity();
-        ChildModelTask childTask = new ChildModelTask("CE|" + userId + "|" + rpcEntity.hashCode(), "CE", () -> {
+        Runnable runnable = () -> {
             try {
+                String userId = collectEnergyEntity.getUserId();
                 if (doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId)) {
                     useDoubleCard();
                 }
+                RpcEntity rpcEntity = collectEnergyEntity.getRpcEntity();
                 boolean needDouble = collectEnergyEntity.getNeedDouble();
                 boolean needRetry = collectEnergyEntity.getNeedRetry();
                 int tryCount = collectEnergyEntity.addTryCount();
@@ -979,11 +979,11 @@ public class AntForestV2 extends ModelTask {
                 NotificationUtil.updateLastExecText("收:" + totalCollected + " 帮:" + totalHelpCollected);
                 notifyMain();
             }
-        });
+        };
         if (joinThread) {
-            childTask.run();
+            runnable.run();
         } else {
-            addChildTask(childTask);
+            addChildTask(new ChildModelTask("CE|" + collectEnergyEntity.getUserId() + "|" + runnable.hashCode(), "CE", runnable));
             taskCount.incrementAndGet();
         }
     }

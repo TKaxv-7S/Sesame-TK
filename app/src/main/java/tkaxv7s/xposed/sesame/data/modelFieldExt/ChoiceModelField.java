@@ -8,9 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.ChoiceDialog;
@@ -34,7 +31,7 @@ public class ChoiceModelField extends ModelField {
         return "CHOICE";
     }
 
-    public String[] getExpandValue() {
+    public String[] getExpandKey() {
         return choiceArray;
     }
 

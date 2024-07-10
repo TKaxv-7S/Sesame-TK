@@ -1,18 +1,23 @@
 package tkaxv7s.xposed.sesame.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import tkaxv7s.xposed.sesame.util.HanziToPinyin;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import tkaxv7s.xposed.sesame.util.HanziToPinyin;
-
 public abstract class IdAndName implements Comparable<IdAndName> {
 
+    @Getter
     public String name;
 
+    @Getter
     public String id;
 
     private ArrayList<String> pinyin;
 
+    @JsonIgnore
     public ArrayList<String> getPinyin() {
         if (pinyin != null) {
             return pinyin;

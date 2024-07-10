@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
@@ -35,11 +34,11 @@ public class SelectModelField extends ModelField {
 
     private SelectListFunc selectListFunc;
 
-    private List<? extends IdAndName> idAndNameList;
+    private List<? extends IdAndName> expandValue;
 
-    public SelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> idAndNameList) {
+    public SelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, List<? extends IdAndName> expandValue) {
         super(code, name, value);
-        this.idAndNameList = idAndNameList;
+        this.expandValue = expandValue;
     }
 
     public SelectModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, SelectListFunc selectListFunc) {
@@ -53,7 +52,7 @@ public class SelectModelField extends ModelField {
     }
 
     public List<? extends IdAndName> getExpandValue() {
-        return selectListFunc == null ? idAndNameList : selectListFunc.getList();
+        return selectListFunc == null ? expandValue : selectListFunc.getList();
     }
 
     @Override
@@ -93,6 +92,11 @@ public class SelectModelField extends ModelField {
 
         public SelectOneModelField(String code, String name, KVNode<Map<String, Integer>, Boolean> value, SelectListFunc selectListFunc) {
             super(code, name, value, selectListFunc);
+        }
+
+        @Override
+        public String getType() {
+            return "SELECT_ONE";
         }
 
         @Override
