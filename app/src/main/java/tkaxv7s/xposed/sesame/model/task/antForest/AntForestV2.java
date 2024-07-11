@@ -1250,24 +1250,32 @@ public class AntForestV2 extends ModelTask {
             String s;
             JSONObject jo;
             int energyId = getEnergyId(waterEnergy);
+            label:
             for (int waterCount = 1; waterCount <= count; waterCount++) {
                 s = AntForestRpcCall.transferEnergy(userId, bizNo, energyId);
-                jo = new JSONObject(s);
-                if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    String currentEnergy = jo.getJSONObject("treeEnergy").getString("currentEnergy");
-                    Log.forest("好友浇水🚿[" + UserIdMap.getMaskName(userId) + "]#" + waterEnergy + "g，剩余能量["
-                            + currentEnergy + "g]");
-                    wateredTimes++;
-                    Statistics.addData(Statistics.DataType.WATERED, waterEnergy);
-                } else if ("WATERING_TIMES_LIMIT".equals(jo.getString("resultCode"))) {
-                    Log.record("今日给[" + UserIdMap.getMaskName(userId) + "]浇水已达上限");
-                    wateredTimes = 3;
-                    break;
-                } else {
-                    Log.record(jo.getString("resultDesc"));
-                    Log.i(jo.toString());
-                }
                 Thread.sleep(1500);
+                jo = new JSONObject(s);
+                String resultCode = jo.getString("resultCode");
+                switch (resultCode) {
+                    case "SUCCESS":
+                        String currentEnergy = jo.getJSONObject("treeEnergy").getString("currentEnergy");
+                        Log.forest("好友浇水🚿[" + UserIdMap.getMaskName(userId) + "]#" + waterEnergy + "g，剩余能量["
+                                + currentEnergy + "g]");
+                        wateredTimes++;
+                        Statistics.addData(Statistics.DataType.WATERED, waterEnergy);
+                        break;
+                    case "WATERING_TIMES_LIMIT":
+                        Log.record("好友浇水🚿今日给[" + UserIdMap.getMaskName(userId) + "]浇水已达上限");
+                        wateredTimes = 3;
+                        break label;
+                    case "ENERGY_INSUFFICIENT":
+                        Log.record("好友浇水🚿" + jo.getString("resultDesc"));
+                        break label;
+                    default:
+                        Log.record("好友浇水🚿" + jo.getString("resultDesc"));
+                        Log.i(jo.toString());
+                        break;
+                }
             }
         } catch (Throwable t) {
             Log.i(TAG, "returnFriendWater err:");
