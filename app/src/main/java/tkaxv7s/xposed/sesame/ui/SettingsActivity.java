@@ -121,12 +121,13 @@ public class SettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("file:///android_asset/web/demo.html");
+        webView.loadUrl("file:///android_asset/web/index.html");
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
         for (Map.Entry<String, ModelConfig> configEntry : modelConfigMap.entrySet()) {
-            tabList.add(new ModelDto(configEntry.getKey(), configEntry.getValue().getName()));
+            ModelConfig modelConfig = configEntry.getValue();
+            tabList.add(new ModelDto(configEntry.getKey(), modelConfig.getName(), modelConfig.getIcon()));
         }
     }
 
