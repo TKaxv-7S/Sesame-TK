@@ -11,7 +11,7 @@ public class ChoiceDialog {
         new AlertDialog.Builder(c)
                 .setTitle(title)
                 .setSingleChoiceItems(choiceModelField.getExpandKey(), choiceModelField.getValue(),
-                        (p1, p2) -> choiceModelField.setValue(p2))
+                        (p1, p2) -> choiceModelField.setObjectValue(p2))
                 .setPositiveButton(c.getString(R.string.ok), null)
                 .create().show();
     }

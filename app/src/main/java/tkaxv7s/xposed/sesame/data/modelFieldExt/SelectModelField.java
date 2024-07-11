@@ -25,7 +25,7 @@ import java.util.Set;
  * Set<String> 表示已选择的数据
  * List<? extends IdAndName> 需要选择的数据
  */
-public class SelectModelField extends ModelField implements SelectModelFieldFunc {
+public class SelectModelField extends ModelField<Set<String>> implements SelectModelFieldFunc {
 
     private static final TypeReference<LinkedHashSet<String>> typeReference = new TypeReference<LinkedHashSet<String>>() {
     };
@@ -54,16 +54,11 @@ public class SelectModelField extends ModelField implements SelectModelFieldFunc
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = JsonUtil.parseObject(value, typeReference);
-    }
-
-    @Override
-    public Set<String> getValue() {
-        return (Set<String>) value;
     }
 
     public String getConfigValue() {

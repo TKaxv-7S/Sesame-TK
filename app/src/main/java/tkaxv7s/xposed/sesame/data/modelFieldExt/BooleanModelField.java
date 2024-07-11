@@ -9,7 +9,7 @@ import android.widget.Switch;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 
-public class BooleanModelField extends ModelField {
+public class BooleanModelField extends ModelField<Boolean> {
 
     public BooleanModelField(String code, String name, Boolean value) {
         super(code, name, value);
@@ -21,16 +21,11 @@ public class BooleanModelField extends ModelField {
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = JsonUtil.parseObject(value, Boolean.class);
-    }
-
-    @Override
-    public Boolean getValue() {
-        return (Boolean) value;
     }
 
     @Override
@@ -42,7 +37,7 @@ public class BooleanModelField extends ModelField {
         sw.setMaxHeight(180);
         sw.setPaddingRelative(40, 0, 40, 0);
         sw.setChecked(getValue());
-        sw.setOnClickListener(v -> setValue(((Switch) v).isChecked()));
+        sw.setOnClickListener(v -> setObjectValue(((Switch) v).isChecked()));
         return sw;
     }
 

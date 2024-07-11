@@ -19,7 +19,7 @@ import tkaxv7s.xposed.sesame.util.JsonUtil;
 import java.util.List;
 import java.util.Objects;
 
-public class SelectAndCountOneModelField extends ModelField implements SelectModelFieldFunc {
+public class SelectAndCountOneModelField extends ModelField<KVNode<String, Integer>> implements SelectModelFieldFunc {
 
     private static final TypeReference<KVNode<String, Integer>> typeReference = new TypeReference<KVNode<String, Integer>>() {
     };
@@ -48,16 +48,11 @@ public class SelectAndCountOneModelField extends ModelField implements SelectMod
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = JsonUtil.parseObject(value, typeReference);
-    }
-
-    @Override
-    public KVNode<String, Integer> getValue() {
-        return (KVNode<String, Integer>) value;
     }
 
     public String getConfigValue() {
