@@ -267,8 +267,25 @@ public class AntStall extends ModelTask {
                     continue;
                 }
                 long bizStartTime = seat.getLong("bizStartTime");
-                if ((System.currentTimeMillis() - bizStartTime) / 1000 / 60 > stallAllowOpenTime.getValue()) {
+                long endTime = bizStartTime + stallAllowOpenTime.getValue() * 60 * 1000;
+                if (System.currentTimeMillis() > endTime) {
                     sendBack(rentLastBill, seatId, rentLastShop, rentLastUser);
+                } else {
+                    String taskId = "SB|" + seatId;
+                    if (!hasChildTask(taskId)) {
+                        addChildTask(new ChildModelTask(taskId, "SB", () -> {
+                            if (stallAllowOpenReject.getValue()) {
+                                sendBack(rentLastBill, seatId, rentLastShop, rentLastUser);
+                            }
+                        }, endTime));
+                        Log.record("添加蹲点请走⛪在[" + TimeUtil.getCommonDate(endTime) + "]执行");
+                    } /*else {
+                        addChildTask(new ChildModelTask(taskId, "SB", () -> {
+                            if (stallAllowOpenReject.getValue()) {
+                                sendBack(rentLastBill, seatId, rentLastShop, rentLastUser);
+                            }
+                        }, endTime));
+                    }*/
                 }
             }
         } catch (Throwable t) {
