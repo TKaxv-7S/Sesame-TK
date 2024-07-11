@@ -66,11 +66,14 @@ public class AntStall extends ModelTask {
     private BooleanModelField stallReceiveAward;
     private SelectModelField stallWhiteList;
     private SelectModelField stallBlackList;
+    private BooleanModelField stallAllowOpenReject;
     private IntegerModelField stallAllowOpenTime;
     private IntegerModelField stallSelfOpenTime;
     private BooleanModelField stallDonate;
     private BooleanModelField stallInviteRegister;
     private BooleanModelField stallThrowManure;
+    private BooleanModelField stallInviteShop;
+    private ChoiceModelField stallInviteShopType;
     private SelectModelField stallInviteShopList;
     private BooleanModelField roadmap;
     /**
@@ -88,23 +91,26 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallAutoOpen = new BooleanModelField("stallAutoOpen", "摆摊 | 开启", false));
         modelFields.addField(stallOpenType = new ChoiceModelField("stallOpenType", "摆摊 | 动作", StallOpenType.OPEN, StallOpenType.nickNames));
         modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摆摊 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(stallAutoClose = new BooleanModelField("stallAutoClose", "新村自动收摊", false));
+        modelFields.addField(stallAutoClose = new BooleanModelField("stallAutoClose", "收摊 | 开启", false));
+        modelFields.addField(stallSelfOpenTime = new IntegerModelField("stallSelfOpenTime", "收摊 | 摆摊时长(分钟)", 120));
         modelFields.addField(stallAutoTicket = new BooleanModelField("stallAutoTicket", "贴罚单 | 开启", false));
         modelFields.addField(stallTicketType = new ChoiceModelField("stallTicketType", "贴罚单 | 动作", StallTicketType.DONT_TICKET, StallTicketType.nickNames));
         modelFields.addField(stallTicketList = new SelectModelField("stallTicketList", "贴罚单 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
-        modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
-        modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "不请走列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "禁摆摊列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "允许他人摆摊时长", 121));
-        modelFields.addField(stallSelfOpenTime = new IntegerModelField("stallSelfOpenTime", "自己收摊时长", 120));
-        modelFields.addField(stallDonate = new BooleanModelField("stallDonate", "新村自动捐赠", false));
+        modelFields.addField(stallInviteShop = new BooleanModelField("stallInviteShop", "邀请摆摊 | 开启", false));
+        modelFields.addField(stallInviteShopType = new ChoiceModelField("stallInviteShopType", "邀请摆摊 | 动作", StallInviteShopType.INVITE, StallInviteShopType.nickNames));
+        modelFields.addField(stallInviteShopList = new SelectModelField("stallInviteShopList", "邀请摆摊 | 邀请摆摊列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallAllowOpenReject = new BooleanModelField("stallAllowOpenReject", "请走小摊 | 开启", false));
+        modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "请走小摊 | 允许摆摊时长(分钟)", 121));
+        modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "请走小摊 | 永不请走列表(超时也不赶)", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "请走小摊 | 禁止摆摊列表(不超时也赶)", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "自动任务", false));
+        modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "自动领奖", false));
+        modelFields.addField(stallDonate = new BooleanModelField("stallDonate", "自动捐赠", false));
         modelFields.addField(roadmap = new BooleanModelField("roadmap", "自动进入下一村", false));
         modelFields.addField(stallInviteRegister = new BooleanModelField("stallInviteRegister", "邀请 | 邀请好友开通新村", false));
         modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(assistFriendList = new SelectModelField("assistFriendList", "助力好友列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(stallThrowManure = new BooleanModelField("stallThrowManure", "新村丢肥料", false));
-        modelFields.addField(stallInviteShopList = new SelectModelField("stallInviteShopList", "新村邀请摆摊列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallThrowManure = new BooleanModelField("stallThrowManure", "丢肥料", false));
         return modelFields;
     }
 
@@ -189,7 +195,9 @@ public class AntStall extends ModelTask {
                 } else {
                     Log.record("sendBack err:" + " " + s);
                 }
-                inviteOpen(seatId);
+                if (stallInviteShop.getValue()) {
+                    inviteOpen(seatId);
+                }
             } else {
                 Log.record("sendBackPre err:" + " " + s);
             }
@@ -208,7 +216,11 @@ public class AntStall extends ModelTask {
                 for (int i = 0; i < friendRankList.length(); i++) {
                     JSONObject friend = friendRankList.getJSONObject(i);
                     String friendUserId = friend.getString("userId");
-                    if (!stallInviteShopList.getValue().contains(friendUserId)) {
+                    boolean isInviteShop = stallInviteShopList.getValue().contains(friendUserId);
+                    if (stallInviteShopType.getValue() == StallInviteShopType.DONT_INVITE) {
+                        isInviteShop = !isInviteShop;
+                    }
+                    if (!isInviteShop) {
                         continue;
                     }
                     if (friend.getBoolean("canInviteOpenShop")) {
@@ -234,8 +246,12 @@ public class AntStall extends ModelTask {
             for (int i = 1; i <= 2; i++) {
                 JSONObject seat = seatsMap.getJSONObject("GUEST_0" + i);
                 String seatId = seat.getString("seatId");
-                if ("FREE".equals(seat.getString("status"))) {
+                if ("FREE".equals(seat.getString("status")) && stallInviteShop.getValue()) {
                     inviteOpen(seatId);
+                    continue;
+                }
+                // 请走小摊 未开启直接跳过
+                if (!stallAllowOpenReject.getValue()) {
                     continue;
                 }
                 String rentLastUser = seat.getString("rentLastUser");
@@ -989,7 +1005,7 @@ public class AntStall extends ModelTask {
         int OPEN = 0;
         int CLOSE = 1;
 
-        String[] nickNames = {"摆摊", "不摆摊"};
+        String[] nickNames = {"选中摆摊", "选中不摆摊"};
 
     }
 
@@ -998,8 +1014,16 @@ public class AntStall extends ModelTask {
         int TICKET = 0;
         int DONT_TICKET = 1;
 
-        String[] nickNames = {"贴罚单", "不贴罚单"};
+        String[] nickNames = {"选中贴罚单", "选中不贴罚单"};
 
+    }
+
+    public interface StallInviteShopType {
+
+        int INVITE = 0;
+        int DONT_INVITE = 1;
+
+        String[] nickNames = {"选中邀请", "选中不邀请"};
     }
 
 }
