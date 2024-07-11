@@ -10,8 +10,6 @@ import lombok.Getter;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 
-import java.text.DateFormat;
-
 public class NotificationUtil {
     private static Context context;
     private static final int NOTIFICATION_ID = 99;
@@ -76,8 +74,11 @@ public class NotificationUtil {
             } else {
                 if (mNotifyManager != null) {
                     mNotifyManager.cancel(NOTIFICATION_ID);
-                } else {
-                    ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFICATION_ID);
+                } else if (context != null) {
+                    NotificationManager systemService = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (systemService != null) {
+                        systemService.cancel(NOTIFICATION_ID);
+                    }
                 }
             }
             mNotifyManager = null;
