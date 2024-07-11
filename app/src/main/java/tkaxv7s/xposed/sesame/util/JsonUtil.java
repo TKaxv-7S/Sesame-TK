@@ -19,7 +19,7 @@ import java.util.TimeZone;
 @SuppressLint("SimpleDateFormat")
 public class JsonUtil {
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static final TypeFactory TYPE_FACTORY = TypeFactory.defaultInstance();
 

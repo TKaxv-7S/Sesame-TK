@@ -55,13 +55,15 @@ public class AntStall extends ModelTask {
         return "新村";
     }
 
-    private BooleanModelField stallAutoClose;
     private BooleanModelField stallAutoOpen;
-    private BooleanModelField stallAutoTicket;
-    private BooleanModelField stallAutoTask;
-    private BooleanModelField stallReceiveAward;
     private ChoiceModelField stallOpenType;
     private SelectModelField stallOpenList;
+    private BooleanModelField stallAutoClose;
+    private BooleanModelField stallAutoTicket;
+    private ChoiceModelField stallTicketType;
+    private SelectModelField stallTicketList;
+    private BooleanModelField stallAutoTask;
+    private BooleanModelField stallReceiveAward;
     private SelectModelField stallWhiteList;
     private SelectModelField stallBlackList;
     private IntegerModelField stallAllowOpenTime;
@@ -82,13 +84,15 @@ public class AntStall extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(stallAutoOpen = new BooleanModelField("stallAutoOpen", "新村自动摆摊", false));
-        modelFields.addField(stallAutoClose = new BooleanModelField("stallAutoClose", "新村自动收摊", false));
-        modelFields.addField(stallAutoTicket = new BooleanModelField("stallAutoTicket", "新村自动贴罚单", false));
-        modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
-        modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
+        modelFields.addField(stallAutoOpen = new BooleanModelField("stallAutoOpen", "摆摊 | 开启", false));
         modelFields.addField(stallOpenType = new ChoiceModelField("stallOpenType", "摆摊 | 动作", StallOpenType.OPEN, StallOpenType.nickNames));
         modelFields.addField(stallOpenList = new SelectModelField("stallOpenList", "摆摊 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallAutoClose = new BooleanModelField("stallAutoClose", "新村自动收摊", false));
+        modelFields.addField(stallAutoTicket = new BooleanModelField("stallAutoTicket", "贴罚单 | 开启", false));
+        modelFields.addField(stallTicketType = new ChoiceModelField("stallTicketType", "贴罚单 | 动作", StallTicketType.DONT_TICKET, StallTicketType.nickNames));
+        modelFields.addField(stallTicketList = new SelectModelField("stallTicketList", "贴罚单 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "新村自动任务", false));
+        modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "新村自动领奖", false));
         modelFields.addField(stallWhiteList = new SelectModelField("stallWhiteList", "不请走列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(stallBlackList = new SelectModelField("stallBlackList", "禁摆摊列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(stallAllowOpenTime = new IntegerModelField("stallAllowOpenTime", "允许他人摆摊时长", 121));
@@ -914,6 +918,13 @@ public class AntStall extends ModelTask {
                     if (friendId.isEmpty()) {
                         return;
                     }
+                    boolean isStallTicket = stallTicketList.getValue().contains(friendId);
+                    if (stallTicketType.getValue() == StallTicketType.DONT_TICKET) {
+                        isStallTicket = !isStallTicket;
+                    }
+                    if (!isStallTicket) {
+                        continue;
+                    }
                     str = AntStallRpcCall.friendHome(friendId);
                     jsonObject = new JSONObject(str);
                     if (!jsonObject.getBoolean("success")) {
@@ -977,6 +988,15 @@ public class AntStall extends ModelTask {
         int CLOSE = 1;
 
         String[] nickNames = {"摆摊", "不摆摊"};
+
+    }
+
+    public interface StallTicketType {
+
+        int TICKET = 0;
+        int DONT_TICKET = 1;
+
+        String[] nickNames = {"贴罚单", "不贴罚单"};
 
     }
 
