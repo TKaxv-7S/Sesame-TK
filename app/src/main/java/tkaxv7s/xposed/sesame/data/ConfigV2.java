@@ -1,10 +1,6 @@
 package tkaxv7s.xposed.sesame.data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.UserEntity;
@@ -27,19 +23,6 @@ public class ConfigV2 {
 
     private final Map<String, ModelFields> modelFieldsMap = new ConcurrentHashMap<>();
 
-    private static final ObjectMapper saveMapper;
-
-    static {
-        saveMapper = JsonUtil.copyMapper();
-        SimpleFilterProvider saveFilterProvider = new SimpleFilterProvider();
-        saveFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("value"));
-        saveMapper.setFilterProvider(saveFilterProvider);
-    }
-
-    public static ObjectMapper copySaveMapper() {
-        return saveMapper.copy();
-    }
-
     public void setModelFieldsMap(Map<String, ModelFields> newModels) {
         modelFieldsMap.clear();
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
@@ -52,13 +35,13 @@ public class ConfigV2 {
             ModelFields configModelFields = modelConfig.getFields();
             ModelFields modelFields = newModels.get(modelCode);
             if (modelFields != null) {
-                for (ModelField configModelField : configModelFields.values()) {
-                    ModelField modelField = modelFields.get(configModelField.getCode());
+                for (ModelField<?> configModelField : configModelFields.values()) {
+                    ModelField<?> modelField = modelFields.get(configModelField.getCode());
                     try {
                         if (modelField != null) {
                             Object value = modelField.getValue();
                             if (value != null) {
-                                configModelField.setValue(value);
+                                configModelField.setObjectValue(value);
                             }
                         }
                     } catch (Exception e) {
@@ -67,7 +50,7 @@ public class ConfigV2 {
                     newModelFields.addField(configModelField);
                 }
             } else {
-                for (ModelField configModelField : configModelFields.values()) {
+                for (ModelField<?> configModelField : configModelFields.values()) {
                     newModelFields.addField(configModelField);
                 }
             }
@@ -185,7 +168,7 @@ public class ConfigV2 {
             Log.record("加载配置: " + userName);
             if (configV2File.exists()) {
                 String json = FileUtil.readFromFile(configV2File);
-                saveMapper.readerForUpdating(INSTANCE).readValue(json);
+                JsonUtil.copyMapper().readerForUpdating(INSTANCE).readValue(json);
                 String formatted = toSaveStr();
                 if (formatted != null && !formatted.equals(json)) {
                     Log.i(TAG, "格式化配置: " + userName);
@@ -196,7 +179,7 @@ public class ConfigV2 {
                 File defaultConfigV2File = FileUtil.getDefaultConfigV2File();
                 if (defaultConfigV2File.exists()) {
                     String json = FileUtil.readFromFile(defaultConfigV2File);
-                    saveMapper.readerForUpdating(INSTANCE).readValue(json);
+                    JsonUtil.copyMapper().readerForUpdating(INSTANCE).readValue(json);
                     Log.i(TAG, "复制新配置: " + userName);
                     Log.system(TAG, "复制新配置: " + userName);
                     FileUtil.write2File(json, configV2File);
@@ -227,7 +210,7 @@ public class ConfigV2 {
 
     public static synchronized void unload() {
         for (ModelFields modelFields : INSTANCE.modelFieldsMap.values()) {
-            for (ModelField modelField : modelFields.values()) {
+            for (ModelField<?> modelField : modelFields.values()) {
                 if (modelField != null) {
                     modelField.reset();
                 }
@@ -236,12 +219,7 @@ public class ConfigV2 {
     }
 
     public static String toSaveStr() {
-        try {
-            return saveMapper.writerWithDefaultPrettyPrinter().writeValueAsString(INSTANCE);
-        } catch (JsonProcessingException e) {
-            Log.printStackTrace(e);
-            return null;
-        }
+        return JsonUtil.toNoFormatJsonString(INSTANCE);
     }
 
 }

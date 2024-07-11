@@ -17,6 +17,8 @@ public final class ModelConfig implements Serializable {
 
     private String name;
 
+    private String icon;
+
     private final ModelFields fields = new ModelFields();
 
     public ModelConfig() {
@@ -27,12 +29,13 @@ public final class ModelConfig implements Serializable {
         this();
         this.code = model.getClass().getSimpleName();
         this.name = model.getName();
+        this.icon = model.getIcon();
         BooleanModelField enableField = model.getEnableField();
         fields.put(enableField.getCode(), enableField);
         ModelFields modelFields = model.getFields();
         if (modelFields != null) {
-            for (Map.Entry<String, ModelField> entry : modelFields.entrySet()) {
-                ModelField modelField = entry.getValue();
+            for (Map.Entry<String, ModelField<?>> entry : modelFields.entrySet()) {
+                ModelField<?> modelField = entry.getValue();
                 if (modelField != null) {
                     fields.put(modelField.getCode(), modelField);
                 }
@@ -58,7 +61,7 @@ public final class ModelConfig implements Serializable {
     }*/
 
     @SuppressWarnings("unchecked")
-    public <T extends ModelField> T getModelFieldExt(String fieldCode) {
+    public <T extends ModelField<?>> T getModelFieldExt(String fieldCode) {
         return (T) fields.get(fieldCode);
     }
 }

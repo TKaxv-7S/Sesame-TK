@@ -46,6 +46,7 @@ public class Status {
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
     private Boolean canOrnament = true;
     private Boolean animalSleep = false;
+    private Boolean canStallDonate = true;
     /**
      * 新村助力好友，已上限的用户
      */
@@ -648,7 +649,7 @@ public class Status {
             File statusFile = FileUtil.getStatusFile(currentUid);
             if (statusFile.exists()) {
                 String json = FileUtil.readFromFile(statusFile);
-                JsonUtil.MAPPER.readerForUpdating(INSTANCE).readValue(json);
+                JsonUtil.copyMapper().readerForUpdating(INSTANCE).readValue(json);
                 String formatted = JsonUtil.toJsonString(INSTANCE);
                 if (formatted != null && !formatted.equals(json)) {
                     Log.i(TAG, "重新格式化 status.json");
@@ -656,7 +657,7 @@ public class Status {
                     FileUtil.write2File(formatted, FileUtil.getStatusFile(currentUid));
                 }
             } else {
-                JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
+                JsonUtil.copyMapper().updateValue(INSTANCE, new Status());
                 Log.i(TAG, "初始化 status.json");
                 Log.system(TAG, "初始化 status.json");
                 FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
@@ -666,7 +667,7 @@ public class Status {
             Log.i(TAG, "状态文件格式有误，已重置");
             Log.system(TAG, "状态文件格式有误，已重置");
             try {
-                JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
+                JsonUtil.copyMapper().updateValue(INSTANCE, new Status());
                 FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, e);
@@ -680,7 +681,7 @@ public class Status {
 
     public static synchronized void unload() {
         try {
-            JsonUtil.MAPPER.updateValue(INSTANCE, new Status());
+            JsonUtil.copyMapper().updateValue(INSTANCE, new Status());
         } catch (JsonMappingException e) {
             Log.printStackTrace(TAG, e);
         }
@@ -727,6 +728,18 @@ public class Status {
     public static void setOrnamentToday() {
         if (INSTANCE.canOrnament) {
             INSTANCE.canOrnament = false;
+            save();
+        }
+    }
+
+    // 新村捐赠
+    public static boolean canStallDonateToday() {
+        return INSTANCE.canStallDonate;
+    }
+
+    public static void setStallDonateToday() {
+        if (INSTANCE.canStallDonate) {
+            INSTANCE.canStallDonate = false;
             save();
         }
     }

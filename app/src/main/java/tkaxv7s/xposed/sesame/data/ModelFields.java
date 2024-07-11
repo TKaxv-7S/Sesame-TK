@@ -3,15 +3,11 @@ package tkaxv7s.xposed.sesame.data;
 import java.util.LinkedHashMap;
 
 //@Data
-public final class ModelFields extends LinkedHashMap<String, ModelField> {
+public final class ModelFields extends LinkedHashMap<String, ModelField<?>> {
 
     //private BooleanModelField enable = new BooleanModelField("enable", "开启", true);
 
-    public ModelFields() {
-        super();
-    }
-
-    public void addField(ModelField modelField) {
+    public void addField(ModelField<?> modelField) {
         put(modelField.getCode(), modelField);
     }
 

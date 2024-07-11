@@ -83,6 +83,7 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField collectWateringBubble;
     private BooleanModelField batchRobEnergy;
     private BooleanModelField balanceNetworkDelay;
+    private BooleanModelField whackMole;
     private BooleanModelField collectProp;
     private StringModelField queryInterval;
     private StringModelField collectInterval;
@@ -158,10 +159,10 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "活力值 | 兑换限时双击卡数量", 6));
         modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
         modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "活力值 | 兑换永久双击卡数量", 6));
+        modelFields.addField(whackMole = new BooleanModelField("whackMole", "6秒拼手速", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", false));
-        modelFields.addField(giveEnergyRainList = new SelectModelField("giveEnergyRainList", "赠送能量雨列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(animalConsumeProp = new BooleanModelField("animalConsumeProp", "派遣动物", false));
         modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "森林任务", false));
@@ -170,6 +171,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗", false));
         modelFields.addField(sendEnergyByAction = new BooleanModelField("sendEnergyByAction", "森林集市", false));
+        modelFields.addField(giveEnergyRainList = new SelectModelField("giveEnergyRainList", "赠送能量雨列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(sendFriendCard = new SelectModelField("sendFriendCard", "送卡片好友列表(当前图鉴所有卡片)", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具好友列表（所有可送道具）", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
@@ -349,13 +351,13 @@ public class AntForestV2 extends ModelTask {
         try {
             if (balanceNetworkDelay.getValue()) {
                 long start = System.currentTimeMillis();
-                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
+                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
                 long end = System.currentTimeMillis();
                 long serverTime = userHomeObject.getLong("now");
                 offsetTime.set(Math.max((start + end) / 2 - serverTime, -3000));
                 Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
             } else {
-                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
+                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -474,8 +476,7 @@ public class AntForestV2 extends ModelTask {
                         case WAITING:
                             long produceTime = bubble.getLong("produceTime");
                             if (BaseModel.getCheckInterval().getValue() > produceTime - serverTime) {
-                                String tid = AntForestV2.getBubbleTimerTid(userId, bubbleId);
-                                if (hasChildTask(tid)) {
+                                if (hasChildTask(AntForestV2.getBubbleTimerTid(userId, bubbleId))) {
                                     break;
                                 }
                                 addChildTask(new BubbleTimerTask(userId, bubbleId, produceTime));
@@ -513,14 +514,18 @@ public class AntForestV2 extends ModelTask {
 
             if (!TaskCommon.IS_ENERGY_TIME) {
                 if (isSelf) {
-                    String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
-                    if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
-                        whackMole();
+                    if (whackMole.getValue()) {
+                        String whackMoleStatus = userHomeObject.optString("whackMoleStatus");
+                        if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                            whackMole();
+                        }
                     }
                     if (totalCertCount.getValue()) {
-                        JSONObject userBaseInfo = userHomeObject.getJSONObject("userBaseInfo");
-                        int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
-                        FileUtil.setCertCount(selfId, Log.getFormatDate(), totalCertCount);
+                        JSONObject userBaseInfo = userHomeObject.optJSONObject("userBaseInfo");
+                        if (userBaseInfo != null) {
+                            int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
+                            FileUtil.setCertCount(selfId, Log.getFormatDate(), totalCertCount);
+                        }
                     }
                     boolean hasMore = false;
                     do {
@@ -860,11 +865,9 @@ public class AntForestV2 extends ModelTask {
                     if (sleep > 0) {
                         TimeUtil.sleep(sleep);
                     }
-                    long start = System.currentTimeMillis();
-                    ApplicationHook.requestObject(rpcEntity, 0, 0);
-                    long end = System.currentTimeMillis();
-                    collectEnergyLockLimit.setForce((start + end) / 2);
+                    collectEnergyLockLimit.setForce(System.currentTimeMillis());
                 }
+                ApplicationHook.requestObject(rpcEntity, 0, 0);
                 if (rpcEntity.getHasError()) {
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
                     if ("1004".equals(errorCode)) {
@@ -988,7 +991,7 @@ public class AntForestV2 extends ModelTask {
 
     private void updateDoubleTime() throws JSONException {
         try {
-            String s = AntForestRpcCall.queryHomePage();
+            String s = AntForestRpcCall.queryHomePage(!whackMole.getValue());
             JSONObject joHomePage = new JSONObject(s);
             updateDoubleTime(joHomePage);
         } finally {

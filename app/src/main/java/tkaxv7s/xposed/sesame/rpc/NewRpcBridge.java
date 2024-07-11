@@ -114,13 +114,14 @@ public class NewRpcBridge implements RpcBridge {
         int id = rpcEntity.hashCode();
         String method = rpcEntity.getRequestMethod();
         String data = rpcEntity.getRequestData();
+        String relation = rpcEntity.getRequestRelation();
         try {
             int count = 0;
             do {
                 count++;
                 try {
                     newRpcCallMethod.invoke(
-                            newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
+                            newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + (relation == null ? "" : ",\"relationLocal\":" + relation) + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                                 @Override
                                 public Object invoke(Object proxy, Method method, Object[] args) {
                                     if (args.length == 1 && "sendJSONResponse".equals(method.getName())) {

@@ -11,6 +11,8 @@ public class RpcEntity {
 
     private final String requestData;
 
+    private final String requestRelation;
+
     private volatile Boolean hasResult = false;
 
     private volatile Boolean hasError = false;
@@ -19,14 +21,19 @@ public class RpcEntity {
 
     private volatile String responseString;
 
+    public RpcEntity() {
+        this(null, null);
+    }
+
     public RpcEntity(String requestMethod, String requestData) {
+        this(requestMethod, requestData, null);
+    }
+
+    public RpcEntity(String requestMethod, String requestData, String requestRelation) {
         this.requestThread = Thread.currentThread();
         this.requestMethod = requestMethod;
         this.requestData = requestData;
-    }
-
-    public RpcEntity() {
-        this(null, null);
+        this.requestRelation = requestRelation;
     }
 
     public void setResponseObject(Object result, String resultStr) {
