@@ -46,6 +46,7 @@ public class Status {
     private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
     private Boolean canOrnament = true;
     private Boolean animalSleep = false;
+    private Boolean canStallDonate = true;
     /**
      * 新村助力好友，已上限的用户
      */
@@ -727,6 +728,18 @@ public class Status {
     public static void setOrnamentToday() {
         if (INSTANCE.canOrnament) {
             INSTANCE.canOrnament = false;
+            save();
+        }
+    }
+
+    // 新村捐赠
+    public static boolean canStallDonateToday() {
+        return INSTANCE.canStallDonate;
+    }
+
+    public static void setStallDonateToday() {
+        if (INSTANCE.canStallDonate) {
+            INSTANCE.canStallDonate = false;
             save();
         }
     }
