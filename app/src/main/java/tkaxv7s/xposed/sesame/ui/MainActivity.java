@@ -103,11 +103,16 @@ public class MainActivity extends BaseActivity {
         } else {
             registerReceiver(broadcastReceiver, intentFilter);
         }
-         new AlertDialog.Builder(this)
-                 .setTitle("提示")
-                 .setMessage("本APP是为了学习研究开发，免费提供，不得进行任何形式的转发、发布、传播。请于24小时内卸载本APP。如果您是购买的可能已经被骗，请联系卖家退款。")
-                 .setNegativeButton("我知道了", null)
-                 .create().show();
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        builder.setTitle("提示");
+        builder.setMessage("本APP是为了学习研究开发，免费提供，不得进行任何形式的转发、发布、传播。请于24小时本APP。如果您是购买的可能已经被骗，请联系卖家退款。");
+        builder.setPositiveButton("我知道了",(dialog, which) -> dialog.dismiss());
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+        }
     }
 
     @Override
