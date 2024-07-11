@@ -75,6 +75,7 @@ public class AntStall extends ModelTask {
     private BooleanModelField stallInviteShop;
     private ChoiceModelField stallInviteShopType;
     private SelectModelField stallInviteShopList;
+    private BooleanModelField roadmap;
     /**
      * 邀请好友开通新村列表
      */
@@ -105,6 +106,7 @@ public class AntStall extends ModelTask {
         modelFields.addField(stallAutoTask = new BooleanModelField("stallAutoTask", "自动任务", false));
         modelFields.addField(stallReceiveAward = new BooleanModelField("stallReceiveAward", "自动领奖", false));
         modelFields.addField(stallDonate = new BooleanModelField("stallDonate", "自动捐赠", false));
+        modelFields.addField(roadmap = new BooleanModelField("roadmap", "自动进入下一村", false));
         modelFields.addField(stallInviteRegister = new BooleanModelField("stallInviteRegister", "邀请 | 邀请好友开通新村", false));
         modelFields.addField(stallInviteRegisterList = new SelectModelField("stallInviteRegisterList", "邀请 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(assistFriendList = new SelectModelField("assistFriendList", "助力好友列表", new LinkedHashSet<>(), AlipayUser::getList));
@@ -156,7 +158,10 @@ public class AntStall extends ModelTask {
                     TimeUtil.sleep(1000);
                     taskList();
                 }
-                if (stallDonate.getValue()) {
+                if (stallDonate.getValue() && Status.canStallDonateToday()) {
+                    donate();
+                }
+                if (roadmap.getValue()) {
                     roadmap();
                 }
                 if (stallAutoTicket.getValue()) {
@@ -745,26 +750,43 @@ public class AntStall extends ModelTask {
         }
     }
 
+    // 捐赠项目
     private void donate() {
-        String s = AntStallRpcCall.projectList();
         try {
+            // 调用远程接口获取项目列表信息
+            String s = AntStallRpcCall.projectList();
+            // 将返回的 JSON 字符串转换为 JSONObject 对象
             JSONObject jo = new JSONObject(s);
+            // 检查返回结果是否成功
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                // 获取项目列表中的 astProjectVOS 数组
                 JSONArray astProjectVOS = jo.getJSONArray("astProjectVOS");
+                // 遍历项目列表
                 for (int i = 0; i < astProjectVOS.length(); i++) {
+                    // 获取每个项目的 JSONObject
                     JSONObject project = astProjectVOS.getJSONObject(i);
+                    // 检查项目状态是否为 "ONLINE"
                     if ("ONLINE".equals(project.getString("status"))) {
+                        // 获取项目的 projectId
                         String projectId = project.getString("projectId");
+                        // 调用远程接口获取项目详情
                         s = AntStallRpcCall.projectDetail(projectId);
+                        // 将返回的 JSON 字符串转换为 JSONObject 对象
                         JSONObject joProjectDetail = new JSONObject(s);
+                        // 检查返回结果是否成功
                         if ("SUCCESS".equals(joProjectDetail.getString("resultCode"))) {
+                            // 调用远程接口进行捐赠操作
                             s = AntStallRpcCall.projectDonate(projectId);
+                            // 将返回的 JSON 字符串转换为 JSONObject 对象
                             JSONObject joProjectDonate = new JSONObject(s);
+                            // 获取捐赠操作返回的 astProjectVO 对象
+                            JSONObject astProjectVO = joProjectDonate.getJSONObject("astProjectVO");
+                            // 获取 astProjectVO 对象中的 title 字段值
+                            String title = astProjectVO.getString("title");
+                            // 检查捐赠操作返回结果是否成功
                             if ("SUCCESS".equals(joProjectDonate.getString("resultCode"))) {
-                                JSONObject astUserVillageVO = joProjectDonate.getJSONObject("astUserVillageVO");
-                                if (astUserVillageVO.getInt("donateCount") >= astUserVillageVO.getInt("donateLimit")) {
-                                    roadmap();
-                                }
+                                Log.other("蚂蚁新村⛪[捐赠:" + title + "]");
+                                Status.setStallDonateToday();
                             }
                         }
                     }
@@ -776,44 +798,24 @@ public class AntStall extends ModelTask {
         }
     }
 
+
+    // 进入下一村
     private void roadmap() {
-        String s = AntStallRpcCall.roadmap();
         try {
+            String s = AntStallRpcCall.roadmap();
             JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONObject userInfo = jo.getJSONObject("userInfo");
-                JSONObject currentCoin = userInfo.getJSONObject("currentCoin");
-                int amount = (int) currentCoin.getDouble("amount");
-                if (amount < 15000) {
+            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                return;
+            }
+            JSONArray roadList = jo.getJSONArray("roadList");
+            for (int i = 0; i < roadList.length(); i++) {
+                JSONObject road = roadList.getJSONObject(i);
+                // 检查 status 字段是否为 "NEW"
+                if (!"NEW".equals(road.getString("status"))) {
                     return;
                 }
-                JSONArray roadList = jo.getJSONArray("roadList");
-                boolean unFinished = false;
-                boolean canNext = false;
-                for (int i = 0; i < roadList.length(); i++) {
-                    JSONObject road = roadList.getJSONObject(i);
-                    if ("FINISHED".equals(road.getString("status"))) {
-                        continue;
-                    }
-                    if ("LOCK".equals(road.getString("status"))) {
-                        canNext = true;
-                        break;
-                    }
-                    if (road.getInt("donateCount") < road.getInt("donateLimit")) {
-                        unFinished = true;
-                    }
-                }
-                if (unFinished) {
-                    donate();
-                } else if (canNext) {
-                    s = AntStallRpcCall.nextVillage();
-                    jo = new JSONObject(s);
-                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                        Log.farm("蚂蚁新村✈进入下一村成功");
-                    }
-                }
-            } else {
-                Log.record("roadmap err:" + " " + s);
+                String villageName = road.getString("villageName");
+                Log.other("蚂蚁新村⛪[进入:" + villageName + "]成功");
             }
         } catch (Throwable t) {
             Log.i(TAG, "roadmap err:");

@@ -11,11 +11,16 @@ import android.widget.Toast;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.util.TypeUtil;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 
 @Data
-public class ModelField implements Serializable {
+public class ModelField<T> implements Serializable {
+
+    @JsonIgnore
+    private final Type valueType;
 
     @JsonIgnore
     private String code;
@@ -24,28 +29,28 @@ public class ModelField implements Serializable {
     private String name;
 
     @JsonIgnore
-    protected Object defaultValue;
+    protected T defaultValue;
 
-    protected volatile Object value;
+    protected volatile T value;
 
     public ModelField() {
+        valueType = TypeUtil.getTypeArgument(this.getClass().getGenericSuperclass(), 0);
     }
 
-    public ModelField(Object value) {
-        this.defaultValue = value;
-        setValue(value);
+    public ModelField(T value) {
+        this(null, null, value);
     }
 
-    public ModelField(Object value, Object defaultValue) {
-        this.defaultValue = defaultValue;
-        setValue(value);
-    }
-
-    public ModelField(String code, String name, Object value) {
+    public ModelField(String code, String name, T value) {
+        this();
         this.code = code;
         this.name = name;
         this.defaultValue = value;
-        setValue(value);
+        setObjectValue(value);
+    }
+
+    public void setObjectValue(Object value) {
+        this.value = (T) value;
     }
 
     @JsonIgnore
@@ -70,7 +75,7 @@ public class ModelField implements Serializable {
 
     @JsonIgnore
     public void setConfigValue(String value) {
-        setValue(value);
+        setObjectValue(value);
     }
 
     public void reset() {

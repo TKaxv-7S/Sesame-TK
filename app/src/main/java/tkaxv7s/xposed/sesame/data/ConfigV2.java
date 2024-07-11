@@ -35,13 +35,13 @@ public class ConfigV2 {
             ModelFields configModelFields = modelConfig.getFields();
             ModelFields modelFields = newModels.get(modelCode);
             if (modelFields != null) {
-                for (ModelField configModelField : configModelFields.values()) {
-                    ModelField modelField = modelFields.get(configModelField.getCode());
+                for (ModelField<?> configModelField : configModelFields.values()) {
+                    ModelField<?> modelField = modelFields.get(configModelField.getCode());
                     try {
                         if (modelField != null) {
                             Object value = modelField.getValue();
                             if (value != null) {
-                                configModelField.setValue(value);
+                                configModelField.setObjectValue(value);
                             }
                         }
                     } catch (Exception e) {
@@ -50,7 +50,7 @@ public class ConfigV2 {
                     newModelFields.addField(configModelField);
                 }
             } else {
-                for (ModelField configModelField : configModelFields.values()) {
+                for (ModelField<?> configModelField : configModelFields.values()) {
                     newModelFields.addField(configModelField);
                 }
             }
@@ -210,7 +210,7 @@ public class ConfigV2 {
 
     public static synchronized void unload() {
         for (ModelFields modelFields : INSTANCE.modelFieldsMap.values()) {
-            for (ModelField modelField : modelFields.values()) {
+            for (ModelField<?> modelField : modelFields.values()) {
                 if (modelField != null) {
                     modelField.reset();
                 }

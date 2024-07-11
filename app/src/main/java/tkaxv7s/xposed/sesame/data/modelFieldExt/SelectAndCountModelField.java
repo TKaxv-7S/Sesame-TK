@@ -25,7 +25,7 @@ import java.util.Map;
  * Map<String, Integer> 表示已选择的数据与已经设置的数量映射关系
  * List<? extends IdAndName> 需要选择的数据
  */
-public class SelectAndCountModelField extends ModelField implements SelectModelFieldFunc {
+public class SelectAndCountModelField extends ModelField<Map<String, Integer>> implements SelectModelFieldFunc {
 
     private static final TypeReference<LinkedHashMap<String, Integer>> typeReference = new TypeReference<LinkedHashMap<String, Integer>>() {
     };
@@ -54,16 +54,11 @@ public class SelectAndCountModelField extends ModelField implements SelectModelF
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = JsonUtil.parseObject(value, typeReference);
-    }
-
-    @Override
-    public Map<String, Integer> getValue() {
-        return (Map<String, Integer>) value;
     }
 
     public String getConfigValue() {
