@@ -11,11 +11,14 @@ public class ModelDto implements Serializable {
 
     private String modelName;
 
+    private String modelIcon;
+
     public ModelDto() {
     }
 
-    public ModelDto(String modelCode, String modelName) {
+    public ModelDto(String modelCode, String modelName, String modelIcon) {
         this.modelCode = modelCode;
         this.modelName = modelName;
+        this.modelIcon = modelIcon;
     }
 }
