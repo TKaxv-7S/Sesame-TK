@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 
-public class EmptyModelField extends ModelField {
+public class EmptyModelField extends ModelField<Object> {
 
     private final Runnable clickRunner;
 
@@ -33,12 +33,7 @@ public class EmptyModelField extends ModelField {
     }
 
     @Override
-    public void setValue(Object value) {
-    }
-
-    @Override
-    public Object getValue() {
-        return null;
+    public void setObjectValue(Object value) {
     }
 
     @JsonIgnore

@@ -17,7 +17,7 @@ import tkaxv7s.xposed.sesame.util.JsonUtil;
 import java.util.List;
 import java.util.Objects;
 
-public class SelectOneModelField extends ModelField implements SelectModelFieldFunc {
+public class SelectOneModelField extends ModelField<String> implements SelectModelFieldFunc {
 
     private SelectListFunc selectListFunc;
 
@@ -43,16 +43,11 @@ public class SelectOneModelField extends ModelField implements SelectModelFieldF
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = String.valueOf(value);
-    }
-
-    @Override
-    public String getValue() {
-        return (String) value;
     }
 
     public String getConfigValue() {

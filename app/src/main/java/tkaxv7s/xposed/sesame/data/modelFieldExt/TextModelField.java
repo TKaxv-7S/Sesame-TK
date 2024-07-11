@@ -8,13 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
 
-public class TextModelField extends ModelField {
+public class TextModelField extends ModelField<String> {
 
     public TextModelField(String code, String name, String value) {
         super(code, name, value);
@@ -26,16 +25,11 @@ public class TextModelField extends ModelField {
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = String.valueOf(value);
-    }
-
-    @Override
-    public String getValue() {
-        return (String) value;
     }
 
     @JsonIgnore

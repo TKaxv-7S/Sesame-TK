@@ -16,7 +16,7 @@ import tkaxv7s.xposed.sesame.util.JsonUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListModelField extends ModelField {
+public class ListModelField extends ModelField<List<String>> {
 
     private static final TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {
     };
@@ -31,16 +31,11 @@ public class ListModelField extends ModelField {
     }
 
     @Override
-    public void setValue(Object value) {
+    public void setObjectValue(Object value) {
         if (value == null) {
             value = defaultValue;
         }
         this.value = JsonUtil.parseObject(value, typeReference);
-    }
-
-    @Override
-    public List<String> getValue() {
-        return (List<String>) value;
     }
 
     @Override
@@ -68,7 +63,7 @@ public class ListModelField extends ModelField {
         @Override
         public void setConfigValue(String value) {
             if (value == null) {
-                setValue(null);
+                setObjectValue(null);
                 return;
             }
             List<String> list = new ArrayList<>();
@@ -85,7 +80,7 @@ public class ListModelField extends ModelField {
                     }
                 }
             }
-            setValue(list);
+            setObjectValue(list);
         }
 
         @Override
