@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title></title>
+    <style>
+        html, body {
+            font-size: 8px;
+        }
+
+    </style>
+</head>
+<body style="text-align: center;">
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="tabsTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="tabsBtn" type="button" style="font-size: 18px;">GetTabs</button>
+</div>
+
+<!--<div style="text-align: center;margin-top: 80px;">
+    <input id="allConfigTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="allConfigBtn" type="button" style="font-size: 18px;">GetAllConfig</button>
+</div>-->
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="getModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="getModelSelectIpt" type="text" value="BaseModel" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="getModelBtn" type="button" style="font-size: 18px;">GetModel</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="setModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setModelCodeIpt" type="text" value='AntForestV2' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setModelFieldsIpt" type="text" value='{"giveEnergyRainList":{"configValue":"[\"1000000000000\",\"2000000000000\"]"}}' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="setModelBtn" type="button" style="font-size: 18px;">SetModel</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="getFieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="getFieldModelCodeIpt" type="text" value="AntForestV2" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="getFieldCodeIpt" type="text" value="giveEnergyRainList" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="getFieldBtn" type="button" style="font-size: 18px;">GetField</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
+    <input id="setFieldTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setFieldModelCodeIpt" type="text" value="AntForestV2" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setFieldCodeIpt" type="text" value='giveEnergyRainList' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setFieldValueIpt" type="text" value='[\"1000000000000\",\"2000000000000\"]' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="setFieldBtn" type="button" style="font-size: 18px;">SetField</button>
+</div>
+
+<script type="application/javascript">
+    window.onload = async function () {
+
+        document.getElementById("tabsBtn").onclick = async function () {
+            document.getElementById("tabsTextIpt").value = window.HOOK.getTabs();
+        }
+
+        /*document.getElementById("allConfigBtn").onclick = async function () {
+            document.getElementById("allConfigTextIpt").value = window.HOOK.getAllConfig();
+        }*/
+
+        document.getElementById("getModelBtn").onclick = async function () {
+            document.getElementById("getModelTextIpt").value = window.HOOK.getModel(document.getElementById("getModelSelectIpt").value);
+        }
+
+        document.getElementById("setModelBtn").onclick = async function () {
+            document.getElementById("setModelTextIpt").value = window.HOOK.setModel(document.getElementById("setModelCodeIpt").value, document.getElementById("setModelFieldsIpt").value);
+        }
+
+        document.getElementById("getFieldBtn").onclick = async function () {
+            document.getElementById("getFieldTextIpt").value = window.HOOK.getField(document.getElementById("getFieldModelCodeIpt").value, document.getElementById("getFieldCodeIpt").value);
+        }
+
+        document.getElementById("setFieldBtn").onclick = async function () {
+            document.getElementById("setFieldTextIpt").value = window.HOOK.setField(document.getElementById("setFieldModelCodeIpt").value, document.getElementById("setFieldCodeIpt").value, document.getElementById("setFieldValueIpt").value);
+        }
+
+    }
+
+</script>
+</body>
+</html>
