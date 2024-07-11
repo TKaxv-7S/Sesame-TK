@@ -11,24 +11,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.*;
 import android.widget.Toast;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
+import tkaxv7s.xposed.sesame.ui.dto.ModelDto;
+import tkaxv7s.xposed.sesame.ui.dto.ModelFieldInfoDto;
+import tkaxv7s.xposed.sesame.ui.dto.ModelFieldShowDto;
+import tkaxv7s.xposed.sesame.ui.dto.ModelFieldsDto;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SettingsActivity extends BaseActivity {
-   private WebView webView;
+    private WebView webView;
     private Context context;
 
     private Boolean isSave = true;
@@ -36,7 +35,7 @@ public class SettingsActivity extends BaseActivity {
     private String userName = null;
     private Boolean debug = false;
 
-    private List<Map<String, String>> tabList = new ArrayList<>();
+    private List<ModelDto> tabList = new ArrayList<>();
 
     @Override
     public String getBaseSubtitle() {
@@ -122,15 +121,12 @@ public class SettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("http://192.168.255.10:5501/app/src/main/assets/web/index.html");
+        webView.loadUrl("file:///android_asset/web/demo.html");
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
         for (Map.Entry<String, ModelConfig> configEntry : modelConfigMap.entrySet()) {
-            Map<String, String> tab = new HashMap<>();
-            tab.put("modelCode", configEntry.getKey());
-            tab.put("modelName", configEntry.getValue().getName());
-            tabList.add(tab);
+            tabList.add(new ModelDto(configEntry.getKey(), configEntry.getValue().getName()));
         }
     }
 
@@ -163,21 +159,6 @@ public class SettingsActivity extends BaseActivity {
 
     private class WebViewCallback {
 
-        private final ObjectMapper headMapper;
-
-        private final ObjectMapper infoMapper;
-
-        public WebViewCallback() {
-            headMapper = JsonUtil.copyMapper();
-            SimpleFilterProvider showFilterProvider = new SimpleFilterProvider();
-            showFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.filterOutAllExcept("code", "name", "type", "expandKey", "configValue"));
-            headMapper.setFilterProvider(showFilterProvider);
-            infoMapper = JsonUtil.copyMapper();
-            SimpleFilterProvider editFilterProvider = new SimpleFilterProvider();
-            editFilterProvider.addFilter("modelField", SimpleBeanPropertyFilter.serializeAllExcept("value", "defaultValue"));
-            infoMapper.setFilterProvider(editFilterProvider);
-        }
-
         @JavascriptInterface
         public String getTabs() {
             return JsonUtil.toNoFormatJsonString(tabList);
@@ -192,11 +173,12 @@ public class SettingsActivity extends BaseActivity {
         public String getModel(String modelCode) {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {
-                try {
-                    return headMapper.writeValueAsString(modelConfig.getFields().values());
-                } catch (JsonProcessingException e) {
-                    Log.printStackTrace(e);
+                ModelFields modelFields = modelConfig.getFields();
+                List<ModelFieldShowDto> list = new ArrayList<>();
+                for (ModelField<?> modelField : modelFields.values()) {
+                    list.add(ModelFieldShowDto.toShowDto(modelField));
                 }
+                return JsonUtil.toNoFormatJsonString(list);
             }
             return null;
         }
@@ -207,11 +189,11 @@ public class SettingsActivity extends BaseActivity {
             if (modelConfig != null) {
                 try {
                     ModelFields modelFields = modelConfig.getFields();
-                    ModelFields newModelFields = JsonUtil.parseObject(fieldsValue, ModelFields.class);
-                    for (ModelField modelField : modelFields.values()) {
-                        ModelField newModelField = newModelFields.get(modelField.getCode());
+                    ModelFieldsDto newModelFields = JsonUtil.parseObject(fieldsValue, ModelFieldsDto.class);
+                    for (ModelField<?> modelField : modelFields.values()) {
+                        ModelFieldShowDto newModelField = newModelFields.get(modelField.getCode());
                         if (newModelField != null) {
-                            modelField.setConfigValue(newModelField.getConfigValue());
+                            modelField.setValue(JsonUtil.parseObject(newModelField.getConfigValue(), modelField.getValueType()));
                         }
                     }
                     return "SUCCESS";
@@ -224,16 +206,12 @@ public class SettingsActivity extends BaseActivity {
 
         @JavascriptInterface
         public String getField(String modelCode, String fieldCode) {
-            try {
-                ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
-                if (modelConfig != null) {
-                    ModelField modelField = modelConfig.getModelField(fieldCode);
-                    if (modelField != null) {
-                        return infoMapper.writeValueAsString(modelField);
-                    }
+            ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
+            if (modelConfig != null) {
+                ModelField<?> modelField = modelConfig.getModelField(fieldCode);
+                if (modelField != null) {
+                    return JsonUtil.toNoFormatJsonString(ModelFieldInfoDto.toInfoDto(modelField));
                 }
-            } catch (JsonProcessingException e) {
-                Log.printStackTrace(e);
             }
             return null;
         }
@@ -243,7 +221,7 @@ public class SettingsActivity extends BaseActivity {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {
                 try {
-                    ModelField modelField = modelConfig.getModelField(fieldCode);
+                    ModelField<?> modelField = modelConfig.getModelField(fieldCode);
                     if (modelField != null) {
                         modelField.setConfigValue(fieldValue);
                         return "SUCCESS";
