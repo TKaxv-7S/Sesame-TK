@@ -125,18 +125,22 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 }
                                 if (!init) {
                                     if (canInit) {
-                                        if (initHandler(true)) {
-                                            init = true;
-                                        }
+                                        mainHandler.post(() -> {
+                                            if (initHandler(true)) {
+                                                init = true;
+                                            }
+                                        });
                                     }
                                     return;
                                 }
                                 String currentUid = UserIdMap.getCurrentUid();
                                 if (!targetUid.equals(currentUid)) {
                                     if (currentUid != null) {
-                                        initHandler(true);
-                                        Log.record("用户已切换");
-                                        Toast.show("用户已切换");
+                                        mainHandler.post(() -> {
+                                            initHandler(true);
+                                            Log.record("用户已切换");
+                                            Toast.show("用户已切换");
+                                        });
                                         return;
                                     }
                                     UserIdMap.initUser(targetUid);
