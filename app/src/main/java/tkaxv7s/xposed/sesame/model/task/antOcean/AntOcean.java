@@ -453,7 +453,8 @@ public class AntOcean extends ModelTask {
                 || "ANTOCEAN_TASK#DAOLIU_GUANGHUABEIBANGHAI".equals(taskType) // 逛逛花呗活动会场
                 || "BUSINESS_LIGHTS01".equals(taskType) // 逛一逛市集15s
                 || "DAOLIU_ELEMEGUOYUAN".equals(taskType) // 去逛饿了么夺宝
-                || "ZHUANHUA_NONGCHANGYX".equals(taskType); // 去玩趣味小游戏
+                || "ZHUANHUA_NONGCHANGYX".equals(taskType) // 去玩趣味小游戏
+                || "ZHUANHUA_HUIYUN_OZB".equals(taskType); // 一键传球欧洲杯
 
     }
 
