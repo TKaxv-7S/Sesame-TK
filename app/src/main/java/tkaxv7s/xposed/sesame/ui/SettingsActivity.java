@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SettingsActivity extends BaseActivity {
-
+   private WebView webView;
     private Context context;
 
     private Boolean isSave = true;
@@ -72,7 +72,7 @@ public class SettingsActivity extends BaseActivity {
 
         context = this;
 
-        WebView webView = findViewById(R.id.webView);
+        webView = findViewById(R.id.webView);
         WebSettings settings = webView.getSettings();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -122,7 +122,7 @@ public class SettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.loadUrl("http://192.168.255.10:5501/app/src/main/assets/web/index.html");
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
@@ -131,6 +131,33 @@ public class SettingsActivity extends BaseActivity {
             tab.put("modelCode", configEntry.getKey());
             tab.put("modelName", configEntry.getValue().getName());
             tabList.add(tab);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    public class WebAppInterface {
+        @JavascriptInterface
+        public void onBackPressed() {
+            runOnUiThread(() -> {
+                if (webView.canGoBack()) {
+                    webView.goBack();
+                } else {
+                    SettingsActivity.this.finish();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void onExit() {
+            runOnUiThread(() -> SettingsActivity.this.finish());
         }
     }
 

@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.ui;
 
 import android.annotation.SuppressLint;
 import android.content.*;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
+import android.widget.Button;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -329,6 +331,11 @@ public class MainActivity extends BaseActivity {
         builder.setPositiveButton("返回", (dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        // 在 AlertDialog 显示之后获取返回按钮并设置颜色
+        Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+        }
         int length = userNameArray.length;
         if (length > 0 && length < 3) {
             new Thread(()-> {
