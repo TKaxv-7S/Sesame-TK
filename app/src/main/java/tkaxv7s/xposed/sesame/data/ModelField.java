@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.R;
@@ -16,13 +15,15 @@ import tkaxv7s.xposed.sesame.R;
 import java.io.Serializable;
 
 @Data
-@JsonFilter("modelField")
 public class ModelField implements Serializable {
 
+    @JsonIgnore
     private String code;
 
+    @JsonIgnore
     private String name;
 
+    @JsonIgnore
     protected Object defaultValue;
 
     protected volatile Object value;
@@ -47,28 +48,33 @@ public class ModelField implements Serializable {
         setValue(value);
     }
 
+    @JsonIgnore
     public String getType() {
         return "DEFAULT";
     }
 
+    @JsonIgnore
     public Object getExpandKey() {
         return null;
     }
 
+    @JsonIgnore
     public Object getExpandValue() {
         return null;
     }
 
-    public void reset() {
-        value = defaultValue;
-    }
-
+    @JsonIgnore
     public String getConfigValue() {
         return String.valueOf(getValue());
     }
 
+    @JsonIgnore
     public void setConfigValue(String value) {
         setValue(value);
+    }
+
+    public void reset() {
+        value = defaultValue;
     }
 
     @JsonIgnore
