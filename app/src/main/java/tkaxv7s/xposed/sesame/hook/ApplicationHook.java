@@ -677,8 +677,16 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return rpcBridge.requestString(method, data);
     }
 
+    public static String requestString(String method, String data, String relation) {
+        return rpcBridge.requestString(method, data, relation);
+    }
+
     public static String requestString(String method, String data, int tryCount, int retryInterval) {
         return rpcBridge.requestString(method, data, tryCount, retryInterval);
+    }
+
+    public static String requestString(String method, String data, String relation, int tryCount, int retryInterval) {
+        return rpcBridge.requestString(method, data, relation, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(RpcEntity rpcEntity) {
@@ -693,8 +701,16 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return rpcBridge.requestObject(method, data);
     }
 
+    public static RpcEntity requestObject(String method, String data, String relation) {
+        return rpcBridge.requestObject(method, data, relation);
+    }
+
     public static RpcEntity requestObject(String method, String data, int tryCount, int retryInterval) {
         return rpcBridge.requestObject(method, data, tryCount, retryInterval);
+    }
+
+    public static RpcEntity requestObject(String method, String data, String relation, int tryCount, int retryInterval) {
+        return rpcBridge.requestObject(method, data, relation, tryCount, retryInterval);
     }
 
     public static void reLoginByBroadcast() {

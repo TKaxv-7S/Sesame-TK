@@ -18,18 +18,18 @@ public class AntForestRpcCall {
 
     public static String fillUserRobFlag(String userIdList) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.fillUserRobFlag",
-                "[{\"userIdList\":" + userIdList + "}]");
+                "[{\"userIdList\":" + userIdList + "}]", "{\"pathList\":[\"friendRanking\"]}");
     }
 
     public static String queryEnergyRanking() {
         return ApplicationHook.requestString("alipay.antmember.forest.h5.queryEnergyRanking",
-                "[{\"periodType\":\"day\",\"rankType\":\"energyRank\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
-                        + VERSION + "\"}]");
+                "[{\"periodType\":\"total\",\"rankType\":\"energyRank\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
+                        + VERSION + "\"}]", "{\"pathList\":[\"friendRanking\",\"myself\",\"totalDatas\"]}");
     }
 
-    public static String queryHomePage() {
+    public static String queryHomePage(Boolean skipWhackMole) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.queryHomePage",
-                "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
+                "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":" + (skipWhackMole ? "true" : "false") + ",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
                         + VERSION + "\"}]", 3, 1000);
     }
 

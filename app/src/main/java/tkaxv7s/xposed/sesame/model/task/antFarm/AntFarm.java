@@ -1793,6 +1793,7 @@ public class AntFarm extends ModelTask {
         } while (doubleCheck);
         try {
             String s = AntFarmRpcCall.enterDrawMachine();
+            TimeUtil.sleep(1000L);
             JSONObject jo = new JSONObject(s);
             if (jo.getBoolean("success")) {
                 JSONObject userInfo = jo.getJSONObject("userInfo");
@@ -1800,12 +1801,12 @@ public class AntFarm extends ModelTask {
                 if (leftDrawTimes > 0) {
                     for (int i = 0; i < leftDrawTimes; i++) {
                         jo = new JSONObject(AntFarmRpcCall.DrawPrize());
+                        TimeUtil.sleep(1000L);
                         if (jo.getBoolean("success")) {
                             String title = jo.getString("title");
                             int prizeNum = jo.optInt("prizeNum", 0);
                             Log.farm("庄园小鸡🎁[领取:抽抽乐" + title + "*" + prizeNum + "]");
                         }
-                        Thread.sleep(1000L);
                     }
                 }
             }
@@ -1850,6 +1851,7 @@ public class AntFarm extends ModelTask {
         JSONArray animals = null;
         try {
             String s = AntFarmRpcCall.enterFarm("", UserIdMap.getCurrentUid());
+            TimeUtil.sleep(1000);
             JSONObject jsonObject = new JSONObject(s);
             if ("SUCCESS".equals(jsonObject.getString("memo"))) {
                 JSONObject farmVO = jsonObject.getJSONObject("farmVO");
@@ -1862,8 +1864,7 @@ public class AntFarm extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "getAnimalCount err:");
             Log.printStackTrace(TAG, t);
-        } finally {
-            TimeUtil.sleep(1000);
+            return;
         }
         if (animals == null) {
             return;

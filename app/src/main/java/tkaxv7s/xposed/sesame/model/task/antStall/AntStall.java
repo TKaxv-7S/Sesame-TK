@@ -314,11 +314,32 @@ public class AntStall extends ModelTask {
                     if ("OPEN".equals(shop.getString("status"))) {
                         JSONObject rentLastEnv = shop.getJSONObject("rentLastEnv");
                         long gmtLastRent = rentLastEnv.getLong("gmtLastRent");
-                        if (System.currentTimeMillis() - gmtLastRent > (long) stallSelfOpenTime.getValue() * 60 * 1000) {
-                            String shopId = shop.getString("shopId");
-                            String rentLastBill = shop.getString("rentLastBill");
-                            String rentLastUser = shop.getString("rentLastUser");
+                        long shopTime = gmtLastRent + stallSelfOpenTime.getValue() * 60 * 1000;
+                        String shopId = shop.getString("shopId");
+                        String rentLastBill = shop.getString("rentLastBill");
+                        String rentLastUser = shop.getString("rentLastUser");
+                        if (System.currentTimeMillis() > shopTime) {
                             shopClose(shopId, rentLastBill, rentLastUser);
+                        } else {
+                            String taskId = "SH|" + shopId;
+                            if (!hasChildTask(taskId)) {
+                                addChildTask(new ChildModelTask(taskId, "SH", () -> {
+                                    if (stallAutoClose.getValue()) {
+                                        shopClose(shopId, rentLastBill, rentLastUser);
+                                    }
+                                    TimeUtil.sleep(1000L);
+                                    if (stallAutoOpen.getValue()) {
+                                        openShop();
+                                    }
+                                }, shopTime));
+                                Log.record("添加蹲点收摊⛪在[" + TimeUtil.getCommonDate(shopTime) + "]执行");
+                            } /*else {
+                                addChildTask(new ChildModelTask(taskId, "SH", () -> {
+                                    if (stallAutoClose.getValue()) {
+                                        shopClose(shopId, rentLastBill, rentLastUser);
+                                    }
+                                }, shopTime));
+                            }*/
                         }
                     }
                 }
@@ -389,6 +410,7 @@ public class AntStall extends ModelTask {
     private void openShop(String seatId, String userId, Queue<String> shopIds) {
         String shopId = shopIds.peek();
         String s = AntStallRpcCall.shopOpen(seatId, userId, shopId);
+        TimeUtil.sleep(1000);
         try {
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
@@ -409,6 +431,7 @@ public class AntStall extends ModelTask {
             String userId = seat.userId;
             try {
                 String s = AntStallRpcCall.friendHome(userId);
+                TimeUtil.sleep(1000);
                 JSONObject jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.optString("resultCode"))) {
                     JSONObject seatsMap = jo.getJSONObject("seatsMap");
@@ -427,8 +450,6 @@ public class AntStall extends ModelTask {
                 }
             } catch (Throwable t) {
                 Log.printStackTrace(TAG, t);
-            } finally {
-                TimeUtil.sleep(1000);
             }
             idx++;
         }
