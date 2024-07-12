@@ -83,12 +83,12 @@ public class ModelField<T> implements Serializable {
     }
 
     @JsonIgnore
-    public final String getConfigValue() {
+    public String getConfigValue() {
         return JsonUtil.toJsonString(toConfigValue(value));
     }
 
     @JsonIgnore
-    public final void setConfigValue(String configValue) {
+    public void setConfigValue(String configValue) {
         if (configValue == null) {
             reset();
             return;
