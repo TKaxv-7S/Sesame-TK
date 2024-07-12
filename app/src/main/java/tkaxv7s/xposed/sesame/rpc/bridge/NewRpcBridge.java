@@ -1,9 +1,10 @@
-package tkaxv7s.xposed.sesame.rpc;
+package tkaxv7s.xposed.sesame.rpc.bridge;
 
 import de.robv.android.xposed.XposedHelpers;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
+import tkaxv7s.xposed.sesame.rpc.intervallimit.RpcIntervalLimit;
 import tkaxv7s.xposed.sesame.util.ClassUtil;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.NotificationUtil;
@@ -121,6 +122,7 @@ public class NewRpcBridge implements RpcBridge {
             do {
                 count++;
                 try {
+                    RpcIntervalLimit.enterIntervalLimit(method);
                     newRpcCallMethod.invoke(
                             newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + (time == null ? System.currentTimeMillis() : Math.max(System.currentTimeMillis(), time)) + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + (relation == null ? "" : ",\"relationLocal\":" + relation) + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                                 @Override

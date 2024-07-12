@@ -1792,20 +1792,22 @@ public class AntFarm extends ModelTask {
             }
         } while (doubleCheck);
         try {
-            String s = AntFarmRpcCall.enterDrawMachine();
-            TimeUtil.sleep(1000L);
-            JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
-                JSONObject userInfo = jo.getJSONObject("userInfo");
-                int leftDrawTimes = userInfo.optInt("leftDrawTimes", 0);
-                if (leftDrawTimes > 0) {
-                    for (int i = 0; i < leftDrawTimes; i++) {
-                        jo = new JSONObject(AntFarmRpcCall.DrawPrize());
-                        TimeUtil.sleep(1000L);
-                        if (jo.getBoolean("success")) {
-                            String title = jo.getString("title");
-                            int prizeNum = jo.optInt("prizeNum", 0);
-                            Log.farm("庄园小鸡🎁[领取:抽抽乐" + title + "*" + prizeNum + "]");
+            for (int i = 0; i < 2; i++) {
+                String s = AntFarmRpcCall.enterDrawMachine();
+                TimeUtil.sleep(1000L);
+                JSONObject jo = new JSONObject(s);
+                if (jo.getBoolean("success")) {
+                    JSONObject userInfo = jo.getJSONObject("userInfo");
+                    int leftDrawTimes = userInfo.optInt("leftDrawTimes", 0);
+                    if (leftDrawTimes > 0) {
+                        for (int ii = 0; ii < leftDrawTimes; ii++) {
+                            jo = new JSONObject(AntFarmRpcCall.DrawPrize());
+                            TimeUtil.sleep(1000L);
+                            if (jo.getBoolean("success")) {
+                                String title = jo.getString("title");
+                                int prizeNum = jo.optInt("prizeNum", 0);
+                                Log.farm("庄园小鸡🎁[领取:抽抽乐" + title + "*" + prizeNum + "]");
+                            }
                         }
                     }
                 }

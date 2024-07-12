@@ -1,8 +1,11 @@
-package tkaxv7s.xposed.sesame.entity;
+package tkaxv7s.xposed.sesame.rpc.intervallimit;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class FixedOrRangeIntervalEntity {
+public class FixedOrRangeIntervalLimit implements IntervalLimit {
 
     private final Boolean fixedOrRange;
 
@@ -12,7 +15,11 @@ public class FixedOrRangeIntervalEntity {
 
     private final Integer rangeMax;
 
-    public FixedOrRangeIntervalEntity(String fixedOrRangeStr, int min, int max) {
+    @Getter
+    @Setter
+    private Long time = 0L;
+
+    public FixedOrRangeIntervalLimit(String fixedOrRangeStr, int min, int max) {
         if (min > max) {
             max = min;
         }
