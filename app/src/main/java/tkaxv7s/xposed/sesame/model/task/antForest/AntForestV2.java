@@ -108,6 +108,7 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField exchangeEnergyDoubleClickLongTime;
     @Getter
     private IntegerModelField exchangeEnergyDoubleClickCountLongTime;
+    private BooleanModelField exchangeCollectHistoryAnimal7Days;
     private BooleanModelField userPatrol;
     private BooleanModelField antdodoCollect;
     private BooleanModelField totalCertCount;
@@ -159,6 +160,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "活力值 | 兑换限时双击卡数量", 6));
         modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
         modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "活力值 | 兑换永久双击卡数量", 6));
+        modelFields.addField(exchangeCollectHistoryAnimal7Days = new BooleanModelField("exchangeCollectHistoryAnimal7Days", "活力值 | 兑换物种历史卡", false));
         modelFields.addField(whackMole = new BooleanModelField("whackMole", "6秒拼手速", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
@@ -295,6 +297,10 @@ public class AntForestV2 extends ModelTask {
                 if (exchangeEnergyDoubleClickLongTime.getValue() && Status.canExchangeDoubleCardTodayLongTime()) {
                     int exchangeCount = exchangeEnergyDoubleClickCountLongTime.getValue();
                     exchangeEnergyDoubleClickLongTime(exchangeCount);
+                }
+                // 兑换 神奇物种抽历史卡机会
+                if (exchangeCollectHistoryAnimal7Days.getValue()) {
+                    exchangeCollectHistoryAnimal7Days();
                 }
                 /* 森林集市 */
                 if (sendEnergyByAction.getValue()) {
@@ -1433,6 +1439,66 @@ public class AntForestV2 extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "exchangeEnergyDoubleClickLongTime err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    // 兑换 神奇物种抽历史卡机会
+    private void exchangeCollectHistoryAnimal7Days() {
+        try {
+            String s = AntForestRpcCall.itemList("SC_ASSETS");
+            JSONObject jo = new JSONObject(s);
+            String skuId = null;
+            String spuId = null;
+            double price = 0d;
+            int exchangedCount = 0;
+            if (jo.getBoolean("success")) {
+                JSONArray itemInfoVOList = jo.optJSONArray("itemInfoVOList");
+                if (itemInfoVOList != null && itemInfoVOList.length() > 0) {
+                    for (int i = 0; i < itemInfoVOList.length(); i++) {
+                        jo = itemInfoVOList.getJSONObject(i);
+                        if ("神奇物种抽历史卡机会".equals(jo.getString("spuName"))) {
+                            JSONArray skuModelList = jo.getJSONArray("skuModelList");
+                            for (int j = 0; j < skuModelList.length(); j++) {
+                                jo = skuModelList.getJSONObject(j);
+                                if ("COLLECT_HISTORY_ANIMAL_7_DAYS_HLZ"
+                                        .equals(jo.getString("rightsConfigId"))) {
+                                    skuId = jo.getString("skuId");
+                                    spuId = jo.getString("spuId");
+                                    price = jo.getJSONObject("price").getDouble("amount");
+                                    exchangedCount = jo.getInt("exchangedCount");
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (skuId != null && exchangedCount == 0) {
+                    jo = new JSONObject(AntForestRpcCall.queryVitalityStoreIndex());
+                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                        int totalVitalityAmount = jo.getJSONObject("userVitalityInfoVO")
+                                .getInt("totalVitalityAmount");
+                        if (totalVitalityAmount >= price) {
+                            jo = new JSONObject(AntForestRpcCall.exchangeBenefit(spuId, skuId));
+                            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                                Log.forest("活力兑换🎐[物种历史卡]");
+                            } else {
+                                Log.record(jo.getString("resultDesc"));
+                                Log.i(jo.toString());
+                            }
+                            Thread.sleep(1000);
+                        } else {
+                            Log.record("活力值不足，停止兑换！");
+                        }
+                    }
+                }
+            } else {
+                Log.record(jo.getString("desc"));
+                Log.i(s);
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "exchangeCollectHistoryAnimal7Days err:");
             Log.printStackTrace(TAG, t);
         }
     }
