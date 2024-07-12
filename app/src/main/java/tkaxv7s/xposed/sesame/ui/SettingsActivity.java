@@ -153,12 +153,12 @@ public class SettingsActivity extends BaseActivity {
 
         @JavascriptInterface
         public String getTabs() {
-            return JsonUtil.toNoFormatJsonString(tabList);
+            return JsonUtil.toJsonString(tabList);
         }
 
         /*@JavascriptInterface
         public String getAllConfig() {
-            return JsonUtil.toNoFormatJsonString(ModelTask.getModelConfigMap());
+            return JsonUtil.toJsonString(ModelTask.getModelConfigMap());
         }*/
 
         @JavascriptInterface
@@ -170,7 +170,7 @@ public class SettingsActivity extends BaseActivity {
                 for (ModelField<?> modelField : modelFields.values()) {
                     modelFieldsDto.addField(ModelFieldShowDto.toShowDto(modelField));
                 }
-                return JsonUtil.toNoFormatJsonString(modelFieldsDto);
+                return JsonUtil.toJsonString(modelFieldsDto);
             }
             return null;
         }
@@ -202,7 +202,7 @@ public class SettingsActivity extends BaseActivity {
             if (modelConfig != null) {
                 ModelField<?> modelField = modelConfig.getModelField(fieldCode);
                 if (modelField != null) {
-                    return JsonUtil.toNoFormatJsonString(ModelFieldInfoDto.toInfoDto(modelField));
+                    return JsonUtil.toJsonString(ModelFieldInfoDto.toInfoDto(modelField));
                 }
             }
             return null;
