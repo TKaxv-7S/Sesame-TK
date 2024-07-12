@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,14 +34,14 @@ public class SettingsActivity extends BaseActivity {
     private String userName = null;
     private Boolean debug = false;
 
-    private List<ModelDto> tabList = new ArrayList<>();
+    private final List<ModelDto> tabList = new ArrayList<>();
 
     @Override
     public String getBaseSubtitle() {
         return getString(R.string.settings);
     }
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "SetJavaScriptEnabled"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,15 +72,10 @@ public class SettingsActivity extends BaseActivity {
 
         webView = findViewById(R.id.webView);
         WebSettings settings = webView.getSettings();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
-        }
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setDomStorageEnabled(true);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            settings.setDatabasePath("/data/data/" + webView.getContext().getPackageName() + "/databases/");
-        }
         //settings.setPluginsEnabled(true);
         settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(true);
@@ -97,10 +91,7 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 // 强制在当前 WebView 中加载 url
-                Uri requestUrl = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    requestUrl = request.getUrl();
-                }
+                Uri requestUrl = request.getUrl();
                 String scheme = requestUrl.getScheme();
                 if (
                         scheme.equalsIgnoreCase("http")
@@ -121,7 +112,7 @@ public class SettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.loadUrl("file:///android_asset/web/demo.html");
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
@@ -154,7 +145,7 @@ public class SettingsActivity extends BaseActivity {
 
         @JavascriptInterface
         public void onExit() {
-            runOnUiThread(() -> SettingsActivity.this.finish());
+            runOnUiThread(SettingsActivity.this::finish);
         }
     }
 
@@ -194,7 +185,7 @@ public class SettingsActivity extends BaseActivity {
                     for (ModelField<?> modelField : modelFields.values()) {
                         ModelFieldShowDto newModelField = newModelFields.get(modelField.getCode());
                         if (newModelField != null) {
-                            modelField.setValue(JsonUtil.parseObject(newModelField.getConfigValue(), modelField.getValueType()));
+                            modelField.setConfigValue(newModelField.getConfigValue());
                         }
                     }
                     return "SUCCESS";
