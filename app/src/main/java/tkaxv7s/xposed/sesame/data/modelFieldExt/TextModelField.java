@@ -24,6 +24,16 @@ public class TextModelField extends ModelField<String> {
         return "TEXT";
     }
 
+    @Override
+    public String getConfigValue() {
+        return value;
+    }
+
+    @Override
+    public void setConfigValue(String configValue) {
+        value = configValue;
+    }
+
     @JsonIgnore
     public View getView(Context context) {
         Button btn = new Button(context);
