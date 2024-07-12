@@ -92,6 +92,7 @@ public class AntForestV2 extends ModelTask {
     private ListModelField.ListJoinCommaToStringModelField doubleCardTime;
     @Getter
     private IntegerModelField doubleCountLimit;
+    private BooleanModelField doubleCardConstant;
     private BooleanModelField helpFriendCollect;
     private ChoiceModelField helpFriendCollectType;
     private SelectModelField helpFriendCollectList;
@@ -148,6 +149,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(doubleCard = new BooleanModelField("doubleCard", "双击卡 | 使用", false));
         modelFields.addField(doubleCountLimit = new IntegerModelField("doubleCountLimit", "双击卡 | 使用次数", 6));
         modelFields.addField(doubleCardTime = new ListModelField.ListJoinCommaToStringModelField("doubleCardTime", "双击卡 | 使用时间(范围)", ListUtil.newArrayList("0700-0730")));
+        modelFields.addField(doubleCardConstant = new BooleanModelField("DoubleCardConstant", "双击卡 | 限时双击永动机", false));
         modelFields.addField(returnWater10 = new IntegerModelField("returnWater10", "返水 | 10克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater18 = new IntegerModelField("returnWater18", "返水 | 18克需收能量(关闭:0)", 0));
         modelFields.addField(returnWater33 = new IntegerModelField("returnWater33", "返水 | 33克需收能量(关闭:0)", 0));
@@ -1726,6 +1728,36 @@ public class AntForestV2 extends ModelTask {
                                     propId = propIdList.getString(0);
                                     propType = tmpPropType;
                                     propName = "双击卡";
+                                }
+                            }
+                            if (!"LIMIT_TIME_ENERGY_DOUBLE_CLICK".equals(propType) && doubleCardConstant.getValue()) {
+                                // 兑换限时能量双击卡
+                                jo = new JSONObject(AntForestRpcCall.exchangeBenefit("CR20230516000362", "CR20230516000363"));
+                                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                                    Status.exchangeDoubleCardToday(true);
+                                    Log.forest("活力兑换🎐[限时双击卡]#第" + Status.INSTANCE.getExchangeTimes() + "次");
+
+                                    // 更新道具数据
+                                    jo = new JSONObject(AntForestRpcCall.queryPropList(false));
+                                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                                        forestPropVOList = jo.getJSONArray("forestPropVOList");
+                                        // 遍历限时能量双击卡
+                                        for (int i = 0; i < forestPropVOList.length(); i++) {
+                                            JSONObject forestPropVO = forestPropVOList.getJSONObject(i);
+                                            String tmpPropType = forestPropVO.getString("propType");
+                                            if ("LIMIT_TIME_ENERGY_DOUBLE_CLICK".equals(tmpPropType)) {
+                                                JSONArray propIdList = forestPropVO.getJSONArray("propIdList");
+                                                propId = propIdList.getString(0);
+                                                propType = tmpPropType;
+                                                propName = "限时双击卡";
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Log.record(jo.getString("resultDesc"));
+                                    Log.i(jo.toString());
+                                    Status.exchangeDoubleCardToday(false);
                                 }
                             }
                             if (!StringUtil.isEmpty(propId)) {
