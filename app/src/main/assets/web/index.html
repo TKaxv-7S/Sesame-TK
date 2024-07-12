@@ -142,6 +142,16 @@
               </div>
             </div>
           </van-collapse-item>
+           <van-collapse-item
+            :name="99999"
+            title="致谢"
+          >
+          感谢以下作者及其大佬对本app提供的技术支持
+          特别鸣谢: tkaxv-7s(作者大大 主维护者)
+          感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒
+
+          请自行打包apk的大佬们请勿去掉这行,维护不易,且行且珍惜!
+        </van-collapse-item>
         </van-collapse>
       </div>
 
@@ -198,6 +208,7 @@
 
     <script>
       const { createApp, ref, computed, onMounted } = Vue;
+      const {showToast } = vant;
       createApp({
         setup() {
           // 左侧导航菜单
@@ -223,19 +234,17 @@
           });
 
           function loadList(modelName, code, name, type) {
-            person_list.value.list = JSON.parse(
+            let obj=JSON.parse(
               window.HOOK.getField(modelName, code)
-            ).expandValue.map((item) => {
+            )
+            let configValue=JSON.parse(setData.value[currentTab.value].find((i) => i.code === code).configValue)
+            person_list.value.list = obj.expandValue.map((item) => {
               return {
                 ...item,
-                isChecked: false,
-                count: 0,
+                isChecked:type==="SELECT"?configValue.includes(item.id):configValue.key&&configValue.key.includes(item.id)||false,
+                count:type==="SELECT_AND_COUNT"&&configValue[item.id]||0,
               };
             });
-            console.log(
-              "22222",
-              JSON.parse(window.HOOK.getField(modelName, code))
-            );
             person_list.value.visible = true;
             person_list.value.title = name;
             person_list.value.code = code;
@@ -264,15 +273,12 @@
                 (item) => item.code === person_list.value.code
               ).configValue = JSON.stringify(params);
             } else if (person_list.value.type === "SELECT_AND_COUNT") {
-              let params = {
-                key: {},
-                value: true,
-              };
+              let params = {};
               person_list.value.list
                 .filter((item) => Number(item.count))
                 .forEach((item) => {
-                  params.key = {
-                    ...params.key,
+                  params = {
+                    ...params,
                     [item.id]: Number(item.count),
                   };
                 });
@@ -297,12 +303,12 @@
           }
 
           function handleData() {
+            if(!setData.value) return;
             tabs.value.forEach((item, index) => {
               let params = {};
               setData.value[index].forEach((item) => {
                 params[item.code] = { configValue: item.configValue };
               });
-              console.log("3333", JSON.stringify(params));
               window.HOOK.setModel(item.modelCode, JSON.stringify(params));
             });
           }
@@ -310,9 +316,9 @@
           window.handleData = handleData;
           window.isCanSave = true;
 
-          onMounted(() => {
-            console.log("11111111", setData.value);
-          });
+          // onMounted(() => {
+          //   console.log("11111111", setData.value);
+          // });
 
           return {
             tabs,

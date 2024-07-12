@@ -113,6 +113,7 @@ public class SettingsActivity extends BaseActivity {
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
         webView.loadUrl("file:///android_asset/web/index.html");
+        // webView.loadUrl("http://192.168.31.32:5500/app/src/main/assets/web/index.html");
         webView.requestFocus();
 
         Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();

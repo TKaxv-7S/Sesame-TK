@@ -17,6 +17,11 @@ public class Statistics {
     private TimeStatistics month = new TimeStatistics();
     private TimeStatistics day = new TimeStatistics();
 
+private static final String HEADER_ROW = "\t收\t帮\t浇";
+private static final String ROW_1 = "日\t999\t999\t999";
+private static final String ROW_2 = "月\t999\t999\t999";
+private static final String ROW_3 = "年\t999\t999\t999";
+
     public static void addData(DataType dt, int i) {
         Statistics stat = INSTANCE;
         switch (dt) {
@@ -72,19 +77,13 @@ public class Statistics {
     }
 
     public static String getText() {
-        StringBuilder sb = new StringBuilder(getData(TimeType.YEAR, DataType.TIME) + "年 : 收 ");
-        sb.append(getData(TimeType.YEAR, DataType.COLLECTED));
-        sb.append(",   帮 ").append(getData(TimeType.YEAR, DataType.HELPED));
-        sb.append(",   浇 ").append(getData(TimeType.YEAR, DataType.WATERED));
-        sb.append("\n").append(getData(TimeType.MONTH, DataType.TIME)).append("月 : 收 ");
-        sb.append(getData(TimeType.MONTH, DataType.COLLECTED));
-        sb.append(",   帮 ").append(getData(TimeType.MONTH, DataType.HELPED));
-        sb.append(",   浇 ").append(getData(TimeType.MONTH, DataType.WATERED));
-        sb.append("\n").append(getData(TimeType.DAY, DataType.TIME)).append("日 : 收 ");
-        sb.append(getData(TimeType.DAY, DataType.COLLECTED));
-        sb.append(",   帮 ").append(getData(TimeType.DAY, DataType.HELPED));
-        sb.append(",   浇 ").append(getData(TimeType.DAY, DataType.WATERED));
-        return sb.toString();
+
+        StringBuilder table = new StringBuilder();
+        // 添加表头
+        table.append("年  ").append(getData(TimeType.YEAR, DataType.COLLECTED)).append(" - ").append(getData(TimeType.YEAR, DataType.HELPED)).append(" - ").append(getData(TimeType.YEAR, DataType.WATERED));
+        table.append("\n月  ").append(getData(TimeType.MONTH, DataType.COLLECTED)).append(" - ").append(getData(TimeType.MONTH, DataType.HELPED)).append(" - ").append(getData(TimeType.MONTH, DataType.WATERED));
+        table.append("\n日  ").append(getData(TimeType.DAY, DataType.COLLECTED)).append(" - ").append(getData(TimeType.DAY, DataType.HELPED)).append(" - ").append(getData(TimeType.DAY, DataType.WATERED));
+        return table.toString();
     }
 
     public static synchronized Statistics load() {
