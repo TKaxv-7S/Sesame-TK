@@ -52,9 +52,10 @@ public class ListModelField extends ModelField<List<String>> {
         }
 
         @Override
-        public Object fromConfigValue(String configValue) {
+        public void setConfigValue(String configValue) {
             if (configValue == null) {
-                return null;
+                reset();
+                return;
             }
             List<String> list = new ArrayList<>();
             String[] split = configValue.split(",");
@@ -70,11 +71,11 @@ public class ListModelField extends ModelField<List<String>> {
                     }
                 }
             }
-            return list;
+            value = list;
         }
 
         @Override
-        public String toConfigValue(List<String> value) {
+        public String getConfigValue() {
             return String.join(",", value);
         }
     }

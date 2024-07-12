@@ -8,14 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.ui.ListDialog;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,9 +23,6 @@ import java.util.Set;
  * List<? extends IdAndName> 需要选择的数据
  */
 public class SelectModelField extends ModelField<Set<String>> implements SelectModelFieldFunc {
-
-    private static final TypeReference<LinkedHashSet<String>> typeReference = new TypeReference<LinkedHashSet<String>>() {
-    };
 
     private SelectListFunc selectListFunc;
 
