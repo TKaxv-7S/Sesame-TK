@@ -219,7 +219,7 @@ public class ConfigV2 {
     }
 
     public static String toSaveStr() {
-        return JsonUtil.toJsonString(INSTANCE);
+        return JsonUtil.toFormatJsonString(INSTANCE);
     }
 
 }

@@ -143,7 +143,7 @@ public class UserIdMap {
     }
 
     public synchronized static boolean save(String userId) {
-        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(userMap), FileUtil.getFriendIdMapFile(userId));
+        return FileUtil.write2File(JsonUtil.toJsonString(userMap), FileUtil.getFriendIdMapFile(userId));
     }
 
     public synchronized static void loadSelf(String userId) {
@@ -161,7 +161,7 @@ public class UserIdMap {
     }
 
     public synchronized static boolean saveSelf(UserEntity userEntity) {
-        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(userEntity), FileUtil.getSelfIdFile(userEntity.getUserId()));
+        return FileUtil.write2File(JsonUtil.toJsonString(userEntity), FileUtil.getSelfIdFile(userEntity.getUserId()));
     }
 
 }

@@ -39,7 +39,7 @@ public class CooperationIdMap {
     }
 
     public static synchronized boolean save(String userId) {
-        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(idMap), FileUtil.getCooperationIdMapFile(userId));
+        return FileUtil.write2File(JsonUtil.toJsonString(idMap), FileUtil.getCooperationIdMapFile(userId));
     }
 
 }

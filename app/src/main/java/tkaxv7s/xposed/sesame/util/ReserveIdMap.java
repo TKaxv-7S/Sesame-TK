@@ -43,7 +43,7 @@ public class ReserveIdMap {
     }
 
     public synchronized static boolean save() {
-        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(idMap), FileUtil.getReserveIdMapFile());
+        return FileUtil.write2File(JsonUtil.toJsonString(idMap), FileUtil.getReserveIdMapFile());
     }
 
     public synchronized static void clear() {
