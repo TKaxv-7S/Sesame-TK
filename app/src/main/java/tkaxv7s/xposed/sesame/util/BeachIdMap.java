@@ -43,7 +43,7 @@ public class BeachIdMap {
     }
 
     public synchronized static boolean save() {
-        return FileUtil.write2File(JsonUtil.toNoFormatJsonString(idMap), FileUtil.getBeachIdMapFile());
+        return FileUtil.write2File(JsonUtil.toJsonString(idMap), FileUtil.getBeachIdMapFile());
     }
 
     public synchronized static void clear() {
