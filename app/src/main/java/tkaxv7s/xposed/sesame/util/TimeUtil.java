@@ -187,9 +187,8 @@ public class TimeUtil {
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
-        } catch (Exception e) {
-            Log.i("sleep error:");
-            Log.printStackTrace(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

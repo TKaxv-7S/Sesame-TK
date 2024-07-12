@@ -23,7 +23,7 @@ public class ModelFieldInfoDto implements Serializable {
     public ModelFieldInfoDto() {
     }
 
-    public static ModelFieldInfoDto toInfoDto(ModelField modelField) {
+    public static ModelFieldInfoDto toInfoDto(ModelField<?> modelField) {
         ModelFieldInfoDto dto = new ModelFieldInfoDto();
         dto.setCode(modelField.getCode());
         dto.setName(modelField.getName());

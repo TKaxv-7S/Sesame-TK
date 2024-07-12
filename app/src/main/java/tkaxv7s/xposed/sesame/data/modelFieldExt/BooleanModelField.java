@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import tkaxv7s.xposed.sesame.data.ModelField;
-import tkaxv7s.xposed.sesame.util.JsonUtil;
 
 public class BooleanModelField extends ModelField<Boolean> {
 
@@ -18,14 +17,6 @@ public class BooleanModelField extends ModelField<Boolean> {
     @Override
     public String getType() {
         return "BOOLEAN";
-    }
-
-    @Override
-    public void setObjectValue(Object value) {
-        if (value == null) {
-            value = defaultValue;
-        }
-        this.value = JsonUtil.parseObject(value, Boolean.class);
     }
 
     @Override

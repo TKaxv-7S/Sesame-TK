@@ -125,22 +125,18 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                 }
                                 if (!init) {
                                     if (canInit) {
-                                        mainHandler.post(() -> {
-                                            if (initHandler(true)) {
-                                                init = true;
-                                            }
-                                        });
+                                        if (initHandler(true)) {
+                                            init = true;
+                                        }
                                     }
                                     return;
                                 }
                                 String currentUid = UserIdMap.getCurrentUid();
                                 if (!targetUid.equals(currentUid)) {
                                     if (currentUid != null) {
-                                        mainHandler.post(() -> {
-                                            initHandler(true);
-                                            Log.record("用户已切换");
-                                            Toast.show("用户已切换");
-                                        });
+                                        initHandler(true);
+                                        Log.record("用户已切换");
+                                        Toast.show("用户已切换");
                                         return;
                                     }
                                     UserIdMap.initUser(targetUid);
@@ -685,12 +681,20 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return rpcBridge.requestString(method, data, relation);
     }
 
+    public static String requestString(String method, String data, String relation, Long time) {
+        return rpcBridge.requestString(method, data, relation, time);
+    }
+
     public static String requestString(String method, String data, int tryCount, int retryInterval) {
         return rpcBridge.requestString(method, data, tryCount, retryInterval);
     }
 
     public static String requestString(String method, String data, String relation, int tryCount, int retryInterval) {
         return rpcBridge.requestString(method, data, relation, tryCount, retryInterval);
+    }
+
+    public static String requestString(String method, String data, String relation, Long time, int tryCount, int retryInterval) {
+        return rpcBridge.requestString(method, data, relation, time, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(RpcEntity rpcEntity) {
@@ -709,12 +713,20 @@ public class ApplicationHook implements IXposedHookLoadPackage {
         return rpcBridge.requestObject(method, data, relation);
     }
 
+    public static RpcEntity requestObject(String method, String data, String relation, Long time) {
+        return rpcBridge.requestObject(method, data, relation, time);
+    }
+
     public static RpcEntity requestObject(String method, String data, int tryCount, int retryInterval) {
         return rpcBridge.requestObject(method, data, tryCount, retryInterval);
     }
 
     public static RpcEntity requestObject(String method, String data, String relation, int tryCount, int retryInterval) {
         return rpcBridge.requestObject(method, data, relation, tryCount, retryInterval);
+    }
+
+    public static RpcEntity requestObject(String method, String data, String relation, Long time, int tryCount, int retryInterval) {
+        return rpcBridge.requestObject(method, data, relation, time, tryCount, retryInterval);
     }
 
     public static void reLoginByBroadcast() {
