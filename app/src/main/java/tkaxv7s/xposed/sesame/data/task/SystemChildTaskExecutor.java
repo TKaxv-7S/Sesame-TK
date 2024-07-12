@@ -93,7 +93,7 @@ public class SystemChildTaskExecutor implements ChildTaskExecutor {
     @Override
     public Boolean clearAllChildTask() {
         for (ThreadPoolExecutor threadPoolExecutor : groupChildTaskExecutorMap.values()) {
-            ThreadUtil.shutdownAndAwaitTermination(threadPoolExecutor, 3, TimeUnit.SECONDS);
+            ThreadUtil.shutdownNow(threadPoolExecutor);
         }
         groupChildTaskExecutorMap.clear();
         return true;

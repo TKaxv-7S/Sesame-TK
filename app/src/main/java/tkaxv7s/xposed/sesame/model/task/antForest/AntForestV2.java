@@ -2453,7 +2453,7 @@ public class AntForestV2 extends ModelTask {
                     }
                 }
                 Log.record("执行蹲点收取[" + userName + "]");
-                collectEnergy(new CollectEnergyEntity(userId, null, AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId)), true);
+                collectEnergy(new CollectEnergyEntity(userId, null, AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId, produceTime)), true);
             };
         }
     }
