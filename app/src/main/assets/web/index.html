@@ -49,7 +49,7 @@
     <script src="./JS/vue3.js"></script>
     <script src="./JS/vant.js"></script>
     <div id="app">
-      <div class="content">
+      <div class="content" v-if="tabs&&setData">
         <van-collapse v-model="currentTab" accordion>
           <van-collapse-item
             :name="tabs_index"
@@ -142,16 +142,16 @@
               </div>
             </div>
           </van-collapse-item>
-           <van-collapse-item
+           <!-- <van-collapse-item
             :name="99999"
             title="致谢"
           >
           感谢以下作者及其大佬对本app提供的技术支持
           特别鸣谢: tkaxv-7s(作者大大 主维护者)
-          感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒
+          感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒ 、一个没有名字的QQ
 
           请自行打包apk的大佬们请勿去掉这行,维护不易,且行且珍惜!
-        </van-collapse-item>
+        </van-collapse-item> -->
         </van-collapse>
       </div>
 
