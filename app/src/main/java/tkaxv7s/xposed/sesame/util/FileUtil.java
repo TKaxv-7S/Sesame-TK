@@ -389,7 +389,7 @@ public class FileUtil {
                 file.delete();
             }
         } else {
-            write2File(JsonUtil.toJsonString(new JSONObject()), file);
+            write2File(JsonUtil.toFormatJsonString(new JSONObject()), file);
         }
         return file;
     }
@@ -399,7 +399,7 @@ public class FileUtil {
             File certCountFile = getCertCountFile(userId);
             JSONObject jo_certCount = new JSONObject(readFromFile(certCountFile));
             jo_certCount.put(dateString, Integer.toString(certCount));
-            write2File(JsonUtil.toJsonString(jo_certCount), certCountFile);
+            write2File(JsonUtil.toFormatJsonString(jo_certCount), certCountFile);
         } catch (Throwable ignored) {
         }
     }

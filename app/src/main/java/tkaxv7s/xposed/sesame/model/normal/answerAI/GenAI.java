@@ -69,6 +69,7 @@ public class GenAI implements AnswerAIInterface {
             String json = response.body().string();
             if (!response.isSuccessful()) {
                 Log.other("Gemini请求失败");
+                Log.i("Gemini接口异常：" + json);
                 //可能key出错了
                 return result;
             }

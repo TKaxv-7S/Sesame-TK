@@ -650,7 +650,7 @@ public class Status {
             if (statusFile.exists()) {
                 String json = FileUtil.readFromFile(statusFile);
                 JsonUtil.copyMapper().readerForUpdating(INSTANCE).readValue(json);
-                String formatted = JsonUtil.toJsonString(INSTANCE);
+                String formatted = JsonUtil.toFormatJsonString(INSTANCE);
                 if (formatted != null && !formatted.equals(json)) {
                     Log.i(TAG, "重新格式化 status.json");
                     Log.system(TAG, "重新格式化 status.json");
@@ -660,7 +660,7 @@ public class Status {
                 JsonUtil.copyMapper().updateValue(INSTANCE, new Status());
                 Log.i(TAG, "初始化 status.json");
                 Log.system(TAG, "初始化 status.json");
-                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
+                FileUtil.write2File(JsonUtil.toFormatJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
             }
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
@@ -668,7 +668,7 @@ public class Status {
             Log.system(TAG, "状态文件格式有误，已重置");
             try {
                 JsonUtil.copyMapper().updateValue(INSTANCE, new Status());
-                FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
+                FileUtil.write2File(JsonUtil.toFormatJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
             } catch (JsonMappingException e) {
                 Log.printStackTrace(TAG, e);
             }
@@ -705,7 +705,7 @@ public class Status {
         long lastSaveTime = INSTANCE.saveTime;
         try {
             INSTANCE.saveTime = System.currentTimeMillis();
-            FileUtil.write2File(JsonUtil.toJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
+            FileUtil.write2File(JsonUtil.toFormatJsonString(INSTANCE), FileUtil.getStatusFile(currentUid));
         } catch (Exception e){
             INSTANCE.saveTime = lastSaveTime;
             throw e;

@@ -21,7 +21,13 @@ public class ThreadUtil {
         }
     }
 
-    public boolean shutdownNow(ExecutorService pool) {
+    public static void shutdownNow(ExecutorService pool) {
+        if (pool != null && !pool.isShutdown()) {
+            pool.shutdownNow();
+        }
+    }
+
+    public boolean shutdownAndAwaitTermination(ExecutorService pool) {
         try {
             shutdownAndAwaitTermination(pool, 30, TimeUnit.SECONDS);
         } catch (Exception e) {

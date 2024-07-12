@@ -84,7 +84,7 @@ public class ModelField<T> implements Serializable {
 
     @JsonIgnore
     public final String getConfigValue() {
-        return JsonUtil.toNoFormatJsonString(toConfigValue(value));
+        return JsonUtil.toJsonString(toConfigValue(value));
     }
 
     @JsonIgnore
