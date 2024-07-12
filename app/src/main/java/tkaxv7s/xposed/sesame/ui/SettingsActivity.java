@@ -181,11 +181,12 @@ public class SettingsActivity extends BaseActivity {
             if (modelConfig != null) {
                 try {
                     ModelFields modelFields = modelConfig.getFields();
-                    List<ModelFieldShowDto> list = JsonUtil.parseObject(fieldsValue, new TypeReference<List<ModelFieldShowDto>>() {
+                    Map<String, ModelFieldShowDto> map = JsonUtil.parseObject(fieldsValue, new TypeReference<Map<String, ModelFieldShowDto>>() {
                     });
-                    for (ModelFieldShowDto newModelField : list) {
+                    for (Map.Entry<String, ModelFieldShowDto> entry : map.entrySet()) {
+                        ModelFieldShowDto newModelField = entry.getValue();
                         if (newModelField != null) {
-                            ModelField<?> modelField = modelFields.get(newModelField.getCode());
+                            ModelField<?> modelField = modelFields.get(entry.getKey());
                             if (modelField != null) {
                                 modelField.setConfigValue(newModelField.getConfigValue());
                             }
