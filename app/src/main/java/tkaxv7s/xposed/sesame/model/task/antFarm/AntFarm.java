@@ -1792,7 +1792,7 @@ public class AntFarm extends ModelTask {
             }
         } while (doubleCheck);
         try {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 3; i++) {
                 String s = AntFarmRpcCall.enterDrawMachine();
                 TimeUtil.sleep(1000L);
                 JSONObject jo = new JSONObject(s);
