@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
@@ -19,9 +18,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class SelectAndCountOneModelField extends ModelField<KVNode<String, Integer>> implements SelectModelFieldFunc {
-
-    private static final TypeReference<KVNode<String, Integer>> typeReference = new TypeReference<KVNode<String, Integer>>() {
-    };
 
     private SelectListFunc selectListFunc;
 

@@ -8,14 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.ui.ListDialog;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +23,6 @@ import java.util.Map;
  * List<? extends IdAndName> 需要选择的数据
  */
 public class SelectAndCountModelField extends ModelField<Map<String, Integer>> implements SelectModelFieldFunc {
-
-    private static final TypeReference<LinkedHashMap<String, Integer>> typeReference = new TypeReference<LinkedHashMap<String, Integer>>() {
-    };
 
     private SelectListFunc selectListFunc;
 
