@@ -175,11 +175,11 @@ public class SettingsActivity extends BaseActivity {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {
                 ModelFields modelFields = modelConfig.getFields();
-                List<ModelFieldShowDto> list = new ArrayList<>();
+                ModelFieldsDto modelFieldsDto = new ModelFieldsDto();
                 for (ModelField<?> modelField : modelFields.values()) {
-                    list.add(ModelFieldShowDto.toShowDto(modelField));
+                    modelFieldsDto.addField(ModelFieldShowDto.toShowDto(modelField));
                 }
-                return JsonUtil.toNoFormatJsonString(list);
+                return JsonUtil.toNoFormatJsonString(modelFieldsDto);
             }
             return null;
         }
