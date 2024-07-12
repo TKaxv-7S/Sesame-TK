@@ -10,13 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.*;
 import android.widget.Toast;
+import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.ui.dto.ModelDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldInfoDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldShowDto;
-import tkaxv7s.xposed.sesame.ui.dto.ModelFieldsDto;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
@@ -166,11 +166,11 @@ public class SettingsActivity extends BaseActivity {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {
                 ModelFields modelFields = modelConfig.getFields();
-                ModelFieldsDto modelFieldsDto = new ModelFieldsDto();
+                List<ModelFieldShowDto> list = new ArrayList<>();
                 for (ModelField<?> modelField : modelFields.values()) {
-                    modelFieldsDto.addField(ModelFieldShowDto.toShowDto(modelField));
+                    list.add(ModelFieldShowDto.toShowDto(modelField));
                 }
-                return JsonUtil.toJsonString(modelFieldsDto);
+                return JsonUtil.toJsonString(list);
             }
             return null;
         }
@@ -181,11 +181,14 @@ public class SettingsActivity extends BaseActivity {
             if (modelConfig != null) {
                 try {
                     ModelFields modelFields = modelConfig.getFields();
-                    ModelFieldsDto newModelFields = JsonUtil.parseObject(fieldsValue, ModelFieldsDto.class);
-                    for (ModelField<?> modelField : modelFields.values()) {
-                        ModelFieldShowDto newModelField = newModelFields.get(modelField.getCode());
+                    List<ModelFieldShowDto> list = JsonUtil.parseObject(fieldsValue, new TypeReference<List<ModelFieldShowDto>>() {
+                    });
+                    for (ModelFieldShowDto newModelField : list) {
                         if (newModelField != null) {
-                            modelField.setConfigValue(newModelField.getConfigValue());
+                            ModelField<?> modelField = modelFields.get(newModelField.getCode());
+                            if (modelField != null) {
+                                modelField.setConfigValue(newModelField.getConfigValue());
+                            }
                         }
                     }
                     return "SUCCESS";
