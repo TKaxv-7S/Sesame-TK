@@ -29,9 +29,9 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.model.task.antMember.AntMemberRpcCall;
-import tkaxv7s.xposed.sesame.rpc.NewRpcBridge;
-import tkaxv7s.xposed.sesame.rpc.OldRpcBridge;
-import tkaxv7s.xposed.sesame.rpc.RpcBridge;
+import tkaxv7s.xposed.sesame.rpc.bridge.NewRpcBridge;
+import tkaxv7s.xposed.sesame.rpc.bridge.OldRpcBridge;
+import tkaxv7s.xposed.sesame.rpc.bridge.RpcBridge;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.text.SimpleDateFormat;

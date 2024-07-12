@@ -16,15 +16,15 @@ public class AntForestRpcCall {
         return String.valueOf(System.currentTimeMillis()) + RandomUtil.nextLong();
     }
 
-    public static String fillUserRobFlag(String userIdList) {
-        return ApplicationHook.requestString("alipay.antforest.forest.h5.fillUserRobFlag",
-                "[{\"userIdList\":" + userIdList + "}]", "{\"pathList\":[\"friendRanking\"]}");
-    }
-
     public static String queryEnergyRanking() {
         return ApplicationHook.requestString("alipay.antmember.forest.h5.queryEnergyRanking",
                 "[{\"periodType\":\"total\",\"rankType\":\"energyRank\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
                         + VERSION + "\"}]", "{\"pathList\":[\"friendRanking\",\"myself\",\"totalDatas\"]}");
+    }
+
+    public static String fillUserRobFlag(String userIdList) {
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.fillUserRobFlag",
+                "[{\"userIdList\":" + userIdList + "}]", "{\"pathList\":[\"friendRanking\"]}");
     }
 
     public static String queryHomePage(Boolean skipWhackMole) {

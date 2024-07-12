@@ -10,12 +10,17 @@ import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
-import tkaxv7s.xposed.sesame.entity.*;
+import tkaxv7s.xposed.sesame.entity.AlipayUser;
+import tkaxv7s.xposed.sesame.entity.CollectEnergyEntity;
+import tkaxv7s.xposed.sesame.entity.FriendWatch;
+import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.hook.Toast;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm.TaskStatus;
+import tkaxv7s.xposed.sesame.rpc.intervallimit.FixedOrRangeIntervalLimit;
+import tkaxv7s.xposed.sesame.rpc.intervallimit.RpcIntervalLimit;
 import tkaxv7s.xposed.sesame.ui.ObjReference;
 import tkaxv7s.xposed.sesame.util.*;
 
@@ -62,11 +67,9 @@ public class AntForestV2 extends ModelTask {
 
     private Integer retryIntervalInt;
 
-    private FixedOrRangeIntervalEntity queryIntervalEntity;
+    private FixedOrRangeIntervalLimit collectIntervalEntity;
 
-    private FixedOrRangeIntervalEntity collectIntervalEntity;
-
-    private FixedOrRangeIntervalEntity doubleCollectIntervalEntity;
+    private FixedOrRangeIntervalLimit doubleCollectIntervalEntity;
 
     private volatile long doubleEndTime = 0;
 
@@ -205,6 +208,22 @@ public class AntForestV2 extends ModelTask {
     }
 
     @Override
+    public void boot(ClassLoader classLoader) {
+        super.boot(classLoader);
+        FixedOrRangeIntervalLimit queryIntervalLimit = new FixedOrRangeIntervalLimit(queryInterval.getValue(), 10, 10000);
+        RpcIntervalLimit.addIntervalLimit("alipay.antforest.forest.h5.queryHomePage", queryIntervalLimit);
+        RpcIntervalLimit.addIntervalLimit("alipay.antforest.forest.h5.queryFriendHomePage", queryIntervalLimit);
+        RpcIntervalLimit.addIntervalLimit("alipay.antmember.forest.h5.collectEnergy", 0);
+        RpcIntervalLimit.addIntervalLimit("alipay.antmember.forest.h5.queryEnergyRanking", 100);
+        RpcIntervalLimit.addIntervalLimit("alipay.antforest.forest.h5.fillUserRobFlag", 500);
+        tryCountInt = tryCount.getValue();
+        retryIntervalInt = retryInterval.getValue();
+        dontCollectMap = dontCollectList.getValue();
+        collectIntervalEntity = new FixedOrRangeIntervalLimit(collectInterval.getValue(), 50, 10000);
+        doubleCollectIntervalEntity = new FixedOrRangeIntervalLimit(doubleCollectInterval.getValue(), 10, 5000);
+    }
+
+    @Override
     public void run() {
         try {
             Log.record("执行开始-蚂蚁森林");
@@ -212,13 +231,6 @@ public class AntForestV2 extends ModelTask {
 
             taskCount.set(0);
             selfId = UserIdMap.getCurrentUid();
-            tryCountInt = tryCount.getValue();
-            retryIntervalInt = retryInterval.getValue();
-            dontCollectMap = dontCollectList.getValue();
-
-            queryIntervalEntity = new FixedOrRangeIntervalEntity(queryInterval.getValue(), 10, 10000);
-            collectIntervalEntity = new FixedOrRangeIntervalEntity(collectInterval.getValue(), 50, 10000);
-            doubleCollectIntervalEntity = new FixedOrRangeIntervalEntity(doubleCollectInterval.getValue(), 10, 5000);
 
             if (!balanceNetworkDelay.getValue()) {
                 offsetTime.set(0);
@@ -351,10 +363,6 @@ public class AntForestV2 extends ModelTask {
     }
 
     private JSONObject querySelfHome() {
-        return querySelfHome(queryIntervalEntity.getInterval());
-    }
-
-    private JSONObject querySelfHome(Integer interval) {
         JSONObject userHomeObject = null;
         try {
             if (balanceNetworkDelay.getValue()) {
@@ -369,19 +377,11 @@ public class AntForestV2 extends ModelTask {
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
-        } finally {
-            if (interval > 0) {
-                TimeUtil.sleep(interval);
-            }
         }
         return userHomeObject;
     }
 
     private JSONObject queryFriendHome(String userId) {
-        return queryFriendHome(userId, queryIntervalEntity.getInterval());
-    }
-
-    private JSONObject queryFriendHome(String userId, Integer interval) {
         JSONObject userHomeObject = null;
         try {
             if (balanceNetworkDelay.getValue()) {
@@ -396,44 +396,30 @@ public class AntForestV2 extends ModelTask {
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
-        } finally {
-            if (interval > 0) {
-                TimeUtil.sleep(interval);
-            }
         }
         return userHomeObject;
     }
 
     private JSONObject collectSelfEnergy() {
         try {
-            JSONObject userHomeObject = querySelfHome(0);
+            JSONObject userHomeObject = querySelfHome();
             if (userHomeObject != null) {
                 return collectUserEnergy(UserIdMap.getCurrentUid(), userHomeObject);
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
-        } finally {
-            Integer interval = queryIntervalEntity.getInterval();
-            if (interval > 0) {
-                TimeUtil.sleep(interval);
-            }
         }
         return null;
     }
 
     private JSONObject collectFriendEnergy(String userId) {
         try {
-            JSONObject userHomeObject = queryFriendHome(userId, 0);
+            JSONObject userHomeObject = queryFriendHome(userId);
             if (userHomeObject != null) {
                 return collectUserEnergy(userId, userHomeObject);
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
-        } finally {
-            Integer interval = queryIntervalEntity.getInterval();
-            if (interval > 0) {
-                TimeUtil.sleep(interval);
-            }
         }
         return null;
     }
@@ -698,8 +684,6 @@ public class AntForestV2 extends ModelTask {
             collectFriendsEnergy(new JSONObject(AntForestRpcCall.fillUserRobFlag(new JSONArray(idList).toString())));
         } catch (Exception e) {
             Log.printStackTrace(e);
-        } finally {
-            TimeUtil.sleep(500);
         }
     }
 
