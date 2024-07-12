@@ -24,14 +24,6 @@ public class StringModelField extends ModelField<String> {
     }
 
     @Override
-    public void setObjectValue(Object value) {
-        if (value == null) {
-            value = defaultValue;
-        }
-        this.value = String.valueOf(value);
-    }
-
-    @Override
     public View getView(Context context) {
         Button btn = new Button(context);
         btn.setText(getName());

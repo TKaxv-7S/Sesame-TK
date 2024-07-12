@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
-import tkaxv7s.xposed.sesame.util.JsonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +27,6 @@ public class ListModelField extends ModelField<List<String>> {
     @Override
     public String getType() {
         return "LIST";
-    }
-
-    @Override
-    public void setObjectValue(Object value) {
-        if (value == null) {
-            value = defaultValue;
-        }
-        this.value = JsonUtil.parseObject(value, typeReference);
     }
 
     @Override
@@ -61,13 +52,12 @@ public class ListModelField extends ModelField<List<String>> {
         }
 
         @Override
-        public void setConfigValue(String value) {
-            if (value == null) {
-                setObjectValue(null);
-                return;
+        public Object fromConfigValue(String configValue) {
+            if (configValue == null) {
+                return null;
             }
             List<String> list = new ArrayList<>();
-            String[] split = value.split(",");
+            String[] split = configValue.split(",");
             if (split.length == 1) {
                 String str = split[0];
                 if (!str.isEmpty()) {
@@ -80,12 +70,12 @@ public class ListModelField extends ModelField<List<String>> {
                     }
                 }
             }
-            setObjectValue(list);
+            return list;
         }
 
         @Override
-        public String getConfigValue() {
-            return String.join(",", getValue());
+        public String toConfigValue(List<String> value) {
+            return String.join(",", value);
         }
     }
 
