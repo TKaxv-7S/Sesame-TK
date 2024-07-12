@@ -368,7 +368,7 @@ public class GreenFinance extends ModelTask {
                     }
                     JSONObject result = jsonObject.getJSONObject("result");
                     if (result.getBoolean("lastPage")) {
-                        Log.other("绿色经营🙋，好友的金币已全部巡查完毕~");
+                        Log.other("绿色经营🙋，好友金币巡查完成");
                         Status.greenFinancePointFriend();
                         return;
                     }
