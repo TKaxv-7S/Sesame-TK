@@ -68,7 +68,10 @@
             </template>
 
             <div class="content-box">
-              <div v-for="(item,index) in setData[currentTab]" :key="index">
+              <div
+                v-for="(item,index) in setData[currentTab]"
+                :key="item.name+index"
+              >
                 <div
                   class="flex-space-between pdTB8"
                   v-if="item.type==='BOOLEAN'"
@@ -118,7 +121,7 @@
                         icon-size="16px"
                         :name="_index+''"
                         v-for="(_item,_index) in item.expandKey"
-                        :key="_index"
+                        :key="_item+_index"
                         >{{_item}}</van-radio
                       >
                     </van-radio-group>
@@ -148,7 +151,7 @@
         :title="person_list.title"
         :showConfirmButton="false"
         :showCancelButton="false"
-        @confirm="dialogSureBtn"
+        @confirm="handleSubmitBtn"
       >
         <div class="flex-space-between">
           <div>
@@ -249,7 +252,7 @@
             });
           }
 
-          function dialogSureBtn() {
+          function handleSubmitBtn() {
             if (person_list.value.type === "SELECT") {
               let params = [];
               person_list.value.list
@@ -318,7 +321,7 @@
             person_list,
             loadList,
             changeAll,
-            dialogSureBtn,
+            handleSubmitBtn,
             clearValue,
           };
         },
