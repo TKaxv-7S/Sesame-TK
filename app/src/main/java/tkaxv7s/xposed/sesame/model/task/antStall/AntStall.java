@@ -578,13 +578,18 @@ public class AntStall extends ModelTask {
                             }
                             TimeUtil.sleep(5000);
                             for (int j = 0; j < jsonArray.length(); j++) {
-                                JSONObject jsonObject = jsonArray.getJSONObject(j);
-                                s = AntStallRpcCall.finish(pid, jsonObject);
-                                jo = new JSONObject(s);
-                                if (!jo.getBoolean("success")) {
-                                    Log.i(TAG, "taskList.finish err:" + jo.optString("resultDesc"));
+                                try{
+                                    JSONObject jsonObject = jsonArray.getJSONObject(j);
+                                    s = AntStallRpcCall.finish(pid, jsonObject);
+                                    TimeUtil.sleep(5000);
+                                    jo = new JSONObject(s);
+                                    if (!jo.getBoolean("success")) {
+                                        Log.i(TAG, "taskList.finish err:" + jo.optString("resultDesc"));
+                                    }
+                                } catch (Throwable t) {
+                                    Log.i(TAG, "taskList for err:");
+                                    Log.printStackTrace(TAG, t);
                                 }
-                                TimeUtil.sleep(5000);
                             }
                             break;
                     }
