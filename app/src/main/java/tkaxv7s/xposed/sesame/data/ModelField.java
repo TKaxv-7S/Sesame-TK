@@ -11,10 +11,12 @@ import android.widget.Toast;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.TypeUtil;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 @Data
 public class ModelField<T> implements Serializable {
@@ -49,8 +51,12 @@ public class ModelField<T> implements Serializable {
         setObjectValue(value);
     }
 
-    public void setObjectValue(Object value) {
-        this.value = (T) value;
+    public void setObjectValue(Object objectValue) {
+        if (objectValue == null) {
+            reset();
+            return;
+        }
+        value = JsonUtil.parseObject(objectValue, valueType);
     }
 
     @JsonIgnore
@@ -68,14 +74,31 @@ public class ModelField<T> implements Serializable {
         return null;
     }
 
-    @JsonIgnore
-    public String getConfigValue() {
-        return String.valueOf(getValue());
+    public Object toConfigValue(T value) {
+        return value;
+    }
+
+    public Object fromConfigValue(String value) {
+        return value;
     }
 
     @JsonIgnore
-    public void setConfigValue(String value) {
-        setObjectValue(value);
+    public final String getConfigValue() {
+        return JsonUtil.toNoFormatJsonString(toConfigValue(value));
+    }
+
+    @JsonIgnore
+    public final void setConfigValue(String configValue) {
+        if (configValue == null) {
+            reset();
+            return;
+        }
+        Object objectValue = fromConfigValue(configValue);
+        if (Objects.equals(objectValue, configValue)) {
+            value = JsonUtil.parseObject(configValue, valueType);
+        } else {
+            value = JsonUtil.parseObject(objectValue, valueType);
+        }
     }
 
     public void reset() {

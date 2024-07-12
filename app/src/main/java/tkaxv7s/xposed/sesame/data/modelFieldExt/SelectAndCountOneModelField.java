@@ -14,7 +14,6 @@ import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.IdAndName;
 import tkaxv7s.xposed.sesame.entity.KVNode;
 import tkaxv7s.xposed.sesame.ui.ListDialog;
-import tkaxv7s.xposed.sesame.util.JsonUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -45,18 +44,6 @@ public class SelectAndCountOneModelField extends ModelField<KVNode<String, Integ
 
     public List<? extends IdAndName> getExpandValue() {
         return selectListFunc == null ? expandValue : selectListFunc.getList();
-    }
-
-    @Override
-    public void setObjectValue(Object value) {
-        if (value == null) {
-            value = defaultValue;
-        }
-        this.value = JsonUtil.parseObject(value, typeReference);
-    }
-
-    public String getConfigValue() {
-        return JsonUtil.toNoFormatJsonString(value);
     }
 
     @Override

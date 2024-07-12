@@ -14,6 +14,8 @@ import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
 import tkaxv7s.xposed.sesame.util.Log;
 
+import java.util.List;
+
 @Getter
 public class IntegerModelField extends ModelField<Integer> {
 
@@ -92,23 +94,23 @@ public class IntegerModelField extends ModelField<Integer> {
         }
 
         @Override
-        public void setConfigValue(String value) {
-            if (value == null) {
-                setObjectValue(null);
-                return;
+        public Object fromConfigValue(String configValue) {
+            if (configValue == null) {
+                return null;
             }
             try {
-                setObjectValue(Integer.parseInt(value) * multiple);
+                return Integer.parseInt(configValue) * multiple;
             } catch (Exception e) {
                 Log.printStackTrace(e);
-                setObjectValue(null);
             }
+            return null;
         }
 
         @Override
-        public String getConfigValue() {
-            return String.valueOf(getValue() / multiple);
+        public String toConfigValue(Integer value) {
+            return String.valueOf(value / multiple);
         }
+
     }
 
 }

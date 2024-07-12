@@ -21,7 +21,7 @@ public class ModelFieldShowDto implements Serializable {
     public ModelFieldShowDto() {
     }
 
-    public static ModelFieldShowDto toShowDto(ModelField modelField) {
+    public static ModelFieldShowDto toShowDto(ModelField<?> modelField) {
         ModelFieldShowDto dto = new ModelFieldShowDto();
         dto.setCode(modelField.getCode());
         dto.setName(modelField.getName());

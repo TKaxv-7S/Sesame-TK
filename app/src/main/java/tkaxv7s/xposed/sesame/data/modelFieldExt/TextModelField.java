@@ -24,14 +24,6 @@ public class TextModelField extends ModelField<String> {
         return "TEXT";
     }
 
-    @Override
-    public void setObjectValue(Object value) {
-        if (value == null) {
-            value = defaultValue;
-        }
-        this.value = String.valueOf(value);
-    }
-
     @JsonIgnore
     public View getView(Context context) {
         Button btn = new Button(context);
