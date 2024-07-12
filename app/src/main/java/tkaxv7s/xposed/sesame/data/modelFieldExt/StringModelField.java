@@ -24,6 +24,16 @@ public class StringModelField extends ModelField<String> {
     }
 
     @Override
+    public String getConfigValue() {
+        return value;
+    }
+
+    @Override
+    public void setConfigValue(String configValue) {
+        value = configValue;
+    }
+
+    @Override
     public View getView(Context context) {
         Button btn = new Button(context);
         btn.setText(getName());

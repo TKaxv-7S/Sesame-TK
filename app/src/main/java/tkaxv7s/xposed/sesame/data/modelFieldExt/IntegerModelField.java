@@ -14,8 +14,6 @@ import tkaxv7s.xposed.sesame.data.ModelField;
 import tkaxv7s.xposed.sesame.ui.StringDialog;
 import tkaxv7s.xposed.sesame.util.Log;
 
-import java.util.List;
-
 @Getter
 public class IntegerModelField extends ModelField<Integer> {
 
@@ -41,13 +39,18 @@ public class IntegerModelField extends ModelField<Integer> {
     }
 
     @Override
-    public void setObjectValue(Object value) {
+    public String getConfigValue() {
+        return String.valueOf(value);
+    }
+
+    @Override
+    public void setConfigValue(String configValue) {
         Integer newValue;
-        if (value == null) {
+        if (configValue == null) {
             newValue = defaultValue;
         } else {
             try {
-                newValue = Integer.parseInt(value.toString());
+                newValue = Integer.parseInt(configValue);
             } catch (Exception e) {
                 Log.printStackTrace(e);
                 newValue = defaultValue;
@@ -84,7 +87,7 @@ public class IntegerModelField extends ModelField<Integer> {
         private final Integer multiple;
 
         public MultiplyIntegerModelField(String code, String name, Integer value, Integer minLimit, Integer maxLimit, Integer multiple) {
-            super(code, name, value * multiple, minLimit * multiple, maxLimit * multiple);
+            super(code, name, value * multiple, minLimit, maxLimit);
             this.multiple = multiple;
         }
 
@@ -94,20 +97,19 @@ public class IntegerModelField extends ModelField<Integer> {
         }
 
         @Override
-        public Object fromConfigValue(String configValue) {
-            if (configValue == null) {
-                return null;
-            }
+        public void setConfigValue(String configValue) {
+            super.setConfigValue(configValue);
             try {
-                return Integer.parseInt(configValue) * multiple;
+                value = value * multiple;
+                return;
             } catch (Exception e) {
                 Log.printStackTrace(e);
             }
-            return null;
+            reset();
         }
 
         @Override
-        public String toConfigValue(Integer value) {
+        public String getConfigValue() {
             return String.valueOf(value / multiple);
         }
 

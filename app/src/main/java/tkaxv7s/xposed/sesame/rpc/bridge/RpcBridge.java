@@ -1,4 +1,4 @@
-package tkaxv7s.xposed.sesame.rpc;
+package tkaxv7s.xposed.sesame.rpc.bridge;
 
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 
