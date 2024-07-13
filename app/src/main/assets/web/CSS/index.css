@@ -194,6 +194,10 @@ video {
   align-items: center;
 }
 
+.content {
+  padding-top: 10px;
+}
+
 .theme1 {
   
   .content-box {
