@@ -49,7 +49,7 @@ public final class ModelConfig implements Serializable {
         return fields.containsKey(fieldCode);
     }
 
-    public ModelField getModelField(String fieldCode) {
+    public ModelField<?> getModelField(String fieldCode) {
         return fields.get(fieldCode);
     }
 
