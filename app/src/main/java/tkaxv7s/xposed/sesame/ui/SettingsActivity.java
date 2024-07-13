@@ -163,6 +163,25 @@ public class SettingsActivity extends BaseActivity {
         }*/
 
         @JavascriptInterface
+        public String getModelGroup() {
+            return JsonUtil.toJsonString(ModelGroup.values());
+        }
+
+        @JavascriptInterface
+        public String getModelByGroup(String groupCode) {
+            /*ModelConfig modelConfig = ModelTask.getModelConfigMap();
+            if (modelConfig != null) {
+                ModelFields modelFields = modelConfig.getFields();
+                List<ModelFieldShowDto> list = new ArrayList<>();
+                for (ModelField<?> modelField : modelFields.values()) {
+                    list.add(ModelFieldShowDto.toShowDto(modelField));
+                }
+                return JsonUtil.toJsonString(list);
+            }*/
+            return null;
+        }
+
+        @JavascriptInterface
         public String getModel(String modelCode) {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {
