@@ -15,6 +15,10 @@ public abstract class Model {
 
     private static final Map<String, ModelConfig> readOnlyModelConfigMap = Collections.unmodifiableMap(modelConfigMap);
 
+    private static final Map<ModelGroup, Set<ModelConfig>> groupModelConfigMap = new LinkedHashMap<>();
+
+    private static final Map<ModelGroup, Set<ModelConfig>> readOnlyGroupModelConfigMap = Collections.unmodifiableMap(groupModelConfigMap);
+
     private static final Map<Class<? extends Model>, Model> modelMap = new ConcurrentHashMap<>();
 
     private static final List<Class<Model>> modelClazzList = ModelOrder.getClazzList();
@@ -68,6 +72,14 @@ public abstract class Model {
         return readOnlyModelConfigMap;
     }
 
+    public static Map<ModelGroup, Set<ModelConfig>> getGroupModelConfigMap() {
+        return readOnlyGroupModelConfigMap;
+    }
+
+    public static Set<ModelConfig> getGroupModelConfig(ModelGroup modelGroup) {
+        return readOnlyGroupModelConfigMap.get(modelGroup);
+    }
+
     public static Boolean hasModel(Class<? extends Model> modelClazz) {
         return modelMap.containsKey(modelClazz);
     }
@@ -91,6 +103,14 @@ public abstract class Model {
                 modelArray[i] = model;
                 modelMap.put(modelClazz, model);
                 modelConfigMap.put(modelConfig.getCode(), modelConfig);
+                ModelGroup group = modelConfig.getGroup();
+                Set<ModelConfig> groupModelConfigSet = groupModelConfigMap.get(group);
+                if (groupModelConfigSet == null) {
+                    groupModelConfigSet = new LinkedHashSet<>();
+                    groupModelConfigMap.put(group, groupModelConfigSet);
+                    readOnlyGroupModelConfigMap.put(group, Collections.unmodifiableSet(groupModelConfigSet));
+                }
+                groupModelConfigSet.add(modelConfig);
             } catch (IllegalAccessException | InstantiationException e) {
                 Log.printStackTrace(e);
             }
