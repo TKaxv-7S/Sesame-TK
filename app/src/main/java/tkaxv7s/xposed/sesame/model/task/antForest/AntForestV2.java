@@ -28,7 +28,6 @@ import tkaxv7s.xposed.sesame.util.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +35,10 @@ import java.util.regex.Pattern;
  * 蚂蚁森林V2
  */
 public class AntForestV2 extends ModelTask {
+
     private static final String TAG = AntForestV2.class.getSimpleName();
+
+    private static final AverageMath offsetTimeMath = new AverageMath(10);
 
     private static final Set<String> AntForestTaskTypeSet;
 
@@ -54,11 +56,6 @@ public class AntForestV2 extends ModelTask {
         // AntForestTaskTypeSet.add("YAOYIYAO_0815");//去淘宝摇一摇领奖励
         // AntForestTaskTypeSet.add("GYG-TAOCAICAI");//逛一逛淘宝买菜
     }
-
-    private int totalCollected = 0;
-    private int totalHelpCollected = 0;
-
-    private final AtomicLong offsetTime = new AtomicLong(0);
 
     private final AtomicInteger taskCount = new AtomicInteger(0);
 
@@ -86,7 +83,6 @@ public class AntForestV2 extends ModelTask {
     private SelectModelField dontCollectList;
     private BooleanModelField collectWateringBubble;
     private BooleanModelField batchRobEnergy;
-    private BooleanModelField balanceNetworkDelay;
     private BooleanModelField whackMole;
     private BooleanModelField collectProp;
     private StringModelField queryInterval;
@@ -97,7 +93,6 @@ public class AntForestV2 extends ModelTask {
     @Getter
     private IntegerModelField doubleCountLimit;
     private BooleanModelField doubleCardConstant;
-    private BooleanModelField stealthCardConstant;
     private BooleanModelField useStealthCard;
     private BooleanModelField exchangeStealthCard;
     private BooleanModelField helpFriendCollect;
@@ -132,6 +127,9 @@ public class AntForestV2 extends ModelTask {
     private TextModelField photoGuangPanBefore;
     private TextModelField photoGuangPanAfter;
 
+    private int totalCollected = 0;
+    private int totalHelpCollected = 0;
+
     @Getter
     private Set<String> dontCollectMap = new HashSet<>();
 
@@ -153,7 +151,6 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(queryInterval = new StringModelField("queryInterval", "查询间隔(毫秒或毫秒范围)", "500-1000"));
         modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "1000-1500"));
         modelFields.addField(doubleCollectInterval = new StringModelField("doubleCollectInterval", "双击收取间隔(毫秒或毫秒范围)", "50-150"));
-        modelFields.addField(balanceNetworkDelay = new BooleanModelField("balanceNetworkDelay", "平衡网络延迟", true));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
         modelFields.addField(retryInterval = new IntegerModelField("retryInterval", "重试间隔(毫秒)", 1000, 0, 10000));
@@ -242,10 +239,6 @@ public class AntForestV2 extends ModelTask {
 
             taskCount.set(0);
             selfId = UserIdMap.getCurrentUid();
-
-            if (!balanceNetworkDelay.getValue()) {
-                offsetTime.set(0);
-            }
 
             // 兑换 限时隐身卡
             if (exchangeStealthCard.getValue()) {
@@ -385,16 +378,12 @@ public class AntForestV2 extends ModelTask {
     private JSONObject querySelfHome() {
         JSONObject userHomeObject = null;
         try {
-            if (balanceNetworkDelay.getValue()) {
-                long start = System.currentTimeMillis();
-                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
-                long end = System.currentTimeMillis();
-                long serverTime = userHomeObject.getLong("now");
-                offsetTime.set(Math.max((start + end) / 2 - serverTime, -3000));
-                Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
-            } else {
-                userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
-            }
+            long start = System.currentTimeMillis();
+            userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
+            long end = System.currentTimeMillis();
+            long serverTime = userHomeObject.getLong("now");
+            int offsetTime = offsetTimeMath.nextInteger((int) ((start + end) / 2 - serverTime));
+            Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime);
         } catch (Throwable t) {
             Log.printStackTrace(t);
         }
@@ -404,16 +393,12 @@ public class AntForestV2 extends ModelTask {
     private JSONObject queryFriendHome(String userId) {
         JSONObject userHomeObject = null;
         try {
-            if (balanceNetworkDelay.getValue()) {
-                long start = System.currentTimeMillis();
-                userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
-                long end = System.currentTimeMillis();
-                long serverTime = userHomeObject.getLong("now");
-                offsetTime.set(Math.max((start + end) / 2 - serverTime, -3000));
-                Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime.get());
-            } else {
-                userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
-            }
+            long start = System.currentTimeMillis();
+            userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
+            long end = System.currentTimeMillis();
+            long serverTime = userHomeObject.getLong("now");
+            int offsetTime = offsetTimeMath.nextInteger((int) ((start + end) / 2 - serverTime));
+            Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime);
         } catch (Throwable t) {
             Log.printStackTrace(t);
         }
@@ -2425,8 +2410,8 @@ public class AntForestV2 extends ModelTask {
         try {
             // 使用道具
             JSONObject jo = new JSONObject(
-                AntForestRpcCall.consumeProp(
-                    prop.getJSONArray("propIdList").getString(0), prop.getString("propType")));
+                    AntForestRpcCall.consumeProp(
+                            prop.getJSONArray("propIdList").getString(0), prop.getString("propType")));
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.forest("使用道具🎭[" + prop.getJSONObject("propConfigVO").getString("propName") + "]");
                 return true;
@@ -2580,7 +2565,7 @@ public class AntForestV2 extends ModelTask {
         public Runnable setRunnable() {
             return () -> {
                 String userName = UserIdMap.getMaskName(userId);
-                long readyTime = produceTime - advanceTime.getValue() + offsetTime.get() - System.currentTimeMillis();
+                long readyTime = produceTime - advanceTime.getValue() + offsetTimeMath.getAverageInteger() - System.currentTimeMillis();
                 if (readyTime > 0) {
                     try {
                         Thread.sleep(readyTime);
