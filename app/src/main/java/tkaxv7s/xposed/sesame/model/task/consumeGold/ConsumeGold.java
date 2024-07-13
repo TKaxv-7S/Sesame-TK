@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.consumeGold;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
@@ -14,6 +15,11 @@ public class ConsumeGold extends ModelTask {
     @Override
     public String getName() {
         return "消费金";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.OTHER;
     }
 
     @Override

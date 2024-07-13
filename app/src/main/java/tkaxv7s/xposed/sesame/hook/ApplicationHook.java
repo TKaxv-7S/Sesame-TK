@@ -32,6 +32,7 @@ import tkaxv7s.xposed.sesame.model.task.antMember.AntMemberRpcCall;
 import tkaxv7s.xposed.sesame.rpc.bridge.NewRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.bridge.OldRpcBridge;
 import tkaxv7s.xposed.sesame.rpc.bridge.RpcBridge;
+import tkaxv7s.xposed.sesame.rpc.intervallimit.RpcIntervalLimit;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.text.SimpleDateFormat;
@@ -552,6 +553,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                     Status.unload();
                     NotificationUtil.stop();
                     ConfigV2.unload();
+                    RpcIntervalLimit.clearIntervalLimit();
                     ModelTask.destroyAllModel();
                 }
                 if (rpcResponseUnhook != null) {

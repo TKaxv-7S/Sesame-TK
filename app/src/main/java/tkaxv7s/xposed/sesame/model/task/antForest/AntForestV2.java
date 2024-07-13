@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ConfigV2;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
@@ -134,6 +135,11 @@ public class AntForestV2 extends ModelTask {
     @Override
     public String getName() {
         return "森林";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.FOREST;
     }
 
     @Override

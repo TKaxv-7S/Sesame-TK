@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.*;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
@@ -62,6 +63,11 @@ public class AntFarm extends ModelTask {
     @Override
     public String getName() {
         return "庄园";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.FARM;
     }
 
     private StringModelField sleepTime;

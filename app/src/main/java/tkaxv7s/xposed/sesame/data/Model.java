@@ -50,6 +50,8 @@ public abstract class Model {
 
     public abstract String getName();
 
+    public abstract ModelGroup getGroup();
+
     public String getIcon() {
         return null;
     }

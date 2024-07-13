@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.antOrchard;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
@@ -35,6 +36,11 @@ public class AntOrchard extends ModelTask {
     @Override
     public String getName() {
         return "农场";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.ORCHARD;
     }
 
     @Override
