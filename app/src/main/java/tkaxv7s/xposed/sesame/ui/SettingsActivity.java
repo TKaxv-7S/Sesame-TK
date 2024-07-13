@@ -17,11 +17,13 @@ import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.ui.dto.ModelDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldInfoDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldShowDto;
+import tkaxv7s.xposed.sesame.ui.dto.ModelGroupDto;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +37,8 @@ public class SettingsActivity extends BaseActivity {
     private Boolean debug = false;
 
     private final List<ModelDto> tabList = new ArrayList<>();
+
+    private final List<ModelGroupDto> groupList = new ArrayList<>();
 
     @Override
     public String getBaseSubtitle() {
@@ -121,6 +125,10 @@ public class SettingsActivity extends BaseActivity {
             ModelConfig modelConfig = configEntry.getValue();
             tabList.add(new ModelDto(configEntry.getKey(), modelConfig.getName(), modelConfig.getIcon(), null));
         }
+
+        for (ModelGroup modelGroup : ModelGroup.values()) {
+            groupList.add(new ModelGroupDto(modelGroup.getCode(), modelGroup.getName(), modelGroup.getIcon()));
+        }
     }
 
     @Override
@@ -163,17 +171,22 @@ public class SettingsActivity extends BaseActivity {
         }*/
 
         @JavascriptInterface
-        public String getModel(String modelCode) {
-            ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
-            if (modelConfig != null) {
-                ModelFields modelFields = modelConfig.getFields();
-                List<ModelFieldShowDto> list = new ArrayList<>();
-                for (ModelField<?> modelField : modelFields.values()) {
-                    list.add(ModelFieldShowDto.toShowDto(modelField));
+        public String getGroup() {
+            return JsonUtil.toJsonString(groupList);
+        }
+
+        @JavascriptInterface
+        public String getModelByGroup(String groupCode) {
+            Collection<ModelConfig> modelConfigCollection = ModelTask.getGroupModelConfig(ModelGroup.getByCode(groupCode)).values();
+            List<ModelDto> modelDtoList = new ArrayList<>();
+            for (ModelConfig modelConfig : modelConfigCollection) {
+                List<ModelFieldShowDto> modelFields = new ArrayList<>();
+                for (ModelField<?> modelField : modelConfig.getFields().values()) {
+                    modelFields.add(ModelFieldShowDto.toShowDto(modelField));
                 }
-                return JsonUtil.toJsonString(list);
+                modelDtoList.add(new ModelDto(modelConfig.getCode(), modelConfig.getName(), groupCode, modelFields));
             }
-            return null;
+            return JsonUtil.toJsonString(modelDtoList);
         }
 
         @JavascriptInterface
@@ -198,6 +211,20 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
             return "SUCCESS";
+        }
+
+        @JavascriptInterface
+        public String getModel(String modelCode) {
+            ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
+            if (modelConfig != null) {
+                ModelFields modelFields = modelConfig.getFields();
+                List<ModelFieldShowDto> list = new ArrayList<>();
+                for (ModelField<?> modelField : modelFields.values()) {
+                    list.add(ModelFieldShowDto.toShowDto(modelField));
+                }
+                return JsonUtil.toJsonString(list);
+            }
+            return null;
         }
 
         @JavascriptInterface

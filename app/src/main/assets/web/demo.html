@@ -38,6 +38,19 @@
 </div>
 
 <div style="text-align: center;margin-top: 80px;">
+    <input id="setModelByGroupTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setModelByGroupCodeIpt" type="text" value="FOREST" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="setModelByGroupSelectIpt" type="text" value='[{"modelCode": "AntForestV2", "modelFields": [{"code": "enable", "configValue": "true"}], "modelName": "森林"}, {"modelCode": "Reserve", "modelFields": [{"code": "enable", "configValue": "false"}, {"code": "reserveList", "configValue": "{}"}], "modelName": "保护地"}]' style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="setModelByGroupBtn" type="button" style="font-size: 18px;">SetModelByGroup</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
     <input id="getModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
@@ -113,6 +126,10 @@
 
         document.getElementById("getModelByGroupBtn").onclick = async function () {
             document.getElementById("getModelByGroupTextIpt").value = window.HOOK.getModelByGroup(document.getElementById("getModelByGroupSelectIpt").value);
+        }
+
+        document.getElementById("setModelByGroupBtn").onclick = async function () {
+            document.getElementById("setModelByGroupTextIpt").value = window.HOOK.setModelByGroup(document.getElementById("setModelByGroupCodeIpt").value, document.getElementById("setModelByGroupSelectIpt").value);
         }
 
         document.getElementById("setModelBtn").onclick = async function () {
