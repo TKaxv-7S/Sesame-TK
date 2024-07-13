@@ -54,11 +54,11 @@
 
       <div class="theme1" v-if="theme==='theme1'">
         <van-collapse v-model="currentTab" accordion @change="changeCollapse">
-          <van-collapse-item :name="tabs_index" :key="tabs_item.modelCode" v-for="(tabs_item,tabs_index) in tabs"
-            >
+          <van-collapse-item :name="tabs_index" :key="tabs_item.modelCode"  :id="`collapse-item_${tabs_index}`" v-for="(tabs_item,tabs_index) in tabs">
             <template #title>
-              <div :id="`collapse-item_${tabs_index}`">
-                <img :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" alt="" class="list-icon" />
+              <div>
+                <img :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" alt=""
+                  class="list-icon" />
                 {{tabs_item.modelName}}
               </div>
             </template>
@@ -105,22 +105,21 @@
             </div>
           </van-collapse-item>
 
-          
-           <van-collapse-item name="13" title="主题设置">
+          <van-collapse-item name="13" title="主题设置" id="collapse-item_13">
             <template #title>
-              <div id="collapse-item_13">
+              <div >
                 <img :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" alt="" class="list-icon" />
                 主题设置
               </div>
             </template>
             <div class="content-box">
-                <div class="title">主题设置</div>
-                <div class="flex-space-between">
-                  <van-radio-group v-model="theme"  direction="horizontal">
-                    <van-radio icon-size="16px" name="theme1">折叠主题</van-radio>
-                    <van-radio icon-size="16px" name="theme2">顶部导航主题</van-radio>
-                  </van-radio-group>
-                </div>
+              <div class="title">主题设置</div>
+              <div class="flex-space-between">
+                <van-radio-group v-model="theme" direction="horizontal">
+                  <van-radio icon-size="16px" name="theme1">折叠主题</van-radio>
+                  <van-radio icon-size="16px" name="theme2">顶部导航主题</van-radio>
+                </van-radio-group>
+              </div>
             </div>
           </van-collapse-item>
 
@@ -133,123 +132,84 @@
                 特别鸣谢: tkaxv-7s(作者大大 主维护者)
               </div>
               <div>
-                感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒ 
+                感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒
               </div>
               <div>请自行打包apk的大佬们请勿去掉这行,维护不易,且行且珍惜!</div>
             </div>
           </van-collapse-item>
-         
+
         </van-collapse>
       </div>
 
       <div class="theme2" v-else>
-          <van-tabs v-model:active="currentTab" swipeable sticky>
-            <van-tab  :name="tabs_index"
-            :key="tabs_item.modelCode"
-            v-for="(tabs_item,tabs_index) in tabs">
+        <van-tabs v-model:active="currentTab" swipeable sticky>
+          <van-tab :name="tabs_index" :key="tabs_item.modelCode" v-for="(tabs_item,tabs_index) in tabs">
             <template #title>
               <div class="title-box">
-                <div>
-                  <img
-                  :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`"
-                  alt=""
-                  class="list-icon"
-                />
+                <div >
+                  <img :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" alt=""
+                    class="list-icon" />
                 </div>
                 <span class="list-label">{{tabs_item.modelName}}</span>
               </div>
             </template>
-              <div class="content-box">
-                <div
-                  v-for="(item,index) in setData[tabs_index]"
-                  :key="item.name+index"
-                >
-                  <div
-                    class="flex-space-between pdTB8"
-                    v-if="item.type==='BOOLEAN'"
-                  >
-                    <div class="title">{{item.name}}</div>
-                    <div class="flex-center">
-                      <van-switch
-                        v-model="item.configValue"
-                        size="20px"
-                        active-value="true"
-                        inactive-value="false"
-                      />
-                    </div>
+            <div class="content-box">
+              <div v-for="(item,index) in setData[tabs_index]" :key="item.name+index">
+                <div class="flex-space-between pdTB8" v-if="item.type==='BOOLEAN'">
+                  <div class="title">{{item.name}}</div>
+                  <div class="flex-center">
+                    <van-switch v-model="item.configValue" size="20px" active-value="true" inactive-value="false" />
                   </div>
-  
-                  <div
-                    class="flex-space-between pdTB8"
-                    v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
-                  >
-                    <div class="title">{{item.name}}</div>
-                    <div class="w160">
-                      <van-field
-                        v-model="item.configValue"
-                        placeholder="请输入..."
-                        :disabled="item.type==='TEXT'"
-                      />
-                    </div>
+                </div>
+
+                <div class="flex-space-between pdTB8"
+                  v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)">
+                  <div class="title">{{item.name}}</div>
+                  <div class="w160">
+                    <van-field v-model="item.configValue" placeholder="请输入..." :disabled="item.type==='TEXT'" />
                   </div>
-  
-                  <div
-                    class="flex-space-between pdTB8"
-                    v-if="['TEXT'].includes(item.type)"
-                  >
-                    <div class="title link" @click="clearValue(item)">
-                      清除-{{item.name}}
-                    </div>
+                </div>
+
+                <div class="flex-space-between pdTB8" v-if="['TEXT'].includes(item.type)">
+                  <div class="title link" @click="clearValue(item)">
+                    清除-{{item.name}}
                   </div>
-  
-                  <div class="pdTB8" v-if="item.type==='CHOICE'">
-                    <div class="title">{{item.name}}</div>
-                    <div class="flex-space-between">
-                      <van-radio-group
-                        v-model="item.configValue"
-                        direction="horizontal"
-                      >
-                        <van-radio
-                          icon-size="16px"
-                          :name="_index+''"
-                          v-for="(_item,_index) in item.expandKey"
-                          :key="_item+_index"
-                          >{{_item}}</van-radio
-                        >
-                      </van-radio-group>
-                    </div>
+                </div>
+
+                <div class="pdTB8" v-if="item.type==='CHOICE'">
+                  <div class="title">{{item.name}}</div>
+                  <div class="flex-space-between">
+                    <van-radio-group v-model="item.configValue" direction="horizontal">
+                      <van-radio icon-size="16px" :name="_index+''" v-for="(_item,_index) in item.expandKey"
+                        :key="_item+_index">{{_item}}</van-radio>
+                    </van-radio-group>
                   </div>
-  
-                  <div
-                    class="pdTB8"
-                    v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
-                  >
-                    <div
-                      class="title link"
-                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
-                    > 
-                      {{item.name}}
-                    </div>
+                </div>
+
+                <div class="pdTB8" v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)">
+                  <div class="title link" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
+                    {{item.name}}
                   </div>
                 </div>
               </div>
+            </div>
           </van-tab>
 
           <van-tab name="13" title="主题设置">
             <template #title>
-              <div id="collapse-item_13" class="title-box">
+              <div  class="title-box">
                 <img :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" alt="" class="list-icon" />
                 主题设置
               </div>
             </template>
             <div class="content-box">
-                <div class="title">主题设置</div>
-                <div class="flex-space-between">
-                  <van-radio-group v-model="theme"  direction="horizontal">
-                    <van-radio icon-size="16px" name="theme1">折叠主题</van-radio>
-                    <van-radio icon-size="16px" name="theme2">顶部导航主题</van-radio>
-                  </van-radio-group>
-                </div>
+              <div class="title">主题设置</div>
+              <div class="flex-space-between">
+                <van-radio-group v-model="theme" direction="horizontal">
+                  <van-radio icon-size="16px" name="theme1">折叠主题</van-radio>
+                  <van-radio icon-size="16px" name="theme2">顶部导航主题</van-radio>
+                </van-radio-group>
+              </div>
             </div>
           </van-tab>
 
@@ -262,21 +222,19 @@
                 特别鸣谢: tkaxv-7s(作者大大 主维护者)
               </div>
               <div>
-                感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒ 
+                感谢（不分先后）: ༒激༙྇流༙྇泉༙྇༒
               </div>
               <div>请自行打包apk的大佬们请勿去掉这行,维护不易,且行且珍惜!</div>
             </div>
           </van-tab>
-          </van-tabs>
-        </div>
+        </van-tabs>
+      </div>
 
     </div>
 
     <!-- 列表弹窗 -->
-    <van-dialog
-    v-model:show="person_list.visible" :title="person_list.title" show-cancel-button
-      @confirm="handleSubmitBtn"
-      @cancel="handleCancelBtn">
+    <van-dialog v-model:show="person_list.visible" :title="person_list.title" show-cancel-button
+      @confirm="handleSubmitBtn" @cancel="handleCancelBtn">
       <div class="flex-space-between">
         <div>
           <van-list>
@@ -301,7 +259,7 @@
                 <div :class="{'checked-label':item.count>0||item.isChecked,'list-label':true}">{{index+1}}.{{item.name}}
                 </div>
                 <div class="w40" v-if="person_list.type!=='SELECT'">
-                  <van-field v-model="item.count"  />
+                  <van-field v-model="item.count" />
                 </div>
               </div>
             </van-checkbox>
@@ -312,7 +270,7 @@
   </div>
 
   <script>
-    const { createApp, ref, computed, onMounted,watchEffect } = Vue;
+    const { createApp, ref, computed, onMounted, watchEffect } = Vue;
     const { showToast } = vant;
     createApp({
       setup() {
@@ -326,21 +284,22 @@
           })
         );
 
-        const theme=ref(localStorage.getItem('theme')||'theme1')
+        const theme = ref(localStorage.getItem('theme') || 'theme1')
 
         // 用户列表弹窗
         const person_list = ref({
           visible: false,
           title: "",
           code: "",
+          list: [],
           keys: "",
           type: "",
           modelName: "",
           check_all: false,
         });
 
-        watchEffect(()=>{
-          localStorage.setItem('theme',theme.value)
+        watchEffect(() => {
+          localStorage.setItem('theme', theme.value)
         })
 
         function loadList(modelName, code, name, type) {
@@ -349,13 +308,33 @@
             window.HOOK.getField(modelName, code)
           )
           let configValue = JSON.parse(setData.value[currentTab.value].find((i) => i.code === code).configValue)
-          person_list.value.list = obj.expandValue.map((item) => {
+          let array = obj.expandValue.map((item) => {
             return {
               ...item,
               isChecked: type === "SELECT" ? configValue.includes(item.id) : configValue.key && configValue.key.includes(item.id) || type === "SELECT_AND_COUNT" && configValue[item.id] || false,
               count: type === "SELECT_AND_COUNT" && configValue[item.id],
             };
           }).sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => b.isChecked - a.isChecked || b.count - a.count)
+
+        //   let result = [];
+        //   for (let i = 0; i < array.length; i += 60) {
+        //     result.push(array.slice(i, i + 60));
+        //   }
+
+        //   let _index = 0;
+
+        //  let timer= requestAnimationFrame(() => {
+        //    if(_index===result.length){
+        //     return
+        //    }
+        //     person_list.value.list.push(...result[_index])
+        //     _index++
+        //   })
+
+
+          person_list.value.list = array
+
+
           person_list.value.title = name;
           person_list.value.code = code;
           person_list.value.modelName = modelName;
@@ -410,9 +389,9 @@
           };
         }
 
-        function handleCancelBtn(){
-          person_list.value.visible=false
-          person_list.value.keys=""
+        function handleCancelBtn() {
+          person_list.value.visible = false
+          person_list.value.keys = ""
         }
 
         function clearValue(item) {
@@ -420,15 +399,15 @@
         }
 
         function changeCollapse(index) {
-          setTimeout(()=>{
-            if(document.querySelector(`#collapse-item_${index}`)) {
+          setTimeout(() => {
+            if (document.querySelector(`#collapse-item_${index}`)) {
               document.querySelector(`#collapse-item_${index}`).scrollIntoView()
             }
-          },800)
+          }, 800)
         }
 
         function handleData() {
-          if (!setData.value) return; 
+          if (!setData.value) return;
           tabs.value.forEach((item, index) => {
             let params = {};
             setData.value[index].forEach((item) => {
@@ -442,7 +421,7 @@
         window.isCanSave = true;
 
         onMounted(() => {
-        // console.log("11111111",localStorage.getItem('theme'));
+          // console.log("11111111",localStorage.getItem('theme'));
         });
 
         return {
