@@ -17,6 +17,7 @@ import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.ui.dto.ModelDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldInfoDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldShowDto;
+import tkaxv7s.xposed.sesame.ui.dto.ModelGroupDto;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SettingsActivity extends BaseActivity {
     private WebView webView;
@@ -34,7 +36,7 @@ public class SettingsActivity extends BaseActivity {
     private String userName = null;
     private Boolean debug = false;
 
-    private final List<ModelDto> tabList = new ArrayList<>();
+    private final List<ModelGroupDto> tabList = new ArrayList<>();
 
     @Override
     public String getBaseSubtitle() {
@@ -112,14 +114,12 @@ public class SettingsActivity extends BaseActivity {
             WebView.setWebContentsDebuggingEnabled(true);
         }
         webView.addJavascriptInterface(new WebViewCallback(), "HOOK");
-        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.loadUrl("file:///android_asset/web/demo.html");
         // webView.loadUrl("http://192.168.31.32:5500/app/src/main/assets/web/index.html");
         webView.requestFocus();
 
-        Map<String, ModelConfig> modelConfigMap = ModelTask.getModelConfigMap();
-        for (Map.Entry<String, ModelConfig> configEntry : modelConfigMap.entrySet()) {
-            ModelConfig modelConfig = configEntry.getValue();
-            tabList.add(new ModelDto(configEntry.getKey(), modelConfig.getName(), modelConfig.getIcon()));
+        for (ModelGroup modelGroup : ModelGroup.values()) {
+            tabList.add(new ModelGroupDto(modelGroup.getCode(), modelGroup.getName(), modelGroup.getIcon()));
         }
     }
 
@@ -162,23 +162,23 @@ public class SettingsActivity extends BaseActivity {
             return JsonUtil.toJsonString(ModelTask.getModelConfigMap());
         }*/
 
-        @JavascriptInterface
+        /*@JavascriptInterface
         public String getModelGroup() {
             return JsonUtil.toJsonString(ModelGroup.values());
-        }
+        }*/
 
         @JavascriptInterface
         public String getModelByGroup(String groupCode) {
-            /*ModelConfig modelConfig = ModelTask.getModelConfigMap();
-            if (modelConfig != null) {
-                ModelFields modelFields = modelConfig.getFields();
-                List<ModelFieldShowDto> list = new ArrayList<>();
-                for (ModelField<?> modelField : modelFields.values()) {
-                    list.add(ModelFieldShowDto.toShowDto(modelField));
+            Set<ModelConfig> modelConfigSet = ModelTask.getGroupModelConfig(ModelGroup.getByCode(groupCode));
+            List<ModelDto> modelDtoList = new ArrayList<>();
+            for (ModelConfig modelConfig : modelConfigSet) {
+                List<ModelFieldShowDto> modelFields = new ArrayList<>();
+                for (ModelField<?> modelField : modelConfig.getFields().values()) {
+                    modelFields.add(ModelFieldShowDto.toShowDto(modelField));
                 }
-                return JsonUtil.toJsonString(list);
-            }*/
-            return null;
+                modelDtoList.add(new ModelDto(modelConfig.getCode(), modelConfig.getName(), groupCode, modelFields));
+            }
+            return JsonUtil.toJsonString(modelDtoList);
         }
 
         @JavascriptInterface
@@ -247,6 +247,11 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
             return "FAILED";
+        }
+
+        @JavascriptInterface
+        public void Log(String log) {
+            Log.record("设置："+ log);
         }
 
     }

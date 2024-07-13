@@ -28,6 +28,16 @@
 </div>-->
 
 <div style="text-align: center;margin-top: 80px;">
+    <input id="getModelByGroupTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <input id="getModelByGroupSelectIpt" type="text" value="FOREST" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="getModelByGroupBtn" type="button" style="font-size: 18px;">GetModelByGroup</button>
+</div>
+
+<div style="text-align: center;margin-top: 80px;">
     <input id="getModelTextIpt" type="text" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
 </div>
 <div style="text-align: center;margin-top: 20px;">
@@ -79,6 +89,13 @@
     <button id="setFieldBtn" type="button" style="font-size: 18px;">SetField</button>
 </div>
 
+<div style="text-align: center;margin-top: 80px;">
+    <input id="logTextIpt" type="text" value="测试设置日志" style="font-size: 18px; width: 90%; text-align: center; line-height: 260%;">
+</div>
+<div style="text-align: center;margin-top: 20px;">
+    <button id="logBtn" type="button" style="font-size: 18px;">Log</button>
+</div>
+
 <script type="application/javascript">
     window.onload = async function () {
 
@@ -94,6 +111,10 @@
             document.getElementById("getModelTextIpt").value = window.HOOK.getModel(document.getElementById("getModelSelectIpt").value);
         }
 
+        document.getElementById("getModelByGroupBtn").onclick = async function () {
+            document.getElementById("getModelByGroupTextIpt").value = window.HOOK.getModelByGroup(document.getElementById("getModelByGroupSelectIpt").value);
+        }
+
         document.getElementById("setModelBtn").onclick = async function () {
             document.getElementById("setModelTextIpt").value = window.HOOK.setModel(document.getElementById("setModelCodeIpt").value, document.getElementById("setModelFieldsIpt").value);
         }
@@ -104,6 +125,10 @@
 
         document.getElementById("setFieldBtn").onclick = async function () {
             document.getElementById("setFieldTextIpt").value = window.HOOK.setField(document.getElementById("setFieldModelCodeIpt").value, document.getElementById("setFieldCodeIpt").value, document.getElementById("setFieldValueIpt").value);
+        }
+
+        document.getElementById("logBtn").onclick = async function () {
+            window.HOOK.Log(document.getElementById("logTextIpt").value);
         }
 
     }
