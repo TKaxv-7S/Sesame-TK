@@ -240,15 +240,6 @@ public class AntForestV2 extends ModelTask {
             taskCount.set(0);
             selfId = UserIdMap.getCurrentUid();
 
-            // 兑换 限时隐身卡
-            if (exchangeStealthCard.getValue()) {
-                exchangePropShop(findPropShop("SP20230521000082", "SK20230521000206"), 1);
-            }
-            // 使用 限时隐身卡
-            if (useStealthCard.getValue()) {
-                usePropBag(findPropBag("LIMIT_TIME_STEALTH_CARD"));
-            }
-
             collectSelfEnergy();
             try {
                 JSONObject friendsObject = new JSONObject(AntForestRpcCall.queryEnergyRanking());
@@ -840,9 +831,7 @@ public class AntForestV2 extends ModelTask {
         Runnable runnable = () -> {
             try {
                 String userId = collectEnergyEntity.getUserId();
-                if (doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId)) {
-                    useDoubleCard();
-                }
+                usePropBeforeCollectEnergy(userId);
                 RpcEntity rpcEntity = collectEnergyEntity.getRpcEntity();
                 boolean needDouble = collectEnergyEntity.getNeedDouble();
                 boolean needRetry = collectEnergyEntity.getNeedRetry();
@@ -1639,40 +1628,72 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
-    private void useDoubleCard() {
-        synchronized (doubleCardLockObj) {
-            try {
-                if (hasDoubleCardTime() && Status.canDoubleToday()) {
-                    // 背包查找 限时能量双击卡
-                    JSONObject jo = findPropBag("LIMIT_TIME_ENERGY_DOUBLE_CLICK");
-                    // 没有限时能量双击卡 且 开启了限时双击永动机
-                    if (jo == null && doubleCardConstant.getValue()) {
-                        // 商店查找 限时能量双击卡
-                        jo = findPropShop("CR20230516000362", "CR20230516000363");
-                        // 商店兑换 限时能量双击卡
-                        if (exchangePropShop(jo, 2147483647)) {
-                            Status.exchangeDoubleCardToday(true);
+    private void usePropBeforeCollectEnergy(String userId) {
+        try {
+            boolean needDouble = doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId);
+            boolean needExchangeStealthCard = exchangeStealthCard.getValue() && Status.canExchangeStealthCard();
+            boolean needUseStealthCard = useStealthCard.getValue() && Status.canUseStealthCard();
+            if (needDouble || needExchangeStealthCard || needUseStealthCard) {
+                synchronized (doubleCardLockObj) {
+                    JSONObject bagObject = null;
+                    if (doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId)) {
+                        bagObject = getBag();
+                        useDoubleCard(bagObject);
+                    }
+                    // 兑换 限时隐身卡
+                    if (exchangeStealthCard.getValue() && Status.canExchangeStealthCard()) {
+                        if (exchangePropShop(findPropShop("SP20230521000082", "SK20230521000206"), 1)) {
+                            Status.exchangeStealthCard();
                         }
-                        // 背包查找 限时能量双击卡
-                        jo = findPropBag("LIMIT_TIME_ENERGY_DOUBLE_CLICK");
                     }
-                    // 没有限时能量双击卡
-                    if (jo == null) {
-                        // 背包查找 能量双击卡
-                        jo = findPropBag("ENERGY_DOUBLE_CLICK");
-                    }
-                    // 使用能量双击卡
-                    if (usePropBag(jo)) {
-                        doubleEndTime = System.currentTimeMillis() + 1000 * 60 * 5;
-                        Status.DoubleToday();
-                    } else {
-                        updateDoubleTime();
+                    // 使用 限时隐身卡
+                    if (useStealthCard.getValue() && Status.canUseStealthCard()) {
+                        if (bagObject == null) {
+                            bagObject = getBag();
+                        }
+                        if (usePropBag(findPropBag(bagObject, "LIMIT_TIME_STEALTH_CARD"))) {
+                            Status.useStealthCard();
+                        }
                     }
                 }
-            } catch (Throwable th) {
-                Log.i(TAG, "useDoubleCard err:");
-                Log.printStackTrace(TAG, th);
             }
+        } catch (Exception e) {
+            Log.printStackTrace(e);
+        }
+    }
+
+    private void useDoubleCard(JSONObject bagObject) {
+        try {
+            if (hasDoubleCardTime() && Status.canDoubleToday()) {
+                // 背包查找 限时能量双击卡
+                JSONObject jo = findPropBag(bagObject, "LIMIT_TIME_ENERGY_DOUBLE_CLICK");
+                // 没有限时能量双击卡 且 开启了限时双击永动机
+                if (jo == null && doubleCardConstant.getValue()) {
+                    // 商店查找 限时能量双击卡
+                    jo = findPropShop("CR20230516000362", "CR20230516000363");
+                    // 商店兑换 限时能量双击卡
+                    if (exchangePropShop(jo, 2147483647)) {
+                        Status.exchangeDoubleCardToday(true);
+                    }
+                    // 背包查找 限时能量双击卡
+                    jo = findPropBag(bagObject, "LIMIT_TIME_ENERGY_DOUBLE_CLICK");
+                }
+                // 没有限时能量双击卡
+                if (jo == null) {
+                    // 背包查找 能量双击卡
+                    jo = findPropBag(bagObject, "ENERGY_DOUBLE_CLICK");
+                }
+                // 使用能量双击卡
+                if (usePropBag(jo)) {
+                    doubleEndTime = System.currentTimeMillis() + 1000 * 60 * 5;
+                    Status.DoubleToday();
+                } else {
+                    updateDoubleTime();
+                }
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "useDoubleCard err:");
+            Log.printStackTrace(TAG, th);
         }
     }
 
@@ -2366,23 +2387,33 @@ public class AntForestV2 extends ModelTask {
         return helped;
     }
 
+    private JSONObject getBag() {
+        try {
+            // 获取背包信息
+            JSONObject bagObject = new JSONObject(AntForestRpcCall.queryPropList(false));
+            if (!"SUCCESS".equals(bagObject.getString("resultCode"))) {
+                Log.record(bagObject.getString("resultDesc"));
+                Log.i(bagObject.toString());
+                return null;
+            }
+            return bagObject;
+        } catch (Throwable th) {
+            Log.i(TAG, "findPropBag err:");
+            Log.printStackTrace(TAG, th);
+        }
+        return null;
+    }
+
     /*
      * 查找背包道具
      * prop
      * propGroup, propType, holdsNum, propIdList[], propConfigVO[propName]
      */
-    private JSONObject findPropBag(String propType) {
+    private JSONObject findPropBag(JSONObject bagObject, String propType) {
         JSONObject prop = null;
         try {
-            // 获取背包信息
-            JSONObject jo = new JSONObject(AntForestRpcCall.queryPropList(false));
-            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
-                Log.record(jo.getString("resultDesc"));
-                Log.i(jo.toString());
-                return prop;
-            }
             // 遍历背包查找道具
-            JSONArray forestPropVOList = jo.getJSONArray("forestPropVOList");
+            JSONArray forestPropVOList = bagObject.getJSONArray("forestPropVOList");
             for (int i = 0; i < forestPropVOList.length(); i++) {
                 JSONObject forestPropVO = forestPropVOList.getJSONObject(i);
                 if (forestPropVO.getString("propType").equals(propType)) {
@@ -2444,10 +2475,11 @@ public class AntForestV2 extends ModelTask {
             }
             // 遍历商店查找道具
             JSONArray itemInfoVOList = jo.optJSONArray("itemInfoVOList");
-            if (itemInfoVOList != null && itemInfoVOList.length() > 0) {
+            if (itemInfoVOList == null) {
                 return sku;
             }
-            for (int i = 0; i < itemInfoVOList.length(); i++) {
+            int length = itemInfoVOList.length();
+            for (int i = 0; i < length; i++) {
                 jo = itemInfoVOList.getJSONObject(i);
                 if (jo.getString("spuId").equals(spuId)) {
                     JSONArray skuModelList = jo.getJSONArray("skuModelList");
@@ -2473,14 +2505,14 @@ public class AntForestV2 extends ModelTask {
      * sku
      * spuId, skuId, skuName, exchangedCount, price[amount]
      */
-    private boolean exchangePropShop(JSONObject sku, int exchangeCountlimit) {
+    private boolean exchangePropShop(JSONObject sku, int exchangeCountLimit) {
         if (sku == null) {
             Log.record("要兑换的道具不存在！");
             return false;
         }
         try {
             // 已经达到兑换上限，返回
-            if (sku.getInt("exchangedCount") >= exchangeCountlimit) {
+            if (sku.getInt("exchangedCount") >= exchangeCountLimit) {
                 return false;
             }
             // 获取活力值信息
