@@ -8,14 +8,14 @@ import java.util.Map;
 @Getter
 public enum ModelGroup {
 
-    BASE("BASE", "基础", null)
-    , FOREST("FOREST", "森林", null)
-    , FARM("FARM", "庄园", null)
-    , STALL("STALL", "新村", null)
-    , ORCHARD("ORCHARD", "农场", null)
-    , SPORTS("SPORTS", "运动", null)
-    , MEMBER("MEMBER", "会员", null)
-    , OTHER("OTHER", "其他", null)
+    BASE("BASE", "基础", "svg/group/base.svg")
+    , FOREST("FOREST", "森林", "svg/group/forest.svg")
+    , FARM("FARM", "庄园", "svg/group/farm.svg")
+    , STALL("STALL", "新村", "svg/group/stall.svg")
+    , ORCHARD("ORCHARD", "农场", "svg/group/orchard.svg")
+    , SPORTS("SPORTS", "运动", "svg/group/sports.svg")
+    , MEMBER("MEMBER", "会员", "svg/group/member.svg")
+    , OTHER("OTHER", "其他", "svg/group/other.svg")
 
     ;
 
