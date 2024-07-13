@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.Color;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -94,6 +95,10 @@ public class ListDialog {
             ListAdapter.get(c).notifyDataSetChanged();
         });
         listDialog.show();
+         Button positiveButton = listDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+        }
     }
 
     private static View getListView(Context c) {
