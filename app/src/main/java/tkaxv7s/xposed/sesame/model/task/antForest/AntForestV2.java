@@ -97,6 +97,9 @@ public class AntForestV2 extends ModelTask {
     @Getter
     private IntegerModelField doubleCountLimit;
     private BooleanModelField doubleCardConstant;
+    private BooleanModelField stealthCardConstant;
+    private BooleanModelField useStealthCard;
+    private BooleanModelField exchangeStealthCard;
     private BooleanModelField helpFriendCollect;
     private ChoiceModelField helpFriendCollectType;
     private SelectModelField helpFriendCollectList;
@@ -172,6 +175,8 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
         modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "活力值 | 兑换永久双击卡数量", 6));
         modelFields.addField(exchangeCollectHistoryAnimal7Days = new BooleanModelField("exchangeCollectHistoryAnimal7Days", "活力值 | 兑换物种历史卡", false));
+        modelFields.addField(exchangeStealthCard = new BooleanModelField("exchangeStealthCard", "活力值 | 兑换限时隐身卡", false));
+        modelFields.addField(useStealthCard = new BooleanModelField("useStealthCard", "使用限时隐身卡", false));
         modelFields.addField(whackMole = new BooleanModelField("whackMole", "6秒拼手速", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
@@ -240,6 +245,15 @@ public class AntForestV2 extends ModelTask {
 
             if (!balanceNetworkDelay.getValue()) {
                 offsetTime.set(0);
+            }
+
+            // 兑换 限时隐身卡
+            if (exchangeStealthCard.getValue()) {
+                exchangePropShop(findPropShop("SP20230521000082", "SK20230521000206"), 1);
+            }
+            // 使用 限时隐身卡
+            if (useStealthCard.getValue()) {
+                usePropBag(findPropBag("LIMIT_TIME_STEALTH_CARD"));
             }
 
             collectSelfEnergy();
@@ -1420,15 +1434,10 @@ public class AntForestV2 extends ModelTask {
 
     // 兑换 神奇物种抽历史卡机会
     private void exchangeCollectHistoryAnimal7Days() {
-        try {
-            // 商店查找 神奇物种抽历史卡机会
-            JSONObject jo = findPropShop("SP20230518000022", "SK20230518000062");
-            // 商店兑换 神奇物种抽历史卡机会
-            exchangePropShop(jo, 1);
-        } catch (Throwable t) {
-            Log.i(TAG, "exchangeCollectHistoryAnimal7Days err:");
-            Log.printStackTrace(TAG, t);
-        }
+        // 商店查找 神奇物种抽历史卡机会
+        JSONObject jo = findPropShop("SP20230518000022", "SK20230518000062");
+        // 商店兑换 神奇物种抽历史卡机会
+        exchangePropShop(jo, 1);
     }
 
     private void receiveTaskAward() {
@@ -2429,8 +2438,8 @@ public class AntForestV2 extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "usePropBag err:");
             Log.printStackTrace(TAG, th);
+            return false;
         }
-        return false;
     }
 
     /*
@@ -2513,8 +2522,8 @@ public class AntForestV2 extends ModelTask {
         } catch (Throwable th) {
             Log.i(TAG, "exchangePropShop err:");
             Log.printStackTrace(TAG, th);
+            return false;
         }
-        return false;
     }
 
     /**
