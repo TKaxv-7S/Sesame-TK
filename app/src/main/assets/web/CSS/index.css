@@ -134,6 +134,9 @@ video {
 .van-checkbox {
   min-height: 25px !important;
 }
+.van-dialog {
+  z-index: 999999!important;
+}
 
 .mt5 {
   margin-bottom: 5px;
@@ -195,7 +198,6 @@ video {
 }
 
 .theme1 {
-  
   .content-box {
     width: calc(100vw - 40px);
     overflow-x: hidden;
@@ -205,6 +207,7 @@ video {
   
   .list-icon {
     width: 20px!important;
+    height: 20px!important;
     z-index: 9999;
     color: #216eee;
     display: inline-block;
@@ -233,10 +236,16 @@ video {
 
   .list-icon {
     width: 16px!important;
+    height: 16px!important;
     z-index: 9999;
     color: #216eee;
     display: block;
+    margin-top: 5px;
     margin-bottom:5px;
+  }
+
+  .list-label {
+    margin-bottom: 3px;
   }
 
 }

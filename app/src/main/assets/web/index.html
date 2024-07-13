@@ -149,12 +149,14 @@
             v-for="(tabs_item,tabs_index) in tabs">
             <template #title>
               <div class="title-box">
-                <img
+                <div>
+                  <img
                   :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`"
                   alt=""
                   class="list-icon"
                 />
-                <span>{{tabs_item.modelName}}</span>
+                </div>
+                <span class="list-label">{{tabs_item.modelName}}</span>
               </div>
             </template>
               <div class="content-box">
@@ -271,7 +273,8 @@
     </div>
 
     <!-- 列表弹窗 -->
-    <van-dialog v-model:show="person_list.visible" :title="person_list.title" show-cancel-button
+    <van-dialog
+    v-model:show="person_list.visible" :title="person_list.title" show-cancel-button
       @confirm="handleSubmitBtn"
       @cancel="handleCancelBtn">
       <div class="flex-space-between">
