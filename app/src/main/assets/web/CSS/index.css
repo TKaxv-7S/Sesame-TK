@@ -194,10 +194,6 @@ video {
   align-items: center;
 }
 
-.content {
-  padding-top: 10px;
-}
-
 .theme1 {
   
   .content-box {
@@ -208,7 +204,7 @@ video {
   }
   
   .list-icon {
-    width: 20px;
+    width: 20px!important;
     z-index: 9999;
     color: #216eee;
     display: inline-block;
@@ -236,15 +232,11 @@ video {
   }
 
   .list-icon {
-    width: 16px;
+    width: 16px!important;
     z-index: 9999;
     color: #216eee;
     display: block;
     margin-bottom:5px;
-  }
-
-  .van-tab--active .van-tab__text {
-    margin-bottom: 5px;
   }
 
 }
