@@ -32,7 +32,6 @@ public final class ModelConfig implements Serializable {
         this.code = model.getClass().getSimpleName();
         this.name = model.getName();
         this.group = model.getGroup();
-        this.icon = model.getIcon();
         BooleanModelField enableField = model.getEnableField();
         fields.put(enableField.getCode(), enableField);
         ModelFields modelFields = model.getFields();
