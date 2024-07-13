@@ -98,6 +98,10 @@ public class IntegerModelField extends ModelField<Integer> {
 
         @Override
         public void setConfigValue(String configValue) {
+            if (configValue == null) {
+                reset();
+                return;
+            }
             super.setConfigValue(configValue);
             try {
                 value = value * multiple;

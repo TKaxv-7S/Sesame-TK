@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.ancientTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
@@ -23,6 +24,11 @@ public class AncientTree extends ModelTask {
     @Override
     public String getName() {
         return "古树";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.FOREST;
     }
 
     private BooleanModelField ancientTreeOnlyWeek;

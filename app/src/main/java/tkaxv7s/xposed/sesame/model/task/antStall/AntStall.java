@@ -4,6 +4,7 @@ import android.util.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
@@ -53,6 +54,11 @@ public class AntStall extends ModelTask {
     @Override
     public String getName() {
         return "新村";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.STALL;
     }
 
     private BooleanModelField stallAutoOpen;

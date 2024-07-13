@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.Model;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.IntegerModelField;
@@ -54,6 +55,11 @@ public class BaseModel extends Model {
     @Override
     public String getName() {
         return "基础";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.BASE;
     }
 
     @Override

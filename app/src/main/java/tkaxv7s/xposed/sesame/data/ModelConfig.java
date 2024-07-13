@@ -17,6 +17,8 @@ public final class ModelConfig implements Serializable {
 
     private String name;
 
+    private ModelGroup group;
+
     private String icon;
 
     private final ModelFields fields = new ModelFields();
@@ -29,7 +31,7 @@ public final class ModelConfig implements Serializable {
         this();
         this.code = model.getClass().getSimpleName();
         this.name = model.getName();
-        this.icon = model.getIcon();
+        this.group = model.getGroup();
         BooleanModelField enableField = model.getEnableField();
         fields.put(enableField.getCode(), enableField);
         ModelFields modelFields = model.getFields();
@@ -47,7 +49,7 @@ public final class ModelConfig implements Serializable {
         return fields.containsKey(fieldCode);
     }
 
-    public ModelField getModelField(String fieldCode) {
+    public ModelField<?> getModelField(String fieldCode) {
         return fields.get(fieldCode);
     }
 

@@ -24,6 +24,14 @@ public class RpcIntervalLimit {
         intervalLimitMap.put(method, intervalLimit);
     }
 
+    public static synchronized void updateIntervalLimit(String method, Integer interval) {
+        updateIntervalLimit(method, new DefaultIntervalLimit(interval));
+    }
+
+    public static synchronized void updateIntervalLimit(String method, IntervalLimit intervalLimit) {
+        intervalLimitMap.put(method, intervalLimit);
+    }
+
     public static void enterIntervalLimit(String method) {
         IntervalLimit intervalLimit = intervalLimitMap.get(method);
         if (intervalLimit == null) {
@@ -36,6 +44,10 @@ public class RpcIntervalLimit {
             }
             intervalLimit.setTime(System.currentTimeMillis());
         }
+    }
+
+    public static synchronized void clearIntervalLimit() {
+        intervalLimitMap.clear();
     }
 
 }

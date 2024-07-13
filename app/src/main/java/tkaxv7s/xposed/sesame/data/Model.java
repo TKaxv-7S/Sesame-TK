@@ -15,6 +15,8 @@ public abstract class Model {
 
     private static final Map<String, ModelConfig> readOnlyModelConfigMap = Collections.unmodifiableMap(modelConfigMap);
 
+    private static final Map<ModelGroup, Map<String, ModelConfig>> groupModelConfigMap = new LinkedHashMap<>();
+
     private static final Map<Class<? extends Model>, Model> modelMap = new ConcurrentHashMap<>();
 
     private static final List<Class<Model>> modelClazzList = ModelOrder.getClazzList();
@@ -50,9 +52,7 @@ public abstract class Model {
 
     public abstract String getName();
 
-    public String getIcon() {
-        return null;
-    }
+    public abstract ModelGroup getGroup();
 
     public abstract ModelFields getFields();
 
@@ -64,6 +64,26 @@ public abstract class Model {
 
     public static Map<String, ModelConfig> getModelConfigMap() {
         return readOnlyModelConfigMap;
+    }
+
+    public static Set<ModelGroup> getGroupModelConfigGroupSet() {
+        return groupModelConfigMap.keySet();
+    }
+
+    public static List<Map<String, ModelConfig>> getGroupModelConfigMapList() {
+        List<Map<String, ModelConfig>> list = new ArrayList<>();
+        for (Map<String, ModelConfig> modelConfigMap : groupModelConfigMap.values()) {
+            list.add(Collections.unmodifiableMap(modelConfigMap));
+        }
+        return list;
+    }
+
+    public static Map<String, ModelConfig> getGroupModelConfig(ModelGroup modelGroup) {
+        Map<String, ModelConfig> map = groupModelConfigMap.get(modelGroup);
+        if (map == null) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(map);
     }
 
     public static Boolean hasModel(Class<? extends Model> modelClazz) {
@@ -88,7 +108,15 @@ public abstract class Model {
                 ModelConfig modelConfig = new ModelConfig(model);
                 modelArray[i] = model;
                 modelMap.put(modelClazz, model);
-                modelConfigMap.put(modelConfig.getCode(), modelConfig);
+                String modelCode = modelConfig.getCode();
+                modelConfigMap.put(modelCode, modelConfig);
+                ModelGroup group = modelConfig.getGroup();
+                Map<String, ModelConfig> modelConfigMap = groupModelConfigMap.get(group);
+                if (modelConfigMap == null) {
+                    modelConfigMap = new LinkedHashMap<>();
+                    groupModelConfigMap.put(group, modelConfigMap);
+                }
+                modelConfigMap.put(modelCode, modelConfig);
             } catch (IllegalAccessException | InstantiationException e) {
                 Log.printStackTrace(e);
             }

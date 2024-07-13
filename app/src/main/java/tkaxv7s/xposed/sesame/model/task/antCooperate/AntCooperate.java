@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.antCooperate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectAndCountModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
@@ -18,6 +19,11 @@ public class AntCooperate extends ModelTask {
     @Override
     public String getName() {
         return "合种";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.FOREST;
     }
 
     private final BooleanModelField cooperateWater = new BooleanModelField("cooperateWater", "合种浇水", false);

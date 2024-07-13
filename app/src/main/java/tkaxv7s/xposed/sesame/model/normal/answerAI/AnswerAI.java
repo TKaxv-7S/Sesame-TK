@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.model.normal.answerAI;
 
 import tkaxv7s.xposed.sesame.data.Model;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.StringModelField;
 import tkaxv7s.xposed.sesame.util.Log;
@@ -15,6 +16,11 @@ public class AnswerAI extends Model {
     @Override
     public String getName() {
         return "AI答题";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.OTHER;
     }
 
     private static AnswerAIInterface answerAIInterface = AnswerAIInterface.getInstance();

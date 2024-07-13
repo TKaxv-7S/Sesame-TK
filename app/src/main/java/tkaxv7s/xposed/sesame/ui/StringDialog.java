@@ -14,13 +14,13 @@ import tkaxv7s.xposed.sesame.util.Log;
 
 public class StringDialog {
 
-    private static ModelField modelField;
+    private static ModelField<?> modelField;
 
-    public static void showEditDialog(Context c, CharSequence title, ModelField modelField) {
+    public static void showEditDialog(Context c, CharSequence title, ModelField<?> modelField) {
         showEditDialog(c, title, modelField, null);
     }
 
-    public static void showEditDialog(Context c, CharSequence title, ModelField modelField, String msg) {
+    public static void showEditDialog(Context c, CharSequence title, ModelField<?> modelField, String msg) {
         StringDialog.modelField = modelField;
         AlertDialog editDialog = getEditDialog(c);
         if (msg != null) {
@@ -71,11 +71,11 @@ public class StringDialog {
         return editDialog;
     }
 
-    public static void showReadDialog(Context c, CharSequence title, ModelField modelField) {
+    public static void showReadDialog(Context c, CharSequence title, ModelField<?> modelField) {
         showReadDialog(c, title, modelField, null);
     }
 
-    public static void showReadDialog(Context c, CharSequence title, ModelField modelField, String msg) {
+    public static void showReadDialog(Context c, CharSequence title, ModelField<?> modelField, String msg) {
         StringDialog.modelField = modelField;
         AlertDialog readDialog = getReadDialog(c);
         if (msg != null) {
