@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.model.task.readingDada;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.model.normal.answerAI.AnswerAI;
 import tkaxv7s.xposed.sesame.util.JsonUtil;
 import tkaxv7s.xposed.sesame.util.Log;
@@ -13,6 +14,10 @@ import tkaxv7s.xposed.sesame.util.StringUtil;
  */
 public class ReadingDada {
     private static final String TAG = ReadingDada.class.getSimpleName();
+
+    public ModelGroup getGroup() {
+        return ModelGroup.STALL;
+    }
 
     public static boolean answerQuestion(JSONObject bizInfo) {
         try {

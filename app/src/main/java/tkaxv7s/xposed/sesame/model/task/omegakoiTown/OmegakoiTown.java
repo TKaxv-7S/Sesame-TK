@@ -3,6 +3,7 @@ package tkaxv7s.xposed.sesame.model.task.omegakoiTown;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
+import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.data.RuntimeInfo;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
@@ -49,6 +50,11 @@ public class OmegakoiTown extends ModelTask {
     @Override
     public String getName() {
         return "小镇";
+    }
+
+    @Override
+    public ModelGroup getGroup() {
+        return ModelGroup.OTHER;
     }
 
 
