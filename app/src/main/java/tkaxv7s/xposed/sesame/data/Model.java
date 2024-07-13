@@ -17,8 +17,6 @@ public abstract class Model {
 
     private static final Map<ModelGroup, Set<ModelConfig>> groupModelConfigMap = new LinkedHashMap<>();
 
-    private static final Map<ModelGroup, Set<ModelConfig>> readOnlyGroupModelConfigMap = Collections.unmodifiableMap(groupModelConfigMap);
-
     private static final Map<Class<? extends Model>, Model> modelMap = new ConcurrentHashMap<>();
 
     private static final List<Class<Model>> modelClazzList = ModelOrder.getClazzList();
@@ -56,10 +54,6 @@ public abstract class Model {
 
     public abstract ModelGroup getGroup();
 
-    public String getIcon() {
-        return null;
-    }
-
     public abstract ModelFields getFields();
 
     public void prepare() {}
@@ -72,12 +66,24 @@ public abstract class Model {
         return readOnlyModelConfigMap;
     }
 
-    public static Map<ModelGroup, Set<ModelConfig>> getGroupModelConfigMap() {
-        return readOnlyGroupModelConfigMap;
+    public static Set<ModelGroup> getGroupModelConfigGroupSet() {
+        return groupModelConfigMap.keySet();
+    }
+
+    public static List<Set<ModelConfig>> getGroupModelConfigSetList() {
+        List<Set<ModelConfig>> list = new ArrayList<>();
+        for (Set<ModelConfig> modelConfigSet : groupModelConfigMap.values()) {
+            list.add(Collections.unmodifiableSet(modelConfigSet));
+        }
+        return list;
     }
 
     public static Set<ModelConfig> getGroupModelConfig(ModelGroup modelGroup) {
-        return readOnlyGroupModelConfigMap.get(modelGroup);
+        Set<ModelConfig> set = groupModelConfigMap.get(modelGroup);
+        if (set == null) {
+            return Collections.emptySet();
+        }
+        return Collections.unmodifiableSet(set);
     }
 
     public static Boolean hasModel(Class<? extends Model> modelClazz) {
@@ -108,7 +114,6 @@ public abstract class Model {
                 if (groupModelConfigSet == null) {
                     groupModelConfigSet = new LinkedHashSet<>();
                     groupModelConfigMap.put(group, groupModelConfigSet);
-                    readOnlyGroupModelConfigMap.put(group, Collections.unmodifiableSet(groupModelConfigSet));
                 }
                 groupModelConfigSet.add(modelConfig);
             } catch (IllegalAccessException | InstantiationException e) {
