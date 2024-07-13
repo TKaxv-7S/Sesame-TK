@@ -177,6 +177,30 @@ public class SettingsActivity extends BaseActivity {
         }
 
         @JavascriptInterface
+        public String setModelByGroup(String groupCode, String modelsValue) {
+            List<ModelDto> modelDtoList = JsonUtil.parseObject(modelsValue, new TypeReference<List<ModelDto>>() {
+            });
+            Map<String, ModelConfig> modelConfigSet = ModelTask.getGroupModelConfig(ModelGroup.getByCode(groupCode));
+            for (ModelDto modelDto : modelDtoList) {
+                ModelConfig modelConfig = modelConfigSet.get(modelDto.getModelCode());
+                if (modelConfig != null) {
+                    List<ModelFieldShowDto> modelFields = modelDto.getModelFields();
+                    if (modelFields != null) {
+                        for (ModelFieldShowDto newModelField : modelFields) {
+                            if (newModelField != null) {
+                                ModelField<?> modelField = modelConfig.getModelField(newModelField.getCode());
+                                if (modelField != null) {
+                                    modelField.setConfigValue(newModelField.getConfigValue());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return "SUCCESS";
+        }
+
+        @JavascriptInterface
         public String setModel(String modelCode, String fieldsValue) {
             ModelConfig modelConfig = ModelTask.getModelConfigMap().get(modelCode);
             if (modelConfig != null) {

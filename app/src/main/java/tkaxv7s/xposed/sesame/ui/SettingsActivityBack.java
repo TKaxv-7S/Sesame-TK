@@ -23,9 +23,9 @@ import tkaxv7s.xposed.sesame.util.*;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class SettingsActivityBack extends BaseActivity {
     private WebView webView;
@@ -169,9 +169,9 @@ public class SettingsActivityBack extends BaseActivity {
 
         @JavascriptInterface
         public String getModelByGroup(String groupCode) {
-            Set<ModelConfig> modelConfigSet = ModelTask.getGroupModelConfig(ModelGroup.getByCode(groupCode));
+            Collection<ModelConfig> modelConfigCollection = ModelTask.getGroupModelConfig(ModelGroup.getByCode(groupCode)).values();
             List<ModelDto> modelDtoList = new ArrayList<>();
-            for (ModelConfig modelConfig : modelConfigSet) {
+            for (ModelConfig modelConfig : modelConfigCollection) {
                 List<ModelFieldShowDto> modelFields = new ArrayList<>();
                 for (ModelField<?> modelField : modelConfig.getFields().values()) {
                     modelFields.add(ModelFieldShowDto.toShowDto(modelField));
@@ -179,6 +179,30 @@ public class SettingsActivityBack extends BaseActivity {
                 modelDtoList.add(new ModelDto(modelConfig.getCode(), modelConfig.getName(), groupCode, modelFields));
             }
             return JsonUtil.toJsonString(modelDtoList);
+        }
+
+        @JavascriptInterface
+        public String setModelByGroup(String groupCode, String modelsValue) {
+            List<ModelDto> modelDtoList = JsonUtil.parseObject(modelsValue, new TypeReference<List<ModelDto>>() {
+            });
+            Map<String, ModelConfig> modelConfigSet = ModelTask.getGroupModelConfig(ModelGroup.getByCode(groupCode));
+            for (ModelDto modelDto : modelDtoList) {
+                ModelConfig modelConfig = modelConfigSet.get(modelDto.getModelCode());
+                if (modelConfig != null) {
+                    List<ModelFieldShowDto> modelFields = modelDto.getModelFields();
+                    if (modelFields != null) {
+                        for (ModelFieldShowDto newModelField : modelFields) {
+                            if (newModelField != null) {
+                                ModelField<?> modelField = modelConfig.getModelField(newModelField.getCode());
+                                if (modelField != null) {
+                                    modelField.setConfigValue(newModelField.getConfigValue());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return "SUCCESS";
         }
 
         @JavascriptInterface
