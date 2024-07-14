@@ -28,7 +28,6 @@ import tkaxv7s.xposed.sesame.util.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -355,7 +354,7 @@ public class MainActivity extends BaseActivity {
 
     private void goSettingActivity(int index) {
         UserEntity userEntity = userEntityArray[index];
-        Intent intent = new Intent(this, SettingsActivity.class);
+        Intent intent = new Intent(this, NewSettingsActivity.class);
         if (userEntity != null) {
             intent.putExtra("userId", userEntity.getUserId());
             intent.putExtra("userName", userEntity.getShowName());

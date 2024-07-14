@@ -61,6 +61,11 @@
         </activity-alias>
 
         <activity
+                android:name="tkaxv7s.xposed.sesame.ui.NewSettingsActivity"
+                android:resizeableActivity="true"
+                tools:targetApi="n" />
+
+        <activity
                 android:name="tkaxv7s.xposed.sesame.ui.SettingsActivity"
                 android:resizeableActivity="true"
                 tools:targetApi="n" />

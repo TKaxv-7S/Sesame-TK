@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class SettingsActivity extends BaseActivity {
+public class NewSettingsActivity extends BaseActivity {
     private WebView webView;
     private Context context;
 
@@ -147,14 +147,14 @@ public class SettingsActivity extends BaseActivity {
                 if (webView.canGoBack()) {
                     webView.goBack();
                 } else {
-                    SettingsActivity.this.finish();
+                    NewSettingsActivity.this.finish();
                 }
             });
         }
 
         @JavascriptInterface
         public void onExit() {
-            runOnUiThread(SettingsActivity.this::finish);
+            runOnUiThread(NewSettingsActivity.this::finish);
         }
     }
 
