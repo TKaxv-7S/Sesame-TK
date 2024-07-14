@@ -46,6 +46,8 @@ public class AntOcean extends ModelTask {
     private BooleanModelField cleanOcean;
     private ChoiceModelField cleanOceanType;
     private SelectModelField cleanOceanList;
+    private BooleanModelField exchangeProp;
+    private BooleanModelField usePropByType;
     private BooleanModelField protectOcean;
     private SelectAndCountModelField protectOceanList;
 
@@ -57,6 +59,8 @@ public class AntOcean extends ModelTask {
         modelFields.addField(cleanOcean = new BooleanModelField("cleanOcean", "清理 | 开启", false));
         modelFields.addField(cleanOceanType = new ChoiceModelField("cleanOceanType", "清理 | 动作", CleanOceanType.DONT_CLEAN, CleanOceanType.nickNames));
         modelFields.addField(cleanOceanList = new SelectModelField("cleanOceanList", "清理 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(exchangeProp = new BooleanModelField("exchangeProp", "神奇海洋 | 制作万能拼图", false));
+        modelFields.addField(usePropByType = new BooleanModelField("usePropByType", "神奇海洋 | 使用万能拼图", false));
         modelFields.addField(protectOcean = new BooleanModelField("protectOcean", "保护 | 开启", false));
         modelFields.addField(protectOceanList = new SelectAndCountModelField("protectOceanList", "保护 | 海洋列表", new LinkedHashMap<>(), AlipayBeach::getList));
         return modelFields;
@@ -125,6 +129,14 @@ public class AntOcean extends ModelTask {
                 if (receiveOceanTaskAward.getValue()) {
                     receiveTaskAward();
                 }
+                // 制作万能碎片
+                if (exchangeProp.getValue()) {
+                    exchangeProp();
+                }
+                // 使用万能拼图
+                if (usePropByType.getValue()) {
+                    usePropByType();
+                }
 
             } else {
                 Log.i(TAG, joHomePage.getString("resultDesc"));
@@ -178,6 +190,7 @@ public class AntOcean extends ModelTask {
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     JSONArray cleanRewardVOS = jo.getJSONArray("cleanRewardVOS");
                     checkReward(cleanRewardVOS);
+                    Log.forest("神奇海洋🐳[清理:" + UserIdMap.getMaskName(userId) + "海域]");
                 } else {
                     Log.i(TAG, jo.getString("resultDesc"));
                 }
@@ -225,10 +238,10 @@ public class AntOcean extends ModelTask {
         try {
             for (int i = 0; i < rewards.length(); i++) {
                 JSONObject reward = rewards.getJSONObject(i);
+                String name = reward.getString("name");
                 JSONArray attachReward = reward.getJSONArray("attachRewardBOList");
-
                 if (attachReward.length() > 0) {
-                    Log.forest("神奇海洋🐳[获取碎片奖励]");
+                    Log.forest("神奇海洋🐳[获得:" + name + "碎片]");
                     boolean canCombine = true;
                     for (int j = 0; j < attachReward.length(); j++) {
                         JSONObject detail = attachReward.getJSONObject(j);
@@ -438,6 +451,8 @@ public class AntOcean extends ModelTask {
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 s = AntOceanRpcCall.cleanFriendOcean(userId);
                 jo = new JSONObject(s);
+                Log.forest("神奇海洋🐳[帮助:" + UserIdMap.getMaskName
+                        (userId) + "清理海域]");
                 if ("SUCCESS".equals(jo.getString("resultCode"))) {
                     JSONArray cleanRewardVOS = jo.getJSONArray("cleanRewardVOS");
                     checkReward(cleanRewardVOS);
@@ -763,6 +778,123 @@ public class AntOcean extends ModelTask {
         }
         return appliedTimes;
     }
+
+    // 制作万能碎片
+    private static void exchangeProp() {
+        try {
+            boolean shouldContinue = true;
+            while (shouldContinue) {
+                // 获取道具兑换列表的JSON数据
+                String propListJson = AntOceanRpcCall.exchangePropList();
+                JSONObject propListObj = new JSONObject(propListJson);
+                // 检查是否成功获取道具列表
+                if ("SUCCESS".equals(propListObj.getString("resultCode"))) {
+                    // 获取道具重复数量
+                    int duplicatePieceNum = propListObj.getInt("duplicatePieceNum");
+                    // 如果道具重复数量小于10，直接返回并停止循环
+                    if (duplicatePieceNum < 10) {
+                        shouldContinue = false;
+                        return;
+                    }
+                    // 如果道具重复数量大于等于10，则执行道具兑换操作
+                    String exchangeResultJson = AntOceanRpcCall.exchangeProp();
+                    JSONObject exchangeResultObj = new JSONObject(exchangeResultJson);
+
+                    // 获取兑换后的碎片数量和兑换数量
+                    String exchangedPieceNum = exchangeResultObj.getString("duplicatePieceNum");
+                    String exchangeNum = exchangeResultObj.getString("exchangeNum");
+
+                    // 检查道具兑换操作是否成功
+                    if ("SUCCESS".equals(exchangeResultObj.getString("resultCode"))) {
+                        // 输出日志信息
+                        Log.forest("神奇海洋🏖️[制作:" + exchangeNum + "张万能拼图]剩余" + exchangedPieceNum + "张碎片");
+                        // 制作完成后休眠1秒钟
+                        TimeUtil.sleep(1000);
+                    }
+                } else {
+                    // 如果未成功获取道具列表，停止循环
+                    shouldContinue = false;
+                }
+            }
+        } catch (Throwable t) {
+            // 捕获并记录异常
+            Log.i(TAG, "exchangeProp error:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    // 使用万能拼图
+    private static void usePropByType() {
+        try {
+            // 获取道具使用类型列表的JSON数据
+            String propListJson = AntOceanRpcCall.usePropByTypeList();
+            JSONObject propListObj = new JSONObject(propListJson); // 使用 JSONObject 解析返回的 JSON 数据
+            if ("SUCCESS".equals(propListObj.getString("resultCode"))) {
+                // 获取道具类型列表中的holdsNum值
+                JSONArray oceanPropVOByTypeList = propListObj.getJSONArray("oceanPropVOByTypeList"); // 获取数组中的数据
+                // 遍历每个道具类型信息
+                for (int i = 0; i < oceanPropVOByTypeList.length(); i++) {
+                    JSONObject propInfo = oceanPropVOByTypeList.getJSONObject(i);
+                    int holdsNum = propInfo.getInt("holdsNum");
+                    // 只要holdsNum大于0，就继续执行循环操作
+                    while (holdsNum > 0) {
+                        // 查询鱼列表的JSON数据
+                        String fishListJson = AntOceanRpcCall.queryFishList();
+                        JSONObject fishListObj = new JSONObject(fishListJson);
+                        // 检查是否成功获取到鱼列表并且 hasMore 为 true
+                        if ("SUCCESS".equals(fishListObj.getString("resultCode")) && fishListObj.optBoolean("hasMore")) {
+                            // 获取鱼列表中的fishVOS数组
+                            JSONArray fishVOS = fishListObj.optJSONArray("fishVOS");
+                            // 遍历fishVOS数组，寻找pieces中num值为0的鱼的order和id
+                            for (int j = 0; j < fishVOS.length(); j++) {
+                                JSONObject fish = fishVOS.getJSONObject(j);
+                                JSONArray pieces = fish.getJSONArray("pieces");
+                                // 遍历pieces数组，寻找num值为0的拼图片段
+                                boolean foundNumZero = false; // 添加一个标志，用来记录是否找到了符合条件的拼图片段
+                                for (int k = 0; k < pieces.length(); k++) {
+                                    JSONObject piece = pieces.getJSONObject(k);
+                                    int num = piece.getInt("num");
+                                    // 找到num值为0的拼图片段
+                                    if (num == 0) {
+                                        int order = fish.getInt("order");
+                                        String id = piece.getString("id");
+                                        String name = fish.getString("name");
+                                        // 调用usePropByType方法执行道具使用
+                                        String usePropResult = AntOceanRpcCall.usePropByType(order, Integer.parseInt(id)); // 传递order和id作为参数
+                                        JSONObject usePropResultObj = new JSONObject(usePropResult);
+                                        // 检查道具使用操作是否成功
+                                        if ("SUCCESS".equals(usePropResultObj.getString("resultCode"))) {
+                                            Log.forest("神奇海洋🏖️[使用:万能拼图]" + name);
+                                            TimeUtil.sleep(1000);
+                                            holdsNum--; // 每使用一次道具，将holdsNum减1
+                                            foundNumZero = true; // 设置标志为true，表示已经找到了符合条件的拼图片段
+                                            // 继续下一个鱼的查找
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (foundNumZero) {
+                                    // 如果找到了符合条件的拼图片段，就停止遍历fishVOS数组
+                                    break;
+                                }
+                            }
+                        } else {
+                            // 如果没有成功获取到鱼列表或者 hasMore 为 false，则停止后续操作
+                            break;
+                        }
+                    }
+                    if (holdsNum == 0) {
+                        return; // 结束当前方法的执行
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "usePropByType error:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+
 
     public interface CleanOceanType {
 
