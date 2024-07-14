@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title></title>
-  <link rel="stylesheet" href="./CSS/vant.css" />
-  <link rel="stylesheet" href="./CSS/index.css" />
+  <link rel="stylesheet" href="./CSS/vant.css?v=1" />
+  <link rel="stylesheet" href="./CSS/index.css?v=1" />
   <script>
     function onBackPressed() {
       if (window.handleData && window.isCanSave) {
@@ -54,12 +54,16 @@
 
       <div class="theme1" v-if="theme==='theme1'">
         <van-collapse v-model="currentTab" accordion @change="changeCollapse">
-          <van-collapse-item :name="tabs_index" :key="tabs_item.modelCode"  :id="`collapse-item_${tabs_index}`" v-for="(tabs_item,tabs_index) in tabs">
+          <van-collapse-item :name="tabs_index" :key="tabs_item.modelCode" :id="`collapse-item_${tabs_index}`"
+            v-for="(tabs_item,tabs_index) in tabs">
             <template #title>
-              <div>
-                <img :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" alt=""
-                  class="list-icon" />
-                {{tabs_item.modelName}}
+              <div class="title-box">
+                <div>
+                  <van-image width="20" height="20"
+                  class="list-icon"
+                    :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" />
+                </div>
+                <div>{{tabs_item.modelName}}</div>
               </div>
             </template>
 
@@ -107,9 +111,13 @@
 
           <van-collapse-item name="13" title="主题设置" id="collapse-item_13">
             <template #title>
-              <div >
-                <img :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" alt="" class="list-icon" />
-                主题设置
+              <div class="title-box">
+                <div>
+                  <van-image width="20" height="20"
+                  class="list-icon"
+                  :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" />
+                </div>
+                <div>主题设置</div>
               </div>
             </template>
             <div class="content-box">
@@ -142,15 +150,16 @@
       </div>
 
       <div class="theme2" v-else>
-        <van-tabs v-model:active="currentTab" swipeable sticky>
+        <van-tabs v-model:active="currentTab" swipeable sticky title-active-color="#216eee">
           <van-tab :name="tabs_index" :key="tabs_item.modelCode" v-for="(tabs_item,tabs_index) in tabs">
             <template #title>
               <div class="title-box">
-                <div >
-                  <img :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" alt=""
-                    class="list-icon" />
+                <div>
+                  <van-image width="20" height="20"
+                  class="list-icon"
+                  :src="`./SVG/${currentTab===tabs_index?tabs_index+'_ed':tabs_index}.svg`" />
                 </div>
-                <span class="list-label">{{tabs_item.modelName}}</span>
+                <div class="list-label">{{tabs_item.modelName}}</div>
               </div>
             </template>
             <div class="content-box">
@@ -197,9 +206,13 @@
 
           <van-tab name="13" title="主题设置">
             <template #title>
-              <div  class="title-box">
-                <img :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" alt="" class="list-icon" />
-                主题设置
+              <div class="title-box">
+                <div>
+                  <van-image width="20" height="20"
+                  class="list-icon"
+                  :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" />
+                </div>
+                <div>主题设置</div>
               </div>
             </template>
             <div class="content-box">
@@ -276,7 +289,7 @@
       setup() {
         // 左侧导航菜单
         const tabs = ref(JSON.parse(window.HOOK.getTabs()));
-        const currentTab = ref(0);
+        const currentTab = ref(localStorage.getItem('theme') === 'theme1' ? null : 0);
         //设置默认值
         const setData = ref(
           tabs.value.map((item) => {
@@ -304,6 +317,7 @@
 
         function loadList(modelName, code, name, type) {
           person_list.value.visible = true;
+          person_list.value.list = []
           let obj = JSON.parse(
             window.HOOK.getField(modelName, code)
           )
@@ -312,27 +326,29 @@
             return {
               ...item,
               isChecked: type === "SELECT" ? configValue.includes(item.id) : configValue.key && configValue.key.includes(item.id) || type === "SELECT_AND_COUNT" && configValue[item.id] || false,
-              count: type === "SELECT_AND_COUNT" && configValue[item.id],
+              count: type === "SELECT_AND_COUNT" && configValue[item.id] || '',
             };
           }).sort((a, b) => a.name.localeCompare(b.name)).sort((a, b) => b.isChecked - a.isChecked || b.count - a.count)
 
-        //   let result = [];
-        //   for (let i = 0; i < array.length; i += 60) {
-        //     result.push(array.slice(i, i + 60));
-        //   }
+          let result = [];
+          for (let i = 0; i < array.length; i += 30) {
+            result.push(array.slice(i, i + 30));
+          }
 
-        //   let _index = 0;
+          let _index = 0;
 
-        //  let timer= requestAnimationFrame(() => {
-        //    if(_index===result.length){
-        //     return
-        //    }
-        //     person_list.value.list.push(...result[_index])
-        //     _index++
-        //   })
+          const refreshFrameCount = () => {
+            requestAnimationFrame(() => {
+              person_list.value.list.push(...result[_index])
+              _index++
+              if (_index < result.length) {
+                refreshFrameCount()
+              }
+            })
+          }
 
-
-          person_list.value.list = array
+          refreshFrameCount()
+          // person_list.value.list = array.slice(0,60)
 
 
           person_list.value.title = name;
@@ -353,40 +369,42 @@
         }
 
         function handleSubmitBtn() {
-          if (person_list.value.type === "SELECT") {
-            let params = [];
-            person_list.value.list
-              .filter((item) => item.isChecked)
-              .forEach((item) => {
-                params.push(item.id);
-              });
-            setData.value[currentTab.value].find(
-              (item) => item.code === person_list.value.code
-            ).configValue = JSON.stringify(params);
-          } else if (person_list.value.type === "SELECT_AND_COUNT") {
-            let params = {};
-            person_list.value.list
-              .filter((item) => Number(item.count))
-              .forEach((item) => {
-                params = {
-                  ...params,
-                  [item.id]: Number(item.count),
-                };
-              });
-            setData.value[currentTab.value].find(
-              (item) => item.code === person_list.value.code
-            ).configValue = JSON.stringify(params);
+          const refreshFrameCount = () => {
+            requestAnimationFrame(() => {
+              person_list.value.visible = false;
+              if (person_list.value.type === "SELECT") {
+                let params = [];
+                person_list.value.list
+                  .filter((item) => item.isChecked)
+                  .forEach((item) => {
+                    params.push(item.id);
+                  });
+                setData.value[currentTab.value].find(
+                  (item) => item.code === person_list.value.code
+                ).configValue = JSON.stringify(params);
+              } else if (person_list.value.type === "SELECT_AND_COUNT") {
+                let params = {};
+                person_list.value.list
+                  .filter((item) => Number(item.count))
+                  .forEach((item) => {
+                    params = {
+                      ...params,
+                      [item.id]: Number(item.count),
+                    };
+                  });
+                setData.value[currentTab.value].find(
+                  (item) => item.code === person_list.value.code
+                ).configValue = JSON.stringify(params);
+              }
+              person_list.value.keys = "";
+              person_list.value.code = "";
+              person_list.value.type = "";
+              person_list.value.modelName = "";
+              person_list.value.check_all = false;
+            })
           }
-          person_list.value = {
-            visible: false,
-            title: "",
-            code: "",
-            keys: "",
-            type: "",
-            modelName: "",
-            list: person_list.value.list,
-            check_all: false,
-          };
+
+          refreshFrameCount()
         }
 
         function handleCancelBtn() {
@@ -396,14 +414,6 @@
 
         function clearValue(item) {
           item.configValue = "";
-        }
-
-        function changeCollapse(index) {
-          setTimeout(() => {
-            if (document.querySelector(`#collapse-item_${index}`)) {
-              document.querySelector(`#collapse-item_${index}`).scrollIntoView()
-            }
-          }, 800)
         }
 
         function handleData() {
@@ -416,6 +426,29 @@
             window.HOOK.setModel(item.modelCode, JSON.stringify(params));
           });
         }
+
+        function changeCollapse(index) {
+          setTimeout(() => {
+            let dom = document.querySelector(`#collapse-item_${index}`)
+            if (dom) {
+              if (!isInViewPort(dom)) {
+                document.querySelector(`#collapse-item_${index}`).scrollIntoView()
+              }
+            }
+          }, 800)
+        }
+
+        function isInViewPort(element) {
+          const viewWidth =
+            window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+          const viewHeight =
+            window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+          const { top, right, bottom, left } = element.getBoundingClientRect();
+          console.log('2222', top, right, bottom, left, viewWidth, viewHeight);
+
+          return top >= 0 && left >= 0;
+        };
 
         window.handleData = handleData;
         window.isCanSave = true;
