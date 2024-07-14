@@ -461,8 +461,6 @@ public class AntFarm extends ModelTask {
             }
         } catch (Exception e) {
             Log.printStackTrace(e);
-        } finally {
-            TimeUtil.sleep(1000);
         }
         return false;
     }
@@ -727,7 +725,6 @@ public class AntFarm extends ModelTask {
     private void handleDonation(int donationType) {
         try {
             String s = AntFarmRpcCall.listActivityInfo();
-            TimeUtil.sleep(1000);
             JSONObject jo = new JSONObject(s);
             String memo = jo.getString("memo");
             if ("SUCCESS".equals(memo)) {
@@ -766,7 +763,6 @@ public class AntFarm extends ModelTask {
     private Boolean performDonation(String activityId, String activityName) throws JSONException {
         try {
             String s = AntFarmRpcCall.donation(activityId, 1);
-            TimeUtil.sleep(1000);
             JSONObject donationResponse = new JSONObject(s);
             String memo = donationResponse.getString("memo");
             if ("SUCCESS".equals(memo)) {
@@ -1082,7 +1078,7 @@ public class AntFarm extends ModelTask {
                 Log.record("喂鸡饲料不足");
             } else {
                 String s = AntFarmRpcCall.feedAnimal(farmId);
-                TimeUtil.sleep(1000);
+                TimeUtil.sleep(500);
                 JSONObject jo = new JSONObject(s);
                 String memo = jo.getString("memo");
                 if ("SUCCESS".equals(memo)) {
@@ -1800,7 +1796,6 @@ public class AntFarm extends ModelTask {
         try {
             for (int i = 0; i < 3; i++) {
                 String s = AntFarmRpcCall.enterDrawMachine();
-                TimeUtil.sleep(1000L);
                 JSONObject jo = new JSONObject(s);
                 if (jo.getBoolean("success")) {
                     JSONObject userInfo = jo.getJSONObject("userInfo");
@@ -1808,7 +1803,7 @@ public class AntFarm extends ModelTask {
                     if (leftDrawTimes > 0) {
                         for (int ii = 0; ii < leftDrawTimes; ii++) {
                             jo = new JSONObject(AntFarmRpcCall.DrawPrize());
-                            TimeUtil.sleep(1000L);
+                            TimeUtil.sleep(300L);
                             if (jo.getBoolean("success")) {
                                 String title = jo.getString("title");
                                 int prizeNum = jo.optInt("prizeNum", 0);
@@ -1859,7 +1854,6 @@ public class AntFarm extends ModelTask {
         JSONArray animals = null;
         try {
             String s = AntFarmRpcCall.enterFarm("", UserIdMap.getCurrentUid());
-            TimeUtil.sleep(1000);
             JSONObject jsonObject = new JSONObject(s);
             if ("SUCCESS".equals(jsonObject.getString("memo"))) {
                 JSONObject farmVO = jsonObject.getJSONObject("farmVO");
@@ -1911,7 +1905,6 @@ public class AntFarm extends ModelTask {
             JSONObject jo;
             do {
                 s = AntFarmRpcCall.rankingList(pageStartSum);
-                TimeUtil.sleep(1000);
                 jo = new JSONObject(s);
                 String memo = jo.getString("memo");
                 if ("SUCCESS".equals(memo)) {
@@ -1996,8 +1989,6 @@ public class AntFarm extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "hireAnimal err:");
             Log.printStackTrace(TAG, t);
-        } finally {
-            TimeUtil.sleep(1000);
         }
         return false;
     }
@@ -2005,7 +1996,6 @@ public class AntFarm extends ModelTask {
     private void drawGameCenterAward() {
         try {
             JSONObject jo = new JSONObject(AntFarmRpcCall.queryGameList());
-            TimeUtil.sleep(1000);
             if (jo.getBoolean("success")) {
                 JSONObject gameDrawAwardActivity = jo.getJSONObject("gameDrawAwardActivity");
                 int canUseTimes = gameDrawAwardActivity.getInt("canUseTimes");

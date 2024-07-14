@@ -2,6 +2,7 @@ package tkaxv7s.xposed.sesame.model.task.antForest;
 
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
+import tkaxv7s.xposed.sesame.rpc.bridge.RpcVersion;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 import tkaxv7s.xposed.sesame.util.StringUtil;
 
@@ -10,7 +11,22 @@ import java.util.UUID;
 
 public class AntForestRpcCall {
 
-    private static final String VERSION = "20240403";
+    private static String VERSION = "";
+
+    public static void init() {
+        RpcVersion rpcVersion = ApplicationHook.getRpcVersion();
+        switch (rpcVersion) {
+            case OLD:
+                VERSION = "20230501";
+                break;
+            case NEW:
+                VERSION = "20240403";
+                break;
+            default:
+                VERSION = "";
+                break;
+        }
+    }
 
     private static String getUniqueId() {
         return String.valueOf(System.currentTimeMillis()) + RandomUtil.nextLong();

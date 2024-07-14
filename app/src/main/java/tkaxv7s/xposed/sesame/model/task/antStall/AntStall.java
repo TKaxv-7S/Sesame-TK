@@ -165,7 +165,7 @@ public class AntStall extends ModelTask {
                 }
                 if (stallAutoTask.getValue()) {
                     taskList();
-                    TimeUtil.sleep(1000);
+                    TimeUtil.sleep(500);
                     taskList();
                 }
                 if (stallDonate.getValue() && Status.canStallDonateToday()) {
@@ -354,7 +354,7 @@ public class AntStall extends ModelTask {
                                     if (stallAutoClose.getValue()) {
                                         shopClose(shopId, rentLastBill, rentLastUser);
                                     }
-                                    TimeUtil.sleep(1000L);
+                                    TimeUtil.sleep(300L);
                                     if (stallAutoOpen.getValue()) {
                                         openShop();
                                     }
@@ -437,7 +437,6 @@ public class AntStall extends ModelTask {
     private void openShop(String seatId, String userId, Queue<String> shopIds) {
         String shopId = shopIds.peek();
         String s = AntStallRpcCall.shopOpen(seatId, userId, shopId);
-        TimeUtil.sleep(1000);
         try {
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
@@ -458,7 +457,6 @@ public class AntStall extends ModelTask {
             String userId = seat.userId;
             try {
                 String s = AntStallRpcCall.friendHome(userId);
-                TimeUtil.sleep(1000);
                 JSONObject jo = new JSONObject(s);
                 if ("SUCCESS".equals(jo.optString("resultCode"))) {
                     JSONObject seatsMap = jo.getJSONObject("seatsMap");
