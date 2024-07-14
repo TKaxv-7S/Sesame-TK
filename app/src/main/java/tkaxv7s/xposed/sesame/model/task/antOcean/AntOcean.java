@@ -467,7 +467,6 @@ public class AntOcean extends ModelTask {
     private static void doOceanDailyTask() {
         try {
             String s = AntOceanRpcCall.queryTaskList();
-            TimeUtil.sleep(1000);
             JSONObject jo = new JSONObject(s);
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONArray jaTaskList = jo.getJSONArray("antOceanTaskVOList");
@@ -482,7 +481,7 @@ public class AntOcean extends ModelTask {
                     if (bizInfo.optBoolean("autoCompleteTask", false) || taskType.startsWith("DAOLIU_")) {
                         String sceneCode = taskJson.getString("sceneCode");
                         jo = new JSONObject(AntOceanRpcCall.finishTask(sceneCode, taskType));
-                        TimeUtil.sleep(1000);
+                        TimeUtil.sleep(500);
                         if (jo.getBoolean("success")) {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[完成:" + taskTitle + "]");
@@ -497,7 +496,7 @@ public class AntOcean extends ModelTask {
                     if (isTargetTask(taskType)) {
                         String sceneCode = taskJson.getString("sceneCode");
                         jo = new JSONObject(AntOceanRpcCall.finishTask(sceneCode, taskType));
-                        TimeUtil.sleep(1000);
+                        TimeUtil.sleep(500);
                         if (jo.getBoolean("success")) {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[完成:" + taskTitle + "]");
@@ -533,7 +532,7 @@ public class AntOcean extends ModelTask {
                     String taskType = jo.getString("taskType");
                     String sceneCode = jo.getString("sceneCode");
                     jo = new JSONObject(AntOceanRpcCall.receiveTaskAward(sceneCode, taskType));
-                    TimeUtil.sleep(1000);
+                    TimeUtil.sleep(500);
                     if (jo.getBoolean("success")) {
                         String taskTitle = bizInfo.optString("taskTitle", taskType);
                         String awardCount = bizInfo.optString("awardCount", "0");
@@ -559,7 +558,6 @@ public class AntOcean extends ModelTask {
     private static void answerQuestion() {
         try {
             String questionResponse = AntOceanRpcCall.getQuestion();
-            TimeUtil.sleep(1000);
             JSONObject questionJson = new JSONObject(questionResponse);
             if (questionJson.getBoolean("answered")) {
                 Log.record("问题已经被回答过，跳过答题流程");
@@ -570,7 +568,7 @@ public class AntOcean extends ModelTask {
                 JSONArray options = questionJson.getJSONArray("options");
                 String answer = options.getString(0);
                 String submitResponse = AntOceanRpcCall.submitAnswer(answer, questionId);
-                TimeUtil.sleep(1000);
+                TimeUtil.sleep(500);
                 JSONObject submitJson = new JSONObject(submitResponse);
                 if (submitJson.getInt("resultCode") == 200) {
                     Log.record("海洋答题成功");
@@ -590,11 +588,10 @@ public class AntOcean extends ModelTask {
     private static void doOceanPDLTask() {
         try {
             String homeResponse = AntOceanRpcCall.PDLqueryReplicaHome();
-            TimeUtil.sleep(1000);
             JSONObject homeJson = new JSONObject(homeResponse);
             if ("SUCCESS".equals(homeJson.getString("resultCode"))) {
                 String taskListResponse = AntOceanRpcCall.PDLqueryTaskList();
-                TimeUtil.sleep(1000);
+                TimeUtil.sleep(300);
                 JSONObject taskListJson = new JSONObject(taskListResponse);
                 JSONArray antOceanTaskVOList = taskListJson.getJSONArray("antOceanTaskVOList");
                 for (int i = 0; i < antOceanTaskVOList.length(); i++) {
@@ -607,7 +604,7 @@ public class AntOcean extends ModelTask {
                         int awardCount = bizInfo.getInt("awardCount");
                         String taskType = task.getString("taskType");
                         String receiveTaskResponse = AntOceanRpcCall.PDLreceiveTaskAward(taskType);
-                        TimeUtil.sleep(1000);
+                        TimeUtil.sleep(300);
                         JSONObject receiveTaskJson = new JSONObject(receiveTaskResponse);
                         int code = receiveTaskJson.getInt("code");
                         if (code == 100000000) {

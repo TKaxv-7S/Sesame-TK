@@ -4,6 +4,8 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 
 public interface RpcBridge {
 
+    RpcVersion getVersion();
+
     void load() throws Exception;
 
     void unload();

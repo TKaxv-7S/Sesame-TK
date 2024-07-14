@@ -31,61 +31,58 @@ public class UserIdMap {
         return userMap.values();
     }
 
-    public synchronized static void initUser(String userId) {
-        setCurrentUserId(userId);
-        new Thread() {
-            @Override
-            public void run() {
-                ClassLoader loader;
-                try {
-                    loader = ApplicationHook.getClassLoader();
-                } catch (Exception e) {
-                    Log.i("Error getting classloader");
-                    return;
-                }
-                try {
-                    UserIdMap.unload();
-                    String selfId = ApplicationHook.getUserId();
-                    Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
-                    Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
-                    Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
-                    List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
-                    if (!allFriends.isEmpty()) {
-                        Class<?> friendClass = allFriends.get(0).getClass();
-                        Field userIdField = XposedHelpers.findField(friendClass, "userId");
-                        Field accountField = XposedHelpers.findField(friendClass, "account");
-                        Field nameField = XposedHelpers.findField(friendClass, "name");
-                        Field nickNameField = XposedHelpers.findField(friendClass, "nickName");
-                        Field remarkNameField = XposedHelpers.findField(friendClass, "remarkName");
-                        Field friendStatusField = XposedHelpers.findField(friendClass, "friendStatus");
-                        UserEntity selfEntity = null;
-                        for (Object userObject : allFriends) {
-                            try {
-                                String userId = (String) userIdField.get(userObject);
-                                String account = (String) accountField.get(userObject);
-                                String name = (String) nameField.get(userObject);
-                                String nickName = (String) nickNameField.get(userObject);
-                                String remarkName = (String) remarkNameField.get(userObject);
-                                Integer friendStatus = (Integer) friendStatusField.get(userObject);
-                                UserEntity userEntity = new UserEntity(userId, account, friendStatus, name, nickName, remarkName);
-                                if (Objects.equals(selfId, userId)) {
-                                    selfEntity = userEntity;
-                                }
-                                UserIdMap.add(userEntity);
-                            } catch (Throwable t) {
-                                Log.i("addUserObject err:");
-                                Log.printStackTrace(t);
-                            }
-                        }
-                        UserIdMap.saveSelf(selfEntity);
-                    }
-                    UserIdMap.save(selfId);
-                } catch (Throwable t) {
-                    Log.i("checkUnknownId.run err:");
-                    Log.printStackTrace(t);
-                }
+    public synchronized static void initUser(String currentUserId) {
+        setCurrentUserId(currentUserId);
+        ApplicationHook.getMainHandler().post(() -> {
+            ClassLoader loader;
+            try {
+                loader = ApplicationHook.getClassLoader();
+            } catch (Exception e) {
+                Log.i("Error getting classloader");
+                return;
             }
-        }.start();
+            try {
+                UserIdMap.unload();
+                String selfId = ApplicationHook.getUserId();
+                Class<?> clsUserIndependentCache = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.UserIndependentCache");
+                Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
+                Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
+                List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
+                if (!allFriends.isEmpty()) {
+                    Class<?> friendClass = allFriends.get(0).getClass();
+                    Field userIdField = XposedHelpers.findField(friendClass, "userId");
+                    Field accountField = XposedHelpers.findField(friendClass, "account");
+                    Field nameField = XposedHelpers.findField(friendClass, "name");
+                    Field nickNameField = XposedHelpers.findField(friendClass, "nickName");
+                    Field remarkNameField = XposedHelpers.findField(friendClass, "remarkName");
+                    Field friendStatusField = XposedHelpers.findField(friendClass, "friendStatus");
+                    UserEntity selfEntity = null;
+                    for (Object userObject : allFriends) {
+                        try {
+                            String userId = (String) userIdField.get(userObject);
+                            String account = (String) accountField.get(userObject);
+                            String name = (String) nameField.get(userObject);
+                            String nickName = (String) nickNameField.get(userObject);
+                            String remarkName = (String) remarkNameField.get(userObject);
+                            Integer friendStatus = (Integer) friendStatusField.get(userObject);
+                            UserEntity userEntity = new UserEntity(userId, account, friendStatus, name, nickName, remarkName);
+                            if (Objects.equals(selfId, userId)) {
+                                selfEntity = userEntity;
+                            }
+                            UserIdMap.add(userEntity);
+                        } catch (Throwable t) {
+                            Log.i("addUserObject err:");
+                            Log.printStackTrace(t);
+                        }
+                    }
+                    UserIdMap.saveSelf(selfEntity);
+                }
+                UserIdMap.save(selfId);
+            } catch (Throwable t) {
+                Log.i("checkUnknownId.run err:");
+                Log.printStackTrace(t);
+            }
+        });
     }
 
     public synchronized static void setCurrentUserId(String userId) {
