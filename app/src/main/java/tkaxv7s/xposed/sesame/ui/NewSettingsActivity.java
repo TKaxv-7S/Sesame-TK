@@ -66,7 +66,7 @@ public class NewSettingsActivity extends BaseActivity {
         BeachIdMap.load();
         ConfigV2.load(userId);
         LanguageUtil.setLocale(this);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_new_settings);
         if (userName != null) {
             setBaseSubtitle(getString(R.string.settings) + ": " + userName);
         }
