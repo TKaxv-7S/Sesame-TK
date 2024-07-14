@@ -480,7 +480,7 @@ public class FileUtil {
         FileChannel outputChannel = null;
         try {
             inputChannel = new FileInputStream(source).getChannel();
-            outputChannel = new FileOutputStream(dest).getChannel();
+            outputChannel = new FileOutputStream(createFile(dest)).getChannel();
             outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
             return true;
         } catch (IOException e) {
@@ -504,6 +504,36 @@ public class FileUtil {
         return false;
     }
 
+    public static boolean streamTo(InputStream source, OutputStream dest) {
+        try {
+            byte[] b = new byte[1024];
+            int length;
+            while((length= source.read(b)) > 0){
+                dest.write(b,0,length);
+                dest.flush();
+            }
+            return true;
+        } catch (IOException e) {
+            Log.printStackTrace(e);
+        } finally {
+            try {
+                if (source != null) {
+                    source.close();
+                }
+            } catch (IOException e) {
+                Log.printStackTrace(e);
+            }
+            try {
+                if (dest != null) {
+                    dest.close();
+                }
+            } catch (IOException e) {
+                Log.printStackTrace(e);
+            }
+        }
+        return false;
+    }
+
     public static void close(Closeable c) {
         try {
             if (c != null)
@@ -511,6 +541,48 @@ public class FileUtil {
         } catch (Throwable t) {
             Log.printStackTrace(TAG, t);
         }
+    }
+
+    public static File createFile(File file) {
+        if (file.exists() && file.isDirectory()) {
+            if (!file.delete()) {
+                return null;
+            }
+        }
+        if (!file.exists()) {
+            try {
+                File parentFile = file.getParentFile();
+                if (parentFile != null) {
+                    boolean ignore = parentFile.mkdirs();
+                }
+                if (!file.createNewFile()){
+                    return null;
+                }
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                return null;
+            }
+        }
+        return file;
+    }
+
+    public static File createDirectory(File file) {
+        if (file.exists() && file.isFile()) {
+            if (!file.delete()) {
+                return null;
+            }
+        }
+        if (!file.exists()) {
+            try {
+                if (!file.mkdirs()){
+                    return null;
+                }
+            } catch (Exception e) {
+                Log.printStackTrace(e);
+                return null;
+            }
+        }
+        return file;
     }
 
     public static Boolean clearFile(File file) {

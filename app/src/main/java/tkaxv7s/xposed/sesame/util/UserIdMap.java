@@ -6,6 +6,7 @@ import lombok.Getter;
 import tkaxv7s.xposed.sesame.entity.UserEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,26 +50,35 @@ public class UserIdMap {
                     Class<?> clsAliAccountDaoOp = loader.loadClass("com.alipay.mobile.socialcommonsdk.bizdata.contact.data.AliAccountDaoOp");
                     Object aliAccountDaoOp = XposedHelpers.callStaticMethod(clsUserIndependentCache, "getCacheObj", clsAliAccountDaoOp);
                     List<?> allFriends = (List<?>) XposedHelpers.callMethod(aliAccountDaoOp, "getAllFriends", new Object[0]);
-                    UserEntity selfEntity = null;
-                    for (Object userObject : allFriends) {
-                        try {
-                            Class<?> friendClass = userObject.getClass();
-                            String userId = (String) XposedHelpers.findField(friendClass, "userId").get(userObject);
-                            String account = (String) XposedHelpers.findField(friendClass, "account").get(userObject);
-                            String name = (String) XposedHelpers.findField(friendClass, "name").get(userObject);
-                            String nickName = (String) XposedHelpers.findField(friendClass, "nickName").get(userObject);
-                            String remarkName = (String) XposedHelpers.findField(friendClass, "remarkName").get(userObject);
-                            UserEntity userEntity = new UserEntity(userId, account, name, nickName, remarkName);
-                            if (Objects.equals(selfId, userId)) {
-                                selfEntity = userEntity;
+                    if (!allFriends.isEmpty()) {
+                        Class<?> friendClass = allFriends.get(0).getClass();
+                        Field userIdField = XposedHelpers.findField(friendClass, "userId");
+                        Field accountField = XposedHelpers.findField(friendClass, "account");
+                        Field nameField = XposedHelpers.findField(friendClass, "name");
+                        Field nickNameField = XposedHelpers.findField(friendClass, "nickName");
+                        Field remarkNameField = XposedHelpers.findField(friendClass, "remarkName");
+                        Field friendStatusField = XposedHelpers.findField(friendClass, "friendStatus");
+                        UserEntity selfEntity = null;
+                        for (Object userObject : allFriends) {
+                            try {
+                                String userId = (String) userIdField.get(userObject);
+                                String account = (String) accountField.get(userObject);
+                                String name = (String) nameField.get(userObject);
+                                String nickName = (String) nickNameField.get(userObject);
+                                String remarkName = (String) remarkNameField.get(userObject);
+                                Integer friendStatus = (Integer) friendStatusField.get(userObject);
+                                UserEntity userEntity = new UserEntity(userId, account, friendStatus, name, nickName, remarkName);
+                                if (Objects.equals(selfId, userId)) {
+                                    selfEntity = userEntity;
+                                }
+                                UserIdMap.add(userEntity);
+                            } catch (Throwable t) {
+                                Log.i("addUserObject err:");
+                                Log.printStackTrace(t);
                             }
-                            UserIdMap.add(userEntity);
-                        } catch (Throwable t) {
-                            Log.i("addUserObject err:");
-                            Log.printStackTrace(t);
                         }
+                        UserIdMap.saveSelf(selfEntity);
                     }
-                    UserIdMap.saveSelf(selfEntity);
                     UserIdMap.save(selfId);
                 } catch (Throwable t) {
                     Log.i("checkUnknownId.run err:");
