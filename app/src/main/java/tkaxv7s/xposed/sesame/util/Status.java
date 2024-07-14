@@ -29,8 +29,7 @@ public class Status {
     private int exchangeTimes = 0;
     private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
-    private boolean exchangeStealthCard = false;
-    private boolean useStealthCard = false;
+    private boolean exchangeEnergyShield = false;
     /**
      * 新村-罚单已贴完的用户
      */
@@ -70,26 +69,14 @@ public class Status {
     // 保存时间
     private Long saveTime = 0L;
 
-    public static boolean canUseStealthCard() {
-        return !INSTANCE.useStealthCard;
+    public static boolean canExchangeEnergyShield() {
+        return !INSTANCE.exchangeEnergyShield;
     }
-
-    public static void useStealthCard() {
+    
+    public static void exchangeEnergyShield() {
         Status stat = INSTANCE;
-        if (!stat.useStealthCard) {
-            stat.useStealthCard = true;
-            save();
-        }
-    }
-
-    public static boolean canExchangeStealthCard() {
-        return !INSTANCE.exchangeStealthCard;
-    }
-
-    public static void exchangeStealthCard() {
-        Status stat = INSTANCE;
-        if (!stat.exchangeStealthCard) {
-            stat.exchangeStealthCard = true;
+        if (!stat.exchangeEnergyShield) {
+            stat.exchangeEnergyShield = true;
             save();
         }
     }
