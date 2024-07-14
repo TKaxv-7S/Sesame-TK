@@ -29,6 +29,7 @@ public class Status {
     private int exchangeTimes = 0;
     private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
+    private boolean exchangeEnergyShield = false;
     private boolean exchangeStealthCard = false;
     private boolean useStealthCard = false;
     /**
@@ -90,6 +91,18 @@ public class Status {
         Status stat = INSTANCE;
         if (!stat.exchangeStealthCard) {
             stat.exchangeStealthCard = true;
+            save();
+        }
+    }
+
+    public static boolean canExchangeEnergyShield() {
+        return !INSTANCE.exchangeEnergyShield;
+    }
+    
+    public static void exchangeEnergyShield() {
+        Status stat = INSTANCE;
+        if (!stat.exchangeEnergyShield) {
+            stat.exchangeEnergyShield = true;
             save();
         }
     }

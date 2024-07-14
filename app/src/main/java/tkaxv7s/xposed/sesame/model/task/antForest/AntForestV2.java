@@ -93,8 +93,6 @@ public class AntForestV2 extends ModelTask {
     @Getter
     private IntegerModelField doubleCountLimit;
     private BooleanModelField doubleCardConstant;
-    private BooleanModelField useStealthCard;
-    private BooleanModelField exchangeStealthCard;
     private BooleanModelField helpFriendCollect;
     private ChoiceModelField helpFriendCollectType;
     private SelectModelField helpFriendCollectList;
@@ -112,6 +110,9 @@ public class AntForestV2 extends ModelTask {
     @Getter
     private IntegerModelField exchangeEnergyDoubleClickCountLongTime;
     private BooleanModelField exchangeCollectHistoryAnimal7Days;
+    private BooleanModelField exchangeEnergyShield;
+    private BooleanModelField exchangeStealthCard;
+    private BooleanModelField useStealthCard;
     private BooleanModelField userPatrol;
     private BooleanModelField antdodoCollect;
     private BooleanModelField totalCertCount;
@@ -172,6 +173,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
         modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "活力值 | 兑换永久双击卡数量", 6));
         modelFields.addField(exchangeCollectHistoryAnimal7Days = new BooleanModelField("exchangeCollectHistoryAnimal7Days", "活力值 | 兑换物种历史卡", false));
+        modelFields.addField(exchangeEnergyShield = new BooleanModelField("exchangeEnergyShield", "活力值 | 兑换能量保护罩", false));
         modelFields.addField(exchangeStealthCard = new BooleanModelField("exchangeStealthCard", "活力值 | 兑换限时隐身卡", false));
         modelFields.addField(useStealthCard = new BooleanModelField("useStealthCard", "使用限时隐身卡", false));
         modelFields.addField(whackMole = new BooleanModelField("whackMole", "6秒拼手速", true));
@@ -1631,14 +1633,21 @@ public class AntForestV2 extends ModelTask {
     private void usePropBeforeCollectEnergy(String userId) {
         try {
             boolean needDouble = doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId);
+            boolean needExchangeEnergyShield = exchangeEnergyShield.getValue() && Status.canExchangeEnergyShield();
             boolean needExchangeStealthCard = exchangeStealthCard.getValue() && Status.canExchangeStealthCard();
             boolean needUseStealthCard = useStealthCard.getValue() && Status.canUseStealthCard();
-            if (needDouble || needExchangeStealthCard || needUseStealthCard) {
+            if (needDouble || needExchangeEnergyShield || needExchangeStealthCard || needUseStealthCard) {
                 synchronized (doubleCardLockObj) {
                     JSONObject bagObject = null;
                     if (doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId)) {
                         bagObject = getBag();
                         useDoubleCard(bagObject);
+                    }
+                    // 兑换 能量保护罩
+                    if (needExchangeEnergyShield) {
+                        if (exchangePropShop(findPropShop("CR20230517000497", "CR20230516000371"), 1)) {
+                            Status.exchangeEnergyShield();
+                        }
                     }
                     // 兑换 限时隐身卡
                     if (exchangeStealthCard.getValue() && Status.canExchangeStealthCard()) {
