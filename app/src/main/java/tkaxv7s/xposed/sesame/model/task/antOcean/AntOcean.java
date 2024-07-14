@@ -5,19 +5,22 @@ import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.data.ModelFields;
 import tkaxv7s.xposed.sesame.data.ModelGroup;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.BooleanModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.ChoiceModelField;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectAndCountModelField;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.SelectModelField;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayBeach;
+import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.task.antFarm.AntFarm.TaskStatus;
 import tkaxv7s.xposed.sesame.model.task.antForest.AntForestRpcCall;
-import tkaxv7s.xposed.sesame.model.task.antForest.AntForestV2;
 import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.StringUtil;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,12 +41,22 @@ public class AntOcean extends ModelTask {
         return ModelGroup.FOREST;
     }
 
+    private BooleanModelField dailyOceanTask;
+    private BooleanModelField receiveOceanTaskAward;
+    private BooleanModelField cleanOcean;
+    private ChoiceModelField cleanOceanType;
+    private SelectModelField cleanOceanList;
     private BooleanModelField protectOcean;
     private SelectAndCountModelField protectOceanList;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
+        modelFields.addField(dailyOceanTask = new BooleanModelField("dailyOceanTask", "完成海洋任务", false));
+        modelFields.addField(receiveOceanTaskAward = new BooleanModelField("receiveOceanTaskAward", "领取碎片奖励", false));
+        modelFields.addField(cleanOcean = new BooleanModelField("cleanOcean", "清理 | 开启", false));
+        modelFields.addField(cleanOceanType = new ChoiceModelField("cleanOceanType", "清理 | 动作", CleanOceanType.DONT_CLEAN, CleanOceanType.nickNames));
+        modelFields.addField(cleanOceanList = new SelectModelField("cleanOceanList", "清理 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(protectOcean = new BooleanModelField("protectOcean", "保护 | 开启", false));
         modelFields.addField(protectOceanList = new SelectAndCountModelField("protectOceanList", "保护 | 海洋列表", new LinkedHashMap<>(), AlipayBeach::getList));
         return modelFields;
@@ -78,7 +91,7 @@ public class AntOcean extends ModelTask {
         }
     }
 
-    private static void queryHomePage() {
+    private void queryHomePage() {
         try {
             JSONObject joHomePage = new JSONObject(AntOceanRpcCall.queryHomePage());
             if ("SUCCESS".equals(joHomePage.getString("resultCode"))) {
@@ -105,9 +118,13 @@ public class AntOcean extends ModelTask {
 
                 queryUserRanking();
 
-                doOceanDailyTask();
+                if (dailyOceanTask.getValue()) {
+                    doOceanDailyTask();
+                }
 
-                receiveTaskAward();
+                if (receiveOceanTaskAward.getValue()) {
+                    receiveTaskAward();
+                }
 
             } else {
                 Log.i(TAG, joHomePage.getString("resultDesc"));
@@ -403,14 +420,17 @@ public class AntOcean extends ModelTask {
         }
     }
 
-    private static void cleanFriendOcean(JSONObject fillFlag) {
+    private void cleanFriendOcean(JSONObject fillFlag) {
         if (!fillFlag.optBoolean("canClean")) {
             return;
         }
         try {
             String userId = fillFlag.getString("userId");
-            AntForestV2 task = ModelTask.getModel(AntForestV2.class);
-            if (task == null || task.getDontCollectMap().contains(userId)) {
+            boolean isOceanClean = cleanOceanList.getValue().contains(userId);
+            if (cleanOceanType.getValue() == CleanOceanType.DONT_CLEAN) {
+                isOceanClean = !isOceanClean;
+            }
+            if (!isOceanClean) {
                 return;
             }
             String s = AntOceanRpcCall.queryFriendPage(userId);
@@ -433,7 +453,7 @@ public class AntOcean extends ModelTask {
         }
     }
 
-    private static void queryUserRanking() {
+    private void queryUserRanking() {
         try {
             String s = AntOceanRpcCall.queryUserRanking();
             JSONObject jo = new JSONObject(s);
@@ -441,7 +461,9 @@ public class AntOcean extends ModelTask {
                 JSONArray fillFlagVOList = jo.getJSONArray("fillFlagVOList");
                 for (int i = 0; i < fillFlagVOList.length(); i++) {
                     JSONObject fillFlag = fillFlagVOList.getJSONObject(i);
-                    cleanFriendOcean(fillFlag);
+                    if (cleanOcean.getValue()) {
+                        cleanFriendOcean(fillFlag);
+                    }
                 }
             } else {
                 Log.i(TAG, jo.getString("resultDesc"));
@@ -743,6 +765,15 @@ public class AntOcean extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
         return appliedTimes;
+    }
+
+    public interface CleanOceanType {
+
+        int CLEAN = 0;
+        int DONT_CLEAN = 1;
+
+        String[] nickNames = {"选中清理", "选中不清理"};
+
     }
 
 }
