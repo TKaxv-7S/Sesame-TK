@@ -11,6 +11,8 @@ public class UserEntity {
 
     private final String account;
 
+    private final Integer friendStatus;
+
     private final String realName;
 
     private final String nickName;
@@ -23,9 +25,10 @@ public class UserEntity {
 
     private final String fullName;
 
-    public UserEntity(String userId, String account, String realName, String nickName, String remarkName) {
+    public UserEntity(String userId, String account, Integer friendStatus, String realName, String nickName, String remarkName) {
         this.userId = userId;
         this.account = account;
+        this.friendStatus = friendStatus;
         this.realName = realName;
         this.nickName = nickName;
         this.remarkName = remarkName;
@@ -67,6 +70,8 @@ public class UserEntity {
 
         private String account;
 
+        private Integer friendStatus;
+
         private String realName;
 
         private String nickName;
@@ -74,7 +79,7 @@ public class UserEntity {
         private String remarkName;
 
         public UserEntity toEntity() {
-            return new UserEntity(userId, account, realName, nickName, remarkName);
+            return new UserEntity(userId, account, friendStatus, realName, nickName, remarkName);
         }
 
     }

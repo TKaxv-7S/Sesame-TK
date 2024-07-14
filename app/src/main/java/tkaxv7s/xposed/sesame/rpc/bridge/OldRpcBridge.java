@@ -26,6 +26,10 @@ public class OldRpcBridge implements RpcBridge {
 
     private Object curH5PageImpl;
 
+    @Override
+    public RpcVersion getVersion() {
+        return RpcVersion.NEW;
+    }
 
     public void load() throws Exception {
         loader = ApplicationHook.getClassLoader();
