@@ -115,7 +115,7 @@
                 <div>
                   <van-image width="20" height="20"
                   class="list-icon"
-                  :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" />
+                  :src="`./SVG/${currentTab==13?13+'_ed':13}.svg`" />
                 </div>
                 <div>主题设置</div>
               </div>
@@ -131,7 +131,17 @@
             </div>
           </van-collapse-item>
 
-          <van-collapse-item name="9999" title="致谢">
+          <van-collapse-item name="14" title="致谢">
+            <template #title>
+              <div class="title-box">
+                <div>
+                  <van-image width="20" height="20"
+                  class="list-icon"
+                    :src="`./SVG/${currentTab==14?14+'_ed':14}.svg`" />
+                </div>
+                <div>致谢</div>
+              </div>
+            </template>
             <div class="content-box">
               <div>
                 感谢以下作者及其大佬对本app提供的技术支持
@@ -210,9 +220,9 @@
                 <div>
                   <van-image width="20" height="20"
                   class="list-icon"
-                  :src="`./SVG/${currentTab===13?13+'_ed':13}.svg`" />
+                  :src="`./SVG/${currentTab==13?13+'_ed':13}.svg`" />
                 </div>
-                <div>主题设置</div>
+                <div class="list-label">主题设置</div>
               </div>
             </template>
             <div class="content-box">
@@ -226,7 +236,17 @@
             </div>
           </van-tab>
 
-          <van-tab name="9999" title="致谢">
+          <van-tab name="14" title="致谢">
+            <template #title>
+              <div class="title-box">
+                <div>
+                  <van-image width="20" height="20"
+                  class="list-icon"
+                  :src="`./SVG/${currentTab==14?14+'_ed':14}.svg`" />
+                </div>
+                <div class="list-label">致谢</div>
+              </div>
+            </template>
             <div class="content-box">
               <div>
                 感谢以下作者及其大佬对本app提供的技术支持
@@ -316,6 +336,7 @@
         })
 
         function loadList(modelName, code, name, type) {
+          window.history.pushState({ list: 1 }, "", "");
           person_list.value.visible = true;
           person_list.value.list = []
           let obj = JSON.parse(
@@ -341,7 +362,7 @@
             requestAnimationFrame(() => {
               person_list.value.list.push(...result[_index])
               _index++
-              if (_index < result.length) {
+              if (_index < result.length&&person_list.value.visible) {
                 refreshFrameCount()
               }
             })
@@ -401,6 +422,7 @@
               person_list.value.type = "";
               person_list.value.modelName = "";
               person_list.value.check_all = false;
+              window.history.go(-1)
             })
           }
 
@@ -410,6 +432,7 @@
         function handleCancelBtn() {
           person_list.value.visible = false
           person_list.value.keys = ""
+          window.history.go(-1)
         }
 
         function clearValue(item) {
