@@ -113,6 +113,7 @@ public class AntForestV2 extends ModelTask {
     @Getter
     private IntegerModelField exchangeEnergyDoubleClickCountLongTime;
     private BooleanModelField exchangeCollectHistoryAnimal7Days;
+    private BooleanModelField exchangeCollectToFriendTimes7Days;
     private BooleanModelField exchangeEnergyShield;
     private BooleanModelField userPatrol;
     private BooleanModelField antdodoCollect;
@@ -175,8 +176,9 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(exchangeEnergyDoubleClickCount = new IntegerModelField("exchangeEnergyDoubleClickCount", "活力值 | 兑换限时双击卡数量", 6));
         modelFields.addField(exchangeEnergyDoubleClickLongTime = new BooleanModelField("exchangeEnergyDoubleClickLongTime", "活力值 | 兑换永久双击卡", false));
         modelFields.addField(exchangeEnergyDoubleClickCountLongTime = new IntegerModelField("exchangeEnergyDoubleClickCountLongTime", "活力值 | 兑换永久双击卡数量", 6));
-        modelFields.addField(exchangeCollectHistoryAnimal7Days = new BooleanModelField("exchangeCollectHistoryAnimal7Days", "活力值 | 兑换物种历史卡", false));
         modelFields.addField(exchangeEnergyShield = new BooleanModelField("exchangeEnergyShield", "活力值 | 兑换能量保护罩", false));
+        modelFields.addField(exchangeCollectHistoryAnimal7Days = new BooleanModelField("exchangeCollectHistoryAnimal7Days", "活力值 | 兑换物种历史卡", false));
+        modelFields.addField(exchangeCollectToFriendTimes7Days = new BooleanModelField("exchangeCollectToFriendTimes7Days", "活力值 | 兑换物种好友卡", false));
         modelFields.addField(whackMole = new BooleanModelField("whackMole", "6秒拼手速", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
@@ -481,9 +483,17 @@ public class AntForestV2 extends ModelTask {
                     int exchangeCount = exchangeEnergyDoubleClickCountLongTime.getValue();
                     exchangeEnergyDoubleClickLongTime(exchangeCount);
                 }
+                // 兑换 能量保护罩
+                if (exchangeEnergyShield.getValue() && Status.canExchangeEnergyShield()) {
+                    exchangeEnergyShield();
+                }
                 // 兑换 神奇物种抽历史卡机会
-                if (exchangeCollectHistoryAnimal7Days.getValue()) {
+                if (exchangeCollectHistoryAnimal7Days.getValue() && Status.canExchangeCollectHistoryAnimal7Days()) {
                     exchangeCollectHistoryAnimal7Days();
+                }
+                // 兑换 神奇物种抽好友卡机会
+                if (exchangeCollectToFriendTimes7Days.getValue() && Status.canExchangeCollectToFriendTimes7Days()) {
+                    exchangeCollectToFriendTimes7Days();
                 }
                 /* 森林集市 */
                 if (sendEnergyByAction.getValue()) {
@@ -1264,68 +1274,12 @@ public class AntForestV2 extends ModelTask {
     }
 
     private void exchangeEnergyDoubleClick(int count) {
-        int exchangedTimes;
         try {
-            String s = AntForestRpcCall.itemList("SC_ASSETS");
-            JSONObject jo = new JSONObject(s);
-            String skuId = null;
-            String spuId = null;
-            double price = 0d;
-            if (jo.getBoolean("success")) {
-                JSONArray itemInfoVOList = jo.optJSONArray("itemInfoVOList");
-                if (itemInfoVOList != null && itemInfoVOList.length() > 0) {
-                    for (int i = 0; i < itemInfoVOList.length(); i++) {
-                        jo = itemInfoVOList.getJSONObject(i);
-                        if ("能量双击卡".equals(jo.getString("spuName"))) {
-                            JSONArray skuModelList = jo.getJSONArray("skuModelList");
-                            for (int j = 0; j < skuModelList.length(); j++) {
-                                jo = skuModelList.getJSONObject(j);
-                                if ("LIMIT_TIME_ENERGY_DOUBLE_CLICK_3DAYS_2023"
-                                        .equals(jo.getString("rightsConfigId"))) {
-                                    skuId = jo.getString("skuId");
-                                    spuId = jo.getString("spuId");
-                                    price = jo.getJSONObject("price").getDouble("amount");
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                if (skuId != null) {
-                    for (int exchangeCount = 1; exchangeCount <= count; exchangeCount++) {
-                        if (Status.canExchangeDoubleCardToday()) {
-                            jo = new JSONObject(AntForestRpcCall.queryVitalityStoreIndex());
-                            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                                int totalVitalityAmount = jo.getJSONObject("userVitalityInfoVO")
-                                        .getInt("totalVitalityAmount");
-                                if (totalVitalityAmount > price) {
-                                    jo = new JSONObject(AntForestRpcCall.exchangeBenefit(spuId, skuId));
-                                    Thread.sleep(1000);
-                                    if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                                        Status.exchangeDoubleCardToday(true);
-                                        exchangedTimes = Status.INSTANCE.getExchangeTimes();
-                                        Log.forest("活力兑换🎐[限时双击卡]#第" + exchangedTimes + "次");
-                                    } else {
-                                        Log.record(jo.getString("resultDesc"));
-                                        Log.i(jo.toString());
-                                        Status.exchangeDoubleCardToday(false);
-                                        break;
-                                    }
-                                } else {
-                                    Log.record("活力值不足，停止兑换！");
-                                    break;
-                                }
-                            }
-                        } else {
-                            Log.record("兑换次数已到上限！");
-                            break;
-                        }
-                    }
-                }
-            } else {
-                Log.record(jo.getString("desc"));
-                Log.i(s);
+            JSONObject jo = findPropShop("CR20230516000362", "CR20230516000363");
+            while (Status.canExchangeDoubleCardToday()
+                    && exchangePropShop(jo, Status.INSTANCE.getExchangeTimes() + 1)) {
+                Status.exchangeDoubleCardToday(true);
+                Thread.sleep(1000);
             }
         } catch (Throwable t) {
             Log.i(TAG, "exchangeEnergyDoubleClick err:");
@@ -1403,13 +1357,25 @@ public class AntForestV2 extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
     }
+    // 兑换 能量保护罩
+    private void exchangeEnergyShield() {
+        if (exchangePropShop(findPropShop("CR20230517000497", "CR20230516000371"), 1)) {
+            Status.exchangeEnergyShield();
+        }
+    }
 
     // 兑换 神奇物种抽历史卡机会
     private void exchangeCollectHistoryAnimal7Days() {
-        // 商店查找 神奇物种抽历史卡机会
-        JSONObject jo = findPropShop("SP20230518000022", "SK20230518000062");
-        // 商店兑换 神奇物种抽历史卡机会
-        exchangePropShop(jo, 1);
+        if (exchangePropShop(findPropShop("SP20230518000022", "SK20230518000062"), 1)) {
+            Status.exchangeCollectHistoryAnimal7Days();
+        }
+    }
+
+    // 兑换 神奇物种抽好友卡机会
+    private void exchangeCollectToFriendTimes7Days() {
+        if (exchangePropShop(findPropShop("SP20230518000021", "SK20230518000061"), 1)) {
+            Status.exchangeCollectToFriendTimes7Days();
+        }
     }
 
     private void receiveTaskAward() {
@@ -1629,11 +1595,10 @@ public class AntForestV2 extends ModelTask {
         try {
             boolean needDouble = doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId);
             boolean needStealth = stealthEndTime < System.currentTimeMillis() && stealthCard.getValue() && !Objects.equals(selfId, userId);
-            boolean needExchangeEnergyShield = exchangeEnergyShield.getValue() && Status.canExchangeEnergyShield();
-            if (needDouble || needStealth || needExchangeEnergyShield) {
+            if (needDouble || needStealth) {
                 synchronized (doubleCardLockObj) {
                     JSONObject bagObject = null;
-                    if (doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId)) {
+                    if (needDouble) {
                         bagObject = getBag();
                         useDoubleCard(bagObject);
                     }
@@ -1641,26 +1606,7 @@ public class AntForestV2 extends ModelTask {
                         if (bagObject == null) {
                             bagObject = getBag();
                         }
-                        // 没有限时隐身卡 且 开启了限时隐身永动机
-                        JSONObject jo = findPropBag(bagObject, "LIMIT_TIME_STEALTH_CARD");
-                        if (jo == null && stealthCardConstant.getValue()) {
-                            // 商店兑换 限时隐身卡
-                            exchangePropShop(findPropShop("SP20230521000082", "SK20230521000206"), 1);
-                        }
-                        // 使用 隐身卡
-                        if (jo == null) jo = findPropBag(bagObject, "LIMIT_TIME_STEALTH_CARD");
-                        if (jo == null) jo = findPropBag(bagObject, "STEALTH_CARD");
-                        if (jo != null && usePropBag(jo)) {
-                            stealthEndTime = System.currentTimeMillis() + 1000 * 60 * 60 * 24;
-                        } else {
-                            updateDoubleTime();
-                        }
-                    }
-                    // 兑换 能量保护罩
-                    if (needExchangeEnergyShield) {
-                        if (exchangePropShop(findPropShop("CR20230517000497", "CR20230516000371"), 1)) {
-                            Status.exchangeEnergyShield();
-                        }
+                        useStealthCard(bagObject);
                     }
                 }
             }
@@ -1676,22 +1622,18 @@ public class AntForestV2 extends ModelTask {
                 JSONObject jo = findPropBag(bagObject, "LIMIT_TIME_ENERGY_DOUBLE_CLICK");
                 // 没有限时能量双击卡 且 开启了限时双击永动机
                 if (jo == null && doubleCardConstant.getValue()) {
-                    // 商店查找 限时能量双击卡
-                    jo = findPropShop("CR20230516000362", "CR20230516000363");
                     // 商店兑换 限时能量双击卡
-                    if (exchangePropShop(jo, 2147483647)) {
+                    if (exchangePropShop(findPropShop("CR20230516000362", "CR20230516000363"), Status.INSTANCE.getExchangeTimes() + 1)) {
                         Status.exchangeDoubleCardToday(true);
+                        jo = findPropBag(bagObject, "LIMIT_TIME_ENERGY_DOUBLE_CLICK");
                     }
-                    // 背包查找 限时能量双击卡
-                    jo = findPropBag(bagObject, "LIMIT_TIME_ENERGY_DOUBLE_CLICK");
                 }
-                // 没有限时能量双击卡
                 if (jo == null) {
                     // 背包查找 能量双击卡
                     jo = findPropBag(bagObject, "ENERGY_DOUBLE_CLICK");
                 }
                 // 使用能量双击卡
-                if (usePropBag(jo)) {
+                if (jo != null && usePropBag(jo)) {
                     doubleEndTime = System.currentTimeMillis() + 1000 * 60 * 5;
                     Status.DoubleToday();
                 } else {
@@ -1704,6 +1646,31 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
+    private void useStealthCard(JSONObject bagObject) {
+        try {
+            // 背包查找 限时隐身卡
+            JSONObject jo = findPropBag(bagObject, "LIMIT_TIME_STEALTH_CARD");
+            // 没有限时隐身卡 且 开启了限时隐身永动机
+            if (jo == null && stealthCardConstant.getValue()) {
+                // 商店兑换 限时隐身卡
+                if (exchangePropShop(findPropShop("SP20230521000082", "SK20230521000206"), 1)) {
+                    jo = findPropBag(bagObject, "LIMIT_TIME_STEALTH_CARD");
+                }
+            }
+            if (jo == null) {
+                jo = findPropBag(bagObject, "STEALTH_CARD");
+            }
+            // 使用 隐身卡
+            if (jo != null && usePropBag(jo)) {
+                stealthEndTime = System.currentTimeMillis() + 1000 * 60 * 60 * 24;
+            } else {
+                updateDoubleTime();
+            }
+        } catch (Throwable th) {
+            Log.i(TAG, "useStealthCard err:");
+            Log.printStackTrace(TAG, th);
+        }
+    }
     private boolean hasDoubleCardTime() {
         long currentTimeMillis = System.currentTimeMillis();
         return TimeUtil.checkInTimeRange(currentTimeMillis, doubleCardTime.getValue());
@@ -2508,17 +2475,14 @@ public class AntForestV2 extends ModelTask {
      * 兑换商店道具 活力值
      * sku
      * spuId, skuId, skuName, exchangedCount, price[amount]
+     * exchangedCount == 0......
      */
-    private boolean exchangePropShop(JSONObject sku, int exchangeCountLimit) {
+    private boolean exchangePropShop(JSONObject sku, int exchangedCount) {
         if (sku == null) {
             Log.record("要兑换的道具不存在！");
             return false;
         }
         try {
-            // 已经达到兑换上限，返回
-            if (sku.getInt("exchangedCount") >= exchangeCountLimit) {
-                return false;
-            }
             // 获取活力值信息
             JSONObject jo = new JSONObject(AntForestRpcCall.queryVitalityStoreIndex());
             if (!"SUCCESS".equals(jo.getString("resultCode"))) {
@@ -2533,7 +2497,7 @@ public class AntForestV2 extends ModelTask {
             // 活力值兑换道具
             jo = new JSONObject(AntForestRpcCall.exchangeBenefit(sku.getString("spuId"), sku.getString("skuId")));
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                Log.forest("活力兑换🎐[" + sku.getString("skuName") + "]");
+                Log.forest("活力兑换🎐[" + sku.getString("skuName") + "]#第" + exchangedCount + "次");
                 return true;
             } else {
                 Log.record(jo.getString("resultDesc"));

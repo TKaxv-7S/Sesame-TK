@@ -30,6 +30,8 @@ public class Status {
     private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
     private boolean exchangeEnergyShield = false;
+    private boolean exchangeCollectHistoryAnimal7Days = false;
+    private boolean exchangeCollectToFriendTimes7Days = false;
     /**
      * 新村-罚单已贴完的用户
      */
@@ -77,6 +79,30 @@ public class Status {
         Status stat = INSTANCE;
         if (!stat.exchangeEnergyShield) {
             stat.exchangeEnergyShield = true;
+            save();
+        }
+    }
+
+    public static boolean canExchangeCollectHistoryAnimal7Days() {
+        return !INSTANCE.exchangeCollectHistoryAnimal7Days;
+    }
+
+    public static void exchangeCollectHistoryAnimal7Days() {
+        Status stat = INSTANCE;
+        if (!stat.exchangeCollectHistoryAnimal7Days) {
+            stat.exchangeCollectHistoryAnimal7Days = true;
+            save();
+        }
+    }
+
+    public static boolean canExchangeCollectToFriendTimes7Days() {
+        return !INSTANCE.exchangeCollectToFriendTimes7Days;
+    }
+
+    public static void exchangeCollectToFriendTimes7Days() {
+        Status stat = INSTANCE;
+        if (!stat.exchangeCollectToFriendTimes7Days) {
+            stat.exchangeCollectToFriendTimes7Days = true;
             save();
         }
     }
