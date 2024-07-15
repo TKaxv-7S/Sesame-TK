@@ -9,6 +9,8 @@
 # 不要使用任何未开放源代码的修改版！
 # 不要使用任何未开放源代码的修改版！
 
+## 自北京时间2024年7月15日开始，开源协议已变更，该项目禁止用于任何商业用途，并禁止二次修改后闭源发布
+
 ### 特别感谢这个项目的上一位维护者[@constanline](https://github.com/constanline)，以及更早的维护者[@pansong291](https://github.com/pansong291)与其他维护者们
 ### 如果您开发了新功能，觉得开发的功能还不错，同时愿意贡献PR，非常欢迎，也非常感谢大家为这个项目的付出！
 ### 注：该项目不支持合并任何 通过修改数据而实际获利 的功能PR
@@ -39,7 +41,11 @@
 6. 本APP如无意中侵犯了某个媒体或个人的知识产权，请来信或来电告之，作者将立即删除。
 
 ## 授权说明
-本项目基于 [constanline版XQuickEnergy](https://github.com/constanline/XQuickEnergy) 与 [pansong291版XQuickEnergy](https://github.com/pansong291/XQuickEnergy) 开发，遵循 Apache-2.0 协议
+本项目基于 [constanline版XQuickEnergy](https://github.com/constanline/XQuickEnergy) 与 [pansong291版XQuickEnergy](https://github.com/pansong291/XQuickEnergy) 开发
+
+在 **北京时间2024年7月15日之前** 提交的所有代码 ，遵循 Apache-2.0 协议
+
+自 **北京时间2024年7月15日开始** 提交的所有代码 ，遵循 GPLv3 协议，并禁止用于任何商业用途、禁止二次修改后闭源发布
 
 所有图片由 ༒激༙྇流༙྇泉༙྇༒ 授权使用
 
