@@ -14,6 +14,7 @@ import tkaxv7s.xposed.sesame.model.task.antSports.AntSports;
 import tkaxv7s.xposed.sesame.model.task.antStall.AntStall;
 import tkaxv7s.xposed.sesame.model.task.greenFinance.GreenFinance;
 import tkaxv7s.xposed.sesame.model.task.reserve.Reserve;
+import tkaxv7s.xposed.sesame.model.task.antDodo.AntDodo;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +29,7 @@ public class ModelOrder {
             , AntStall.class
             , AntOrchard.class
             , Reserve.class
+            , AntDodo.class
             , AntOcean.class
             , AntCooperate.class
             , AncientTree.class

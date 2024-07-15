@@ -116,13 +116,11 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField exchangeCollectToFriendTimes7Days;
     private BooleanModelField exchangeEnergyShield;
     private BooleanModelField userPatrol;
-    private BooleanModelField antdodoCollect;
     private BooleanModelField totalCertCount;
     private BooleanModelField collectGiftBox;
     private BooleanModelField medicalHealthFeeds;
     private BooleanModelField sendEnergyByAction;
     private BooleanModelField animalConsumeProp;
-    private SelectModelField sendFriendCard;
     private SelectModelField whoYouWantToGiveTo;
     private BooleanModelField ecoLifeTick;
     private BooleanModelField ecoLifeOpen;
@@ -186,13 +184,11 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(animalConsumeProp = new BooleanModelField("animalConsumeProp", "派遣动物", false));
         modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "森林任务", false));
-        modelFields.addField(antdodoCollect = new BooleanModelField("antdodoCollect", "神奇物种开卡", false));
         modelFields.addField(totalCertCount = new BooleanModelField("totalCertCount", "记录证书总数", false));
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗", false));
         modelFields.addField(sendEnergyByAction = new BooleanModelField("sendEnergyByAction", "森林集市", false));
         modelFields.addField(giveEnergyRainList = new SelectModelField("giveEnergyRainList", "赠送能量雨列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(sendFriendCard = new SelectModelField("sendFriendCard", "送卡片好友列表(当前图鉴所有卡片)", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(whoYouWantToGiveTo = new SelectModelField("whoYouWantToGiveTo", "赠送道具好友列表（所有可送道具）", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(ecoLifeTick = new BooleanModelField("ecoLifeTick", "绿色 | 行动打卡", false));
         modelFields.addField(ecoLifeOpen = new BooleanModelField("ecoLifeOpen", "绿色 | 自动开通", false));
@@ -460,11 +456,6 @@ public class AntForestV2 extends ModelTask {
                     if (Status.canWaterFriendToday(uid, waterCount)) {
                         waterFriendEnergy(uid, waterCount);
                     }
-                }
-                if (antdodoCollect.getValue()) {
-                    antdodoReceiveTaskAward();
-                    antdodoPropList();
-                    antdodoCollect();
                 }
                 Set<String> set = whoYouWantToGiveTo.getValue();
                 if (!set.isEmpty()) {
@@ -1869,251 +1860,6 @@ public class AntForestV2 extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "photoGuangPan err:");
             Log.printStackTrace(TAG, t);
-        }
-    }
-
-    /* 神奇物种 */
-
-    private boolean antdodoLastDay(String endDate) {
-        long timeStemp = System.currentTimeMillis();
-        long endTimeStemp = Log.timeToStamp(endDate);
-        return timeStemp < endTimeStemp && (endTimeStemp - timeStemp) < 86400000L;
-    }
-
-    public boolean antdodoIn8Days(String endDate) {
-        long timeStemp = System.currentTimeMillis();
-        long endTimeStemp = Log.timeToStamp(endDate);
-        return timeStemp < endTimeStemp && (endTimeStemp - timeStemp) < 691200000L;
-    }
-
-    private void antdodoCollect() {
-        try {
-            String s = AntForestRpcCall.queryAnimalStatus();
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONObject data = jo.getJSONObject("data");
-                if (data.getBoolean("collect")) {
-                    Log.record("神奇物种卡片今日收集完成！");
-                } else {
-                    collectAnimalCard();
-                }
-            } else {
-                Log.i(TAG, jo.getString("resultDesc"));
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "antdodoCollect err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private void collectAnimalCard() {
-        try {
-            JSONObject jo = new JSONObject(AntForestRpcCall.antdodoHomePage());
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONObject data = jo.getJSONObject("data");
-                JSONObject animalBook = data.getJSONObject("animalBook");
-                String bookId = animalBook.getString("bookId");
-                String endDate = animalBook.getString("endDate") + " 23:59:59";
-                antdodoReceiveTaskAward();
-                if (!antdodoIn8Days(endDate) || antdodoLastDay(endDate))
-                    antdodoPropList();
-                JSONArray ja = data.getJSONArray("limit");
-                int index = -1;
-                for (int i = 0; i < ja.length(); i++) {
-                    jo = ja.getJSONObject(i);
-                    if ("DAILY_COLLECT".equals(jo.getString("actionCode"))) {
-                        index = i;
-                        break;
-                    }
-                }
-                Set<String> set = sendFriendCard.getValue();
-                if (index >= 0) {
-                    int leftFreeQuota = jo.getInt("leftFreeQuota");
-                    for (int j = 0; j < leftFreeQuota; j++) {
-                        jo = new JSONObject(AntForestRpcCall.antdodoCollect());
-                        if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                            data = jo.getJSONObject("data");
-                            JSONObject animal = data.getJSONObject("animal");
-                            String ecosystem = animal.getString("ecosystem");
-                            String name = animal.getString("name");
-                            Log.forest("神奇物种🦕[" + ecosystem + "]#" + name);
-                            if (!set.isEmpty()) {
-                                for (String userId : set) {
-                                    if (!UserIdMap.getCurrentUid().equals(userId)) {
-                                        int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
-                                        if (fantasticStarQuantity == 3) {
-                                            sendCard(animal, userId);
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        } else {
-                            Log.i(TAG, jo.getString("resultDesc"));
-                        }
-                    }
-                }
-                if (!set.isEmpty()) {
-                    for (String userId : set) {
-                        if (!UserIdMap.getCurrentUid().equals(userId)) {
-                            sendAntdodoCard(bookId, userId);
-                            break;
-                        }
-                    }
-                }
-            } else {
-                Log.i(TAG, jo.getString("resultDesc"));
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "collect err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private void antdodoReceiveTaskAward() {
-        try {
-            String s = AntForestRpcCall.antdodoTaskList();
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray taskGroupInfoList = jo.getJSONObject("data").optJSONArray("taskGroupInfoList");
-                if (taskGroupInfoList == null)
-                    return;
-                for (int i = 0; i < taskGroupInfoList.length(); i++) {
-                    JSONObject antdodoTask = taskGroupInfoList.getJSONObject(i);
-                    JSONArray taskInfoList = antdodoTask.getJSONArray("taskInfoList");
-                    for (int j = 0; j < taskInfoList.length(); j++) {
-                        JSONObject taskInfo = taskInfoList.getJSONObject(j);
-                        JSONObject taskBaseInfo = taskInfo.getJSONObject("taskBaseInfo");
-                        JSONObject bizInfo = new JSONObject(taskBaseInfo.getString("bizInfo"));
-                        String taskType = taskBaseInfo.getString("taskType");
-                        String taskTitle = bizInfo.optString("taskTitle", taskType);
-                        String awardCount = bizInfo.optString("awardCount", "1");
-                        String sceneCode = taskBaseInfo.getString("sceneCode");
-                        String taskStatus = taskBaseInfo.getString("taskStatus");
-                        if (TaskStatus.FINISHED.name().equals(taskStatus)) {
-                            JSONObject joAward = new JSONObject(
-                                    AntForestRpcCall.antdodoReceiveTaskAward(sceneCode, taskType));
-                            if (joAward.getBoolean("success"))
-                                Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
-                            else
-                                Log.record("领取失败，" + s);
-                            Log.i(joAward.toString());
-                        } else if (TaskStatus.TODO.name().equals(taskStatus)) {
-                            if ("SEND_FRIEND_CARD".equals(taskType)) {
-                                JSONObject joFinishTask = new JSONObject(
-                                        AntForestRpcCall.antdodoFinishTask(sceneCode, taskType));
-                                if (joFinishTask.getBoolean("success")) {
-                                    Log.forest("物种任务🧾️[" + taskTitle + "]");
-                                    antdodoReceiveTaskAward();
-                                    return;
-                                } else {
-                                    Log.record("完成任务失败，" + taskTitle);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                Log.record(jo.getString("resultDesc"));
-                Log.i(s);
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "antdodoReceiveTaskAward err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private void antdodoPropList() {
-        try {
-            th:
-            do {
-                JSONObject jo = new JSONObject(AntForestRpcCall.antdodoPropList());
-                if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                    JSONArray propList = jo.getJSONObject("data").optJSONArray("propList");
-                    if (propList == null) {
-                        return;
-                    }
-                    for (int i = 0; i < propList.length(); i++) {
-                        JSONObject prop = propList.getJSONObject(i);
-                        String propType = prop.getString("propType");
-                        if ("COLLECT_TIMES_7_DAYS".equals(propType)) {
-                            JSONArray propIdList = prop.getJSONArray("propIdList");
-                            String propId = propIdList.getString(0);
-                            String propName = prop.getJSONObject("propConfig").getString("propName");
-                            int holdsNum = prop.optInt("holdsNum", 0);
-                            jo = new JSONObject(AntForestRpcCall.antdodoConsumeProp(propId, propType));
-                            TimeUtil.sleep(300);
-                            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
-                                Log.record(jo.getString("resultDesc"));
-                                Log.i(jo.toString());
-                                continue;
-                            }
-                            JSONObject useResult = jo.getJSONObject("data").getJSONObject("useResult");
-                            JSONObject animal = useResult.getJSONObject("animal");
-                            String ecosystem = animal.getString("ecosystem");
-                            String name = animal.getString("name");
-                            Log.forest("使用道具🎭[" + propName + "]#" + ecosystem + "-" + name);
-                            Set<String> map = sendFriendCard.getValue();
-                            for (String userId : map) {
-                                if (!UserIdMap.getCurrentUid().equals(userId)) {
-                                    int fantasticStarQuantity = animal.optInt("fantasticStarQuantity", 0);
-                                    if (fantasticStarQuantity == 3) {
-                                        sendCard(animal, userId);
-                                    }
-                                    break;
-                                }
-                            }
-                            if (holdsNum > 1) {
-                                continue th;
-                            }
-                        }
-                    }
-                }
-                break;
-            } while (true);
-        } catch (Throwable th) {
-            Log.i(TAG, "antdodoPropList err:");
-            Log.printStackTrace(TAG, th);
-        }
-    }
-
-    private void sendAntdodoCard(String bookId, String targetUser) {
-        try {
-            JSONObject jo = new JSONObject(AntForestRpcCall.queryBookInfo(bookId));
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray animalForUserList = jo.getJSONObject("data").optJSONArray("animalForUserList");
-                for (int i = 0; i < animalForUserList.length(); i++) {
-                    JSONObject animalForUser = animalForUserList.getJSONObject(i);
-                    int count = animalForUser.getJSONObject("collectDetail").optInt("count");
-                    if (count <= 0)
-                        continue;
-                    JSONObject animal = animalForUser.getJSONObject("animal");
-                    for (int j = 0; j < count; j++) {
-                        sendCard(animal, targetUser);
-                        Thread.sleep(500L);
-                    }
-                }
-            }
-        } catch (Throwable th) {
-            Log.i(TAG, "sendAntdodoCard err:");
-            Log.printStackTrace(TAG, th);
-        }
-    }
-
-    private void sendCard(JSONObject animal, String targetUser) {
-        try {
-            String animalId = animal.getString("animalId");
-            String ecosystem = animal.getString("ecosystem");
-            String name = animal.getString("name");
-            JSONObject jo = new JSONObject(AntForestRpcCall.antdodoSocial(animalId, targetUser));
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                Log.forest("赠送卡片🦕[" + UserIdMap.getMaskName(targetUser) + "]#" + ecosystem + "-" + name);
-            } else {
-                Log.i(TAG, jo.getString("resultDesc"));
-            }
-        } catch (Throwable th) {
-            Log.i(TAG, "sendCard err:");
-            Log.printStackTrace(TAG, th);
         }
     }
 
