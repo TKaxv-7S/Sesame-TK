@@ -252,6 +252,10 @@ display: none!important;;
   margin-top: 12px;
 }
 
+.light-label {
+  color: #216eee;
+}
+
 .dialog-list .van-checkbox__label--disabled {
   color: #323233 !important;
 }
