@@ -289,7 +289,7 @@
             :key="item.id">
             <van-checkbox v-model="item.isChecked" shape="square">
               <div class="flex-space-between">
-                <div :class="{'checked-label':item.count>0||item.isChecked,'list-label':true}">{{index+1}}.{{item.name}}
+                <div :class="{'checked-label':item.count>0||item.isChecked,'list-label':true}">{{index+1}}. {{item.name}}
                 </div>
                 <div class="w40" v-if="person_list.type!=='SELECT'">
                   <van-field v-model="item.count" />
