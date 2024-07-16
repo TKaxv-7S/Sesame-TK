@@ -33,8 +33,6 @@ public class SettingsActivity extends BaseActivity {
     private ScrollView svTabs;
     private String userId;
     private String userName;
-    private Boolean isSave;
-    private Boolean isHold;
     //private GestureDetector gestureDetector;
 
     @Override
@@ -126,38 +124,12 @@ public class SettingsActivity extends BaseActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (isSave) {
-            if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
-                Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-                if (!StringUtil.isEmpty(userId)) {
-                    try {
-                        Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
-                        intent.putExtra("userId", userId);
-                        sendBroadcast(intent);
-                    } catch (Throwable th) {
-                        Log.printStackTrace(th);
-                    }
-                }
-            }
-            if (!StringUtil.isEmpty(userId)) {
-                UserIdMap.save(userId);
-                CooperationIdMap.save(userId);
-            }
-        }
-        if (!isHold) {
-            finish();
-        }
+    public void onBackPressed() {
+        super.onBackPressed();
+        save();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isSave = true;
-        isHold = false;
-    }
-/*@Override
+    /*@Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (gestureDetector.onTouchEvent(event)) {
             event.setAction(MotionEvent.ACTION_CANCEL);
@@ -198,7 +170,6 @@ public class SettingsActivity extends BaseActivity {
                 exportIntent.setType("*/*");
                 exportIntent.putExtra(Intent.EXTRA_TITLE, "[" + userName + "]-config_v2.json");
                 startActivityForResult(exportIntent, EXPORT_REQUEST_CODE);
-                isHold = true;
                 break;
             case 2:
                 Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -206,7 +177,6 @@ public class SettingsActivity extends BaseActivity {
                 importIntent.setType("*/*");
                 importIntent.putExtra(Intent.EXTRA_TITLE, "config_v2.json");
                 startActivityForResult(importIntent, IMPORT_REQUEST_CODE);
-                isHold = true;
                 break;
             case 3:
                 new AlertDialog.Builder(context)
@@ -224,7 +194,6 @@ public class SettingsActivity extends BaseActivity {
                             } else {
                                 Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
                             }
-                            isSave = false;
                             finish();
                         })
                         .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss())
@@ -298,6 +267,25 @@ public class SettingsActivity extends BaseActivity {
                     Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
                 }
             }
+        }
+    }
+
+    private void save() {
+        if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
+            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            if (!StringUtil.isEmpty(userId)) {
+                try {
+                    Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
+                    intent.putExtra("userId", userId);
+                    sendBroadcast(intent);
+                } catch (Throwable th) {
+                    Log.printStackTrace(th);
+                }
+            }
+        }
+        if (!StringUtil.isEmpty(userId)) {
+            UserIdMap.save(userId);
+            CooperationIdMap.save(userId);
         }
     }
 

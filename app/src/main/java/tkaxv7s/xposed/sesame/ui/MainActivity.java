@@ -254,9 +254,7 @@ public class MainActivity extends BaseActivity {
         menu.add(0, 6, 6, R.string.import_the_statistic_file);
         menu.add(0, 7, 7, R.string.view_debug);
         menu.add(0, 8, 8, R.string.settings);
-        if("TEST".equals(ViewAppInfo.getAppVersion())) {
-            menu.add(0, 9, 9, R.string.sync_the_config_file);
-        }
+        menu.add(0, 9, 9, R.string.view_all_log_file);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -274,6 +272,8 @@ public class MainActivity extends BaseActivity {
                 String errorData = "file://";
                 errorData += FileUtil.getErrorLogFile().getAbsolutePath();
                 Intent errorIt = new Intent(this, HtmlViewerActivity.class);
+                errorIt.putExtra("nextLine", false);
+                errorIt.putExtra("canClear", true);
                 errorIt.setData(Uri.parse(errorData));
                 startActivity(errorIt);
                 break;
@@ -320,6 +320,13 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case 9:
+                String allData = "file://";
+                allData += FileUtil.getRuntimeLogFile().getAbsolutePath();
+                Intent allIt = new Intent(this, HtmlViewerActivity.class);
+                allIt.putExtra("nextLine", false);
+                allIt.putExtra("canClear", true);
+                allIt.setData(Uri.parse(allData));
+                startActivity(allIt);
                 break;
         }
         return super.onOptionsItemSelected(item);

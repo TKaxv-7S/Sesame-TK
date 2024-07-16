@@ -78,13 +78,13 @@ public class BaseModel extends Model {
         modelFields.addField(timedTaskModel);
         modelFields.addField(timeoutRestart);
         modelFields.addField(waitWhenException);
-        modelFields.addField(batteryPerm);
         modelFields.addField(newRpc);
         modelFields.addField(debugMode);
+        modelFields.addField(batteryPerm);
         modelFields.addField(recordLog);
+        modelFields.addField(showToast);
         modelFields.addField(enableOnGoing);
         modelFields.addField(languageSimplifiedChinese);
-        modelFields.addField(showToast);
         modelFields.addField(toastOffsetY);
         return modelFields;
     }
