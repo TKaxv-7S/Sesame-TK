@@ -39,6 +39,8 @@ public class AntSports extends ModelTask {
     private BooleanModelField openTreasureBox;
     private BooleanModelField receiveCoinAsset;
     private BooleanModelField donateCharityCoin;
+    private ChoiceModelField donateCharityCoinType;
+    private IntegerModelField donateCharityCoinAmount;
     private IntegerModelField minExchangeCount;
     private IntegerModelField latestExchangeTime;
     private IntegerModelField syncStepCount;
@@ -52,7 +54,9 @@ public class AntSports extends ModelTask {
         ModelFields modelFields = new ModelFields();
         modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));
         modelFields.addField(receiveCoinAsset = new BooleanModelField("receiveCoinAsset", "收运动币", false));
-        modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币", false));
+        modelFields.addField(donateCharityCoin = new BooleanModelField("donateCharityCoin", "捐运动币 | 开启", false));
+        modelFields.addField(donateCharityCoinType = new ChoiceModelField("donateCharityCoinType", "捐运动币 | 方式", DonateCharityCoinType.ONE, DonateCharityCoinType.nickNames));
+        modelFields.addField(donateCharityCoinAmount = new IntegerModelField("donateCharityCoinAmount", "捐运动币 | 数量(每次)", 100));
         modelFields.addField(battleForFriends = new BooleanModelField("battleForFriends", "抢好友 | 开启", false));
         modelFields.addField(battleForFriendType = new ChoiceModelField("battleForFriendType", "抢好友 | 动作", BattleForFriendType.ROB, BattleForFriendType.nickNames));
         modelFields.addField(originBossIdList = new SelectModelField("originBossIdList", "抢好友 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
@@ -116,7 +120,7 @@ public class AntSports extends ModelTask {
             if (receiveCoinAsset.getValue())
                 receiveCoinAsset();
 
-            if (donateCharityCoin.getValue())
+            if (donateCharityCoin.getValue() && Status.canDonateCharityCoin())
                 queryProjectList(loader);
 
             if (minExchangeCount.getValue() > 0 && Status.canExchangeToday(UserIdMap.getCurrentUid()))
@@ -382,18 +386,22 @@ public class AntSports extends ModelTask {
 
     private void queryProjectList(ClassLoader loader) {
         try {
-            String s = AntSportsRpcCall.queryProjectList(0);
-            JSONObject jo = new JSONObject(s);
+            JSONObject jo = new JSONObject(AntSportsRpcCall.queryProjectList(0));
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 int charityCoinCount = jo.getInt("charityCoinCount");
-                if (charityCoinCount < 10)
+                if (charityCoinCount < donateCharityCoinAmount.getValue()) {
                     return;
-                jo = jo.getJSONObject("projectPage");
-                JSONArray ja = jo.getJSONArray("data");
-                for (int i = 0; i < ja.length(); i++) {
+                }
+                JSONArray ja = jo.getJSONObject("projectPage").getJSONArray("data");
+                for (int i = 0; i < ja.length() && charityCoinCount >= donateCharityCoinAmount.getValue(); i++) {
                     jo = ja.getJSONObject(i).getJSONObject("basicModel");
-                    if ("OPENING_DONATE".equals(jo.getString("footballFieldStatus"))) {
-                        donate(loader, charityCoinCount / 10 * 10, jo.getString("projectId"), jo.getString("title"));
+                    if ("DONATE_COMPLETED".equals(jo.getString("footballFieldStatus"))) {
+                        break;
+                    }
+                    donate(loader, donateCharityCoinAmount.getValue(), jo.getString("projectId"), jo.getString("title"));
+                    Status.donateCharityCoin();
+                    charityCoinCount -=  donateCharityCoinAmount.getValue();
+                    if (donateCharityCoinType.getValue() == DonateCharityCoinType.ONE) {
                         break;
                     }
                 }
@@ -896,6 +904,15 @@ public class AntSports extends ModelTask {
             Log.i(TAG, "buyMember err:");
             Log.printStackTrace(TAG, t);
         }
+    }
+
+    public interface DonateCharityCoinType {
+
+        int ONE = 0;
+        int ALL = 1;
+
+        String[] nickNames = {"捐赠一项", "捐赠所有"};
+
     }
 
     public interface BattleForFriendType {
