@@ -94,11 +94,11 @@ video {
 }
 
 .van-field {
-  height: 28px !important;
-  padding: 0 10px 0 10px !important;
+  height: 34px !important;
+  padding: 0 5px 0 5px !important;
   border: 1px solid #e5dbdb;
   border-radius: 4px;
-  line-height: 26px !important;
+  line-height: 32px !important;
 }
 
 .van-collapse-item__title--expanded .van-cell__title span{
@@ -141,7 +141,14 @@ video {
 }
 
 .van-tabs__line {
-display: none!important;;
+display: none!important;
+}
+.van-tabs__nav--line {
+  padding-bottom: 0!important;
+}
+
+.van-tabs--line .van-tabs__wrap {
+  height: 60px!important;
 }
 
 .mt5 {
@@ -172,8 +179,8 @@ display: none!important;;
   width: 120px;
 }
 
-.pdTB8 {
-  padding: 9px 0;
+.pdTB12 {
+  padding: 12px 0;
 }
 
 .title {
@@ -207,7 +214,7 @@ display: none!important;;
   width: calc(100vw - 40px);
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 20px;
+  padding: 5px 20px 0;
 }
 
 .theme1 .title-box {
@@ -229,7 +236,7 @@ display: none!important;;
   min-height: calc(100vh - 100px);
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 20px;
+  padding: 5px 20px 0;
 }
 
 .theme2 .title-box {
@@ -274,11 +281,17 @@ display: none!important;;
 .dialog-list .van-checkbox__label--disabled {
   color: #323233!important;
 }
+
+.dialog-list .van-cell {
+    padding-right: 5px!important;
+}
+
 .dialog-list .van-field {
-  height: 26px !important;
-  padding: 0 10px 0 10px !important;
+  height: 30px !important;
+  padding: 0 5px 0 5px !important;
   border: 1px solid #e5dbdb;
   border-radius: 4px;
+  line-height: 28px !important;
 }
 
 .van-list::-webkit-scrollbar {

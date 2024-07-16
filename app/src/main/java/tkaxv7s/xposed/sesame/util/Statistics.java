@@ -75,9 +75,9 @@ public class Statistics {
 
         StringBuilder table = new StringBuilder();
         // 添加表头
-        table.append("年  收: ").append(getData(TimeType.YEAR, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.YEAR, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.YEAR, DataType.WATERED));
-        table.append("\n月  收: ").append(getData(TimeType.MONTH, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.MONTH, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.MONTH, DataType.WATERED));
-        table.append("\n日  收: ").append(getData(TimeType.DAY, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.DAY, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.DAY, DataType.WATERED));
+        table.append("今年  收: ").append(getData(TimeType.YEAR, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.YEAR, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.YEAR, DataType.WATERED));
+        table.append("\n今月  收: ").append(getData(TimeType.MONTH, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.MONTH, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.MONTH, DataType.WATERED));
+        table.append("\n今日  收: ").append(getData(TimeType.DAY, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.DAY, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.DAY, DataType.WATERED));
         return table.toString();
     }
 

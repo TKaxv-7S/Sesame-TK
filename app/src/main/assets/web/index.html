@@ -69,14 +69,14 @@
 
             <div class="content-box">
               <div v-for="(item,index) in setData[tabs_index]" :key="item.name+index">
-                <div class="flex-space-between pdTB8" v-if="item.type==='BOOLEAN'">
+                <div class="flex-space-between pdTB12" v-if="item.type==='BOOLEAN'">
                   <div class="title">{{item.name}}</div>
                   <div class="flex-center">
                     <van-switch v-model="item.configValue" size="20px" active-value="true" inactive-value="false" />
                   </div>
                 </div>
 
-                <div class="flex-space-between pdTB8"
+                <div class="flex-space-between pdTB12"
                   v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)">
                   <div class="title">{{item.name}}</div>
                   <div class="w160">
@@ -84,13 +84,13 @@
                   </div>
                 </div>
 
-                <div class="flex-space-between pdTB8" v-if="['TEXT'].includes(item.type)">
+                <div class="flex-space-between pdTB12" v-if="['TEXT'].includes(item.type)">
                   <div class="title link" @click="clearValue(item)">
                     清除-{{item.name}}
                   </div>
                 </div>
 
-                <div class="pdTB8" v-if="item.type==='CHOICE'">
+                <div class="pdTB12" v-if="item.type==='CHOICE'">
                   <div class="title">{{item.name}}</div>
                   <div class="flex-space-between">
                     <van-radio-group v-model="item.configValue" direction="horizontal">
@@ -100,7 +100,7 @@
                   </div>
                 </div>
 
-                <div class="pdTB8" v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)">
+                <div class="pdTB12" v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)">
                   <div class="title link" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
                     {{item.name}}
                   </div>
@@ -174,14 +174,14 @@
             </template>
             <div class="content-box">
               <div v-for="(item,index) in setData[tabs_index]" :key="item.name+index">
-                <div class="flex-space-between pdTB8" v-if="item.type==='BOOLEAN'">
+                <div class="flex-space-between pdTB12" v-if="item.type==='BOOLEAN'">
                   <div class="title">{{item.name}}</div>
                   <div class="flex-center">
                     <van-switch v-model="item.configValue" size="20px" active-value="true" inactive-value="false" />
                   </div>
                 </div>
 
-                <div class="flex-space-between pdTB8"
+                <div class="flex-space-between pdTB12"
                   v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)">
                   <div class="title">{{item.name}}</div>
                   <div class="w160">
@@ -189,13 +189,13 @@
                   </div>
                 </div>
 
-                <div class="flex-space-between pdTB8" v-if="['TEXT'].includes(item.type)">
+                <div class="flex-space-between pdTB12" v-if="['TEXT'].includes(item.type)">
                   <div class="title link" @click="clearValue(item)">
                     清除-{{item.name}}
                   </div>
                 </div>
 
-                <div class="pdTB8" v-if="item.type==='CHOICE'">
+                <div class="pdTB12" v-if="item.type==='CHOICE'">
                   <div class="title">{{item.name}}</div>
                   <div class="flex-space-between">
                     <van-radio-group v-model="item.configValue" direction="horizontal">
@@ -205,7 +205,7 @@
                   </div>
                 </div>
 
-                <div class="pdTB8" v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)">
+                <div class="pdTB12" v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)">
                   <div class="title link" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
                     {{item.name}}
                   </div>
