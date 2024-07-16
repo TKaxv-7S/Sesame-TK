@@ -1584,8 +1584,11 @@ public class AntForestV2 extends ModelTask {
 
     private void usePropBeforeCollectEnergy(String userId) {
         try {
-            boolean needDouble = doubleEndTime < System.currentTimeMillis() && doubleCard.getValue() && !Objects.equals(selfId, userId);
-            boolean needStealth = stealthEndTime < System.currentTimeMillis() && stealthCard.getValue() && !Objects.equals(selfId, userId);
+            if (Objects.equals(selfId, userId)) {
+                return;
+            }
+            boolean needDouble = doubleCard.getValue() && doubleEndTime < System.currentTimeMillis();
+            boolean needStealth = stealthCard.getValue() && stealthEndTime < System.currentTimeMillis();
             if (needDouble || needStealth) {
                 synchronized (doubleCardLockObj) {
                     JSONObject bagObject = null;
