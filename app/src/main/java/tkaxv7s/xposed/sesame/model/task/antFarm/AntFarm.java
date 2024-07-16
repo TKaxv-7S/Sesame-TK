@@ -377,9 +377,6 @@ public class AntFarm extends ModelTask {
     }
 
     private void animalSleepAndWake() {
-        if (!Status.canAnimalSleep()) {
-            return;
-        }
         String sleepTime = this.sleepTime.getValue();
         if ("-1".equals(sleepTime)) {
             return;
@@ -402,14 +399,17 @@ public class AntFarm extends ModelTask {
         boolean afterWakeUpTime = now.compareTo(animalWakeUpTimeCalendar) > 0;
         if (afterSleepTime && afterWakeUpTime) {
             //睡觉时间后
+            if (!Status.canAnimalSleep()) {
+                return;
+            }
             Status.animalSleep();
             Log.record("已错过小鸡今日睡觉时间");
             return;
         }
         if (afterSleepTime) {
             //睡觉时间内
-            if (!animalSleepNow()) {
-                return;
+            if (Status.canAnimalSleep()) {
+                animalSleepNow();
             }
             animalWakeUpTime(animalWakeUpTime);
             return;
@@ -497,7 +497,7 @@ public class AntFarm extends ModelTask {
                         return true;
                     }
                 } else {
-                    Log.farm("小鸡无法睡觉🛌");
+                    Log.farm("小鸡无需睡觉🛌");
                 }
             }
         } catch (Throwable t) {
