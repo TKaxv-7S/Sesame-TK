@@ -168,6 +168,7 @@ public class AntStall extends ModelTask {
                     TimeUtil.sleep(500);
                     taskList();
                 }
+                assistFriend();
                 if (stallDonate.getValue() && Status.canStallDonateToday()) {
                     donate();
                 }
@@ -183,9 +184,6 @@ public class AntStall extends ModelTask {
         } catch (Throwable t) {
             Log.i(TAG, "home err:");
             Log.printStackTrace(TAG, t);
-        } finally {
-            //不受没有开通的影响
-            assistFriend();
         }
     }
 
@@ -264,7 +262,10 @@ public class AntStall extends ModelTask {
                 if (!stallAllowOpenReject.getValue()) {
                     continue;
                 }
-                String rentLastUser = seat.getString("rentLastUser");
+                String rentLastUser = seat.optString("rentLastUser");
+                if (StringUtil.isEmpty(rentLastUser)) {
+                    continue;
+                }
                 // 白名单直接跳过
                 if (stallWhiteList.getValue().contains(rentLastUser)) {
                     continue;
@@ -705,15 +706,14 @@ public class AntStall extends ModelTask {
         return false;
     }
 
-    private void shareP2P() {
+    private String shareP2P() {
         try {
             String s = AntStallRpcCall.shareP2P();
             JSONObject jo = new JSONObject(s);
             if (jo.getBoolean("success")) {
                 String shareId = jo.getString("shareId");
-                /* 保存shareId到Statistics */
-                Status.stallShareIdToday(UserIdMap.getCurrentUid(), shareId);
                 Log.record("蚂蚁新村⛪[分享助力]");
+                return shareId;
             } else {
                 Log.record("shareP2P err:" + " " + s);
             }
@@ -721,6 +721,7 @@ public class AntStall extends ModelTask {
             Log.i(TAG, "shareP2P err:");
             Log.printStackTrace(TAG, t);
         }
+        return null;
     }
 
     /**
@@ -733,7 +734,7 @@ public class AntStall extends ModelTask {
             }
             Set<String> friendSet = assistFriendList.getValue();
             for (String uid : friendSet) {
-                String shareId = Base64.encodeToString((uid + "-m5o3bANUTSALTML_2PA_SHARE").getBytes(), Base64.NO_WRAP);
+                String shareId = Base64.encodeToString((uid + "-" + RandomUtil.getRandom(5) + "ANUTSALTML_2PA_SHARE").getBytes(), Base64.NO_WRAP);
                 String str = AntStallRpcCall.achieveBeShareP2P(shareId);
                 JSONObject jsonObject = new JSONObject(str);
                 Thread.sleep(5000);
@@ -762,41 +763,6 @@ public class AntStall extends ModelTask {
             Status.antStallAssistFriendToday();
         } catch (Throwable t) {
             Log.i(TAG, "assistFriend err:");
-            Log.printStackTrace(TAG, t);
-        }
-    }
-
-    private void achieveBeShareP2P() {
-        try {
-            if (!Status.canStallHelpToday(UserIdMap.getCurrentUid()))
-                return;
-            List<String> UserIdList = Status.stallP2PUserIdList(UserIdMap.getCurrentUid());
-            for (String uid : UserIdList) {
-                if (Status.canStallBeHelpToday(uid)) {
-                    String shareId = Status.getStallShareId(uid);
-                    if (shareId != null && Status.canStallP2PHelpToday(uid)) {
-                        String s = AntStallRpcCall.achieveBeShareP2P(shareId);
-                        JSONObject jo = new JSONObject(s);
-                        if (jo.getBoolean("success")) {
-                            Log.farm("新村助力🎈[" + UserIdMap.getMaskName(uid) + "]");
-                            Status.stallHelpToday(UserIdMap.getCurrentUid(), false);
-                            Status.stallBeHelpToday(uid, false);
-                            Status.stallP2PHelpeToday(uid);
-                        } else if ("600000028".equals(jo.getString("code"))) {
-                            Status.stallBeHelpToday(uid, true);
-                            Log.record("被助力次数上限:" + " " + uid);
-                        } else if ("600000027".equals(jo.getString("code"))) {
-                            Status.stallHelpToday(UserIdMap.getCurrentUid(), true);
-                            Log.record("助力他人次数上限:" + " " + UserIdMap.getCurrentUid());
-                        } else {
-                            Log.record("achieveBeShareP2P err:" + " " + s);
-                        }
-                        Thread.sleep(3500L);
-                    }
-                }
-            }
-        } catch (Throwable t) {
-            Log.i(TAG, "achieveBeShareP2P err:");
             Log.printStackTrace(TAG, t);
         }
     }

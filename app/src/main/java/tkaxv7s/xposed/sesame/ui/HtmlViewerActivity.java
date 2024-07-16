@@ -35,8 +35,6 @@ public class HtmlViewerActivity extends BaseActivity {
         mWebView = findViewById(R.id.mwv_webview);
         pgb = findViewById(R.id.pgb_webview);
 
-        WebSettings settings = mWebView.getSettings();
-        settings.setTextZoom(85);
         mWebView.setWebChromeClient(
                 new WebChromeClient() {
                     @SuppressLint("WrongConstant")
@@ -59,11 +57,24 @@ public class HtmlViewerActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Intent intent = getIntent();
-        uri = intent.getData();
-        if (uri != null) {
-            mWebView.loadUrl(uri.toString());
+        WebSettings settings = mWebView.getSettings();
+        if (intent != null) {
+            if (intent.getBooleanExtra("nextLine", true)) {
+                settings.setTextZoom(85);
+                settings.setUseWideViewPort(false);
+            } else {
+                settings.setTextZoom(100);
+                settings.setUseWideViewPort(true);
+            }
+            uri = intent.getData();
+            if (uri != null) {
+                mWebView.loadUrl(uri.toString());
+            }
+            canClear = intent.getBooleanExtra("canClear", false);
+            return;
         }
-        canClear = intent.getBooleanExtra("canClear", false);
+        settings.setTextZoom(100);
+        settings.setUseWideViewPort(true);
     }
 
     @Override

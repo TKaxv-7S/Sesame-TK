@@ -40,7 +40,6 @@ public class AntFarm extends ModelTask {
         bizKeyList.add("YEB_PURCHASE");
         bizKeyList.add("WIDGET_addzujian");//添加庄园小组件
         bizKeyList.add("HIRE_LOW_ACTIVITY");//雇佣小鸡拿饲料
-        bizKeyList.add("HEART_DONATION_ADVANCED_FOOD_V2");//爱心美食任务
         bizKeyList.add("DIANTAOHUANDUAN");//去点淘逛一逛
         bizKeyList.add("TAO_GOLDEN_V2");//去逛一逛淘金币小镇
         bizKeyList.add("SHANGYEHUA_90_1");//去杂货铺逛一逛
@@ -402,30 +401,26 @@ public class AntFarm extends ModelTask {
         boolean afterSleepTime = now.compareTo(animalSleepTimeCalendar) > 0;
         boolean afterWakeUpTime = now.compareTo(animalWakeUpTimeCalendar) > 0;
         if (afterSleepTime && afterWakeUpTime) {
+            //睡觉时间后
             Status.animalSleep();
             Log.record("已错过小鸡今日睡觉时间");
             return;
         }
         if (afterSleepTime) {
+            //睡觉时间内
             if (!animalSleepNow()) {
                 return;
             }
-        } else {
-            String sleepTaskId = "AS|" + animalSleepTime;
-            if (!hasChildTask(sleepTaskId)) {
-                addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTime));
-                Log.record("添加定时睡觉🛌[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalSleepTime) + "]执行");
-            } else {
-                addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTime));
-            }
+            animalWakeUpTime(animalWakeUpTime);
+            return;
         }
-        String wakeUpTaskId = "AW|" + animalWakeUpTime;
-        if (!hasChildTask(wakeUpTaskId)) {
-            addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTime));
-            Log.record("添加定时起床\uD83D\uDD06[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalWakeUpTime) + "]执行");
-        } else {
-            addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTime));
+        //睡觉时间前
+        animalWakeUpTimeCalendar.add(Calendar.HOUR_OF_DAY, -24);
+        if (now.compareTo(animalWakeUpTimeCalendar) <= 0) {
+            animalWakeUpTime(animalWakeUpTimeCalendar.getTimeInMillis());
         }
+        animalSleepTime(animalSleepTime);
+        animalWakeUpTime(animalWakeUpTime);
     }
 
     private Boolean enterFarm() {
@@ -465,6 +460,26 @@ public class AntFarm extends ModelTask {
             Log.printStackTrace(e);
         }
         return false;
+    }
+
+    private void animalSleepTime(long animalSleepTime) {
+        String sleepTaskId = "AS|" + animalSleepTime;
+        if (!hasChildTask(sleepTaskId)) {
+            addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTime));
+            Log.record("添加定时睡觉🛌[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalSleepTime) + "]执行");
+        } else {
+            addChildTask(new ChildModelTask(sleepTaskId, "AS", this::animalSleepNow, animalSleepTime));
+        }
+    }
+
+    private void animalWakeUpTime(long animalWakeUpTime) {
+        String wakeUpTaskId = "AW|" + animalWakeUpTime;
+        if (!hasChildTask(wakeUpTaskId)) {
+            addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTime));
+            Log.record("添加定时起床\uD83D\uDD06[" + UserIdMap.getCurrentMaskName() + "]在[" + TimeUtil.getCommonDate(animalWakeUpTime) + "]执行");
+        } else {
+            addChildTask(new ChildModelTask(wakeUpTaskId, "AW", this::animalWakeUpNow, animalWakeUpTime));
+        }
     }
 
     private Boolean animalSleepNow() {
@@ -676,7 +691,7 @@ public class AntFarm extends ModelTask {
                             }
                         }
                         if (isFull) {
-                            Log.record("领取道具🎖️[" + toolType.nickName() + "]#已满，暂不领取");
+                            Log.record("领取道具[" + toolType.nickName() + "]#已满，暂不领取");
                             continue;
                         }
                         int awardCount = bizInfo.getInt("awardCount");
@@ -1838,7 +1853,7 @@ public class AntFarm extends ModelTask {
                     if (leftDrawTimes > 0) {
                         for (int ii = 0; ii < leftDrawTimes; ii++) {
                             jo = new JSONObject(AntFarmRpcCall.DrawPrize());
-                            TimeUtil.sleep(300L);
+                            TimeUtil.sleep(1000);
                             if (jo.getBoolean("success")) {
                                 String title = jo.getString("title");
                                 int prizeNum = jo.optInt("prizeNum", 0);
