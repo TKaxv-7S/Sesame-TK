@@ -183,6 +183,11 @@ display: none!important;
   padding: 12px 0;
 }
 
+.pdT6 {
+  padding-top: 6px;
+}
+
+
 .title {
   max-width: calc(100vw - 180px);
   white-space: warp;

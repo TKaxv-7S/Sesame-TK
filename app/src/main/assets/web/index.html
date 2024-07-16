@@ -197,7 +197,7 @@
 
                 <div class="pdTB12" v-if="item.type==='CHOICE'">
                   <div class="title">{{item.name}}</div>
-                  <div class="flex-space-between">
+                  <div class="flex-space-between pdT6">
                     <van-radio-group v-model="item.configValue" direction="horizontal">
                       <van-radio icon-size="16px" :name="_index+''" v-for="(_item,_index) in item.expandKey"
                         :key="_item+_index">{{_item}}</van-radio>
