@@ -13,7 +13,9 @@ import android.widget.Toast;
 import com.fasterxml.jackson.core.type.TypeReference;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
+import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.data.task.ModelTask;
+import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.ui.dto.ModelDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldInfoDto;
 import tkaxv7s.xposed.sesame.ui.dto.ModelFieldShowDto;
@@ -21,6 +23,9 @@ import tkaxv7s.xposed.sesame.ui.dto.ModelGroupDto;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,10 +33,12 @@ import java.util.List;
 import java.util.Map;
 
 public class NewSettingsActivity extends BaseActivity {
+
+    private static final Integer EXPORT_REQUEST_CODE = 1;
+
+    private static final Integer IMPORT_REQUEST_CODE = 2;
     private WebView webView;
     private Context context;
-
-    private Boolean isSave = true;
     private String userId = null;
     private String userName = null;
     private Boolean debug = false;
@@ -51,6 +58,7 @@ public class NewSettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         userId = null;
         userName = null;
+        //TODO 移除
         debug = true;
         Intent intent = getIntent();
         if (intent != null) {
@@ -137,6 +145,7 @@ public class NewSettingsActivity extends BaseActivity {
             webView.goBack();
         } else {
             super.onBackPressed();
+            save();
         }
     }
 
@@ -289,67 +298,140 @@ public class NewSettingsActivity extends BaseActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (isSave) {
-            if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
-                Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
-                if (!StringUtil.isEmpty(userId)) {
-                    try {
-                        Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
-                        intent.putExtra("userId", userId);
-                        sendBroadcast(intent);
-                    } catch (Throwable th) {
-                        Log.printStackTrace(th);
-                    }
-                }
-            }
-            if (!StringUtil.isEmpty(userId)) {
-                UserIdMap.save(userId);
-                CooperationIdMap.save(userId);
-            }
-        }
-        finish();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isSave = true;
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 1, 1, "删除配置");
+        menu.add(0, 1, 1, "导出配置");
+        menu.add(0, 2, 2, "导入配置");
+        menu.add(0, 3, 3, "删除配置");
+        menu.add(0, 4, 4, "单向好友");
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == 1) {
-            new AlertDialog.Builder(context)
-                    .setTitle("警告")
-                    .setMessage("确认删除该配置？")
-                    .setPositiveButton(R.string.ok, (dialog, id) -> {
-                        File userConfigDirectoryFile;
-                        if (StringUtil.isEmpty(userId)) {
-                            userConfigDirectoryFile = FileUtil.getDefaultConfigV2File();
-                        } else {
-                            userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
-                        }
-                        if (FileUtil.deleteFile(userConfigDirectoryFile)) {
-                            Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
-                        }
-                        isSave = false;
-                        finish();
-                    })
-                    .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss())
-                    .create()
-                    .show();
+        switch (item.getItemId()) {
+            case 1:
+                Intent exportIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                exportIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                exportIntent.setType("*/*");
+                exportIntent.putExtra(Intent.EXTRA_TITLE, "[" + userName + "]-config_v2.json");
+                startActivityForResult(exportIntent, EXPORT_REQUEST_CODE);
+                break;
+            case 2:
+                Intent importIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                importIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                importIntent.setType("*/*");
+                importIntent.putExtra(Intent.EXTRA_TITLE, "config_v2.json");
+                startActivityForResult(importIntent, IMPORT_REQUEST_CODE);
+                break;
+            case 3:
+                new AlertDialog.Builder(context)
+                        .setTitle("警告")
+                        .setMessage("确认删除该配置？")
+                        .setPositiveButton(R.string.ok, (dialog, id) -> {
+                            File userConfigDirectoryFile;
+                            if (StringUtil.isEmpty(userId)) {
+                                userConfigDirectoryFile = FileUtil.getDefaultConfigV2File();
+                            } else {
+                                userConfigDirectoryFile = FileUtil.getUserConfigDirectoryFile(userId);
+                            }
+                            if (FileUtil.deleteFile(userConfigDirectoryFile)) {
+                                Toast.makeText(this, "配置删除成功", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(this, "配置删除失败", Toast.LENGTH_SHORT).show();
+                            }
+                            finish();
+                        })
+                        .setNegativeButton(R.string.cancel, (dialog, id) -> dialog.dismiss())
+                        .create()
+                        .show();
+                break;
+            case 4:
+                ListDialog.show(this, "单向好友列表", AlipayUser.getList(user -> user.getFriendStatus() != 1), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+        if (requestCode == EXPORT_REQUEST_CODE) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                try {
+                    File configV2File;
+                    if (StringUtil.isEmpty(userId)) {
+                        configV2File = FileUtil.getDefaultConfigV2File();
+                    } else {
+                        configV2File = FileUtil.getConfigV2File(userId);
+                    }
+                    FileInputStream inputStream = new FileInputStream(configV2File);
+                    if (FileUtil.streamTo(inputStream, getContentResolver().openOutputStream(data.getData()))) {
+                        Toast.makeText(this, "导出成功！", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "导出失败！", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    Log.printStackTrace(e);
+                    Toast.makeText(this, "导出失败！", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } else if (requestCode == IMPORT_REQUEST_CODE) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                try {
+                    File configV2File;
+                    if (StringUtil.isEmpty(userId)) {
+                        configV2File = FileUtil.getDefaultConfigV2File();
+                    } else {
+                        configV2File = FileUtil.getConfigV2File(userId);
+                    }
+                    FileOutputStream outputStream = new FileOutputStream(configV2File);
+                    if (FileUtil.streamTo(getContentResolver().openInputStream(data.getData()), outputStream)) {
+                        Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
+                        if (!StringUtil.isEmpty(userId)) {
+                            try {
+                                Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
+                                intent.putExtra("userId", userId);
+                                sendBroadcast(intent);
+                            } catch (Throwable th) {
+                                Log.printStackTrace(th);
+                            }
+                        }
+                        Intent intent = getIntent();
+                        finish();
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (IOException e) {
+                    Log.printStackTrace(e);
+                    Toast.makeText(this, "导入失败！", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    private void save() {
+        if (ConfigV2.isModify(userId) && ConfigV2.save(userId, false)) {
+            Toast.makeText(this, "保存成功！", Toast.LENGTH_SHORT).show();
+            if (!StringUtil.isEmpty(userId)) {
+                try {
+                    Intent intent = new Intent("com.eg.android.AlipayGphone.sesame.restart");
+                    intent.putExtra("userId", userId);
+                    sendBroadcast(intent);
+                } catch (Throwable th) {
+                    Log.printStackTrace(th);
+                }
+            }
+        }
+        if (!StringUtil.isEmpty(userId)) {
+            UserIdMap.save(userId);
+            CooperationIdMap.save(userId);
+        }
     }
 
 }
