@@ -289,23 +289,25 @@ public class AntFarm extends ModelTask {
                         needReload = true;
                     }
                 }
+                while (useAccelerateToolBeforeCheck()) {
+                    enterFarm();
+                }
+                // if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
+                //     Log.record("小鸡在加速吃饭");
+                // } else if (useAccelerateTool.getValue() && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
+                //     // 加速卡
+                //     if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
+                //         needReload = true;
+                //     }
+                // }
 
-                if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
-                    Log.record("小鸡在加速吃饭");
-                } else if (useAccelerateTool.getValue() && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
-                    // 加速卡
-                    if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
-                        needReload = true;
-                    }
+                if (needReload) {
+                    enterFarm();
                 }
 
                 // 小鸡换装
                 if (listOrnaments.getValue() && Status.canOrnamentToday()) {
                     listOrnaments();
-                }
-
-                if (needReload) {
-                    enterFarm();
                 }
 
                 if (feedAnimal.getValue()) {
@@ -1122,6 +1124,39 @@ public class AntFarm extends ModelTask {
             Log.i(TAG, "listFarmTool err:");
             Log.printStackTrace(TAG, t);
         }
+    }
+
+    private Boolean useAccelerateToolBeforeCheck() {
+        try {
+            String s = AntFarmRpcCall.syncAnimalStatus(ownerFarmId);
+            JSONObject jo = new JSONObject(s);
+            String memo = jo.getString("memo");
+            if ("SUCCESS".equals(jo.getString("memo"))) {
+                int feedTimes = 0;
+                JSONArray ja = jo.getJSONObject("subFarmVO").getJSONArray("animals");
+                for (int i = 0; i < ja.length(); i++) {
+                    jo = ja.getJSONObject(i);
+                    feedTimes += jo.getInt("feedTimes");
+                }
+                if (feedTimes > 60 * 60 * 4) {
+                    return false;
+                }
+                if (!Status.canUseAccelerateTool()) {
+                    return false;
+                }
+                if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
+                    Status.useAccelerateTool();
+                    return true;
+                }
+            } else {
+                Log.record(memo);
+                Log.i(s);
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "useAccelerateToolBeforeCheck err:");
+            Log.printStackTrace(TAG, t);
+        }
+        return false;
     }
 
     private Boolean useFarmTool(String targetFarmId, ToolType toolType) {

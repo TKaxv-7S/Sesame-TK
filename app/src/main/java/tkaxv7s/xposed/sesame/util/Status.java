@@ -37,6 +37,7 @@ public class Status {
     private ArrayList<VisitFriendLog> visitFriendLogList = new ArrayList<>();
     private Set<String> dailyAnswerList = new HashSet<>();
     private ArrayList<String> donationEggList = new ArrayList<>();
+    private int useAccelerateToolCount = 0;
     private Boolean canOrnament = true;
     private Boolean animalSleep = false;
     
@@ -431,6 +432,16 @@ public class Status {
             stat.memberSignInList.add(uid);
             save();
         }
+    }
+
+    public static boolean canUseAccelerateTool() {
+        return INSTANCE.useAccelerateToolCount < 8;
+    }
+
+    public static void useAccelerateTool() {
+        Status stat = INSTANCE;
+        stat.useAccelerateToolCount += 1;
+        save();
     }
 
     public static boolean canDonationEgg(String uid) {
