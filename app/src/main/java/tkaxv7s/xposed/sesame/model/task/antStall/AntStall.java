@@ -810,6 +810,15 @@ public class AntStall extends ModelTask {
             JSONObject jo = new JSONObject(s);
             // 检查返回结果是否成功
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                // 获取 astUserInfoVO 对象
+                JSONObject astUserInfoVO = jo.getJSONObject("astUserInfoVO");
+                // 获取当前余额的金额
+                double currentCoinAmount = astUserInfoVO.getJSONObject("currentCoin").getDouble("amount");
+                // 检查当前余额是否大于15000
+                if (currentCoinAmount < 15000) {
+                    // 当 currentCoinAmount 小于 15000 时，直接返回，不执行后续操作
+                    return;
+                }
                 // 获取项目列表中的 astProjectVOS 数组
                 JSONArray astProjectVOS = jo.getJSONArray("astProjectVOS");
                 // 遍历项目列表

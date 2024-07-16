@@ -18,44 +18,57 @@ public class Status {
     // forest
     private ArrayList<WaterFriendLog> waterFriendLogList = new ArrayList<>();
     private ArrayList<String> cooperateWaterList = new ArrayList<>();
-    private ArrayList<String> syncStepList = new ArrayList<>();
     private ArrayList<ReserveLog> reserveLogList = new ArrayList<>();
     private ArrayList<BeachLog> beachLogList = new ArrayList<>();
     private ArrayList<String> beachTodayList = new ArrayList<>();
     private ArrayList<String> ancientTreeCityCodeList = new ArrayList<>();
-    private ArrayList<String> exchangeList = new ArrayList<>();
     private ArrayList<String> protectBubbleList = new ArrayList<>();
     private int exchangeDoubleCard = 0;
     private int exchangeTimes = 0;
     private int exchangeTimesLongTime = 0;
     private int doubleTimes = 0;
     private boolean exchangeEnergyShield = false;
-    /**
-     * 新村-罚单已贴完的用户
-     */
-    private ArrayList<String> canPasteTicketTime = new ArrayList<>();
+    private boolean exchangeCollectHistoryAnimal7Days = false;
+    private boolean exchangeCollectToFriendTimes7Days = false;
 
     // farm
     private ArrayList<String> answerQuestionList = new ArrayList<>();
     private ArrayList<FeedFriendLog> feedFriendLogList = new ArrayList<>();
     private ArrayList<VisitFriendLog> visitFriendLogList = new ArrayList<>();
-    private ArrayList<StallShareIdLog> stallShareIdLogList = new ArrayList<>();
-    private ArrayList<StallHelpedCountLog> stallHelpedCountLogList = new ArrayList<>();
     private Set<String> dailyAnswerList = new HashSet<>();
     private ArrayList<String> donationEggList = new ArrayList<>();
-    private ArrayList<String> spreadManureList = new ArrayList<>();
-    private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
+    private int useAccelerateToolCount = 0;
     private Boolean canOrnament = true;
     private Boolean animalSleep = false;
+    
+    // stall
+    private ArrayList<StallShareIdLog> stallShareIdLogList = new ArrayList<>();
+    private ArrayList<StallHelpedCountLog> stallHelpedCountLogList = new ArrayList<>();
+    private ArrayList<String> spreadManureList = new ArrayList<>();
+    private ArrayList<String> stallP2PHelpedList = new ArrayList<>();
     private Boolean canStallDonate = true;
-    /**
-     * 新村助力好友，已上限的用户
-     */
-    private List<String> antStallAssistFriend = new ArrayList<>();
+
+    // sport
+    private ArrayList<String> syncStepList = new ArrayList<>();
+    private ArrayList<String> exchangeList = new ArrayList<>();
+    private boolean donateCharityCoin = false;
 
     // other
     private ArrayList<String> memberSignInList = new ArrayList<>();
     private int kbSignIn = 0;
+
+    // 保存时间
+    private Long saveTime = 0L;
+
+    /**
+     * 新村助力好友，已上限的用户
+     */
+    private List<String> antStallAssistFriend = new ArrayList<>();
+    /**
+     * 新村-罚单已贴完的用户
+     */
+    private ArrayList<String> canPasteTicketTime = new ArrayList<>();
+
     /**
      * 绿色经营，收取好友金币已完成用户
      */
@@ -66,9 +79,6 @@ public class Status {
      */
     private Map<String, Integer> greenFinancePrizesMap = new HashMap<String, Integer>();
 
-    // 保存时间
-    private Long saveTime = 0L;
-
     public static boolean canExchangeEnergyShield() {
         return !INSTANCE.exchangeEnergyShield;
     }
@@ -77,6 +87,30 @@ public class Status {
         Status stat = INSTANCE;
         if (!stat.exchangeEnergyShield) {
             stat.exchangeEnergyShield = true;
+            save();
+        }
+    }
+
+    public static boolean canExchangeCollectHistoryAnimal7Days() {
+        return !INSTANCE.exchangeCollectHistoryAnimal7Days;
+    }
+
+    public static void exchangeCollectHistoryAnimal7Days() {
+        Status stat = INSTANCE;
+        if (!stat.exchangeCollectHistoryAnimal7Days) {
+            stat.exchangeCollectHistoryAnimal7Days = true;
+            save();
+        }
+    }
+
+    public static boolean canExchangeCollectToFriendTimes7Days() {
+        return !INSTANCE.exchangeCollectToFriendTimes7Days;
+    }
+
+    public static void exchangeCollectToFriendTimes7Days() {
+        Status stat = INSTANCE;
+        if (!stat.exchangeCollectToFriendTimes7Days) {
+            stat.exchangeCollectToFriendTimes7Days = true;
             save();
         }
     }
@@ -400,6 +434,16 @@ public class Status {
         }
     }
 
+    public static boolean canUseAccelerateTool() {
+        return INSTANCE.useAccelerateToolCount < 8;
+    }
+
+    public static void useAccelerateTool() {
+        Status stat = INSTANCE;
+        stat.useAccelerateToolCount += 1;
+        save();
+    }
+
     public static boolean canDonationEgg(String uid) {
         return !INSTANCE.donationEggList.contains(uid);
     }
@@ -455,18 +499,6 @@ public class Status {
         String uid = UserIdMap.getCurrentUid();
         if (!stat.antStallAssistFriend.contains(uid)) {
             stat.antStallAssistFriend.add(uid);
-            save();
-        }
-    }
-
-    public static boolean canExchangeToday(String uid) {
-        return !INSTANCE.exchangeList.contains(uid);
-    }
-
-    public static void exchangeToday(String uid) {
-        Status stat = INSTANCE;
-        if (!stat.exchangeList.contains(uid)) {
-            stat.exchangeList.add(uid);
             save();
         }
     }
@@ -593,6 +625,18 @@ public class Status {
         save();
     }
 
+    public static boolean canDonateCharityCoin() {
+        return !INSTANCE.donateCharityCoin;
+    }
+
+    public static void donateCharityCoin() {
+        Status stat = INSTANCE;
+        if (!stat.donateCharityCoin) {
+            stat.donateCharityCoin = true;
+            save();
+        }
+    }
+
     public static boolean canSyncStepToday(String uid) {
         Status stat = INSTANCE;
         return !stat.syncStepList.contains(uid);
@@ -602,6 +646,18 @@ public class Status {
         Status stat = INSTANCE;
         if (!stat.syncStepList.contains(uid)) {
             stat.syncStepList.add(uid);
+            save();
+        }
+    }
+    
+    public static boolean canExchangeToday(String uid) {
+        return !INSTANCE.exchangeList.contains(uid);
+    }
+
+    public static void exchangeToday(String uid) {
+        Status stat = INSTANCE;
+        if (!stat.exchangeList.contains(uid)) {
+            stat.exchangeList.add(uid);
             save();
         }
     }
