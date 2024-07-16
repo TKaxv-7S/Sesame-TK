@@ -1,8 +1,8 @@
 package tkaxv7s.xposed.sesame.model.task.antForest;
 
+import tkaxv7s.xposed.sesame.entity.AlipayVersion;
 import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
-import tkaxv7s.xposed.sesame.rpc.bridge.RpcVersion;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 import tkaxv7s.xposed.sesame.util.StringUtil;
 
@@ -14,17 +14,13 @@ public class AntForestRpcCall {
     private static String VERSION = "";
 
     public static void init() {
-        RpcVersion rpcVersion = ApplicationHook.getRpcVersion();
-        switch (rpcVersion) {
-            case OLD:
-                VERSION = "20230501";
-                break;
-            case NEW:
-                VERSION = "20240403";
-                break;
-            default:
-                VERSION = "";
-                break;
+        AlipayVersion alipayVersion = ApplicationHook.getAlipayVersion();
+        if (alipayVersion.compareTo(new AlipayVersion("10.5.88.8000")) > 0) {
+            VERSION = "20240403";
+        } else if (alipayVersion.compareTo(new AlipayVersion("10.3.96.8100")) > 0) {
+            VERSION = "20230501";
+        } else {
+            VERSION = "20230501";
         }
     }
 

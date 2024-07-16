@@ -215,7 +215,7 @@ public class GreenFinance extends ModelTask {
                     continue;
                 }
                 str = GreenFinanceRpcCall.submitTick(type, jsonObject.getString("behaviorCode"));
-                TimeUtil.sleep(300);
+                TimeUtil.sleep(1000);
                 JSONObject object = new JSONObject(str);
                 if (!object.getBoolean("success")
                         || !String.valueOf(true).equals(JsonUtil.getValueByPath(object, "result.result"))) {
@@ -286,7 +286,7 @@ public class GreenFinance extends ModelTask {
                     am = String.valueOf(r[1]);
                 }
                 str = GreenFinanceRpcCall.donation(id, am);
-                TimeUtil.sleep(300);
+                TimeUtil.sleep(1000);
                 jsonObject = new JSONObject(str);
                 if (!jsonObject.getBoolean("success")) {
                     Log.i(TAG + ".donation." + id, jsonObject.optString("resultDesc"));
@@ -359,7 +359,7 @@ public class GreenFinance extends ModelTask {
             while (true) {
                 try {
                     String str = GreenFinanceRpcCall.queryRankingList(n);
-                    TimeUtil.sleep(300);
+                    TimeUtil.sleep(1000);
                     JSONObject jsonObject = new JSONObject(str);
                     if (!jsonObject.getBoolean("success")) {
                         Log.i(TAG + ".batchStealFriend.queryRankingList", jsonObject.optString("resultDesc"));
@@ -383,7 +383,7 @@ public class GreenFinance extends ModelTask {
                             continue;
                         }
                         str = GreenFinanceRpcCall.queryGuestIndexPoints(friendId);
-                        TimeUtil.sleep(300);
+                        TimeUtil.sleep(1000);
                         jsonObject = new JSONObject(str);
                         if (!jsonObject.getBoolean("success")) {
                             Log.i(TAG + ".batchStealFriend.queryGuestIndexPoints", jsonObject.optString("resultDesc"));
@@ -404,7 +404,7 @@ public class GreenFinance extends ModelTask {
                             continue;
                         }
                         str = GreenFinanceRpcCall.batchSteal(jsonArray, friendId);
-                        TimeUtil.sleep(300);
+                        TimeUtil.sleep(1000);
                         jsonObject = new JSONObject(str);
                         if (!jsonObject.getBoolean("success")) {
                             Log.i(TAG + ".batchStealFriend.batchSteal", jsonObject.optString("resultDesc"));

@@ -40,7 +40,7 @@ public class Status {
     private int useAccelerateToolCount = 0;
     private Boolean canOrnament = true;
     private Boolean animalSleep = false;
-    
+
     // stall
     private ArrayList<StallShareIdLog> stallShareIdLogList = new ArrayList<>();
     private ArrayList<StallHelpedCountLog> stallHelpedCountLogList = new ArrayList<>();
@@ -82,7 +82,7 @@ public class Status {
     public static boolean canExchangeEnergyShield() {
         return !INSTANCE.exchangeEnergyShield;
     }
-    
+
     public static void exchangeEnergyShield() {
         Status stat = INSTANCE;
         if (!stat.exchangeEnergyShield) {
@@ -302,50 +302,6 @@ public class Status {
         }
         vfl.visitCount = count;
         save();
-    }
-
-    public static List<String> stallP2PUserIdList(String uid) {
-        List<String> p2pUserIdList = new ArrayList<>();
-        Status stat = INSTANCE;
-        for (int i = 0; i < stat.stallShareIdLogList.size(); i++)
-            if (!stat.stallShareIdLogList.get(i).userId.equals(uid)) {
-                p2pUserIdList.add(stat.stallShareIdLogList.get(i).userId);
-            }
-        return p2pUserIdList;
-    }
-
-    public static void stallShareIdToday(String uid, String sid) {
-        Status stat = INSTANCE;
-        StallShareIdLog ssil;
-        int index = -1;
-        for (int i = 0; i < stat.stallShareIdLogList.size(); i++)
-            if (stat.stallShareIdLogList.get(i).userId.equals(uid)) {
-                index = i;
-                break;
-            }
-        if (index < 0) {
-            ssil = new StallShareIdLog(uid, sid);
-            stat.stallShareIdLogList.add(ssil);
-        } else {
-            ssil = stat.stallShareIdLogList.get(index);
-        }
-        ssil.shareId = sid;
-        save();
-    }
-
-    public static String getStallShareId(String uid) {
-        Status stat = INSTANCE;
-        int index = -1;
-        for (int i = 0; i < stat.stallShareIdLogList.size(); i++)
-            if (stat.stallShareIdLogList.get(i).userId.equals(uid)) {
-                index = i;
-                break;
-            }
-        if (index < 0) {
-            return null;
-        } else {
-            return stat.stallShareIdLogList.get(index).shareId;
-        }
     }
 
     public static boolean canStallHelpToday(String id) {
@@ -649,7 +605,7 @@ public class Status {
             save();
         }
     }
-    
+
     public static boolean canExchangeToday(String uid) {
         return !INSTANCE.exchangeList.contains(uid);
     }

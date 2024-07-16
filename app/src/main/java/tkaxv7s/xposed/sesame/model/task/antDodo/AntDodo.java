@@ -15,7 +15,8 @@ import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class AntDodo extends ModelTask {
     private static final String TAG = AntDodo.class.getSimpleName();
@@ -24,7 +25,7 @@ public class AntDodo extends ModelTask {
     public String getName() {
         return "神奇物种";
     }
-    
+
     @Override
     public ModelGroup getGroup() {
         return ModelGroup.FOREST;
@@ -34,16 +35,14 @@ public class AntDodo extends ModelTask {
     private ChoiceModelField collectToFriendType;
     private SelectModelField collectToFriendList;
     private SelectModelField sendFriendCard;
-    private BooleanModelField useProp;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(collectToFriend = new BooleanModelField("collectToFriend", "帮抽卡 | 开启", false));
-        modelFields.addField(collectToFriendType = new ChoiceModelField("collectToFriendType", "帮抽卡 | 动作", CollectToFriendType.COLLECT, CollectToFriendType.nickNames));
-        modelFields.addField(collectToFriendList = new SelectModelField("collectToFriendList", "帮抽卡 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(sendFriendCard = new SelectModelField("sendFriendCard", "送卡片 | 好友列表(当前图鉴所有卡片)", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(useProp = new BooleanModelField("useProp", "使用道具", false));
+        modelFields.addField(collectToFriend = new BooleanModelField("collectToFriend", "帮好友抽卡 | 开启", false));
+        modelFields.addField(collectToFriendType = new ChoiceModelField("collectToFriendType", "帮好友抽卡 | 动作", CollectToFriendType.COLLECT, CollectToFriendType.nickNames));
+        modelFields.addField(collectToFriendList = new SelectModelField("collectToFriendList", "帮好友抽卡 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(sendFriendCard = new SelectModelField("sendFriendCard", "送卡片好友列表(当前图鉴所有卡片)", new LinkedHashSet<>(), AlipayUser::getList));
         return modelFields;
     }
 
@@ -167,51 +166,53 @@ public class AntDodo extends ModelTask {
 
     private void receiveTaskAward() {
         try {
-            String s = AntDodoRpcCall.taskList();
-            JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray taskGroupInfoList = jo.getJSONObject("data").optJSONArray("taskGroupInfoList");
-                if (taskGroupInfoList == null)
-                    return;
-                for (int i = 0; i < taskGroupInfoList.length(); i++) {
-                    JSONObject antDodoTask = taskGroupInfoList.getJSONObject(i);
-                    JSONArray taskInfoList = antDodoTask.getJSONArray("taskInfoList");
-                    for (int j = 0; j < taskInfoList.length(); j++) {
-                        JSONObject taskInfo = taskInfoList.getJSONObject(j);
-                        JSONObject taskBaseInfo = taskInfo.getJSONObject("taskBaseInfo");
-                        JSONObject bizInfo = new JSONObject(taskBaseInfo.getString("bizInfo"));
-                        String taskType = taskBaseInfo.getString("taskType");
-                        String taskTitle = bizInfo.optString("taskTitle", taskType);
-                        String awardCount = bizInfo.optString("awardCount", "1");
-                        String sceneCode = taskBaseInfo.getString("sceneCode");
-                        String taskStatus = taskBaseInfo.getString("taskStatus");
-                        if (TaskStatus.FINISHED.name().equals(taskStatus)) {
-                            JSONObject joAward = new JSONObject(
-                                    AntDodoRpcCall.receiveTaskAward(sceneCode, taskType));
-                            if (joAward.getBoolean("success"))
-                                Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
-                            else
-                                Log.record("领取失败，" + s);
-                            Log.i(joAward.toString());
-                        } else if (TaskStatus.TODO.name().equals(taskStatus)) {
-                            if ("SEND_FRIEND_CARD".equals(taskType)) {
-                                JSONObject joFinishTask = new JSONObject(
-                                        AntDodoRpcCall.finishTask(sceneCode, taskType));
-                                if (joFinishTask.getBoolean("success")) {
-                                    Log.forest("物种任务🧾️[" + taskTitle + "]");
-                                    receiveTaskAward();
-                                    return;
-                                } else {
-                                    Log.record("完成任务失败，" + taskTitle);
+            th:do {
+                String s = AntDodoRpcCall.taskList();
+                JSONObject jo = new JSONObject(s);
+                if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                    JSONArray taskGroupInfoList = jo.getJSONObject("data").optJSONArray("taskGroupInfoList");
+                    if (taskGroupInfoList == null)
+                        return;
+                    for (int i = 0; i < taskGroupInfoList.length(); i++) {
+                        JSONObject antDodoTask = taskGroupInfoList.getJSONObject(i);
+                        JSONArray taskInfoList = antDodoTask.getJSONArray("taskInfoList");
+                        for (int j = 0; j < taskInfoList.length(); j++) {
+                            JSONObject taskInfo = taskInfoList.getJSONObject(j);
+                            JSONObject taskBaseInfo = taskInfo.getJSONObject("taskBaseInfo");
+                            JSONObject bizInfo = new JSONObject(taskBaseInfo.getString("bizInfo"));
+                            String taskType = taskBaseInfo.getString("taskType");
+                            String taskTitle = bizInfo.optString("taskTitle", taskType);
+                            String awardCount = bizInfo.optString("awardCount", "1");
+                            String sceneCode = taskBaseInfo.getString("sceneCode");
+                            String taskStatus = taskBaseInfo.getString("taskStatus");
+                            if (TaskStatus.FINISHED.name().equals(taskStatus)) {
+                                JSONObject joAward = new JSONObject(
+                                        AntDodoRpcCall.receiveTaskAward(sceneCode, taskType));
+                                if (joAward.getBoolean("success"))
+                                    Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
+                                else
+                                    Log.record("领取失败，" + s);
+                                Log.i(joAward.toString());
+                            } else if (TaskStatus.TODO.name().equals(taskStatus)) {
+                                if ("SEND_FRIEND_CARD".equals(taskType)) {
+                                    JSONObject joFinishTask = new JSONObject(
+                                            AntDodoRpcCall.finishTask(sceneCode, taskType));
+                                    if (joFinishTask.getBoolean("success")) {
+                                        Log.forest("物种任务🧾️[" + taskTitle + "]");
+                                        continue th;
+                                    } else {
+                                        Log.record("完成任务失败，" + taskTitle);
+                                    }
                                 }
                             }
                         }
                     }
+                } else {
+                    Log.record(jo.getString("resultDesc"));
+                    Log.i(s);
                 }
-            } else {
-                Log.record(jo.getString("resultDesc"));
-                Log.i(s);
-            }
+                break;
+            } while (true);
         } catch (Throwable t) {
             Log.i(TAG, "AntDodo ReceiveTaskAward err:");
             Log.printStackTrace(TAG, t);
@@ -261,22 +262,6 @@ public class AntDodo extends ModelTask {
                             if (holdsNum > 1) {
                                 continue th;
                             }
-                        } else if (useProp.getValue()) {
-                            JSONArray propIdList = prop.getJSONArray("propIdList");
-                            String propId = propIdList.getString(0);
-                            String propName = prop.getJSONObject("propConfig").getString("propName");
-                            int holdsNum = prop.optInt("holdsNum", 0);
-                            jo = new JSONObject(AntDodoRpcCall.consumeProp(propId, propType));
-                            TimeUtil.sleep(300);
-                            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
-                                Log.record(jo.getString("resultDesc"));
-                                Log.i(jo.toString());
-                                continue;
-                            }
-                            Log.forest("使用道具🎭[" + propName + "]");
-                            if (holdsNum > 1) {
-                                continue th;
-                            }
                         }
                     }
                 }
@@ -310,7 +295,7 @@ public class AntDodo extends ModelTask {
             Log.printStackTrace(TAG, th);
         }
     }
-    
+
     private void sendCard(JSONObject animal, String targetUser) {
         try {
             String animalId = animal.getString("animalId");
@@ -327,7 +312,7 @@ public class AntDodo extends ModelTask {
             Log.printStackTrace(TAG, th);
         }
     }
-    
+
     private void collectToFriend() {
         try {
             JSONObject jo = new JSONObject(AntDodoRpcCall.queryFriend());
@@ -348,9 +333,7 @@ public class AntDodo extends ModelTask {
                 JSONArray friendList = jo.getJSONObject("data").getJSONArray("friends");
                 for (int i = 0; i < friendList.length() && count > 0; i++) {
                     JSONObject friend = friendList.getJSONObject(i);
-                    if (friend.getBoolean("dailyCollect")) {
-                        continue;
-                    }
+                    if (friend.getBoolean("dailyCollect")) continue;
                     String useId = friend.getString("userId");
                     boolean isCollectToFriend = collectToFriendList.getValue().contains(useId);
                     if (collectToFriendType.getValue() == CollectToFriendType.DONT_COLLECT) {
@@ -385,7 +368,7 @@ public class AntDodo extends ModelTask {
         int COLLECT = 0;
         int DONT_COLLECT = 1;
 
-        String[] nickNames = {"选中帮抽卡", "选中不帮抽卡"};
-        
+        String[] nickNames = {"选中帮开", "选中不帮开"};
+
     }
 }

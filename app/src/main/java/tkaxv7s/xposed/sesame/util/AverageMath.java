@@ -35,4 +35,10 @@ public class AverageMath {
         return (int) average;
     }
 
+    public void clear() {
+        queue.clear();
+        sum = 0.0;
+        average = 0.0;
+    }
+
 }
