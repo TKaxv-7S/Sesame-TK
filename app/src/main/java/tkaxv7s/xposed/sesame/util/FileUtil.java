@@ -370,7 +370,7 @@ public class FileUtil {
         for (File file : files) {
             String name = file.getName();
             if (name.endsWith(today + ".log")) {
-                if (file.length() < 209_715_200) {
+                if (file.length() < 104_857_600) {
                     continue;
                 }
             }

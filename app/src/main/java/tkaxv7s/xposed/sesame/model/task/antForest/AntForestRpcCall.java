@@ -52,10 +52,6 @@ public class AntForestRpcCall {
     }
 
     public static RpcEntity getCollectEnergyRpcEntity(String bizType, String userId, long bubbleId) {
-        return getCollectEnergyRpcEntity(bizType, userId, bubbleId, null);
-    }
-
-    public static RpcEntity getCollectEnergyRpcEntity(String bizType, String userId, long bubbleId, Long produceTime) {
         String args1;
         if (StringUtil.isEmpty(bizType)) {
             args1 = "[{\"bizType\":\"\",\"bubbleIds\":[" + bubbleId
@@ -65,7 +61,7 @@ public class AntForestRpcCall {
             args1 = "[{\"bizType\":\"" + bizType + "\",\"bubbleIds\":[" + bubbleId
                     + "],\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"userId\":\"" + userId + "\"}]";
         }
-        return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", args1, null, produceTime);
+        return new RpcEntity("alipay.antmember.forest.h5.collectEnergy", args1, null);
     }
 
     public static String collectEnergy(String bizType, String userId, Long bubbleId) {
