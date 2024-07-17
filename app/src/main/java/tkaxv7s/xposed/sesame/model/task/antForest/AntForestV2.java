@@ -1990,23 +1990,70 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
+    // 查询可派遣伙伴
+    private void queryAnimalPropList() {
+        try {
+            JSONObject jo = new JSONObject(AntForestRpcCall.queryAnimalPropList());
+            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                JSONArray animalProps = jo.getJSONObject("resData").getJSONArray("animalProps");
+                JSONObject animalProp = null;
+                for (int i = 0; i < animalProps.length(); i++) {
+                    jo = animalProps.getJSONObject(i);
+                    if (animalProp == null
+                            || jo.getJSONObject("main").getInt("holdsNum")
+                                    > animalProp.getJSONObject("main").getInt("holdsNum")) {
+                        animalProp = jo;
+                    }
+                }
+                consumeAnimalProp(animalProp);
+            } else {
+                Log.i(TAG, jo.getString("resultDesc"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "queryAnimalPropList err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    // 派遣伙伴
+    private void consumeAnimalProp(JSONObject animalProp) {
+        if (animalProp == null) {
+            return;
+        }
+        try {
+            String propGroup = animalProp.getJSONObject("main").getString("propGroup");
+            String propType = animalProp.getJSONObject("main").getString("propType");
+            String name = animalProp.getJSONObject("partner").getString("name");
+            JSONObject jo = new JSONObject(AntForestRpcCall.consumeProp(propGroup, propType, false));
+            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+                Log.forest("巡护派遣🐆[" + name + "]");
+            } else {
+                Log.i(TAG, jo.getString("resultDesc"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "consumeAnimalProp err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
     private void queryAnimalAndPiece(boolean canConsumeProp) {
         try {
             JSONObject jo = new JSONObject(AntForestRpcCall.queryAnimalAndPiece(0));
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONArray animalProps = jo.getJSONArray("animalProps");
+                JSONObject animalProp = null;
                 for (int i = 0; i < animalProps.length(); i++) {
                     jo = animalProps.getJSONObject(i);
-                    JSONObject animal = jo.getJSONObject("animal");
-                    int id = animal.getInt("id");
-                    if (canConsumeProp && animalConsumeProp.getValue()) {
-                        JSONObject main = jo.optJSONObject("main");
-                        if (main != null && main.optInt("holdsNum", 0) > 0) {
-                            canConsumeProp = !AnimalConsumeProp(id);
+                    if (animalConsumeProp.getValue() && canConsumeProp) {
+                        if (animalProp == null
+                                || jo.getJSONObject("main").getInt("holdsNum")
+                                        > animalProp.getJSONObject("main").getInt("holdsNum")) {
+                            animalProp = jo;
                         }
                     }
                     JSONArray pieces = jo.getJSONArray("pieces");
                     boolean canCombine = true;
+                    int id = jo.getJSONObject("animal").getInt("id");
                     for (int j = 0; j < pieces.length(); j++) {
                         jo = pieces.optJSONObject(j);
                         if (jo == null || jo.optInt("holdsNum", 0) <= 0) {
@@ -2017,6 +2064,9 @@ public class AntForestV2 extends ModelTask {
                     if (canCombine) {
                         combineAnimalPiece(id);
                     }
+                }
+                if (animalProp != null) {
+                    AnimalConsumeProp(animalProp.getJSONObject("animal").getInt("id"));
                 }
             } else {
                 Log.i(TAG, jo.getString("resultDesc"));
