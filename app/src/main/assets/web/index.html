@@ -86,7 +86,7 @@
                   :key="item.name+index"
                 >
                   <div
-                    class="flex-space-between pdTB12"
+                    class="flex-space-between pdTB10"
                     v-if="item.type==='BOOLEAN'"
                   >
                     <div class="title">{{item.name}}</div>
@@ -101,7 +101,7 @@
                   </div>
 
                   <div
-                    class="flex-space-between pdTB12"
+                    class="flex-space-between pdTB10"
                     v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
                   >
                     <div class="title">{{item.name}}</div>
@@ -115,7 +115,7 @@
                   </div>
 
                   <div
-                    class="flex-space-between pdTB12"
+                    class="flex-space-between pdTB10"
                     v-if="['TEXT'].includes(item.type)"
                   >
                     <div class="title link" @click="clearValue(item)">
@@ -123,7 +123,7 @@
                     </div>
                   </div>
 
-                  <div class="pdTB12" v-if="item.type==='CHOICE'">
+                  <div class="pdTB10" v-if="item.type==='CHOICE'">
                     <div class="title">{{item.name}}</div>
                     <div class="flex-space-between">
                       <van-radio-group
@@ -142,7 +142,7 @@
                   </div>
 
                   <div
-                    class="pdTB12"
+                    class="pdTB10"
                     v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
                   >
                     <div
@@ -255,7 +255,7 @@
                   :key="item.name+index"
                 >
                   <div
-                    class="flex-space-between pdTB12"
+                    class="flex-space-between pdTB10"
                     v-if="item.type==='BOOLEAN'"
                   >
                     <div class="title">{{item.name}}</div>
@@ -270,7 +270,7 @@
                   </div>
 
                   <div
-                    class="flex-space-between pdTB12"
+                    class="flex-space-between pdTB10"
                     v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
                   >
                     <div class="title">{{item.name}}</div>
@@ -284,15 +284,15 @@
                   </div>
 
                   <div
-                    class="flex-space-between pdTB12"
-                    v-if="['TEXT'].includes(item.type)"
+                    class="flex-space-between pdTB10"
+                    v-show="['TEXT'].includes(item.type)"
                   >
                     <div class="title link" @click="clearValue(item)">
                       清除-{{item.name}}
                     </div>
                   </div>
 
-                  <div class="pdTB12" v-if="item.type==='CHOICE'">
+                  <div class="pdTB10" v-if="item.type==='CHOICE'">
                     <div class="title">{{item.name}}</div>
                     <div class="flex-space-between pdT6">
                       <van-radio-group
@@ -311,7 +311,7 @@
                   </div>
 
                   <div
-                    class="pdTB12"
+                    class="pdTB10"
                     v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
                   >
                     <div
@@ -426,7 +426,7 @@
                   >
                     {{index+1}}. {{item.name}}
                   </div>
-                  <div class="w40" v-if="person_list.type!=='SELECT'">
+                  <div class="w50" v-if="person_list.type!=='SELECT'">
                     <van-field v-model="item.count" />
                   </div>
                 </div>
