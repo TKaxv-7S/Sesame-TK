@@ -5,5 +5,6 @@
         android:id="@+id/x_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:theme="@style/MenuTheme"
         android:background="@color/colorPrimary">
 </androidx.appcompat.widget.Toolbar>
