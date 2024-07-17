@@ -2001,7 +2001,7 @@ public class AntForestV2 extends ModelTask {
                     jo = animalProps.getJSONObject(i);
                     if (animalProp == null
                             || jo.getJSONObject("main").getInt("holdsNum")
-                                    > animalProp.getJSONObject("main").getInt("holdsNum")) {
+                            > animalProp.getJSONObject("main").getInt("holdsNum")) {
                         animalProp = jo;
                     }
                 }
@@ -2047,7 +2047,7 @@ public class AntForestV2 extends ModelTask {
                     if (animalConsumeProp.getValue() && canConsumeProp) {
                         if (animalProp == null
                                 || jo.getJSONObject("main").getInt("holdsNum")
-                                        > animalProp.getJSONObject("main").getInt("holdsNum")) {
+                                > animalProp.getJSONObject("main").getInt("holdsNum")) {
                             animalProp = jo;
                         }
                     }
@@ -2387,7 +2387,7 @@ public class AntForestV2 extends ModelTask {
             return () -> {
                 String userName = UserIdMap.getMaskName(userId);
                 int averageInteger = offsetTimeMath.getAverageInteger();
-                long readyTime = produceTime + averageInteger - advanceTimeInt - delayTimeMath.getAverageInteger() - System.currentTimeMillis();
+                long readyTime = produceTime + averageInteger - advanceTimeInt - delayTimeMath.getAverageInteger() - System.currentTimeMillis() + 50;
                 if (readyTime > 0) {
                     try {
                         Thread.sleep(readyTime);
