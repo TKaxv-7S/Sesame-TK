@@ -164,6 +164,22 @@ public class AntForestRpcCall {
                         + "\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\"" + VERSION + "\"}]");
     }
 
+    // 查询可派遣伙伴
+    public static String queryAnimalPropList() {
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.queryAnimalPropList",
+                "[{\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
+    }
+
+    // 派遣动物伙伴
+    public static String consumeProp(String propGroup, String propType, Boolean replace) {
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.consumeProp",
+                "[{\"propGroup\":\"" + propGroup
+                        + "\",\"propType\":\"" + propType
+                        + "\",\"replace\":\"" + (replace ? "true" : "false")
+                        + "\",\"sToken\":\"" + System.currentTimeMillis()
+                        + "\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
+    }
+
     public static String giveProp(String giveConfigId, String propId, String targetUserId) {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.giveProp",
                 "[{\"giveConfigId\":\"" + giveConfigId + "\",\"propId\":\"" + propId
