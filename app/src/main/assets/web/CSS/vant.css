@@ -4234,7 +4234,7 @@ ul {
   --van-tab-font-size: var(--van-font-size-md);
   --van-tab-line-height: var(--van-line-height-md);
   --van-tabs-default-color: var(--van-primary-color);
-  --van-tabs-line-height: 44px;
+  --van-tabs-line-height: 56px;
   --van-tabs-card-height: 30px;
   --van-tabs-nav-background: var(--van-background-2);
   --van-tabs-bottom-bar-width: 40px;
