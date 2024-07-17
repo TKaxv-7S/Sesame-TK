@@ -271,7 +271,7 @@ public class AntFarm extends ModelTask {
                 handleDonation(donationCount.getValue());
             }
 
-            if (answerQuestion.getValue() && Status.canAnswerQuestionToday(UserIdMap.getCurrentUid())) {
+            if (answerQuestion.getValue() && Status.canAnswerQuestionToday()) {
                 answerQuestion();
             }
 
@@ -288,8 +288,11 @@ public class AntFarm extends ModelTask {
                         needReload = true;
                     }
                 }
-                while (useAccelerateToolBeforeCheck()) {
-                    enterFarm();
+                if (useAccelerateTool.getValue()) {
+                    while (useAccelerateToolBeforeCheck()) {
+                        needReload = true;
+                        TimeUtil.sleep(1000);
+                    }
                 }
                 // if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
                 //     Log.record("小鸡在加速吃饭");
@@ -850,7 +853,7 @@ public class AntFarm extends ModelTask {
                                         }
                                         Log.record("答题" + (correct ? "正确" : "错误") + "可领取［"
                                                 + extInfo.getString("award") + "克］");
-                                        Status.answerQuestionToday(UserIdMap.getCurrentUid());
+                                        Status.answerQuestionToday();
 
                                         JSONArray operationConfigList = joDailySubmit
                                                 .getJSONArray("operationConfigList");
@@ -880,12 +883,12 @@ public class AntFarm extends ModelTask {
 
                             case RECEIVED:
                                 Log.record("今日答题已完成");
-                                Status.answerQuestionToday(UserIdMap.getCurrentUid());
+                                Status.answerQuestionToday();
                                 break;
 
                             case FINISHED:
                                 Log.record("已经答过题了，饲料待领取");
-                                Status.answerQuestionToday(UserIdMap.getCurrentUid());
+                                Status.answerQuestionToday();
                                 break;
                         }
                         break;
