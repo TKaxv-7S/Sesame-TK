@@ -848,7 +848,10 @@ public class AntOcean extends ModelTask {
                             // 遍历fishVOS数组，寻找pieces中num值为0的鱼的order和id
                             for (int j = 0; j < fishVOS.length(); j++) {
                                 JSONObject fish = fishVOS.getJSONObject(j);
-                                JSONArray pieces = fish.getJSONArray("pieces");
+                                JSONArray pieces = fish.optJSONArray("pieces");
+                                if (pieces == null) {
+                                    continue;
+                                }
                                 // 遍历pieces数组，寻找num值为0的拼图片段
                                 boolean foundNumZero = false; // 添加一个标志，用来记录是否找到了符合条件的拼图片段
                                 for (int k = 0; k < pieces.length(); k++) {
