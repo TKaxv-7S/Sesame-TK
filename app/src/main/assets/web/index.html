@@ -598,6 +598,7 @@
               });
               window.HOOK.setModel(item.modelCode, JSON.stringify(params));
             });
+            window.HOOK.Log(JSON.stringify(tabs.value));
           }
 
           function changeCollapse(index) {
@@ -644,7 +645,7 @@
           onMounted(() => {
             // console.log("11111111",localStorage.getItem('theme'));
           });
-          
+
           return {
             tabs,
             currentTab,
