@@ -121,7 +121,6 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField exchangeCollectToFriendTimes7Days;
     private BooleanModelField exchangeEnergyShield;
     private BooleanModelField userPatrol;
-    private BooleanModelField totalCertCount;
     private BooleanModelField collectGiftBox;
     private BooleanModelField medicalHealthFeeds;
     private BooleanModelField sendEnergyByAction;
@@ -190,7 +189,6 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(animalConsumeProp = new BooleanModelField("animalConsumeProp", "派遣动物", false));
         modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "森林任务", false));
-        modelFields.addField(totalCertCount = new BooleanModelField("totalCertCount", "记录证书总数", false));
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗", false));
         modelFields.addField(sendEnergyByAction = new BooleanModelField("sendEnergyByAction", "森林集市", false));
@@ -283,13 +281,6 @@ public class AntForestV2 extends ModelTask {
                     String whackMoleStatus = selfHomeObject.optString("whackMoleStatus");
                     if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
                         whackMole();
-                    }
-                }
-                if (totalCertCount.getValue()) {
-                    JSONObject userBaseInfo = selfHomeObject.optJSONObject("userBaseInfo");
-                    if (userBaseInfo != null) {
-                        int totalCertCount = userBaseInfo.optInt("totalCertCount", 0);
-                        FileUtil.setCertCount(selfId, Log.getFormatDate(), totalCertCount);
                     }
                 }
                 boolean hasMore = false;
