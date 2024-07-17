@@ -12,4 +12,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="MenuTheme">
+        <item name="android:textColorSecondary">@color/textColorPrimary</item>
+    </style>
 </resources>
