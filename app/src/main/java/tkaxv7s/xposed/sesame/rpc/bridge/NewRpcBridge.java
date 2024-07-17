@@ -120,7 +120,6 @@ public class NewRpcBridge implements RpcBridge {
         String method = rpcEntity.getRequestMethod();
         String data = rpcEntity.getRequestData();
         String relation = rpcEntity.getRequestRelation();
-        Long time = rpcEntity.getRequestTime();
         try {
             int count = 0;
             do {
@@ -128,7 +127,7 @@ public class NewRpcBridge implements RpcBridge {
                 try {
                     RpcIntervalLimit.enterIntervalLimit(method);
                     newRpcCallMethod.invoke(
-                            newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + (time == null ? System.currentTimeMillis() : Math.max(System.currentTimeMillis(), time)) + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + (relation == null ? "" : ",\"relationLocal\":" + relation) + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
+                            newRpcInstance, method, false, false, "json", parseObjectMethod.invoke(null, "{\"__apiCallStartTime\":" + System.currentTimeMillis() + ",\"apiCallLink\":\"XRiverNotFound\",\"execEngine\":\"XRiver\",\"operationType\":\"" + method + "\",\"requestData\":" + data + (relation == null ? "" : ",\"relationLocal\":" + relation) + "}"), "", null, true, false, 0, false, "", null, null, null, Proxy.newProxyInstance(loader, bridgeCallbackClazzArray, new InvocationHandler() {
                                 @Override
                                 public Object invoke(Object proxy, Method method, Object[] args) {
                                     if (args.length == 1 && "sendJSONResponse".equals(method.getName())) {
