@@ -332,7 +332,7 @@ public class GreenFinance extends ModelTask {
             }
             str = GreenFinanceRpcCall.campTrigger(campId);
             jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
+            if (!jsonObject.optBoolean("success")) {
                 Log.i(TAG + ".prizes.campTrigger", jsonObject.optString("resultDesc"));
                 return;
             }
