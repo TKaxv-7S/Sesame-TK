@@ -133,9 +133,12 @@ video {
 .van-checkbox {
   min-height: 25px !important;
 }
+
 .van-dialog {
   z-index: 999999 !important;
+  width: calc(100vw - 60px) !important;
 }
+
 .van-cell {
   padding-left: 12px !important;
 }
@@ -143,6 +146,7 @@ video {
 .van-tabs__line {
   display: none !important;
 }
+
 .van-tabs__nav--line {
   padding-bottom: 0 !important;
 }
@@ -234,9 +238,11 @@ video {
   display: block;
   margin-right: 10px;
 }
+
 .theme2 {
   background-color: #f6f6f6;
 }
+
 .theme2 .content-box {
   width: calc(100vw - 40px);
   min-height: calc(100vh - 100px);
@@ -283,6 +289,7 @@ video {
 .dialog-list .checked-label {
   color: #216eee !important;
 }
+
 .dialog-list .list-label {
   width: calc(100% - 40px) !important;
 }
