@@ -911,7 +911,7 @@ public class AntSports extends ModelTask {
         int ONE = 0;
         int ALL = 1;
 
-        String[] nickNames = {"捐赠一项", "捐赠所有"};
+        String[] nickNames = {"捐赠一个项目", "捐赠所有项目"};
 
     }
 
