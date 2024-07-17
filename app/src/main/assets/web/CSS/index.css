@@ -246,7 +246,6 @@ video {
   margin: 10px;
   padding: 10px;
   background-color: #ffffff;
-  border-radius: 10px;
 }
 
 .theme2 .title-box {
@@ -305,8 +304,8 @@ video {
 }
 
 .van-list::-webkit-scrollbar {
-  width: 20px!important;
-  height: 20px!important;
+  width: 20px !important;
+  height: 20px !important;
 }
 
 .van-list::-webkit-scrollbar-vertical {
@@ -322,5 +321,5 @@ video {
 }
 
 .van-list::-webkit-scrollbar-thumb {
-  background-color: gray!important;
+  background-color: gray !important;
 }
