@@ -48,7 +48,7 @@
   <body>
     <script src="./js/vue3.js"></script>
     <script src="./js/vant.js"></script>
-    <div id="app">
+    <div id="app" v-cloak>
       <div class="content" v-if="tabs&&setData">
         <div class="theme1" v-if="theme==='theme1'">
           <van-collapse v-model="currentTab" accordion @change="changeCollapse">
@@ -60,21 +60,22 @@
             >
               <template #title>
                 <div class="title-box">
-                  <div>
+                  <div  v-show="currentTab===tabs_index">
                     <van-image
                       width="20"
                       height="20"
                       class="list-icon"
-                      v-show="currentTab!==tabs_index"
-                      :src="`./png/${tabs_index}.png`"
+                      :src="`./png/${tabs_index+'_ed'}.png`"
                     />
+                  
+                  </div>
+                  <div  v-show="currentTab!==tabs_index">
                     <van-image
-                      width="20"
-                      height="20"
-                      class="list-icon"
-                      v-show="currentTab===tabs_index"
-                      :src="`./png/${tabs_index}_ed.png`"
-                    />
+                    width="20"
+                    height="20"
+                    class="list-icon"
+                    :src="`./png/${tabs_index}.png`"
+                  />
                   </div>
                   <div>{{tabs_item.modelName}}</div>
                 </div>
@@ -159,21 +160,22 @@
             <van-collapse-item name="13" title="主题设置" id="collapse-item_13">
               <template #title>
                 <div class="title-box">
-                  <div>
+                  <div  v-show="currentTab==13">
                     <van-image
                       width="20"
                       height="20"
                       class="list-icon"
-                      v-show="currentTab!=13"
-                      :src="./png/13.png"
+                      src="./png/13_ed.png"
                     />
+                  
+                  </div>
+                  <div  v-show="currentTab!=13">
                     <van-image
-                      width="20"
-                      height="20"
-                      class="list-icon"
-                      v-show="currentTab==13"
-                      :src="./png/13_ed.png"
-                    />
+                    width="20"
+                    height="20"
+                    class="list-icon"
+                    src="./png/13.png"
+                  />
                   </div>
                   <div>主题设置</div>
                 </div>
@@ -192,27 +194,6 @@
                 </div>
               </div>
             </van-collapse-item>
-
-            <!--<van-collapse-item name="14" title="致谢">
-            <template #title>
-              <div class="title-box">
-                <div>
-                  <van-image width="20" height="20"
-                  class="list-icon"
-                    :src="`./png/${currentTab==14?14+'_ed':14}.png`" />
-                </div>
-                <div>致谢</div>
-              </div>
-            </template>
-            <div class="content-box">
-              <div style="line-height: 20px;">
-                感谢:<br/>
-                <span class="light-label">@wh-990624</span> 开发新UI<br/>
-                <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br/>
-                以及贡献PR的开发者们<br/>
-              </div>
-            </div>
-          </van-collapse-item>-->
           </van-collapse>
         </div>
 
@@ -221,6 +202,7 @@
             v-model:active="currentTab"
             swipeable
             sticky
+            offset-top="1"
             title-active-color="#216eee"
           >
             <van-tab
@@ -230,21 +212,22 @@
             >
               <template #title>
                 <div class="title-box">
-                  <div>
+                  <div  v-show="currentTab===tabs_index">
                     <van-image
                       width="20"
                       height="20"
                       class="list-icon"
-                      v-show="currentTab!==tabs_index"
-                      :src="`./png/${tabs_index}.png`"
+                      :src="`./png/${tabs_index+'_ed'}.png`"
                     />
+                  
+                  </div>
+                  <div  v-show="currentTab!==tabs_index">
                     <van-image
-                      width="20"
-                      height="20"
-                      class="list-icon"
-                      v-show="currentTab===tabs_index"
-                      :src="`./png/${tabs_index}_ed.png`"
-                    />
+                    width="20"
+                    height="20"
+                    class="list-icon"
+                    :src="`./png/${tabs_index}.png`"
+                  />
                   </div>
                   <div class="list-label">{{tabs_item.modelName}}</div>
                 </div>
@@ -328,21 +311,22 @@
             <van-tab name="13" title="主题设置">
               <template #title>
                 <div class="title-box">
-                  <div>
+                  <div  v-show="currentTab==13">
                     <van-image
                       width="20"
                       height="20"
                       class="list-icon"
-                      v-show="currentTab!=13"
-                      :src="./png/13.png"
+                      src="./png/13_ed.png"
                     />
+                  
+                  </div>
+                  <div  v-show="currentTab!=13">
                     <van-image
-                      width="20"
-                      height="20"
-                      class="list-icon"
-                      v-show="currentTab==13"
-                      :src="./png/13_ed.png"
-                    />
+                    width="20"
+                    height="20"
+                    class="list-icon"
+                    src="./png/13.png"
+                  />
                   </div>
                   <div class="list-label">主题设置</div>
                 </div>
@@ -361,27 +345,6 @@
                 </div>
               </div>
             </van-tab>
-
-            <!--<van-tab name="14" title="致谢">
-            <template #title>
-              <div class="title-box">
-                <div>
-                  <van-image width="20" height="20"
-                  class="list-icon"
-                  :src="`./png/${currentTab==14?14+'_ed':14}.png`" />
-                </div>
-                <div class="list-label">致谢</div>
-              </div>
-            </template>
-            <div class="content-box">
-              <div>
-                感谢:<br/>
-                <span class="light-label">@wh-990624</span> 开发新UI<br/>
-                <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br/>
-                以及贡献PR的开发者们<br/>
-              </div>
-            </div>
-          </van-tab>-->
           </van-tabs>
         </div>
       </div>
@@ -626,16 +589,6 @@
 
             const { top, right, bottom, left } =
               element.getBoundingClientRect();
-            console.log(
-              "2222",
-              top,
-              right,
-              bottom,
-              left,
-              viewWidth,
-              viewHeight
-            );
-
             return top >= 0 && left >= 0;
           }
 

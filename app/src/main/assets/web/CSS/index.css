@@ -88,6 +88,10 @@ video {
   vertical-align: baseline;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 .van-dialog__header {
   padding: 10px 0 0 20px !important;
   text-align: start !important;
@@ -98,7 +102,7 @@ video {
   padding: 0 5px 0 5px !important;
   border: 1px solid #e5dbdb;
   border-radius: 4px;
-  line-height: 32px !important;
+  line-height: 34px !important;
 }
 
 .van-collapse-item__title--expanded .van-cell__title span {
@@ -135,6 +139,7 @@ video {
 }
 .van-dialog {
   z-index: 999999 !important;
+  width: calc(100vw - 60px) !important;
 }
 .van-cell {
   padding-left: 12px !important;
@@ -148,7 +153,10 @@ video {
 }
 
 .van-tabs--line .van-tabs__wrap {
-  height: 55px !important;
+  height: 60px !important;
+}
+.van-collapse-item__content {
+  background-color: #f6f6f6!important;
 }
 
 .mt5 {
@@ -218,7 +226,9 @@ video {
   width: calc(100vw - 40px);
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 5px 20px 0;
+  margin: 10px;
+  padding: 10px;
+  background-color: #ffffff;
 }
 
 .theme1 .title-box {
@@ -234,15 +244,23 @@ video {
   display: block;
   margin-right: 10px;
 }
-.theme2 {
+.theme1,.theme2 {
   background-color: #f6f6f6;
 }
+.theme2 .van-tabs__wrap::before {
+  position: fixed;
+  top: 0;
+  content: '';
+  height: 1px;
+  width: 100%;
+  background-color: #fff;
+}
+
 .theme2 .content-box {
   width: calc(100vw - 40px);
   min-height: calc(100vh - 100px);
   overflow-x: hidden;
   overflow-y: auto;
-  /*padding: 5px 20px 0;*/
   margin: 10px;
   padding: 10px;
   background-color: #ffffff;
@@ -261,11 +279,11 @@ video {
   color: #216eee;
   display: block;
   /* margin-top: 5px; */
-  transform: translateY(8px) !important;
+  transform: translateY(5px) !important;
 }
 
 .theme2 .list-label {
-  margin-top: 12px;
+  margin-top: 9px;
 }
 
 .light-label {
@@ -300,7 +318,11 @@ video {
   padding: 0 5px 0 5px !important;
   border: 1px solid #e5dbdb;
   border-radius: 4px;
-  line-height: 28px !important;
+  line-height: 30px !important;
+}
+
+.dialog-list .van-list{
+will-change: scroll-position!important;
 }
 
 .van-list::-webkit-scrollbar {
