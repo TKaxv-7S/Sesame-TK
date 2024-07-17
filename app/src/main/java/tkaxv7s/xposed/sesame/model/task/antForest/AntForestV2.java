@@ -65,6 +65,8 @@ public class AntForestV2 extends ModelTask {
 
     private Integer retryIntervalInt;
 
+    private Integer advanceTimeInt;
+
     private FixedOrRangeIntervalLimit collectIntervalEntity;
 
     private FixedOrRangeIntervalLimit doubleCollectIntervalEntity;
@@ -231,6 +233,7 @@ public class AntForestV2 extends ModelTask {
         RpcIntervalLimit.addIntervalLimit("alipay.antforest.forest.h5.fillUserRobFlag", 500);
         tryCountInt = tryCount.getValue();
         retryIntervalInt = retryInterval.getValue();
+        advanceTimeInt = advanceTime.getValue();
         dontCollectMap = dontCollectList.getValue();
         collectIntervalEntity = new FixedOrRangeIntervalLimit(collectInterval.getValue(), 50, 10000);
         doubleCollectIntervalEntity = new FixedOrRangeIntervalLimit(doubleCollectInterval.getValue(), 10, 5000);
@@ -863,7 +866,7 @@ public class AntForestV2 extends ModelTask {
                 ApplicationHook.requestObject(rpcEntity, 0, 0);
                 long spendTime = System.currentTimeMillis() - startTime;
                 if (balanceNetworkDelay.getValue()) {
-                    delayTimeMath.nextInteger((int) (spendTime / 2));
+                    delayTimeMath.nextInteger((int) (spendTime / 3));
                 }
                 if (rpcEntity.getHasError()) {
                     String errorCode = (String) XposedHelpers.callMethod(rpcEntity.getResponseObject(), "getString", "error");
@@ -2332,7 +2335,7 @@ public class AntForestV2 extends ModelTask {
          * Instantiates a new Bubble timer task.
          */
         BubbleTimerTask(String ui, long bi, long pt) {
-            super(AntForestV2.getBubbleTimerTid(ui, bi), pt - 3000 - advanceTime.getValue());
+            super(AntForestV2.getBubbleTimerTid(ui, bi), pt - 3000 - advanceTimeInt);
             userId = ui;
             bubbleId = bi;
             produceTime = pt;
@@ -2343,7 +2346,7 @@ public class AntForestV2 extends ModelTask {
             return () -> {
                 String userName = UserIdMap.getMaskName(userId);
                 int averageInteger = offsetTimeMath.getAverageInteger();
-                long readyTime = produceTime - advanceTime.getValue() - delayTimeMath.getAverageInteger() + averageInteger - System.currentTimeMillis();
+                long readyTime = produceTime + averageInteger - advanceTimeInt - delayTimeMath.getAverageInteger() - System.currentTimeMillis();
                 if (readyTime > 0) {
                     try {
                         Thread.sleep(readyTime);
@@ -2353,7 +2356,7 @@ public class AntForestV2 extends ModelTask {
                     }
                 }
                 Log.record("执行蹲点收取[" + userName + "]" + "时差[" + averageInteger + "]ms");
-                collectEnergy(new CollectEnergyEntity(userId, null, AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId, produceTime)), true);
+                collectEnergy(new CollectEnergyEntity(userId, null, AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId)), true);
             };
         }
     }

@@ -35,14 +35,16 @@ public class AntDodo extends ModelTask {
     private ChoiceModelField collectToFriendType;
     private SelectModelField collectToFriendList;
     private SelectModelField sendFriendCard;
+    private BooleanModelField useProp;
 
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
-        modelFields.addField(collectToFriend = new BooleanModelField("collectToFriend", "帮好友抽卡 | 开启", false));
-        modelFields.addField(collectToFriendType = new ChoiceModelField("collectToFriendType", "帮好友抽卡 | 动作", CollectToFriendType.COLLECT, CollectToFriendType.nickNames));
-        modelFields.addField(collectToFriendList = new SelectModelField("collectToFriendList", "帮好友抽卡 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(collectToFriend = new BooleanModelField("collectToFriend", "帮抽卡 | 开启", false));
+        modelFields.addField(collectToFriendType = new ChoiceModelField("collectToFriendType", "帮抽卡 | 动作", CollectToFriendType.COLLECT, CollectToFriendType.nickNames));
+        modelFields.addField(collectToFriendList = new SelectModelField("collectToFriendList", "帮抽卡 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(sendFriendCard = new SelectModelField("sendFriendCard", "送卡片好友列表(当前图鉴所有卡片)", new LinkedHashSet<>(), AlipayUser::getList));
+        modelFields.addField(useProp = new BooleanModelField("useProp", "使用道具", false));
         return modelFields;
     }
 
@@ -262,6 +264,22 @@ public class AntDodo extends ModelTask {
                             if (holdsNum > 1) {
                                 continue th;
                             }
+                        } else if (useProp.getValue()) {
+                            JSONArray propIdList = prop.getJSONArray("propIdList");
+                            String propId = propIdList.getString(0);
+                            String propName = prop.getJSONObject("propConfig").getString("propName");
+                            int holdsNum = prop.optInt("holdsNum", 0);
+                            jo = new JSONObject(AntDodoRpcCall.consumeProp(propId, propType));
+                            TimeUtil.sleep(300);
+                            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                                Log.record(jo.getString("resultDesc"));
+                                Log.i(jo.toString());
+                                continue;
+                            }
+                            Log.forest("使用道具🎭[" + propName + "]");
+                            if (holdsNum > 1) {
+                                continue th;
+                            }
                         }
                     }
                 }
@@ -333,7 +351,9 @@ public class AntDodo extends ModelTask {
                 JSONArray friendList = jo.getJSONObject("data").getJSONArray("friends");
                 for (int i = 0; i < friendList.length() && count > 0; i++) {
                     JSONObject friend = friendList.getJSONObject(i);
-                    if (friend.getBoolean("dailyCollect")) continue;
+                    if (friend.getBoolean("dailyCollect")) {
+                        continue;
+                    }
                     String useId = friend.getString("userId");
                     boolean isCollectToFriend = collectToFriendList.getValue().contains(useId);
                     if (collectToFriendType.getValue() == CollectToFriendType.DONT_COLLECT) {
@@ -368,7 +388,7 @@ public class AntDodo extends ModelTask {
         int COLLECT = 0;
         int DONT_COLLECT = 1;
 
-        String[] nickNames = {"选中帮开", "选中不帮开"};
+        String[] nickNames = {"选中帮抽卡", "选中不帮抽卡"};
 
     }
 }
