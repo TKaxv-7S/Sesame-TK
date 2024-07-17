@@ -1,0 +1,322 @@
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 16px !important;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+.van-dialog__header {
+  padding: 10px 0 0 20px !important;
+  text-align: start !important;
+}
+
+.van-field {
+  height: 34px !important;
+  padding: 0 5px 0 5px !important;
+  border: 1px solid #e5dbdb;
+  border-radius: 4px;
+  line-height: 32px !important;
+}
+
+.van-collapse-item__title--expanded .van-cell__title span{
+    font-weight: 700!important;
+}
+
+.van-collapse-item__content {
+  padding: 0 !important;
+}
+
+.van-field__control {
+  text-align: center !important;
+}
+
+.van-radio {
+  min-height: 26px !important;
+}
+
+.van-dialog__content {
+  max-height: 80vh !important;
+}
+
+.van-list {
+  max-height: 70vh !important;
+  overflow: auto;
+}
+
+.van-checkbox__label {
+  text-align: start !important;
+}
+
+.van-checkbox {
+  min-height: 25px !important;
+}
+.van-dialog {
+  z-index: 999999!important;
+}
+.van-cell {
+  padding-left: 12px!important;
+}
+
+.van-tabs__line {
+display: none!important;
+}
+.van-tabs__nav--line {
+  padding-bottom: 0!important;
+}
+
+.van-tabs--line .van-tabs__wrap {
+  height: 55px!important;
+}
+
+.mt5 {
+  margin-bottom: 5px;
+}
+
+.mt10 {
+  margin-bottom: 10px;
+}
+
+.mt15 {
+  margin-bottom: 15px;
+}
+
+.mt20 {
+  margin-bottom: 20px;
+}
+
+.mr15 {
+  margin-right: 15px;
+}
+
+.w40 {
+  width: 40px!important;
+}
+
+.w160 {
+  width: 120px;
+}
+
+.pdTB12 {
+  padding: 12px 0;
+}
+
+.pdT6 {
+  padding-top: 6px;
+}
+
+
+.title {
+  max-width: calc(100vw - 180px);
+  white-space: warp;
+  color: black;
+}
+
+.link {
+  color: #216eee;
+}
+
+.flex {
+  display: flex;
+  justify-content: start;
+}
+
+.flex-space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.theme1 .content-box {
+  width: calc(100vw - 40px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 5px 20px 0;
+}
+
+.theme1 .title-box {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.theme1 .list-icon {
+  width: 20px!important;
+  height: 20px!important;
+  color: #216eee;
+  display: block;
+  margin-right: 10px;
+}
+
+.theme2 .content-box {
+  width: calc(100vw - 40px);
+  min-height: calc(100vh - 100px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 5px 20px 0;
+}
+
+.theme2 .title-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.theme2 .list-icon {
+  width: 16px!important;
+  height: 16px!important;
+  color: #216eee;
+  display: block;
+  /* margin-top: 5px; */
+  transform: translateY(8px)!important;
+}
+
+.theme2 .list-label {
+  margin-top: 12px;
+}
+
+.light-label {
+  color: #216eee;
+}
+
+.dialog-list .van-checkbox__label--disabled {
+  color: #323233 !important;
+}
+
+.dialog-list .van-checkbox__label {
+  width: calc(100% - 10px)!important;
+}
+
+.dialog-list .checked-label {
+  color: #216eee!important;
+}
+.dialog-list .list-label {
+  width: calc(100% - 40px)!important;
+}
+
+.dialog-list .van-checkbox__label--disabled {
+  color: #323233!important;
+}
+
+.dialog-list .van-cell {
+    padding-right: 5px!important;
+}
+
+.dialog-list .van-field {
+  height: 30px !important;
+  padding: 0 5px 0 5px !important;
+  border: 1px solid #e5dbdb;
+  border-radius: 4px;
+  line-height: 28px !important;
+}
+
+.van-list::-webkit-scrollbar {
+  width: 20px!important;
+  height: 20px!important;
+}  
+
+.van-list::-webkit-scrollbar-vertical {
+  width: 20px!important;
+  height: 20px!important;
+}
+
+.van-list::-webkit-scrollbar-thumb {
+  height: 20px!important;
+}
+
+.van-list::-webkit-scrollbar-track {
+  background-color: white!important;
+}
+
+.van-list::-webkit-scrollbar-thumb {
+  background-color: gray!important;
+}
