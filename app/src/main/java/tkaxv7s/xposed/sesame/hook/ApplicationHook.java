@@ -204,7 +204,7 @@ public class ApplicationHook implements IXposedHookLoadPackage {
                                         Log.record("开始执行");
                                         try {
                                             int checkInterval = BaseModel.getCheckInterval().getValue();
-                                            if (lastExecTime + 5000 > System.currentTimeMillis()) {
+                                            if (lastExecTime + 2000 > System.currentTimeMillis()) {
                                                 Log.record("执行间隔较短，跳过执行");
                                                 execDelayedHandler(checkInterval);
                                                 return;
