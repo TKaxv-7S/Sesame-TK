@@ -39,10 +39,7 @@ public class Reserve extends ModelTask {
     }
 
     public Boolean check() {
-        if (TaskCommon.IS_ENERGY_TIME) {
-            return false;
-        }
-        return true;
+        return !TaskCommon.IS_ENERGY_TIME;
     }
 
     public void run() {
