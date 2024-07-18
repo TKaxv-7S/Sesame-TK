@@ -29,8 +29,8 @@ public class UIConfig {
     public static synchronized UIConfig load() {
         File uiConfigFile = FileUtil.getUIConfigFile();
         try {
-            Log.record("加载UI配置");
             if (uiConfigFile.exists()) {
+                Log.i("加载UI配置");
                 String json = FileUtil.readFromFile(uiConfigFile);
                 JsonUtil.copyMapper().readerForUpdating(INSTANCE).readValue(json);
                 String formatted = toSaveStr();
@@ -57,7 +57,6 @@ public class UIConfig {
             }
         }
         INSTANCE.setInit(true);
-        Log.i(TAG, "加载UI配置结束");
         return INSTANCE;
     }
 

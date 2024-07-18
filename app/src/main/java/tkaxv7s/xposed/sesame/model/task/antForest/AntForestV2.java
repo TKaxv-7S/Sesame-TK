@@ -1013,11 +1013,11 @@ public class AntForestV2 extends ModelTask {
                 notifyMain();
             }
         };
+        taskCount.incrementAndGet();
         if (joinThread) {
             runnable.run();
         } else {
             addChildTask(new ChildModelTask("CE|" + collectEnergyEntity.getUserId() + "|" + runnable.hashCode(), "CE", runnable));
-            taskCount.incrementAndGet();
         }
     }
 
