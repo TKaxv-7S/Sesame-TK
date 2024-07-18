@@ -11,7 +11,9 @@
             android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
             tools:ignore="ScopedStorage" />
 
+     <uses-permission android:name="android.permission.INTERNET" />
     <application
+            android:usesCleartextTraffic="true"
             android:allowBackup="true"
             android:requestLegacyExternalStorage="true"
             android:icon="@drawable/logo"
@@ -59,6 +61,11 @@
         </activity-alias>
 
         <activity
+                android:name="tkaxv7s.xposed.sesame.ui.NewSettingsActivity"
+                android:resizeableActivity="true"
+                tools:targetApi="n" />
+
+        <activity
                 android:name="tkaxv7s.xposed.sesame.ui.SettingsActivity"
                 android:resizeableActivity="true"
                 tools:targetApi="n" />
@@ -67,6 +74,7 @@
                 android:name="tkaxv7s.xposed.sesame.ui.HtmlViewerActivity"
                 android:resizeableActivity="true"
                 tools:targetApi="n" />
+
 
     </application>
 

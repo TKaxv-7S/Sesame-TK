@@ -72,19 +72,13 @@ public class Statistics {
     }
 
     public static String getText() {
-        StringBuilder sb = new StringBuilder(getData(TimeType.YEAR, DataType.TIME) + "年 : 收 ");
-        sb.append(getData(TimeType.YEAR, DataType.COLLECTED));
-        sb.append(",   帮 ").append(getData(TimeType.YEAR, DataType.HELPED));
-        sb.append(",   浇 ").append(getData(TimeType.YEAR, DataType.WATERED));
-        sb.append("\n").append(getData(TimeType.MONTH, DataType.TIME)).append("月 : 收 ");
-        sb.append(getData(TimeType.MONTH, DataType.COLLECTED));
-        sb.append(",   帮 ").append(getData(TimeType.MONTH, DataType.HELPED));
-        sb.append(",   浇 ").append(getData(TimeType.MONTH, DataType.WATERED));
-        sb.append("\n").append(getData(TimeType.DAY, DataType.TIME)).append("日 : 收 ");
-        sb.append(getData(TimeType.DAY, DataType.COLLECTED));
-        sb.append(",   帮 ").append(getData(TimeType.DAY, DataType.HELPED));
-        sb.append(",   浇 ").append(getData(TimeType.DAY, DataType.WATERED));
-        return sb.toString();
+
+        StringBuilder table = new StringBuilder();
+        // 添加表头
+        table.append("今年  收: ").append(getData(TimeType.YEAR, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.YEAR, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.YEAR, DataType.WATERED));
+        table.append("\n今月  收: ").append(getData(TimeType.MONTH, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.MONTH, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.MONTH, DataType.WATERED));
+        table.append("\n今日  收: ").append(getData(TimeType.DAY, DataType.COLLECTED)).append(" 帮: ").append(getData(TimeType.DAY, DataType.HELPED)).append(" 浇: ").append(getData(TimeType.DAY, DataType.WATERED));
+        return table.toString();
     }
 
     public static synchronized Statistics load() {

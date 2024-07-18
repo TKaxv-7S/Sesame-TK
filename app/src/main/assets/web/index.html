@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title></title>
+    <link rel="stylesheet" href="./css/vant.css?v=1" />
+    <link rel="stylesheet" href="./css/index.css?v=1" />
+    <script>
+      function onBackPressed() {
+        if (window.handleData && window.isCanSave) {
+          window.handleData();
+        }
+        if (window.Android) {
+          window.Android.onBackPressed();
+        }
+      }
+
+      function onExit() {
+        if (window.handleData && window.isCanSave) {
+          window.handleData();
+        }
+        if (window.Android) {
+          window.Android.onExit();
+        }
+      }
+      window.addEventListener("popstate", function (event) {
+        if (window.handleData && window.isCanSave) {
+          window.handleData();
+        }
+      });
+
+      window.history.pushState({ page: 1 }, "", "");
+      // 监听返回键事件
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Backspace" || event.key === "Escape") {
+          onBackPressed();
+        }
+      });
+
+      // 监听页面卸载事件
+      window.addEventListener("beforeunload", function (event) {
+        onExit();
+      });
+    </script>
+  </head>
+
+  <body>
+    <script src="./js/vue3.js"></script>
+    <script src="./js/vant.js"></script>
+    <div id="app" v-cloak>
+      <div class="content" v-if="tabs&&setData">
+        <div class="theme1" v-if="theme==='theme1'">
+          <van-collapse v-model="currentTab" accordion @change="changeCollapse">
+            <van-collapse-item
+              :name="tabs_index"
+              :key="tabs_item.modelCode"
+              :id="`collapse-item_${tabs_index}`"
+              v-for="(tabs_item,tabs_index) in tabs"
+            >
+              <template #title>
+                <div class="title-box">
+                  <div v-show="currentTab===tabs_index">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      :src="`./png/${tabs_index+'_ed'}.png`"
+                    />
+                  </div>
+                  <div v-show="currentTab!==tabs_index">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      :src="`./png/${tabs_index}.png`"
+                    />
+                  </div>
+                  <div>{{tabs_item.modelName}}</div>
+                </div>
+              </template>
+
+              <div class="content-box">
+                <div
+                  v-for="(item,index) in setData[tabs_index]"
+                  :key="item.name+index"
+                >
+                  <div
+                    class="flex-space-between pdTB10"
+                    v-if="item.type==='BOOLEAN'"
+                  >
+                    <div class="title">{{item.name}}</div>
+                    <div class="flex-center">
+                      <van-switch
+                        v-model="item.configValue"
+                        size="20px"
+                        active-value="true"
+                        inactive-value="false"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class="flex-space-between pdTB10"
+                    v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
+                  >
+                    <div class="title">{{item.name}}</div>
+                    <div class="w160">
+                      <van-field
+                        v-model="item.configValue"
+                        placeholder="请输入..."
+                        :disabled="item.type==='TEXT'"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class="flex-space-between pdTB10"
+                    v-if="['TEXT'].includes(item.type)"
+                  >
+                    <div class="title link" @click="clearValue(item)">
+                      清除-{{item.name}}
+                    </div>
+                  </div>
+
+                  <div class="pdTB10" v-if="item.type==='CHOICE'">
+                    <div class="title">{{item.name}}</div>
+                    <div class="flex-space-between">
+                      <van-radio-group
+                        v-model="item.configValue"
+                        direction="horizontal"
+                      >
+                        <van-radio
+                          icon-size="16px"
+                          :name="_index+''"
+                          v-for="(_item,_index) in item.expandKey"
+                          :key="_item+_index"
+                          >{{_item}}</van-radio
+                        >
+                      </van-radio-group>
+                    </div>
+                  </div>
+
+                  <div
+                    class="pdTB10"
+                    v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
+                  >
+                    <div
+                      class="title link"
+                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
+                    >
+                      {{item.name}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </van-collapse-item>
+
+            <van-collapse-item name="13" title="主题设置" id="collapse-item_13">
+              <template #title>
+                <div class="title-box">
+                  <div v-show="currentTab==13">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      src="./png/13_ed.png"
+                    />
+                  </div>
+                  <div v-show="currentTab!=13">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      src="./png/13.png"
+                    />
+                  </div>
+                  <div>主题设置</div>
+                </div>
+              </template>
+              <div class="content-box">
+                <div class="title">主题设置</div>
+                <div class="flex-space-between">
+                  <van-radio-group v-model="theme" direction="horizontal">
+                    <van-radio icon-size="16px" name="theme1"
+                      >折叠主题</van-radio
+                    >
+                    <van-radio icon-size="16px" name="theme2"
+                      >顶部导航主题</van-radio
+                    >
+                  </van-radio-group>
+                </div>
+              </div>
+            </van-collapse-item>
+          </van-collapse>
+        </div>
+
+        <div class="theme2" v-else>
+          <van-tabs
+            v-model:active="currentTab"
+            swipeable
+            sticky
+            offset-top="1"
+            title-active-color="#216eee"
+          >
+            <van-tab
+              :name="tabs_index"
+              :key="tabs_item.modelCode"
+              v-for="(tabs_item,tabs_index) in tabs"
+            >
+              <template #title>
+                <div class="title-box">
+                  <div v-show="currentTab===tabs_index">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      :src="`./png/${tabs_index+'_ed'}.png`"
+                    />
+                  </div>
+                  <div v-show="currentTab!==tabs_index">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      :src="`./png/${tabs_index}.png`"
+                    />
+                  </div>
+                  <div class="list-label">{{tabs_item.modelName}}</div>
+                </div>
+              </template>
+              <div class="content-box">
+                <div
+                  v-for="(item,index) in setData[tabs_index]"
+                  :key="item.name+index"
+                >
+                  <div
+                    class="flex-space-between pdTB10"
+                    v-if="item.type==='BOOLEAN'"
+                  >
+                    <div class="title">{{item.name}}</div>
+                    <div class="flex-center">
+                      <van-switch
+                        v-model="item.configValue"
+                        size="20px"
+                        active-value="true"
+                        inactive-value="false"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class="flex-space-between pdTB10"
+                    v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
+                  >
+                    <div class="title">{{item.name}}</div>
+                    <div class="w160">
+                      <van-field
+                        v-model="item.configValue"
+                        placeholder="请输入..."
+                        :disabled="item.type==='TEXT'"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class="flex-space-between pdTB10"
+                    v-show="['TEXT'].includes(item.type)"
+                  >
+                    <div class="title link" @click="clearValue(item)">
+                      清除-{{item.name}}
+                    </div>
+                  </div>
+
+                  <div class="pdTB10" v-if="item.type==='CHOICE'">
+                    <div class="title">{{item.name}}</div>
+                    <div class="flex-space-between pdT6">
+                      <van-radio-group
+                        v-model="item.configValue"
+                        direction="horizontal"
+                      >
+                        <van-radio
+                          icon-size="16px"
+                          :name="_index+''"
+                          v-for="(_item,_index) in item.expandKey"
+                          :key="_item+_index"
+                          >{{_item}}</van-radio
+                        >
+                      </van-radio-group>
+                    </div>
+                  </div>
+
+                  <div
+                    class="pdTB10"
+                    v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
+                  >
+                    <div
+                      class="title link"
+                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
+                    >
+                      {{item.name}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </van-tab>
+
+            <van-tab name="13" title="主题设置">
+              <template #title>
+                <div class="title-box">
+                  <div v-show="currentTab==13">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      src="./png/13_ed.png"
+                    />
+                  </div>
+                  <div v-show="currentTab!=13">
+                    <van-image
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      src="./png/13.png"
+                    />
+                  </div>
+                  <div class="list-label">主题设置</div>
+                </div>
+              </template>
+              <div class="content-box">
+                <div class="title">主题设置</div>
+                <div class="flex-space-between">
+                  <van-radio-group v-model="theme" direction="horizontal">
+                    <van-radio icon-size="16px" name="theme1"
+                      >折叠主题</van-radio
+                    >
+                    <van-radio icon-size="16px" name="theme2"
+                      >顶部导航主题</van-radio
+                    >
+                  </van-radio-group>
+                </div>
+              </div>
+            </van-tab>
+          </van-tabs>
+        </div>
+      </div>
+
+      <!-- 列表弹窗 -->
+      <van-dialog
+        v-model:show="person_list.visible"
+        :title="person_list.title"
+        show-cancel-button
+        @confirm="handleSubmitBtn"
+        @cancel="handleCancelBtn"
+      >
+        <div class="flex-space-between">
+          <div>
+            <van-list>
+              <van-cell>
+                <van-checkbox
+                  @change="changeAll"
+                  v-model="person_list.check_all"
+                  shape="square"
+                  :disabled="person_list.type!=='SELECT'"
+                >
+                  <span class="link">列表全选/反选</span>
+                </van-checkbox>
+              </van-cell>
+            </van-list>
+          </div>
+          <div class="mr15 w160">
+            <van-field v-model="person_list.keys" placeholder="搜索..." />
+          </div>
+        </div>
+        <div class="dialog-list">
+          <van-list>
+            <van-cell
+              v-for="(item,index) in person_list.list.filter(item=>item.name.includes(person_list.keys))"
+              :key="item.id"
+            >
+              <van-checkbox v-model="item.isChecked" shape="square">
+                <div class="flex-space-between">
+                  <div
+                    :class="{'checked-label':item.count>0||item.isChecked,'list-label':true}"
+                  >
+                    {{index+1}}. {{item.name}}
+                  </div>
+                  <div class="w50" v-if="person_list.type!=='SELECT'">
+                    <van-field v-model="item.count" />
+                  </div>
+                </div>
+              </van-checkbox>
+            </van-cell>
+          </van-list>
+        </div>
+      </van-dialog>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, onMounted, watchEffect } = Vue;
+      const { showToast } = vant;
+      createApp({
+        setup() {
+          // 左侧导航菜单
+          const tabs = ref(JSON.parse(window.HOOK.getTabs()));
+          const currentTab = ref(
+            localStorage.getItem("theme") === "theme1" ? null : 0
+          );
+          //设置默认值
+          const setData = ref(
+            tabs.value.map((item) => {
+              return JSON.parse(window.HOOK.getModel(item.modelCode));
+            })
+          );
+
+          const theme = ref(localStorage.getItem("theme") || "theme1");
+
+          // 用户列表弹窗
+          const person_list = ref({
+            visible: false,
+            title: "",
+            code: "",
+            list: [],
+            keys: "",
+            type: "",
+            modelName: "",
+            check_all: false,
+          });
+
+          watchEffect(() => {
+            localStorage.setItem("theme", theme.value);
+          });
+
+          function loadList(modelName, code, name, type) {
+            window.history.pushState({ list: 1 }, "", "");
+            person_list.value.visible = true;
+            person_list.value.list = [];
+            let obj = JSON.parse(window.HOOK.getField(modelName, code));
+            let configValue = JSON.parse(
+              setData.value[currentTab.value].find((i) => i.code === code)
+                .configValue
+            );
+            let array = obj.expandValue
+              .map((item) => {
+                return {
+                  ...item,
+                  isChecked:
+                    type === "SELECT"
+                      ? configValue.includes(item.id)
+                      : (configValue.key &&
+                          configValue.key.includes(item.id)) ||
+                        (type === "SELECT_AND_COUNT" && configValue[item.id]) ||
+                        false,
+                  count:
+                    (type === "SELECT_AND_COUNT" && configValue[item.id]) || "",
+                };
+              })
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .sort((a, b) => b.isChecked - a.isChecked || b.count - a.count);
+
+            let result = [];
+            for (let i = 0; i < array.length; i += 30) {
+              result.push(array.slice(i, i + 30));
+            }
+
+            let _index = 0;
+
+            const refreshFrameCount = () => {
+              requestAnimationFrame(() => {
+                person_list.value.list.push(...result[_index]);
+                _index++;
+                if (_index < result.length && person_list.value.visible) {
+                  refreshFrameCount();
+                }
+              });
+            };
+
+            refreshFrameCount();
+            // person_list.value.list = array.slice(0,60)
+
+            person_list.value.title = name;
+            person_list.value.code = code;
+            person_list.value.modelName = modelName;
+            person_list.value.type = type;
+          }
+
+          function changeAll(bol) {
+            let checkList = person_list.value.list.filter((item) =>
+              item.name.includes(person_list.value.keys)
+            );
+            person_list.value.list = person_list.value.list.map((item) => {
+              return {
+                ...item,
+                isChecked: checkList.find((_item) => _item.id === item.id)
+                  ? bol
+                  : item.isChecked,
+              };
+            });
+          }
+
+          function handleSubmitBtn() {
+            const refreshFrameCount = () => {
+              requestAnimationFrame(() => {
+                person_list.value.visible = false;
+                if (person_list.value.type === "SELECT") {
+                  let params = [];
+                  person_list.value.list
+                    .filter((item) => item.isChecked)
+                    .forEach((item) => {
+                      params.push(item.id);
+                    });
+                  setData.value[currentTab.value].find(
+                    (item) => item.code === person_list.value.code
+                  ).configValue = JSON.stringify(params);
+                } else if (person_list.value.type === "SELECT_AND_COUNT") {
+                  let params = {};
+                  person_list.value.list
+                    .filter((item) => Number(item.count))
+                    .forEach((item) => {
+                      params = {
+                        ...params,
+                        [item.id]: Number(item.count),
+                      };
+                    });
+                  setData.value[currentTab.value].find(
+                    (item) => item.code === person_list.value.code
+                  ).configValue = JSON.stringify(params);
+                }
+                person_list.value.keys = "";
+                person_list.value.code = "";
+                person_list.value.type = "";
+                person_list.value.modelName = "";
+                person_list.value.check_all = false;
+                window.history.go(-1);
+              });
+            };
+
+            refreshFrameCount();
+          }
+
+          function handleCancelBtn() {
+            person_list.value.visible = false;
+            person_list.value.keys = "";
+            window.history.go(-1);
+          }
+
+          function clearValue(item) {
+            item.configValue = "";
+          }
+
+          function handleData() {
+            if (!setData.value) return;
+            tabs.value.forEach((item, index) => {
+              let params = {};
+              setData.value[index].forEach((item) => {
+                params[item.code] = { configValue: item.configValue };
+              });
+              window.HOOK.setModel(item.modelCode, JSON.stringify(params));
+            });
+            window.HOOK.Log(JSON.stringify(tabs.value));
+          }
+
+          function changeCollapse(index) {
+            setTimeout(() => {
+              let dom = document.querySelector(`#collapse-item_${index}`);
+              if (dom) {
+                if (!isInViewPort(dom)) {
+                  document
+                    .querySelector(`#collapse-item_${index}`)
+                    .scrollIntoView();
+                }
+              }
+            }, 800);
+          }
+
+          function isInViewPort(element) {
+            const viewWidth =
+              window.innerWidth ||
+              document.documentElement.clientWidth ||
+              document.body.clientWidth;
+            const viewHeight =
+              window.innerHeight ||
+              document.documentElement.clientHeight ||
+              document.body.clientHeight;
+
+            const { top, right, bottom, left } =
+              element.getBoundingClientRect();
+            return top >= 0 && left >= 0;
+          }
+
+          window.handleData = handleData;
+          window.isCanSave = true;
+
+          onMounted(() => {
+            // console.log("11111111",localStorage.getItem('theme'));
+          });
+
+          return {
+            tabs,
+            currentTab,
+            setData,
+            person_list,
+            loadList,
+            changeAll,
+            handleSubmitBtn,
+            handleCancelBtn,
+            clearValue,
+            changeCollapse,
+            theme,
+          };
+        },
+      })
+        .use(vant)
+        .use(vant.Lazyload)
+        .mount("#app");
+    </script>
+  </body>
+</html>
