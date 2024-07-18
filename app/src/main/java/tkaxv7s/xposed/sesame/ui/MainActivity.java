@@ -103,7 +103,7 @@ public class MainActivity extends BaseActivity {
         }
         AlertDialog.Builder builder= new AlertDialog.Builder(this);
         builder.setTitle("提示");
-        builder.setMessage("本APP是为了学习研究开发，免费提供，不得进行任何形式的转发、发布、传播。请于24小时内卸载本APP。如果您是购买的可能已经被骗，请联系卖家退款。");
+        builder.setMessage(R.string.start_message);
         builder.setPositiveButton("我知道了",(dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();

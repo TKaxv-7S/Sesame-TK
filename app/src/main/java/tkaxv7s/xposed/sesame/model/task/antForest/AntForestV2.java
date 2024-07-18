@@ -64,6 +64,8 @@ public class AntForestV2 extends ModelTask {
 
     private Integer advanceTimeInt;
 
+    private Integer checkIntervalInt;
+
     private FixedOrRangeIntervalLimit collectIntervalEntity;
 
     private FixedOrRangeIntervalLimit doubleCollectIntervalEntity;
@@ -229,6 +231,7 @@ public class AntForestV2 extends ModelTask {
         tryCountInt = tryCount.getValue();
         retryIntervalInt = retryInterval.getValue();
         advanceTimeInt = advanceTime.getValue();
+        checkIntervalInt = BaseModel.getCheckInterval().getValue();
         dontCollectMap = dontCollectList.getValue();
         collectIntervalEntity = new FixedOrRangeIntervalLimit(collectInterval.getValue(), 50, 10000);
         doubleCollectIntervalEntity = new FixedOrRangeIntervalLimit(doubleCollectInterval.getValue(), 10, 5000);
@@ -654,7 +657,7 @@ public class AntForestV2 extends ModelTask {
                             break;
                         case WAITING:
                             long produceTime = bubble.getLong("produceTime");
-                            if (BaseModel.getCheckInterval().getValue() > produceTime - serverTime) {
+                            if (checkIntervalInt + checkIntervalInt / 2 > produceTime - serverTime) {
                                 if (hasChildTask(AntForestV2.getBubbleTimerTid(userId, bubbleId))) {
                                     break;
                                 }
@@ -724,7 +727,7 @@ public class AntForestV2 extends ModelTask {
                         boolean collectEnergy = true;
                         if (!friendObject.optBoolean("canCollectEnergy")) {
                             long canCollectLaterTime = friendObject.getLong("canCollectLaterTime");
-                            if (canCollectLaterTime <= 0 || (canCollectLaterTime - System.currentTimeMillis() > BaseModel.getCheckInterval().getValue())) {
+                            if (canCollectLaterTime <= 0 || (canCollectLaterTime - System.currentTimeMillis() > checkIntervalInt)) {
                                 collectEnergy = false;
                             }
                         }
@@ -951,12 +954,14 @@ public class AntForestV2 extends ModelTask {
                     collected += bubble.getInt("collectedEnergy");
                     FriendWatch.friendWatch(userId, collected);
                     if (collected > 0) {
-                        String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g耗时[" + spendTime + "]ms";
+                        String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g";
                         if (needDouble) {
-                            str +="[双击]";
+                            Log.forest(str + "耗时[" + spendTime + "]ms[双击]");
+                            Toast.show(str + "[双击]");
+                        } else {
+                            Log.forest(str + "耗时[" + spendTime + "]ms");
+                            Toast.show(str);
                         }
-                        Log.forest(str);
-                        Toast.show(str);
                         totalCollected += collected;
                         Statistics.addData(Statistics.DataType.COLLECTED, collected);
                     } else {
@@ -2393,7 +2398,7 @@ public class AntForestV2 extends ModelTask {
             return () -> {
                 String userName = UserIdMap.getMaskName(userId);
                 int averageInteger = offsetTimeMath.getAverageInteger();
-                long readyTime = produceTime + averageInteger - advanceTimeInt - delayTimeMath.getAverageInteger() - System.currentTimeMillis() + 50;
+                long readyTime = produceTime + averageInteger - advanceTimeInt - delayTimeMath.getAverageInteger() - System.currentTimeMillis() + 80;
                 if (readyTime > 0) {
                     try {
                         Thread.sleep(readyTime);

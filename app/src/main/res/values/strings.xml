@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Sesame</string>
     <string name="start_check_energy">Start check energy</string>
+    <string name="start_message">本APP是为了学习研究而开发，<b>免费且开源，禁止用于任何商业用途，并禁止二次修改后闭源发布</b>。请于24小时内卸载本APP。如果您是通过购买获得，请联系卖家退款或在平台举报卖家。</string>
     <color name="color_alpha">#00000000</color>
     <color name="color_btn_down">#F0F0F0</color>
 
