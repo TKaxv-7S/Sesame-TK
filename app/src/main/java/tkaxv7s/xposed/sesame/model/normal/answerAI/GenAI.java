@@ -25,7 +25,7 @@ public class GenAI implements AnswerAIInterface {
         if (token != null && !token.isEmpty()) {
             this.token = token;
         } else {
-            this.token = "AIzaSyA8e1SjuCbZBfx8nDRjmoMHZsWdd3y4-bQ";
+            this.token = "";
         }
         /*if (cUrl != null && !cUrl.isEmpty()) {
             url = cUrl.trim().replaceAll("/$", "");

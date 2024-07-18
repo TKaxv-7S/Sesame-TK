@@ -88,7 +88,7 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField collectWateringBubble;
     private BooleanModelField batchRobEnergy;
     private BooleanModelField balanceNetworkDelay;
-    private BooleanModelField whackMole;
+    private BooleanModelField closeWhackMole;
     private BooleanModelField collectProp;
     private StringModelField queryInterval;
     private StringModelField collectInterval;
@@ -181,7 +181,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(exchangeEnergyShield = new BooleanModelField("exchangeEnergyShield", "活力值 | 兑换能量保护罩", false));
         modelFields.addField(exchangeCollectHistoryAnimal7Days = new BooleanModelField("exchangeCollectHistoryAnimal7Days", "活力值 | 兑换物种历史卡", false));
         modelFields.addField(exchangeCollectToFriendTimes7Days = new BooleanModelField("exchangeCollectToFriendTimes7Days", "活力值 | 兑换物种好友卡", false));
-        modelFields.addField(whackMole = new BooleanModelField("whackMole", "6秒拼手速", true));
+        modelFields.addField(closeWhackMole = new BooleanModelField("closeWhackMole", "自动关闭6秒拼手速", true));
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", false));
@@ -277,11 +277,9 @@ public class AntForestV2 extends ModelTask {
             }
 
             if (!TaskCommon.IS_ENERGY_TIME && selfHomeObject != null) {
-                if (whackMole.getValue()) {
-                    String whackMoleStatus = selfHomeObject.optString("whackMoleStatus");
-                    if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
-                        whackMole();
-                    }
+                String whackMoleStatus = selfHomeObject.optString("whackMoleStatus");
+                if ("CAN_PLAY".equals(whackMoleStatus) || "CAN_INITIATIVE_PLAY".equals(whackMoleStatus) || "NEED_MORE_FRIENDS".equals(whackMoleStatus)) {
+                    whackMole();
                 }
                 boolean hasMore = false;
                 do {
@@ -557,7 +555,7 @@ public class AntForestV2 extends ModelTask {
         JSONObject userHomeObject = null;
         try {
             long start = System.currentTimeMillis();
-            userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
+            userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
             int offsetTime = offsetTimeMath.nextInteger((int) (start + (end - start) * 2 / 3 - serverTime));
@@ -587,6 +585,18 @@ public class AntForestV2 extends ModelTask {
         try {
             JSONObject selfHomeObject = querySelfHome();
             if (selfHomeObject != null) {
+                if (closeWhackMole.getValue()) {
+                    JSONObject propertiesObject = selfHomeObject.optJSONObject("properties");
+                    if (propertiesObject != null) {
+                        if (Objects.equals("Y", propertiesObject.optString("whackMole"))) {
+                            if (closeWhackMole()) {
+                                Log.record("6秒拼手速关闭成功");
+                            } else {
+                                Log.record("6秒拼手速关闭失败");
+                            }
+                        }
+                    }
+                }
                 String nextAction = selfHomeObject.optString("nextAction");
                 if ("WhackMole".equalsIgnoreCase(nextAction)) {
                     Log.record("检测到6秒拼手速强制弹窗，先执行拼手速");
@@ -1010,7 +1020,7 @@ public class AntForestV2 extends ModelTask {
     }
 
     private void updateDoubleTime() throws JSONException {
-        String s = AntForestRpcCall.queryHomePage(!whackMole.getValue());
+        String s = AntForestRpcCall.queryHomePage();
         TimeUtil.sleep(100);
         JSONObject joHomePage = new JSONObject(s);
         updateDoubleTime(joHomePage);
@@ -1163,6 +1173,20 @@ public class AntForestV2 extends ModelTask {
             Log.i(TAG, "whackMole err:");
             Log.printStackTrace(TAG, t);
         }
+    }
+
+    private Boolean closeWhackMole() {
+        try {
+            JSONObject jo = new JSONObject(AntForestRpcCall.closeWhackMole());
+            if (jo.optBoolean("success")) {
+                return true;
+            } else {
+                Log.i(TAG, jo.getString("resultDesc"));
+            }
+        } catch (Throwable t) {
+            Log.printStackTrace(t);
+        }
+        return false;
     }
 
     /* 森林集市 */
