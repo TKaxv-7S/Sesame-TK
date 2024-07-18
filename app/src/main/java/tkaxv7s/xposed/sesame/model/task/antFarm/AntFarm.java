@@ -10,6 +10,7 @@ import tkaxv7s.xposed.sesame.data.task.ModelTask;
 import tkaxv7s.xposed.sesame.entity.AlipayUser;
 import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.answerAI.AnswerAI;
+import tkaxv7s.xposed.sesame.rpc.intervallimit.RpcIntervalLimit;
 import tkaxv7s.xposed.sesame.util.*;
 
 import java.util.*;
@@ -144,6 +145,12 @@ public class AntFarm extends ModelTask {
         farmGameTimeList.add("2200-2400");
         modelFields.addField(farmGameTime = new ListModelField.ListJoinCommaToStringModelField("farmGameTime", "小鸡游戏时间(范围)", farmGameTimeList));
         return modelFields;
+    }
+
+    @Override
+    public void boot(ClassLoader classLoader) {
+        super.boot(classLoader);
+        RpcIntervalLimit.addIntervalLimit("com.alipay.antfarm.enterFarm", 2000);
     }
 
     @Override
@@ -1831,7 +1838,7 @@ public class AntFarm extends ModelTask {
                             if (chouchouleReceiveFarmTaskAward(taskId)) {
                                 doubleCheck = true;
                             }
-                        } else if ("TODO".equals(taskStatus)) {
+                        } else if ("TODO".equals(taskStatus) && !Objects.equals(jo.optString("innerAction"), "DONATION")) {
                             if (chouchouleDoFarmTask(taskId, title, rightsTimesLimit - rightsTimes)) {
                                 doubleCheck = true;
                             }

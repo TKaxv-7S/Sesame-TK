@@ -187,7 +187,7 @@ public abstract class ModelTask extends Model {
                 if (ModelType.TASK == model.getType()) {
                     if (((ModelTask) model).startTask(force)) {
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(750);
                         } catch (InterruptedException e) {
                             Log.printStackTrace(e);
                         }
