@@ -39,6 +39,7 @@ public class AntMember extends ModelTask {
     private BooleanModelField enableGameCenter;
     private BooleanModelField zcjSignIn;
     private BooleanModelField merchantKmdk;
+    private BooleanModelField beanSignIn;
 
     @Override
     public ModelFields getFields() {
@@ -52,6 +53,7 @@ public class AntMember extends ModelTask {
         modelFields.addField(enableGameCenter = new BooleanModelField("enableGameCenter", "游戏中心签到", false));
         modelFields.addField(zcjSignIn = new BooleanModelField("zcjSignIn", "招财金签到", false));
         modelFields.addField(merchantKmdk = new BooleanModelField("merchantKmdk", "商户开门打卡", false));
+        modelFields.addField(beanSignIn = new BooleanModelField("beanSignIn", "安心豆签到", false));
         return modelFields;
     }
 
@@ -80,6 +82,9 @@ public class AntMember extends ModelTask {
             }
             if (enableGameCenter.getValue()) {
                 enableGameCenter();
+            }
+            if (beanSignIn.getValue()) {
+                beanSignIn();
             }
             if (zcjSignIn.getValue() || merchantKmdk.getValue()) {
                 JSONObject jo = new JSONObject(AntMemberRpcCall.transcodeCheck());
@@ -782,4 +787,23 @@ public class AntMember extends ModelTask {
         }
     }
 
+    private void beanSignIn() {
+        try {
+            JSONObject jo = new JSONObject(AntMemberRpcCall.querySignInProcess());
+            if (!jo.getBoolean("success")) {
+                return;
+            }
+            if (jo.getJSONObject("result").getBoolean("canPush")) {
+                jo = new JSONObject(AntMemberRpcCall.signInTrigger());
+                if (jo.getBoolean("success")) {
+                    String prizeName = jo.getJSONObject("result").getJSONArray("prizeSendOrderDTOList").getJSONObject(0).getString("prizeName");
+                    Log.record("安心豆🫘[" + prizeName + "]");
+                }
+            }
+
+        } catch (Throwable t) {
+            Log.i(TAG, "beanSignIn err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
 }
