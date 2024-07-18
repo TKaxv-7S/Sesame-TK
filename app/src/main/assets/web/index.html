@@ -147,15 +147,16 @@
                     class="pdTB10"
                     v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
                   >
+                  <div class="flex-space-between" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
                     <div
-                      class="flex-space-between"
-                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
-                    >
-                      <div class="title">{{item.name}}</div>
-                      <div class="link">
-                        已设置好友数：{{item.type==='SELECT'?JSON.parse(item.configValue).length:Object.keys(JSON.parse(item.configValue)).length}}
-                      </div>
-                    </div>
+                    class="title"
+                  >
+                    {{item.name}}
+                  </div>
+                  <div  class="link" >
+                    已设置数：{{item.type==='SELECT'?JSON.parse(item.configValue).length:Object.keys(JSON.parse(item.configValue)).length}}
+                  </div>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -227,17 +228,12 @@
                 </div>
               </template>
               <div class="content-box">
-                <div style="line-height: 20px">
-                  感谢:<br />
-                  <span class="light-label">@wh-990624</span> 开发新UI<br />
-                  <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br />
-                  <a
-                    href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors"
-                  >
-                    <img
-                      src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK"
-                      style="width: 100vw; margin-top: 10px"
-                    />
+                <div style="line-height: 20px;">
+                  感谢:<br/>
+                  <span class="light-label">@wh-990624</span> 开发新UI<br/>
+                  <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br/>
+                  <a href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors">
+                    <img src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK" style="width: 100vw;margin-top:10px;"/>
                   </a>
                 </div>
               </div>
@@ -346,15 +342,16 @@
                     class="pdTB10"
                     v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
                   >
+                  <div class="flex-space-between" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
                     <div
-                      class="flex-space-between"
-                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
-                    >
-                      <div class="title">{{item.name}}</div>
-                      <div class="link">
-                        已设置好友数：{{item.type==='SELECT'?JSON.parse(item.configValue).length:Object.keys(JSON.parse(item.configValue)).length}}
-                      </div>
-                    </div>
+                    class="title"
+                  >
+                    {{item.name}}
+                  </div>
+                  <div  class="link" >
+                    已设置数：{{item.type==='SELECT'?JSON.parse(item.configValue).length:Object.keys(JSON.parse(item.configValue)).length}}
+                  </div>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -426,17 +423,12 @@
                 </div>
               </template>
               <div class="content-box">
-                <div style="line-height: 20px">
-                  感谢:<br />
-                  <span class="light-label">@wh-990624</span> 开发新UI<br />
-                  <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br />
-                  <a
-                    href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors"
-                  >
-                    <img
-                      src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK"
-                      style="width: 100vw; margin-top: 10px"
-                    />
+                <div style="line-height: 20px;">
+                  感谢:<br/>
+                  <span class="light-label">@wh-990624</span> 开发新UI<br/>
+                  <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br/>
+                  <a href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors">
+                    <img src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK" style="width: 100vw;margin-top:10px;"/>
                   </a>
                 </div>
               </div>
@@ -452,7 +444,6 @@
         show-cancel-button
         @confirm="handleSubmitBtn"
         @cancel="handleCancelBtn"
-        @opened="addEvent"
       >
         <div class="flex-space-between">
           <div>
@@ -474,31 +465,25 @@
           </div>
         </div>
         <div class="dialog-list">
-          <div class="dialog-list-container">
-            <div class="dialog-list-content" id="dialog-list-content">
-              <div
-              class="dialog-list-item"
-                v-for="(item,index) in person_list.list.filter(item=>item.name.includes(person_list.keys))"
-                :key="item.id"
-              >
-                <van-checkbox v-model="item.isChecked" shape="square">
-                  <div class="flex-space-between">
-                    <div
-                      :class="{'checked-label':item.count>0||item.isChecked,'list-label':true}"
-                    >
-                      {{index+1}}. {{item.name}}
-                    </div>
-                    <div class="w50" v-if="person_list.type!=='SELECT'">
-                      <van-field v-model="item.count" />
-                    </div>
+          <van-list>
+            <van-cell
+              v-for="(item,index) in person_list.list.filter(item=>item.name.includes(person_list.keys))"
+              :key="item.id"
+            >
+              <van-checkbox v-model="item.isChecked" shape="square">
+                <div class="flex-space-between">
+                  <div
+                    :class="{'checked-label':item.count>0||item.isChecked,'list-label':true}"
+                  >
+                    {{index+1}}. {{item.name}}
                   </div>
-                </van-checkbox>
-              </div>
-              <div class="scrollbar">
-                <div class="thumb" id="thumb"></div>
-              </div>
-            </div>
-          </div>
+                  <div class="w50" v-if="person_list.type!=='SELECT'">
+                    <van-field v-model="item.count" />
+                  </div>
+                </div>
+              </van-checkbox>
+            </van-cell>
+          </van-list>
         </div>
       </van-dialog>
     </div>
@@ -510,10 +495,9 @@
         setup() {
           // 左侧导航菜单
           const tabs = ref(JSON.parse(window.HOOK.getTabs()));
-          // const currentTab = ref(
-          //   localStorage.getItem("theme") === "theme1" ? null : 0
-          // );
-          const currentTab = ref(1);
+          const currentTab = ref(
+            localStorage.getItem("theme") === "theme1" ? null : 0
+          );
           //设置默认值
           const setData = ref(
             tabs.value.map((item) => {
@@ -640,7 +624,6 @@
                 person_list.value.modelName = "";
                 person_list.value.check_all = false;
                 window.history.go(-1);
-                scrollTop()
               });
             };
 
@@ -651,7 +634,6 @@
             person_list.value.visible = false;
             person_list.value.keys = "";
             window.history.go(-1);
-            scrollTop()
           }
 
           function clearValue(item) {
@@ -698,61 +680,11 @@
             return top >= 0 && left >= 0;
           }
 
-          function scrollTop(){
-            const content = document.querySelector("#dialog-list-content");
-            const thumb = document.querySelector("#thumb");
-            content.scrollTop = 0;
-              thumb.style.top = `0px`;
-          }
-
-          function addEvent() {
-            const content = document.querySelector("#dialog-list-content");
-            const thumb = document.querySelector("#thumb");
-            let isDragging = false;
-            let startY, startScrollTop;
-            thumb.addEventListener("touchstart", function (e) {
-              isDragging = true;
-              startY = e.touches[0].clientY;
-              startScrollTop = content.scrollTop;
-              console.log(333,e.touches,startY,startScrollTop);
-              thumb.style.background = "rgba(0, 0, 0, 0.7)";
-            });
-
-            document.addEventListener("touchmove", function (e) {
-              if (!isDragging) return;
-              const deltaY = e.touches[0].clientY - startY;
-              const scrollHeight = content.scrollHeight - content.clientHeight;
-              const thumbHeight = thumb.clientHeight;
-              const maxThumbTop = content.clientHeight - thumbHeight;
-              const thumbTop = Math.min(
-                Math.max(startScrollTop + deltaY, 0),
-                maxThumbTop
-              );
-              const scrollTop = (thumbTop / maxThumbTop) * scrollHeight;
-              content.scrollTop = scrollTop;
-              thumb.style.top = `${thumbTop}px`;
-            });
-
-            document.addEventListener("touchend", function () {
-              isDragging = false;
-              thumb.style.background = "rgba(0, 0, 0, 0.5)";
-            });
-
-            content.addEventListener("scroll", function () {
-              if (isDragging) return;
-              const scrollHeight = content.scrollHeight - content.clientHeight;
-              const thumbHeight = thumb.clientHeight;
-              const maxThumbTop = content.clientHeight - thumbHeight;
-              const thumbTop = (content.scrollTop / scrollHeight) * maxThumbTop;
-              thumb.style.top = `${thumbTop}px`;
-            });
-          }
-
           window.handleData = handleData;
           window.isCanSave = true;
 
           onMounted(() => {
-            // console.log("22222",setData.value);
+            console.log("22222",setData.value);
           });
 
           return {
@@ -767,7 +699,6 @@
             clearValue,
             changeCollapse,
             theme,
-            addEvent,
           };
         },
       })
