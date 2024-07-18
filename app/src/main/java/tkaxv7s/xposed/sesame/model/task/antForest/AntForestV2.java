@@ -964,12 +964,14 @@ public class AntForestV2 extends ModelTask {
                     collected += bubble.getInt("collectedEnergy");
                     FriendWatch.friendWatch(userId, collected);
                     if (collected > 0) {
-                        String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g耗时[" + spendTime + "]ms";
+                        String str = "收取能量🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g";
                         if (needDouble) {
-                            str +="[双击]";
+                            Log.forest(str + "耗时[" + spendTime + "]ms[双击]");
+                            Toast.show(str + "[双击]");
+                        } else {
+                            Log.forest(str + "耗时[" + spendTime + "]ms");
+                            Toast.show(str);
                         }
-                        Log.forest(str);
-                        Toast.show(str);
                         totalCollected += collected;
                         Statistics.addData(Statistics.DataType.COLLECTED, collected);
                     } else {
