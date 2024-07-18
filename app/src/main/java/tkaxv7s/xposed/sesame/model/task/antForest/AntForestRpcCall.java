@@ -39,9 +39,9 @@ public class AntForestRpcCall {
                 "[{\"userIdList\":" + userIdList + "}]", "{\"pathList\":[\"friendRanking\"]}");
     }
 
-    public static String queryHomePage(Boolean skipWhackMole) {
+    public static String queryHomePage() {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.queryHomePage",
-                "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":" + (skipWhackMole ? "true" : "false") + ",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
+                "[{\"configVersionMap\":{\"wateringBubbleConfig\":\"10\"},\"skipWhackMole\":true,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"version\":\""
                         + VERSION + "\"}]", 3, 1000);
     }
 
@@ -329,6 +329,10 @@ public class AntForestRpcCall {
         return ApplicationHook.requestString("alipay.antforest.forest.h5.settlementWhackMole",
                 "[{\"moleIdList\":[" + String.join(",", moleIdList)
                         + "],\"settlementScene\":\"NORMAL\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"token\":\"" + token + "\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    public static String closeWhackMole() {
+        return ApplicationHook.requestString("alipay.antforest.forest.h5.updateUserConfig", "[{\"configMap\":{\"whackMole\":\"N\"},\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
     }
 
     /* 森林集市 */
