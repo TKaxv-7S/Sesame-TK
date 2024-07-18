@@ -118,6 +118,10 @@ public class FileUtil {
         return write2File(json, new File(CONFIG_DIRECTORY_FILE + "/" + userId, "config_v2.json"));
     }
 
+    public static boolean setUIConfigFile(String json) {
+        return write2File(json, new File(MAIN_DIRECTORY_FILE, "ui_config.json"));
+    }
+
     public static File getSelfIdFile(String userId) {
         File file = new File(CONFIG_DIRECTORY_FILE + "/" + userId, "self.json");
         if (file.exists() && file.isDirectory()) {
@@ -184,6 +188,14 @@ public class FileUtil {
 
     public static File getBeachIdMapFile() {
         File file = new File(MAIN_DIRECTORY_FILE, "beach.json");
+        if (file.exists() && file.isDirectory()) {
+            file.delete();
+        }
+        return file;
+    }
+
+    public static File getUIConfigFile() {
+        File file = new File(MAIN_DIRECTORY_FILE, "ui_config.json");
         if (file.exists() && file.isDirectory()) {
             file.delete();
         }

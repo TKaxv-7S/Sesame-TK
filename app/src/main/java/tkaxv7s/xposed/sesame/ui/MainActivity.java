@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.RunType;
+import tkaxv7s.xposed.sesame.data.UIConfig;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
@@ -57,12 +58,10 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
         ViewAppInfo.checkRunType();
-
         /*ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setIcon(R.drawable.title_logo);
         }*/
-
         updateSubTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
         titleRunner = () -> updateSubTitle(RunType.DISABLE);
@@ -151,6 +150,11 @@ public class MainActivity extends BaseActivity {
                     Log.i("view sendBroadcast status err:");
                     Log.printStackTrace(th);
                 }
+            }
+            try {
+                UIConfig.load();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
             }
             try {
                 List<String> userNameList = new ArrayList<>();
@@ -364,7 +368,7 @@ public class MainActivity extends BaseActivity {
 
     private void goSettingActivity(int index) {
         UserEntity userEntity = userEntityArray[index];
-        Intent intent = new Intent(this, NewSettingsActivity.class);
+        Intent intent = new Intent(this, UIConfig.INSTANCE.getNewUI() ? NewSettingsActivity.class : SettingsActivity.class);
         if (userEntity != null) {
             intent.putExtra("userId", userEntity.getUserId());
             intent.putExtra("userName", userEntity.getShowName());

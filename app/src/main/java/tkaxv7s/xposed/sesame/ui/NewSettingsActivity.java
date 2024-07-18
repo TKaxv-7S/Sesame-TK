@@ -303,6 +303,7 @@ public class NewSettingsActivity extends BaseActivity {
         menu.add(0, 2, 2, "导入配置");
         menu.add(0, 3, 3, "删除配置");
         menu.add(0, 4, 4, "单向好友");
+        menu.add(0, 5, 5, "切换至旧UI");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -347,6 +348,18 @@ public class NewSettingsActivity extends BaseActivity {
                 break;
             case 4:
                 ListDialog.show(this, "单向好友列表", AlipayUser.getList(user -> user.getFriendStatus() != 1), SelectModelFieldFunc.newMapInstance(), false, ListDialog.ListType.SHOW);
+                break;
+            case 5:
+                UIConfig.INSTANCE.setNewUI(false);
+                if (UIConfig.save()) {
+                    Intent intent = new Intent(this, SettingsActivity.class);
+                    intent.putExtra("userId", userId);
+                    intent.putExtra("userName", userName);
+                    finish();
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "切换失败", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
