@@ -183,7 +183,7 @@ video {
   width: 50px !important;
 }
 
-.w160 {
+.w120 {
   width: 120px;
 }
 
@@ -195,6 +195,10 @@ video {
   padding-top: 6px;
 }
 
+.main-color{
+  color: #216eee!important;
+}
+
 .title {
   max-width: calc(100vw - 180px);
   white-space: warp;
@@ -203,6 +207,12 @@ video {
 
 .link {
   color: #216eee;
+  /* text-align: center; */
+  height: 32px;
+  /* width: 120px; */
+  line-height: 32px;
+  /* text-decoration: underline; */
+  /* border: 1px solid #216eee; */
 }
 
 .flex {

@@ -107,7 +107,7 @@
                     v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
                   >
                     <div class="title">{{item.name}}</div>
-                    <div class="w160">
+                    <div class="w120">
                       <van-field
                         v-model="item.configValue"
                         placeholder="请输入..."
@@ -147,12 +147,16 @@
                     class="pdTB10"
                     v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
                   >
+                  <div class="flex-space-between" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
                     <div
-                      class="title link"
-                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
-                    >
-                      {{item.name}}
-                    </div>
+                    class="title"
+                  >
+                    {{item.name}}
+                  </div>
+                  <div  class="link" >
+                    已设置好友数：{{item.type==='SELECT'?JSON.parse(item.configValue).length:Object.keys(JSON.parse(item.configValue)).length}}
+                  </div>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -201,9 +205,24 @@
               <template #title>
                 <div class="title-box">
                   <div>
-                    <van-image width="20" height="20"
-                    class="list-icon"
-                               src="./png/14.png" />
+                    <div v-show="currentTab==14">
+                      <van-image
+                        width="20"
+                        height="20"
+                        fit="contain"
+                        class="list-icon"
+                        src="./svg/14_ed.svg"
+                      />
+                    </div>
+                    <div v-show="currentTab!=14">
+                      <van-image
+                        width="20"
+                        height="20"
+                        fit="contain"
+                        class="list-icon"
+                        src="./svg/14.svg"
+                      />
+                    </div>
                   </div>
                   <div>致谢</div>
                 </div>
@@ -214,7 +233,7 @@
                   <span class="light-label">@wh-990624</span> 开发新UI<br/>
                   <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br/>
                   <a href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors">
-                    <img src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK" />
+                    <img src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK" style="width: 100vw;margin-top:10px;"/>
                   </a>
                 </div>
               </div>
@@ -283,7 +302,7 @@
                     v-if="['MULTIPLY_INTEGER','LIST','MULTIPLY_INTEGER','INTEGER','STRING','TEXT'].includes(item.type)"
                   >
                     <div class="title">{{item.name}}</div>
-                    <div class="w160">
+                    <div class="w120">
                       <van-field
                         v-model="item.configValue"
                         placeholder="请输入..."
@@ -323,12 +342,16 @@
                     class="pdTB10"
                     v-if="['SELECT','SELECT_AND_COUNT'].includes(item.type)"
                   >
+                  <div class="flex-space-between" @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}">
                     <div
-                      class="title link"
-                      @click="()=>{loadList(tabs_item.modelCode,item.code,item.name,item.type)}"
-                    >
-                      {{item.name}}
-                    </div>
+                    class="title"
+                  >
+                    {{item.name}}
+                  </div>
+                  <div  class="link" >
+                    已设置好友数：{{item.type==='SELECT'?JSON.parse(item.configValue).length:Object.keys(JSON.parse(item.configValue)).length}}
+                  </div>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -372,6 +395,44 @@
                 </div>
               </div>
             </van-tab>
+
+            <van-tab name="14" title="致谢">
+              <template #title>
+                <div class="title-box">
+                  <div>
+                    <div v-show="currentTab==14">
+                      <van-image
+                        width="20"
+                        height="20"
+                        fit="contain"
+                        class="list-icon"
+                        src="./svg/14_ed.svg"
+                      />
+                    </div>
+                    <div v-show="currentTab!=14">
+                      <van-image
+                        width="20"
+                        height="20"
+                        fit="contain"
+                        class="list-icon"
+                        src="./svg/14.svg"
+                      />
+                    </div>
+                  </div>
+                  <div class="list-label">致谢</div>
+                </div>
+              </template>
+              <div class="content-box">
+                <div style="line-height: 20px;">
+                  感谢:<br/>
+                  <span class="light-label">@wh-990624</span> 开发新UI<br/>
+                  <span class="light-label">༒激༙྇流༙྇泉༙྇༒</span> 设计新UI<br/>
+                  <a href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors">
+                    <img src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK" style="width: 100vw;margin-top:10px;"/>
+                  </a>
+                </div>
+              </div>
+            </van-tab>
           </van-tabs>
         </div>
       </div>
@@ -399,7 +460,7 @@
               </van-cell>
             </van-list>
           </div>
-          <div class="mr15 w160">
+          <div class="mr15 w120">
             <van-field v-model="person_list.keys" placeholder="搜索..." />
           </div>
         </div>
@@ -623,7 +684,7 @@
           window.isCanSave = true;
 
           onMounted(() => {
-            // console.log("11111111",localStorage.getItem('theme'));
+            console.log("22222",setData.value);
           });
 
           return {
