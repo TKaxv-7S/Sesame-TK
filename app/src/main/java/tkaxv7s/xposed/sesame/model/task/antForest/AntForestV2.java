@@ -557,7 +557,7 @@ public class AntForestV2 extends ModelTask {
             userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage(!whackMole.getValue()));
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            int offsetTime = offsetTimeMath.nextInteger((int) ((start + end) / 2 - serverTime));
+            int offsetTime = offsetTimeMath.nextInteger((int) (start + (end - start) * 2 / 3 - serverTime));
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime);
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -572,7 +572,7 @@ public class AntForestV2 extends ModelTask {
             userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            int offsetTime = offsetTimeMath.nextInteger((int) ((start + end) / 2 - serverTime));
+            int offsetTime = offsetTimeMath.nextInteger((int) (start + (end - start) * 2 / 3 - serverTime));
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime);
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -582,9 +582,14 @@ public class AntForestV2 extends ModelTask {
 
     private JSONObject collectSelfEnergy() {
         try {
-            JSONObject userHomeObject = querySelfHome();
-            if (userHomeObject != null) {
-                return collectUserEnergy(UserIdMap.getCurrentUid(), userHomeObject);
+            JSONObject selfHomeObject = querySelfHome();
+            if (selfHomeObject != null) {
+                String nextAction = selfHomeObject.optString("nextAction");
+                if ("WhackMole".equalsIgnoreCase(nextAction)) {
+                    Log.record("检测到6秒拼手速强制弹窗，先执行拼手速");
+                    whackMole();
+                }
+                return collectUserEnergy(UserIdMap.getCurrentUid(), selfHomeObject);
             }
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -2397,7 +2402,7 @@ public class AntForestV2 extends ModelTask {
                         return;
                     }
                 }
-                Log.record("执行蹲点收取[" + userName + "]" + "时差[" + averageInteger + "]ms");
+                Log.record("执行蹲点收取[" + userName + "]" + "时差[" + averageInteger + "]ms" + "提前[" + advanceTimeInt + "]ms");
                 collectEnergy(new CollectEnergyEntity(userId, null, AntForestRpcCall.getCollectEnergyRpcEntity(null, userId, bubbleId)), true);
             };
         }
