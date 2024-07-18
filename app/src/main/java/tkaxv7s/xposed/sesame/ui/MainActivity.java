@@ -253,12 +253,12 @@ public class MainActivity extends BaseActivity {
                 .setChecked(state > PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
         menu.add(0, 2, 2, R.string.view_error_log_file);
         menu.add(0, 3, 3, R.string.export_error_log_file);
-        menu.add(0, 4, 4, R.string.export_runtime_log_file);
-        menu.add(0, 5, 5, R.string.export_the_statistic_file);
-        menu.add(0, 6, 6, R.string.import_the_statistic_file);
-        menu.add(0, 7, 7, R.string.view_debug);
-        menu.add(0, 8, 8, R.string.settings);
-        menu.add(0, 9, 9, R.string.view_all_log_file);
+        menu.add(0, 4, 4, R.string.view_all_log_file);
+        menu.add(0, 5, 5, R.string.export_runtime_log_file);
+        menu.add(0, 6, 6, R.string.export_the_statistic_file);
+        menu.add(0, 7, 7, R.string.import_the_statistic_file);
+        menu.add(0, 8, 8, R.string.view_debug);
+        menu.add(0, 9, 9, R.string.settings);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -290,27 +290,37 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case 4:
+                String allData = "file://";
+                allData += FileUtil.getRuntimeLogFile().getAbsolutePath();
+                Intent allIt = new Intent(this, HtmlViewerActivity.class);
+                allIt.putExtra("nextLine", false);
+                allIt.putExtra("canClear", true);
+                allIt.setData(Uri.parse(allData));
+                startActivity(allIt);
+                break;
+
+            case 5:
                 File allLogFile = FileUtil.exportFile(FileUtil.getRuntimeLogFile());
                 if (allLogFile != null) {
                     Toast.makeText(this, "文件已导出到: " + allLogFile.getPath(), Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case 5:
+            case 6:
                 File statisticsFile = FileUtil.exportFile(FileUtil.getStatisticsFile());
                 if (statisticsFile != null) {
                     Toast.makeText(this, "文件已导出到: " + statisticsFile.getPath(), Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case 6:
+            case 7:
                 if (FileUtil.copyTo(FileUtil.getExportedStatisticsFile(), FileUtil.getStatisticsFile())) {
                     tvStatistics.setText(Statistics.getText());
                     Toast.makeText(this, "导入成功！", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case 7:
+            case 8:
                 String debugData = "file://";
                 debugData += FileUtil.getDebugLogFile().getAbsolutePath();
                 Intent debugIt = new Intent(this, HtmlViewerActivity.class);
@@ -319,18 +329,8 @@ public class MainActivity extends BaseActivity {
                 startActivity(debugIt);
                 break;
 
-            case 8:
-                selectSettingUid();
-                break;
-
             case 9:
-                String allData = "file://";
-                allData += FileUtil.getRuntimeLogFile().getAbsolutePath();
-                Intent allIt = new Intent(this, HtmlViewerActivity.class);
-                allIt.putExtra("nextLine", false);
-                allIt.putExtra("canClear", true);
-                allIt.setData(Uri.parse(allData));
-                startActivity(allIt);
+                selectSettingUid();
                 break;
         }
         return super.onOptionsItemSelected(item);
