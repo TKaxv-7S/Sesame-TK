@@ -47,3 +47,10 @@
 
 所有图片由 ༒激༙྇流༙྇泉༙྇༒ 授权使用
 
+## 贡献者
+
+<a href="https://github.com/TKaxv-7S/Sesame-TK/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=TKaxv-7S/Sesame-TK" />
+</a>
+
+贡献名单使用 [contrib.rocks](https://contrib.rocks) 生成
