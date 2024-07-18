@@ -271,4 +271,14 @@ public class AntMemberRpcCall {
                 "[" + jsonObject + "]");
     }
 
+    // 安心豆
+    public static String querySignInProcess() {
+        return ApplicationHook.requestString("com.alipay.insmarketingbff.bean.querySignInProcess",
+                "[{\"appletId\":\"AP16242232\",\"scene\":\"INS_BLUE_BEAN_SIGN\"}]");
+    }
+
+    public static String signInTrigger() {
+        return ApplicationHook.requestString("com.alipay.insmarketingbff.bean.signInTrigger",
+                "[{\"appletId\":\"AP16242232\",\"scene\":\"INS_BLUE_BEAN_SIGN\"}]");
+    }
 }
