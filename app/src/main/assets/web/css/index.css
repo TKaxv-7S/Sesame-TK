@@ -314,6 +314,9 @@ video {
 .dialog-list .list-label {
   width: calc(100% - 40px) !important;
 }
+.dialog-list .dialog-list-item {
+padding: 5px 0;
+}
 
 .dialog-list .van-checkbox__label--disabled {
   color: #323233 !important;
@@ -331,27 +334,41 @@ video {
   line-height: 30px !important;
 }
 
-.dialog-list .van-list{
-will-change: scroll-position!important;
+.dialog-list {
+  padding:0 20px 0 12px;
+  position: relative;
+  border-top: 1px solid #f6f6f6;
 }
 
-.van-list::-webkit-scrollbar {
-  width: 20px !important;
-  height: 20px !important;
+.dialog-list .dialog-list-container {
+ 
+  width: 100%;
+  overflow: hidden;
 }
-
-.van-list::-webkit-scrollbar-vertical {
-  min-width: 20px !important;
+.dialog-list .dialog-list-content {
+  width: 100%;
+  max-height: 70vh;
+  overflow-y: scroll;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
 }
-
-.van-list::-webkit-scrollbar-thumb {
-  min-width: 20px !important;
+.dialog-list .dialog-list-content::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
-
-.van-list::-webkit-scrollbar-track {
-  background-color: white !important;
+.dialog-list .scrollbar {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  width: 10px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
 }
-
-.van-list::-webkit-scrollbar-thumb {
-  background-color: gray !important;
+.dialog-list .thumb {
+  position: absolute;
+  top: 0;
+  right:1px;
+  width: 10px;
+  height: 50px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
 }
