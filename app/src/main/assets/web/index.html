@@ -60,22 +60,23 @@
             >
               <template #title>
                 <div class="title-box">
-                  <div  v-show="currentTab===tabs_index">
+                  <div v-show="currentTab===tabs_index">
                     <van-image
                       width="20"
                       height="20"
+                      fit="contain"
                       class="list-icon"
                       :src="`./png/${tabs_index+'_ed'}.png`"
                     />
-                  
                   </div>
-                  <div  v-show="currentTab!==tabs_index">
+                  <div v-show="currentTab!==tabs_index">
                     <van-image
-                    width="20"
-                    height="20"
-                    class="list-icon"
-                    :src="`./png/${tabs_index}.png`"
-                  />
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      :src="`./png/${tabs_index}.png`"
+                    />
                   </div>
                   <div>{{tabs_item.modelName}}</div>
                 </div>
@@ -160,22 +161,23 @@
             <van-collapse-item name="13" title="主题设置" id="collapse-item_13">
               <template #title>
                 <div class="title-box">
-                  <div  v-show="currentTab==13">
+                  <div v-show="currentTab==13">
                     <van-image
                       width="20"
                       height="20"
+                      fit="contain"
                       class="list-icon"
                       src="./png/13_ed.png"
                     />
-                  
                   </div>
-                  <div  v-show="currentTab!=13">
+                  <div v-show="currentTab!=13">
                     <van-image
-                    width="20"
-                    height="20"
-                    class="list-icon"
-                    src="./png/13.png"
-                  />
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      src="./png/13.png"
+                    />
                   </div>
                   <div>主题设置</div>
                 </div>
@@ -212,22 +214,23 @@
             >
               <template #title>
                 <div class="title-box">
-                  <div  v-show="currentTab===tabs_index">
+                  <div v-show="currentTab===tabs_index">
                     <van-image
                       width="20"
                       height="20"
+                      fit="contain"
                       class="list-icon"
                       :src="`./png/${tabs_index+'_ed'}.png`"
                     />
-                  
                   </div>
-                  <div  v-show="currentTab!==tabs_index">
+                  <div v-show="currentTab!==tabs_index">
                     <van-image
-                    width="20"
-                    height="20"
-                    class="list-icon"
-                    :src="`./png/${tabs_index}.png`"
-                  />
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      :src="`./png/${tabs_index}.png`"
+                    />
                   </div>
                   <div class="list-label">{{tabs_item.modelName}}</div>
                 </div>
@@ -311,22 +314,23 @@
             <van-tab name="13" title="主题设置">
               <template #title>
                 <div class="title-box">
-                  <div  v-show="currentTab==13">
+                  <div v-show="currentTab==13">
                     <van-image
                       width="20"
                       height="20"
+                      fit="contain"
                       class="list-icon"
                       src="./png/13_ed.png"
                     />
-                  
                   </div>
-                  <div  v-show="currentTab!=13">
+                  <div v-show="currentTab!=13">
                     <van-image
-                    width="20"
-                    height="20"
-                    class="list-icon"
-                    src="./png/13.png"
-                  />
+                      width="20"
+                      height="20"
+                      fit="contain"
+                      class="list-icon"
+                      src="./png/13.png"
+                    />
                   </div>
                   <div class="list-label">主题设置</div>
                 </div>
