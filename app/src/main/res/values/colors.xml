@@ -5,12 +5,12 @@
     <color name="main_button">#FFFFFF</color>
     <color name="main_button_pressed">#FFEBCD</color>
     <color name="main_button_text">#290C4C</color>
-    <color name="dashboard_item_1">#01CD98</color>
+    <color name="dashboard_item_1">#216EEE</color>
     <color name="dashboard_item_2">#5351FC</color>
     <color name="dashboard_item_3">#E64000</color>
     <color name="dashboard_item_4">#F6B900</color>
 
-    <color name="colorPrimary">#00b578</color>
+    <color name="colorPrimary">#216EEE</color>
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="navigationBarColor">#AA000000</color>
 

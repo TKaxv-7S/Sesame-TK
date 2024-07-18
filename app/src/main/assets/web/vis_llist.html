@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Virtual Scroll List Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-virtual-scroll-list@2.3.4/dist/index.js"></script>
+    <style>
+        #app {
+            width: 300px;
+            height: 400px;
+            border: 1px solid #ccc;
+            overflow: auto;
+        }
+        .item {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <virtual-list
+            :size="50"
+            :remain="8"
+            :item="item"
+            :item-key="'id'"
+            :data-key="'id'"
+            :data-sources="items"
+        >
+            <template v-slot="{ item }">
+                <div class="item">{{ item.text }}</div>
+            </template>
+        </virtual-list>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                items: Array.from({ length: 1000 }, (v, k) => ({ id: k, text: `Item ${k}` }))
+            },
+            components: {
+                'virtual-list': window.VirtualScrollList
+            }
+        });
+    </script>
+</body>
+</html>

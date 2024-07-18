@@ -11,11 +11,13 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.RunType;
+import tkaxv7s.xposed.sesame.data.UIConfig;
 import tkaxv7s.xposed.sesame.data.ViewAppInfo;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
 import tkaxv7s.xposed.sesame.entity.FriendWatch;
@@ -56,12 +58,10 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         tvStatistics = findViewById(R.id.tv_statistics);
         ViewAppInfo.checkRunType();
-
         /*ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setIcon(R.drawable.title_logo);
         }*/
-
         updateSubTitle(ViewAppInfo.getRunType());
         viewHandler = new Handler();
         titleRunner = () -> updateSubTitle(RunType.DISABLE);
@@ -100,11 +100,16 @@ public class MainActivity extends BaseActivity {
         } else {
             registerReceiver(broadcastReceiver, intentFilter);
         }
-        new AlertDialog.Builder(this)
-                .setTitle("提示")
-                .setMessage(R.string.start_message)
-                .setNegativeButton("我知道了", null)
-                .create().show();
+        AlertDialog.Builder builder= new AlertDialog.Builder(this);
+        builder.setTitle("提示");
+        builder.setMessage(R.string.start_message);
+        builder.setPositiveButton("我知道了",(dialog, which) -> dialog.dismiss());
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+        }
     }
 
     @Override
@@ -145,6 +150,11 @@ public class MainActivity extends BaseActivity {
                     Log.i("view sendBroadcast status err:");
                     Log.printStackTrace(th);
                 }
+            }
+            try {
+                UIConfig.load();
+            } catch (Exception e) {
+                Log.printStackTrace(e);
             }
             try {
                 List<String> userNameList = new ArrayList<>();
@@ -214,6 +224,10 @@ public class MainActivity extends BaseActivity {
                 break;
 
             case R.id.btn_github:
+            //   欢迎自己打包 欢迎大佬pr
+            //   项目开源且公益  维护都是自愿
+            //   但是如果打包改个名拿去卖钱忽悠小白
+            //   那我只能说你妈死了 就当开源项目给你妈烧纸钱了
                 data = "https://github.com/TKaxv-7S/Sesame-TK";
                 break;
 
@@ -335,6 +349,11 @@ public class MainActivity extends BaseActivity {
         builder.setPositiveButton("返回", (dialog, which) -> dialog.dismiss());
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        // 在 AlertDialog 显示之后获取返回按钮并设置颜色
+        Button positiveButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        if (positiveButton != null) {
+            positiveButton.setTextColor(Color.parseColor("#216EEE")); // 设置按钮颜色为红色
+        }
         int length = userNameArray.length;
         if (length > 0 && length < 3) {
             new Thread(()-> {
@@ -349,7 +368,7 @@ public class MainActivity extends BaseActivity {
 
     private void goSettingActivity(int index) {
         UserEntity userEntity = userEntityArray[index];
-        Intent intent = new Intent(this, SettingsActivity.class);
+        Intent intent = new Intent(this, UIConfig.INSTANCE.getNewUI() ? NewSettingsActivity.class : SettingsActivity.class);
         if (userEntity != null) {
             intent.putExtra("userId", userEntity.getUserId());
             intent.putExtra("userName", userEntity.getShowName());
