@@ -180,6 +180,11 @@ public class NewSettingsActivity extends BaseActivity {
         }*/
 
         @JavascriptInterface
+        public String getVersion() {
+            return 'tkaxv7s.xposed.sesame v1.3.0'
+        }
+
+        @JavascriptInterface
         public String getGroup() {
             return JsonUtil.toJsonString(groupList);
         }
