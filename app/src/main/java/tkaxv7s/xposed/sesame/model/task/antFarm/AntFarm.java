@@ -295,13 +295,15 @@ public class AntFarm extends ModelTask {
                         needReload = true;
                     }
                 }
-                if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
-                    Log.record("小鸡在加速吃饭");
-                } else if (useAccelerateTool.getValue() && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
-                    // 加速卡
-                    // if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
-                    //     needReload = true;
-                    // }
+                // if (AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
+                //     Log.record("小鸡在加速吃饭");
+                // } else if (useAccelerateTool.getValue() && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
+                //     // 加速卡
+                //     if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
+                //         needReload = true;
+                //     }
+                // }
+                if (useAccelerateTool.getValue() && !AnimalFeedStatus.HUNGRY.name().equals(ownerAnimal.animalFeedStatus)) {
                     if (useAccelerateTool()) {
                         needReload = true;
                     }
@@ -1153,21 +1155,25 @@ public class AntFarm extends ModelTask {
             return false;
         }
         syncAnimalStatus(ownerFarmId);
-        double eatten = 0d;
-        long nowTime = System.currentTimeMillis();
+        double consumeSpeed = 0d;
+        double allFoodHaveEatten = 0d;
+        long nowTime = System.currentTimeMillis() / 1000;
         for (Animal animal : animals) {
-            long time = (nowTime - animal.startEatTime) / 1000;
-            double animalEatten = animal.consumeSpeed * time;
-            eatten += animalEatten;
-
+            if (animal.masterFarmId.equals(ownerFarmId)) {
+                consumeSpeed = animal.consumeSpeed;
+            }
+            allFoodHaveEatten += animal.foodHaveEatten;
+            allFoodHaveEatten += animal.consumeSpeed * (nowTime - animal.startEatTime / 1000);
         }
+        // consumeSpeed: g/s
+        // AccelerateTool: -1h = -60m = -3600s
         boolean isUseAccelerateTool = false;
-        // 180 - eatten >= 36
-        while (eatten <= 144 && useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
+        while (180 - allFoodHaveEatten >= consumeSpeed * 3600
+                && useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
+            allFoodHaveEatten += consumeSpeed * 3600;
+            isUseAccelerateTool = true;
             Status.useAccelerateTool();
             TimeUtil.sleep(1000);
-            isUseAccelerateTool = true;
-            eatten += 36;
         }
         return isUseAccelerateTool;
     }
