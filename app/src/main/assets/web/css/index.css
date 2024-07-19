@@ -220,6 +220,13 @@ video {
   justify-content: start;
 }
 
+.borderTop {
+  border-top: 1px solid #f6f6f6;
+}
+.borderLeft {
+  border-left: 1px solid #f6f6f6;
+}
+
 .flex-space-between {
   display: flex;
   justify-content: space-between;
@@ -298,6 +305,13 @@ video {
 
 .light-label {
   color: #216eee;
+}
+
+.dialog-footer-btn {
+  height: 45px;
+  line-height: 48px;
+  flex: 1;
+  text-align: center;
 }
 
 .dialog-list .van-checkbox__label--disabled {
