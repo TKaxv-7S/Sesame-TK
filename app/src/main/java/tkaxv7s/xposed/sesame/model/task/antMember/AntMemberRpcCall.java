@@ -6,10 +6,6 @@ import tkaxv7s.xposed.sesame.entity.RpcEntity;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
 
-/**
- * 会员RpcCall类
- * @author xiong
- */
 public class AntMemberRpcCall {
 
     private static String getUniqueId() {
@@ -17,7 +13,8 @@ public class AntMemberRpcCall {
     }
 
     public static Boolean check() {
-        RpcEntity rpcEntity = ApplicationHook.requestObject("alipay.antmember.biz.rpc.member.h5.queryPointCert", "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]", 1, 0);
+        RpcEntity rpcEntity = ApplicationHook.requestObject("alipay.antmember.biz.rpc.member.h5.queryPointCert",
+                "[{\"page\":" + 1 + ",\"pageSize\":" + 8 + "}]", 1, 0);
         return rpcEntity != null && !rpcEntity.getHasError();
     }
 
@@ -36,7 +33,6 @@ public class AntMemberRpcCall {
         return ApplicationHook.requestString("com.alipay.amic.biz.rpc.signin.h5.queryMemberSigninCalendar",
                 "[{\"autoSignIn\":true,\"invitorUserId\":\"\",\"sceneCode\":\"QUERY\"}]");
     }
-
 
     /* 商家服务 */
     public static String transcodeCheck() {
@@ -161,7 +157,7 @@ public class AntMemberRpcCall {
     /**
      * 游戏中心查询待领取乐豆列表
      */
-    public static String queryPointBallList(){
+    public static String queryPointBallList() {
         return ApplicationHook.requestString("com.alipay.gamecenteruprod.biz.rpc.v3.queryPointBallList",
                 "[{\"source\":\"ch_appcenter__chsub_9patch\"}]");
     }
@@ -272,13 +268,30 @@ public class AntMemberRpcCall {
     }
 
     // 安心豆
-    public static String querySignInProcess() {
+    public static String querySignInProcess(String appletId, String scene) {
         return ApplicationHook.requestString("com.alipay.insmarketingbff.bean.querySignInProcess",
-                "[{\"appletId\":\"AP16242232\",\"scene\":\"INS_BLUE_BEAN_SIGN\"}]");
+                "[{\"appletId\":\"" + appletId + "\",\"scene\":\"" + scene + "\"}]");
     }
 
-    public static String signInTrigger() {
+    public static String signInTrigger(String appletId, String scene) {
         return ApplicationHook.requestString("com.alipay.insmarketingbff.bean.signInTrigger",
-                "[{\"appletId\":\"AP16242232\",\"scene\":\"INS_BLUE_BEAN_SIGN\"}]");
+                "[{\"appletId\":\"" + appletId + "\",\"scene\":\"" + scene + "\"}]");
+    }
+
+    public static String beanExchangeDetail(String itemId) {
+        return ApplicationHook.requestString("com.alipay.insmarketingbff.onestop.planTrigger",
+                "[{\"extParams\":{\"itemId\":\"" + itemId + "\"},"
+                        + "\"planCode\":\"bluebean_onestop\",\"planOperateCode\":\"exchangeDetail\"}]");
+    }
+
+    public static String beanExchange(String itemId, int pointAmount) {
+        return ApplicationHook.requestString("com.alipay.insmarketingbff.onestop.planTrigger",
+                "[{\"extParams\":{\"itemId\":\"" + itemId + "\",\"pointAmount\":\"" + Integer.toString(pointAmount) + "\"},"
+                        + "\"planCode\":\"bluebean_onestop\",\"planOperateCode\":\"exchange\"}]");
+    }
+
+    public static String queryUserAccountInfo(String pointProdCode) {
+        return ApplicationHook.requestString("com.alipay.insmarketingbff.point.queryUserAccountInfo",
+                "[{\"channel\":\"HiChat\",\"pointProdCode\":\"" + pointProdCode + "\",\"pointUnitType\":\"COUNT\"}]");
     }
 }
