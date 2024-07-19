@@ -811,7 +811,7 @@ public class AntStall extends ModelTask {
                             String title = astProjectVO.getString("title");
                             // 检查捐赠操作返回结果是否成功
                             if ("SUCCESS".equals(joProjectDonate.getString("resultCode"))) {
-                                Log.other("蚂蚁新村⛪[捐赠:" + title + "]");
+                                Log.farm("蚂蚁新村⛪[捐赠:" + title + "]");
                                 Status.setStallDonateToday();
                             }
                         }
@@ -841,7 +841,7 @@ public class AntStall extends ModelTask {
                     return;
                 }
                 String villageName = road.getString("villageName");
-                Log.other("蚂蚁新村⛪[进入:" + villageName + "]成功");
+                Log.farm("蚂蚁新村⛪[进入:" + villageName + "]成功");
             }
         } catch (Throwable t) {
             Log.i(TAG, "roadmap err:");
