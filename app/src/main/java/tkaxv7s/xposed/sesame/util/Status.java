@@ -76,6 +76,9 @@ public class Status {
      */
     private Map<String, Integer> greenFinancePrizesMap = new HashMap<>();
 
+    // 农场助力
+    private Set<String> antOrchardAssistFriend = new HashSet<>();
+
     public static boolean canExchangeEnergyShield() {
         return !INSTANCE.exchangeEnergyShield;
     }
@@ -327,6 +330,20 @@ public class Status {
         String uid = UserIdMap.getCurrentUid();
         if (!stat.antStallAssistFriend.contains(uid)) {
             stat.antStallAssistFriend.add(uid);
+            save();
+        }
+    }
+
+    // 农场助力
+    public static boolean canAntOrchardAssistFriendToday() {
+        return !INSTANCE.antOrchardAssistFriend.contains(UserIdMap.getCurrentUid());
+    }
+
+    public static void antOrchardAssistFriendToday() {
+        Status stat = INSTANCE;
+        String uid = UserIdMap.getCurrentUid();
+        if (!stat.antOrchardAssistFriend.contains(uid)) {
+            stat.antOrchardAssistFriend.add(uid);
             save();
         }
     }
