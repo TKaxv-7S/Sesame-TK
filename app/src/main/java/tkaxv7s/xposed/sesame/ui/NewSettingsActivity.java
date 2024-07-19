@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.webkit.*;
 import android.widget.Toast;
 import com.fasterxml.jackson.core.type.TypeReference;
+import tkaxv7s.xposed.sesame.BuildConfig;
 import tkaxv7s.xposed.sesame.R;
 import tkaxv7s.xposed.sesame.data.*;
 import tkaxv7s.xposed.sesame.data.modelFieldExt.common.SelectModelFieldFunc;
@@ -181,7 +182,7 @@ public class NewSettingsActivity extends BaseActivity {
 
         @JavascriptInterface
         public String getVersion() {
-            return "tkaxv7s.xposed.sesame v1.3.0";
+            return BuildConfig.APPLICATION_ID + ":" + BuildConfig.VERSION_NAME;
         }
 
         @JavascriptInterface
