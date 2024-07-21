@@ -207,12 +207,8 @@ public class AntSports extends ModelTask {
 
                 }
             }
-        } catch (JSONException e) {
-            Log.i(TAG, "sportsTasks err:");
+        } catch (Exception e) {
             Log.printStackTrace(e);
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
