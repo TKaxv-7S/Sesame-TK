@@ -111,7 +111,7 @@ public class AntOceanRpcCall {
                 "\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
-    public static String querySeaAreaDetailList(String bubbleId, String userId) {
+    public static String collectEnergy(String bubbleId, String userId) {
         return ApplicationHook.requestString("alipay.antmember.forest.h5.collectEnergy",
                 "[{\"bubbleIds\":[" + bubbleId + "],\"channel\":\"ocean\",\"source\":\"ANT_FOREST\",\"uniqueId\":\"" +
                         getUniqueId() + "\",\"userId\":\"" + userId + "\",\"version\":\"" + VERSION + "\"}]");
