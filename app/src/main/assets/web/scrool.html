@@ -20,7 +20,8 @@
       }
       .content {
         width: 100%;
-        height: 100%;
+        height: 500px;
+      margin-top: 200px;
         background: linear-gradient(to bottom, #ffcc00, #ff6600);
         overflow-y: scroll;
         scrollbar-width: none; /* Firefox */
@@ -34,7 +35,8 @@
         top: 0;
         right: 0;
         width: 10px;
-        height: 100%;
+        height: 500px;
+      margin-top: 200px;
         background: rgba(0, 0, 0, 0.1);
       }
       .thumb {
@@ -72,21 +74,25 @@
 
         thumb.addEventListener("touchstart", function (e) {
           isDragging = true;
-          startY = e.touches[0].clientY;
+          // 鼠标点击距离顶部的距离
+          startY = e.touches[0].clientY-thumb.offsetTop;
+          // 左侧内容滚动距离
           startScrollTop = content.scrollTop;
+          console.log(111,startY,thumb.offsetTop,startScrollTop);
           thumb.style.background = "rgba(0, 0, 0, 0.7)";
         });
 
         document.addEventListener("touchmove", function (e) {
           if (!isDragging) return;
-          const deltaY = e.touches[0].clientY - startY;
+          const deltaY = e.touches[0].clientY - startY; 
           const scrollHeight = content.scrollHeight - content.clientHeight;
           const thumbHeight = thumb.clientHeight;
           const maxThumbTop = content.clientHeight - thumbHeight;
           const thumbTop = Math.min(
-            Math.max(startScrollTop + deltaY, 0),
+            Math.max(thumb.scrollTop + deltaY, 0),
             maxThumbTop
           );
+          console.log(22222,thumb.scrollTop,deltaY);
           const scrollTop = (thumbTop / maxThumbTop) * scrollHeight;
           content.scrollTop = scrollTop;
           thumb.style.top = `${thumbTop}px`;
@@ -103,6 +109,7 @@
           const thumbHeight = thumb.clientHeight;
           const maxThumbTop = content.clientHeight - thumbHeight;
           const thumbTop = (content.scrollTop / scrollHeight) * maxThumbTop;
+          console.log(333333,startY,thumbTop);
           thumb.style.top = `${thumbTop}px`;
         });
       });
