@@ -1967,6 +1967,10 @@ public class AntFarm extends ModelTask {
                 return;
             }
             Log.farm("雇佣小鸡👷[当前可雇佣小鸡数量:" + (3 - animalCount) + "只]");
+            if (foodStock < 50) {
+                Log.record("饲料不足，暂不雇佣");
+                return;
+            }
             Set<String> hireAnimalSet = hireAnimalList.getValue();
             boolean hasNext;
             int pageStartSum = 0;
