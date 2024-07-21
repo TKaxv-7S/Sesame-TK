@@ -122,6 +122,8 @@ public class AntOcean extends ModelTask {
 
                 queryUserRanking();
 
+                querySeaAreaDetailList();
+
                 if (dailyOceanTask.getValue()) {
                     doOceanDailyTask();
                 }
@@ -807,7 +809,7 @@ public class AntOcean extends ModelTask {
                     // 检查道具兑换操作是否成功
                     if ("SUCCESS".equals(exchangeResultObj.getString("resultCode"))) {
                         // 输出日志信息
-                        Log.forest("神奇海洋🏖️[制作:" + exchangeNum + "张万能拼图]剩余" + exchangedPieceNum + "张碎片");
+                        Log.forest("神奇海洋🏖️[制作:万能拼图]" + exchangeNum + "张,剩余" + exchangedPieceNum + "张碎片");
                         // 制作完成后休眠1秒钟
                         TimeUtil.sleep(1000);
                     }
@@ -842,7 +844,7 @@ public class AntOcean extends ModelTask {
                         String fishListJson = AntOceanRpcCall.queryFishList();
                         JSONObject fishListObj = new JSONObject(fishListJson);
                         // 检查是否成功获取到鱼列表并且 hasMore 为 true
-                        if ("SUCCESS".equals(fishListObj.getString("resultCode")) && fishListObj.optBoolean("hasMore")) {
+                        if ("SUCCESS".equals(fishListObj.getString("resultCode"))) {
                             // 获取鱼列表中的fishVOS数组
                             JSONArray fishVOS = fishListObj.optJSONArray("fishVOS");
                             // 遍历fishVOS数组，寻找pieces中num值为0的鱼的order和id
@@ -867,7 +869,7 @@ public class AntOcean extends ModelTask {
                                         JSONObject usePropResultObj = new JSONObject(usePropResult);
                                         // 检查道具使用操作是否成功
                                         if ("SUCCESS".equals(usePropResultObj.getString("resultCode"))) {
-                                            Log.forest("神奇海洋🏖️[使用:万能拼图]" + name);
+                                            Log.forest("神奇海洋🏖️[使用:万能拼图] | " + name + " |");
                                             TimeUtil.sleep(1000);
                                             holdsNum--; // 每使用一次道具，将holdsNum减1
                                             foundNumZero = true; // 设置标志为true，表示已经找到了符合条件的拼图片段
