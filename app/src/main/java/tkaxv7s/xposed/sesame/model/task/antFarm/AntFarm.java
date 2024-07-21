@@ -357,6 +357,10 @@ public class AntFarm extends ModelTask {
                 hireAnimal();
             }
 
+            if (getFeed.getValue()) {
+                letsGetChickenFeedTogether();
+            }
+
             // 开宝箱
             if (enableDdrawGameCenterAward.getValue()) {
                 drawGameCenterAward();
@@ -2258,7 +2262,6 @@ public class AntFarm extends ModelTask {
         } catch (JSONException e) {
             Log.i(TAG, "letsGetChickenFeedTogether err:");
             Log.printStackTrace(e);
-            throw new RuntimeException(e);
         }
     }
 

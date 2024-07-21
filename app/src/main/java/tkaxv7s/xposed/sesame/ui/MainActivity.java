@@ -368,9 +368,7 @@ public class MainActivity extends BaseActivity {
 
     private void goSettingActivity(int index) {
         UserEntity userEntity = userEntityArray[index];
-        //TODO 解除
-        //Intent intent = new Intent(this, UIConfig.INSTANCE.getNewUI() ? NewSettingsActivity.class : SettingsActivity.class);
-        Intent intent = new Intent(this, SettingsActivity.class);
+        Intent intent = new Intent(this, UIConfig.INSTANCE.getNewUI() ? NewSettingsActivity.class : SettingsActivity.class);
         if (userEntity != null) {
             intent.putExtra("userId", userEntity.getUserId());
             intent.putExtra("userName", userEntity.getShowName());

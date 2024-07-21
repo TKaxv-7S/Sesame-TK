@@ -35,7 +35,7 @@ public class AntForestV2 extends ModelTask {
 
     private static final String TAG = AntForestV2.class.getSimpleName();
 
-    private static final AverageMath offsetTimeMath = new AverageMath(10);
+    private static final AverageMath offsetTimeMath = new AverageMath(5);
 
     private static final Set<String> AntForestTaskTypeSet;
 
@@ -73,7 +73,7 @@ public class AntForestV2 extends ModelTask {
     private volatile long doubleEndTime = 0;
     private volatile long stealthEndTime = 0;
 
-    private final AverageMath delayTimeMath = new AverageMath(10);
+    private final AverageMath delayTimeMath = new AverageMath(5);
 
     private final ObjReference<Long> collectEnergyLockLimit = new ObjReference<>(0L);
 
@@ -941,12 +941,14 @@ public class AntForestV2 extends ModelTask {
                     }
                     if (collected > 0) {
                         FriendWatch.friendWatch(userId, collected);
-                        String str = "一键收取🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g耗时[" + spendTime + "]ms";
+                        String str = "一键收取🪂[" + UserIdMap.getMaskName(userId) + "]#" + collected + "g";
                         if (needDouble) {
-                            str +="[双击]";
+                            Log.forest(str + "耗时[" + spendTime + "]ms[双击]");
+                            Toast.show(str + "[双击]");
+                        } else {
+                            Log.forest(str + "耗时[" + spendTime + "]ms");
+                            Toast.show(str);
                         }
-                        Log.forest(str);
-                        Toast.show(str);
                         totalCollected += collected;
                         Statistics.addData(Statistics.DataType.COLLECTED, collected);
                     } else {

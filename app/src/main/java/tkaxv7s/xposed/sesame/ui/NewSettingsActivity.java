@@ -59,8 +59,7 @@ public class NewSettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         userId = null;
         userName = null;
-        //TODO 移除
-        debug = true;
+        //debug = true;
         Intent intent = getIntent();
         if (intent != null) {
             userId = intent.getStringExtra("userId");
@@ -181,7 +180,7 @@ public class NewSettingsActivity extends BaseActivity {
         }*/
 
         @JavascriptInterface
-        public String getVersion() {
+        public String getBuildInfo() {
             return BuildConfig.APPLICATION_ID + ":" + BuildConfig.VERSION_NAME;
         }
 

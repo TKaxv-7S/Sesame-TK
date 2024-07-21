@@ -31,6 +31,7 @@ public class HtmlViewerActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         LanguageUtil.setLocale(this);
         setContentView(R.layout.activity_html_viewer);
+        setBaseSubtitleTextColor(getResources().getColor(R.color.textColorPrimary));
 
         mWebView = findViewById(R.id.mwv_webview);
         pgb = findViewById(R.id.pgb_webview);
