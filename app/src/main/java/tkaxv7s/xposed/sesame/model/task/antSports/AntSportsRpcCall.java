@@ -7,6 +7,70 @@ public class AntSportsRpcCall {
             timeZone = "Asia\\/Shanghai", version = "3.0.1.2", alipayAppVersion = "0.0.852",
             cityCode = "330100", appId = "2021002116659397";
 
+    // 运动任务查询
+    public static String queryCoinTaskPanel() {
+        String args1 = "[\n" +
+                "    {\n" +
+                "        \"canAddHome\": false,\n" +
+                "        \"chInfo\": \"ch_appcenter__chsub_9patch\",\n" +
+                "        \"clientAuthStatus\": \"not_support\",\n" +
+                "        \"clientOS\": \"android\",\n" +
+                "        \"features\": [\n" +
+                "            \"DAILY_STEPS_RANK_V2\",\n" +
+                "            \"STEP_BATTLE\",\n" +
+                "            \"CLUB_HOME_CARD\",\n" +
+                "            \"NEW_HOME_PAGE_STATIC\",\n" +
+                "            \"CLOUD_SDK_AUTH\",\n" +
+                "            \"STAY_ON_COMPLETE\",\n" +
+                "            \"EXTRA_TREASURE_BOX\",\n" +
+                "            \"NEW_HOME_PAGE_STATIC\",\n" +
+                "            \"SUPPORT_AI\",\n" +
+                "            \"SUPPORT_TAB3\",\n" +
+                "            \"SUPPORT_FLYRABBIT\",\n" +
+                "            \"SUPPORT_NEW_MATCH\",\n" +
+                "            \"EXTERNAL_ADVERTISEMENT_TASK\",\n" +
+                "            \"PROP\",\n" +
+                "            \"PROPV2\",\n" +
+                "            \"ASIAN_GAMES\"\n" +
+                "        ],\n" +
+                "        \"topTaskId\": \"\"\n" +
+                "    }\n" +
+                "]";
+
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.queryCoinTaskPanel", args1);
+    }
+    // 去完成任务
+    public static String completeExerciseTasks(String taskId) {
+        String args1 = "[\n" +
+                "    {\n" +
+                "        \"chInfo\": \"ch_appcenter__chsub_9patch\",\n" +
+                "        \"clientOS\": \"android\",\n" +
+                "        \"features\": [\n" +
+                "            \"DAILY_STEPS_RANK_V2\",\n" +
+                "            \"STEP_BATTLE\",\n" +
+                "            \"CLUB_HOME_CARD\",\n" +
+                "            \"NEW_HOME_PAGE_STATIC\",\n" +
+                "            \"CLOUD_SDK_AUTH\",\n" +
+                "            \"STAY_ON_COMPLETE\",\n" +
+                "            \"EXTRA_TREASURE_BOX\",\n" +
+                "            \"NEW_HOME_PAGE_STATIC\",\n" +
+                "            \"SUPPORT_AI\",\n" +
+                "            \"SUPPORT_TAB3\",\n" +
+                "            \"SUPPORT_FLYRABBIT\",\n" +
+                "            \"SUPPORT_NEW_MATCH\",\n" +
+                "            \"EXTERNAL_ADVERTISEMENT_TASK\",\n" +
+                "            \"PROP\",\n" +
+                "            \"PROPV2\",\n" +
+                "            \"ASIAN_GAMES\"\n" +
+                "        ],\n" +
+                "        \"taskAction\": \"JUMP\",\n" +
+                "        \"taskId\": \""+taskId+"\"\n" +
+                "    }\n" +
+                "]";
+
+        return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.SportsHealthCoinTaskRpc.completeTask", args1);
+    }
+
     public static String queryCoinBubbleModule() {
         return ApplicationHook.requestString("com.alipay.sportshealth.biz.rpc.sportsHealthHomeRpc.queryCoinBubbleModule",
                 "[{\"bubbleId\":\"\",\"canAddHome\":false,\"chInfo\":\"" + chInfo
