@@ -158,7 +158,9 @@ public class SettingsActivity extends BaseActivity {
         menu.add(0, 2, 2, "导入配置");
         menu.add(0, 3, 3, "删除配置");
         menu.add(0, 4, 4, "单向好友");
-        menu.add(0, 5, 5, "切换至新UI");
+        if (!"TEST".equals(ViewAppInfo.getAppVersion())) {
+            menu.add(0, 5, 5, "切换至新UI");
+        }
         return super.onCreateOptionsMenu(menu);
     }
 

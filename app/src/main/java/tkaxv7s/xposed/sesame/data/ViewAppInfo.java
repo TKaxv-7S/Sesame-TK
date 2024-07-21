@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import lombok.Getter;
 import lombok.Setter;
 import tkaxv7s.xposed.sesame.R;
+import tkaxv7s.xposed.sesame.util.Log;
 
 public final class ViewAppInfo {
 
@@ -35,7 +35,8 @@ public final class ViewAppInfo {
                 PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
                 appVersion = packageInfo.versionName;
                 appTitle = appTitle + " " + appVersion;
-            } catch (PackageManager.NameNotFoundException ignored) {
+            } catch (Exception e) {
+                Log.printStackTrace(e);
             }
         }
     }
