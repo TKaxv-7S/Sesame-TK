@@ -15,8 +15,8 @@ public class ProgramChildTaskExecutor implements ChildTaskExecutor {
     public Boolean addChildTask(ModelTask.ChildModelTask childTask) {
         ThreadPoolExecutor threadPoolExecutor = getChildGroupThreadPool(childTask.getGroup());
         Future<?> future;
-        long time = childTask.getExecTime();
-        if (time > 0) {
+        long execTime = childTask.getExecTime();
+        if (execTime > 0) {
             future = threadPoolExecutor.submit(() -> {
                 if (childTask.getIsCancel()) {
                     return;
@@ -24,7 +24,7 @@ public class ProgramChildTaskExecutor implements ChildTaskExecutor {
                 //String modelTaskId = getName();
                 //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);
                 try {
-                    long delay = time - System.currentTimeMillis();
+                    long delay = childTask.getExecTime() - System.currentTimeMillis();
                     if (delay > 0) {
                         try {
                             Thread.sleep(delay);

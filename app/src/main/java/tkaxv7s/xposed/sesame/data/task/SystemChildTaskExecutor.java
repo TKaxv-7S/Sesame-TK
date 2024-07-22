@@ -32,6 +32,15 @@ public class SystemChildTaskExecutor implements ChildTaskExecutor {
                 //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);
                 Future<?> future = threadPoolExecutor.submit(() -> {
                     try {
+                        long delay = childTask.getExecTime() - System.currentTimeMillis();
+                        if (delay > 0) {
+                            try {
+                                Thread.sleep(delay);
+                            } catch (Exception e) {
+                                //Log.record("任务模块:" + modelTaskId + " 中断子任务:" + id);
+                                return;
+                            }
+                        }
                         childTask.run();
                     } catch (Exception e) {
                         Log.printStackTrace(e);
@@ -43,8 +52,14 @@ public class SystemChildTaskExecutor implements ChildTaskExecutor {
                 });
                 childTask.setCancelTask(() -> future.cancel(true));
             };
-            childTask.setCancelTask(() -> handler.removeCallbacks(runnable));
-            handler.postDelayed(runnable, execTime - System.currentTimeMillis());
+            long delayMillis = execTime - System.currentTimeMillis();
+            if (delayMillis > 3000) {
+                handler.postDelayed(runnable, delayMillis - 2500);
+                childTask.setCancelTask(() -> handler.removeCallbacks(runnable));
+            } else {
+                childTask.setCancelTask(() -> handler.removeCallbacks(runnable));
+                handler.post(runnable);
+            }
         } else {
             Future<?> future = threadPoolExecutor.submit(() -> {
                 //Log.i("任务模块:" + modelTaskId + " 添加子任务:" + id);

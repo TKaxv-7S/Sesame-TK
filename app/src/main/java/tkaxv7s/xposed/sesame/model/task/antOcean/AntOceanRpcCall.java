@@ -1,7 +1,13 @@
 package tkaxv7s.xposed.sesame.model.task.antOcean;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import tkaxv7s.xposed.sesame.hook.ApplicationHook;
+import tkaxv7s.xposed.sesame.util.Log;
 import tkaxv7s.xposed.sesame.util.RandomUtil;
+
+import java.util.Set;
 
 /**
  * @author Constanline
@@ -202,14 +208,30 @@ public class AntOceanRpcCall {
                 "[{\"propTypeList\":\"UNIVERSAL_PIECE\",\"skipPropId\":false,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
-    public static String queryFishList() {
+    public static String queryFishList(int pageNum) {
         return ApplicationHook.requestString("alipay.antocean.ocean.h5.queryFishList",
-                "[{\"combineStatus\":\"UNOBTAINED\",\"needSummary\":\"Y\",\"pageNum\":1,\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"targetUserId\":\"\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+                "[{\"combineStatus\":\"UNOBTAINED\",\"needSummary\":\"Y\",\"pageNum\":" + pageNum + ",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"targetUserId\":\"\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
     }
 
-    public static String usePropByType(int assets, int attachAssets) {
-        return ApplicationHook.requestString("alipay.antocean.ocean.h5.usePropByType",
-                "[{\"assetsDetails\":[{\"assets\":" + assets + ",\"assetsNum\":1,\"attachAssets\":" + attachAssets + ",\"propCode\":\"UNIVERSAL_PIECE\"}],\"propCode\":\"UNIVERSAL_PIECE\",\"propType\":\"UNIVERSAL_PIECE\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+    public static String usePropByType(int assets, Set<Integer> attachAssetsSet) {
+        try {
+            if (!attachAssetsSet.isEmpty()) {
+                JSONArray jsonArray = new JSONArray();
+                for (Integer attachAssets : attachAssetsSet) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("assets", assets);
+                    jsonObject.put("assetsNum", 1);
+                    jsonObject.put("attachAssets", attachAssets);
+                    jsonObject.put("propCode", "UNIVERSAL_PIECE");
+                    jsonArray.put(jsonObject);
+                }
+                return ApplicationHook.requestString("alipay.antocean.ocean.h5.usePropByType",
+                        "[{\"assetsDetails\":" + jsonArray + ",\"propCode\":\"UNIVERSAL_PIECE\",\"propType\":\"UNIVERSAL_PIECE\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\",\"uniqueId\":\"" + getUniqueId() + "\"}]");
+            }
+        } catch (JSONException e) {
+            Log.printStackTrace(e);
+        }
+        return null;
     }
 
 }

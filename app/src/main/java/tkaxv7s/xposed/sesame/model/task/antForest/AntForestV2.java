@@ -2411,7 +2411,7 @@ public class AntForestV2 extends ModelTask {
          * Instantiates a new Bubble timer task.
          */
         BubbleTimerTask(String ui, long bi, long pt) {
-            super(AntForestV2.getBubbleTimerTid(ui, bi), pt - 3000 - advanceTimeInt);
+            super(AntForestV2.getBubbleTimerTid(ui, bi), pt - advanceTimeInt);
             userId = ui;
             bubbleId = bi;
             produceTime = pt;
@@ -2422,7 +2422,7 @@ public class AntForestV2 extends ModelTask {
             return () -> {
                 String userName = UserIdMap.getMaskName(userId);
                 int averageInteger = offsetTimeMath.getAverageInteger();
-                long readyTime = produceTime + averageInteger - advanceTimeInt - delayTimeMath.getAverageInteger() - System.currentTimeMillis() + 80;
+                long readyTime = produceTime - advanceTimeInt + averageInteger - delayTimeMath.getAverageInteger() - System.currentTimeMillis() + 70;
                 if (readyTime > 0) {
                     try {
                         Thread.sleep(readyTime);

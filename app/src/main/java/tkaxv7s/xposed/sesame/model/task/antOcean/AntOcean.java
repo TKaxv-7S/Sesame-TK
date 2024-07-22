@@ -19,10 +19,7 @@ import tkaxv7s.xposed.sesame.util.StringUtil;
 import tkaxv7s.xposed.sesame.util.TimeUtil;
 import tkaxv7s.xposed.sesame.util.UserIdMap;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Constanline
@@ -809,7 +806,7 @@ public class AntOcean extends ModelTask {
                     // 检查道具兑换操作是否成功
                     if ("SUCCESS".equals(exchangeResultObj.getString("resultCode"))) {
                         // 输出日志信息
-                        Log.forest("神奇海洋🏖️[制作:万能拼图]" + exchangeNum + "张,剩余" + exchangedPieceNum + "张碎片");
+                        Log.forest("神奇海洋🏖️[万能拼图]制作" + exchangeNum + "张,剩余" + exchangedPieceNum + "张碎片");
                         // 制作完成后休眠1秒钟
                         TimeUtil.sleep(1000);
                     }
@@ -839,57 +836,59 @@ public class AntOcean extends ModelTask {
                     JSONObject propInfo = oceanPropVOByTypeList.getJSONObject(i);
                     int holdsNum = propInfo.getInt("holdsNum");
                     // 只要holdsNum大于0，就继续执行循环操作
+                    int pageNum = 0;
+                    th:
                     while (holdsNum > 0) {
                         // 查询鱼列表的JSON数据
-                        String fishListJson = AntOceanRpcCall.queryFishList();
+                        pageNum++;
+                        String fishListJson = AntOceanRpcCall.queryFishList(pageNum);
                         JSONObject fishListObj = new JSONObject(fishListJson);
                         // 检查是否成功获取到鱼列表并且 hasMore 为 true
-                        if ("SUCCESS".equals(fishListObj.getString("resultCode"))) {
-                            // 获取鱼列表中的fishVOS数组
-                            JSONArray fishVOS = fishListObj.optJSONArray("fishVOS");
-                            // 遍历fishVOS数组，寻找pieces中num值为0的鱼的order和id
-                            for (int j = 0; j < fishVOS.length(); j++) {
-                                JSONObject fish = fishVOS.getJSONObject(j);
-                                JSONArray pieces = fish.optJSONArray("pieces");
-                                if (pieces == null) {
-                                    continue;
-                                }
-                                // 遍历pieces数组，寻找num值为0的拼图片段
-                                boolean foundNumZero = false; // 添加一个标志，用来记录是否找到了符合条件的拼图片段
-                                for (int k = 0; k < pieces.length(); k++) {
-                                    JSONObject piece = pieces.getJSONObject(k);
-                                    int num = piece.getInt("num");
-                                    // 找到num值为0的拼图片段
-                                    if (num == 0) {
-                                        int order = fish.getInt("order");
-                                        String id = piece.getString("id");
-                                        String name = fish.getString("name");
-                                        // 调用usePropByType方法执行道具使用
-                                        String usePropResult = AntOceanRpcCall.usePropByType(order, Integer.parseInt(id)); // 传递order和id作为参数
-                                        JSONObject usePropResultObj = new JSONObject(usePropResult);
-                                        // 检查道具使用操作是否成功
-                                        if ("SUCCESS".equals(usePropResultObj.getString("resultCode"))) {
-                                            Log.forest("神奇海洋🏖️[使用:万能拼图] | " + name + " |");
-                                            TimeUtil.sleep(1000);
-                                            holdsNum--; // 每使用一次道具，将holdsNum减1
-                                            foundNumZero = true; // 设置标志为true，表示已经找到了符合条件的拼图片段
-                                            // 继续下一个鱼的查找
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (foundNumZero) {
-                                    // 如果找到了符合条件的拼图片段，就停止遍历fishVOS数组
-                                    break;
-                                }
-                            }
-                        } else {
+                        if (!"SUCCESS".equals(fishListObj.getString("resultCode"))) {
                             // 如果没有成功获取到鱼列表或者 hasMore 为 false，则停止后续操作
                             break;
                         }
-                    }
-                    if (holdsNum == 0) {
-                        return; // 结束当前方法的执行
+                        // 获取鱼列表中的fishVOS数组
+                        JSONArray fishVOS = fishListObj.optJSONArray("fishVOS");
+                        if (fishVOS == null) {
+                            break;
+                        }
+                        // 遍历fishVOS数组，寻找pieces中num值为0的鱼的order和id
+                        for (int j = 0; j < fishVOS.length(); j++) {
+                            JSONObject fish = fishVOS.getJSONObject(j);
+                            JSONArray pieces = fish.optJSONArray("pieces");
+                            if (pieces == null) {
+                                continue;
+                            }
+                            int order = fish.getInt("order");
+                            String name = fish.getString("name");
+                            Set<Integer> idSet = new HashSet<>();
+                            for (int k = 0; k < pieces.length(); k++) {
+                                JSONObject piece = pieces.getJSONObject(k);
+                                if (piece.optInt("num") == 0) {
+                                    idSet.add(Integer.parseInt(piece.getString("id")));
+                                    holdsNum--;
+                                    if (holdsNum <= 0) {
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!idSet.isEmpty()) {
+                                String usePropResult = AntOceanRpcCall.usePropByType(order, idSet);
+                                JSONObject usePropResultObj = new JSONObject(usePropResult);
+                                if ("SUCCESS".equals(usePropResultObj.getString("resultCode"))) {
+                                    int userCount = idSet.size();
+                                    Log.forest("神奇海洋🏖️[万能拼图]使用" + userCount + "张，获得[" + name + "]剩余" + holdsNum + "张");
+                                    TimeUtil.sleep(1000);
+                                    if (holdsNum <= 0) {
+                                        break th;
+                                    }
+                                }
+                            }
+                        }
+                        if (!fishListObj.optBoolean("hasMore")) {
+                            break;
+                        }
                     }
                 }
             }
@@ -898,7 +897,6 @@ public class AntOcean extends ModelTask {
             Log.printStackTrace(TAG, t);
         }
     }
-
 
 
     public interface CleanOceanType {

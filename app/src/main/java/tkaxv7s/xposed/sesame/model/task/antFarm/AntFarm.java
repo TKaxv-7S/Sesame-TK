@@ -2213,7 +2213,9 @@ public class AntFarm extends ModelTask {
                 int remainingInvites = 5 - invitedToday;
                 int invitesToSend = Math.min(canInviteCount, remainingInvites);
 
-                if (invitesToSend==0)return;
+                if (invitesToSend==0) {
+                    return;
+                }
 
                 Set<String> getFeedSet = getFeedlList.getValue();
 
@@ -2256,7 +2258,6 @@ public class AntFarm extends ModelTask {
         } catch (JSONException e) {
             Log.i(TAG, "letsGetChickenFeedTogether err:");
             Log.printStackTrace(e);
-            throw new RuntimeException(e);
         }
     }
 
