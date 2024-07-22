@@ -2192,80 +2192,71 @@ public class AntFarm extends ModelTask {
                 String bizTraceId = jo.getString("bizTraceId");
                 JSONArray p2pCanInvitePersonDetailList = jo.getJSONArray("p2pCanInvitePersonDetailList");
 
-                // 统计可邀请和已邀请的数量
                 int canInviteCount = 0;
                 int hasInvitedCount = 0;
-
                 List<String> userIdList = new ArrayList<>(); // 保存 userId
                 for (int i = 0; i < p2pCanInvitePersonDetailList.length(); i++) {
                     JSONObject personDetail = p2pCanInvitePersonDetailList.getJSONObject(i);
                     String inviteStatus = personDetail.getString("inviteStatus");
                     String userId = personDetail.getString("userId");
 
-                    userIdList.add(userId); // 将 userId 存起来
-
-                    // 统计可邀请和已邀请的数量
                     if (inviteStatus.equals("CAN_INVITE")) {
+                        userIdList.add(userId);
                         canInviteCount++;
                     } else if (inviteStatus.equals("HAS_INVITED")) {
                         hasInvitedCount++;
                     }
                 }
 
-                // 判断今天已经邀请了多少人
                 int invitedToday = hasInvitedCount;
 
-                // 可以邀请的人数不超过五个
                 int remainingInvites = 5 - invitedToday;
                 int invitesToSend = Math.min(canInviteCount, remainingInvites);
 
-                if (invitesToSend==0)
-                    return;
+                if (invitesToSend==0)return;
+
                 Set<String> getFeedSet = getFeedlList.getValue();
 
-                // 判断 getFeedType 的值来确定是根据勾选列表还是随机选择发送邀请
                 if (getFeedType.getValue() == GetFeedType.GIVE) {
-                    // 根据勾选列表进行邀请操作
-                    for (int j = 0; j < invitesToSend; j++) {
-                        String userId = userIdList.get(j);
-                        // 判断 userId 是否存在于 getFeedSet 中
+                    for (String userId : userIdList) {
+                        if (invitesToSend <= 0) {
+//                            Log.record("已达到最大邀请次数限制，停止发送邀请。");
+                            break;
+                        }
                         if (getFeedSet.contains(userId)) {
-                            // 调用邀请方法
                             jo = new JSONObject(AntFarmRpcCall.giftOfFeed(bizTraceId, userId));
                             if (jo.getBoolean("success")) {
                                 Log.record("一起拿小鸡饲料🥡 [送饲料：" + UserIdMap.getMaskName(userId) + "]");
+                                invitesToSend--; // 每成功发送一次邀请，减少一次邀请次数
                             } else {
                                 Log.record("邀请失败：" + jo);
-                                break; // 如果邀请失败，根据需求处理中断操作
+                                break;
                             }
                         } else {
-//                             Log.record("用户 " + userId + " 不在勾选的好友列表中，不发送邀请。");
+//                            Log.record("用户 " + UserIdMap.getMaskName(userId) + " 不在勾选的好友列表中，不发送邀请。");
                         }
                     }
                 } else {
-                    // 随机选择发送邀请操作
                     Random random = new Random();
                     for (int j = 0; j < invitesToSend; j++) {
                         int randomIndex = random.nextInt(userIdList.size());
                         String userId = userIdList.get(randomIndex);
-                        // 调用邀请方法
+
                         jo = new JSONObject(AntFarmRpcCall.giftOfFeed(bizTraceId, userId));
                         if (jo.getBoolean("success")) {
                             Log.record("一起拿小鸡饲料🥡 [送饲料：" + UserIdMap.getMaskName(userId) + "]");
                         } else {
                             Log.record("邀请失败：" + jo);
-                            break; // 如果邀请失败，根据需求处理中断操作
+                            break;
                         }
-                        // 从列表中移除已经尝试过的用户ID，确保不重复邀请同一个人
                         userIdList.remove(randomIndex);
                     }
                 }
-
-
             }
         } catch (JSONException e) {
             Log.i(TAG, "letsGetChickenFeedTogether err:");
             Log.printStackTrace(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -2384,7 +2375,7 @@ public class AntFarm extends ModelTask {
         int GIVE = 0;
         int RANDOM = 1;
 
-        String[] nickNames = {"选中赠送", "随机送"};
+        String[] nickNames = {"选中赠送", "随机赠送"};
 
     }
 
