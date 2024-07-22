@@ -123,7 +123,8 @@ public class AntForestV2 extends ModelTask {
     private BooleanModelField collectGiftBox;
     private BooleanModelField medicalHealthFeeds;
     private BooleanModelField sendEnergyByAction;
-    private BooleanModelField animalConsumeProp;
+    private BooleanModelField combineAnimalPiece;
+    private BooleanModelField consumeAnimalProp;
     private SelectModelField whoYouWantToGiveTo;
     private BooleanModelField ecoLifeTick;
     private BooleanModelField ecoLifeOpen;
@@ -185,8 +186,9 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(collectProp = new BooleanModelField("collectProp", "收集道具", false));
         modelFields.addField(collectWateringBubble = new BooleanModelField("collectWateringBubble", "收金球", false));
         modelFields.addField(energyRain = new BooleanModelField("energyRain", "能量雨", false));
-        modelFields.addField(animalConsumeProp = new BooleanModelField("animalConsumeProp", "派遣动物", false));
-        modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "巡护森林", false));
+        modelFields.addField(userPatrol = new BooleanModelField("userPatrol", "保护地巡护", false));
+        modelFields.addField(combineAnimalPiece = new BooleanModelField("combineAnimalPiece", "合成动物碎片", false));
+        modelFields.addField(consumeAnimalProp = new BooleanModelField("consumeAnimalProp", "派遣动物伙伴", false));
         modelFields.addField(receiveForestTaskAward = new BooleanModelField("receiveForestTaskAward", "森林任务", false));
         modelFields.addField(collectGiftBox = new BooleanModelField("collectGiftBox", "领取礼盒", false));
         modelFields.addField(medicalHealthFeeds = new BooleanModelField("medicalHealthFeeds", "健康医疗", false));
@@ -391,14 +393,14 @@ public class AntForestV2 extends ModelTask {
                 JSONArray usingUserProps = selfHomeObject.has("usingUserProps")
                         ? selfHomeObject.getJSONArray("usingUserProps")
                         : new JSONArray();
-                boolean canConsumeProp = true;
+                boolean canConsumeAnimalProp = true;
                 if (usingUserProps.length() > 0) {
                     for (int i = 0; i < usingUserProps.length(); i++) {
                         JSONObject jo = usingUserProps.getJSONObject(i);
                         if (!"animal".equals(jo.getString("type"))) {
                             continue;
                         } else {
-                            canConsumeProp = false;
+                            canConsumeAnimalProp = false;
                         }
                         JSONObject extInfo = new JSONObject(jo.getString("extInfo"));
                         int energy = extInfo.optInt("energy", 0);
@@ -423,11 +425,17 @@ public class AntForestV2 extends ModelTask {
                     }
                 }
                 if (userPatrol.getValue()) {
-                    if (!canConsumeProp) {
-                        Log.record("已经有动物在巡护");
-                    }
                     queryUserPatrol();
-                    queryAnimalAndPiece(canConsumeProp);
+                }
+                if (combineAnimalPiece.getValue()) {
+                    queryAnimalAndPiece();
+                }
+                if (consumeAnimalProp.getValue()) {
+                    if (!canConsumeAnimalProp) {
+                        Log.record("已经有动物伙伴在巡护森林");
+                    } else {
+                        queryAnimalPropList();
+                    }
                 }
                 popupTask();
                 if (energyRain.getValue()) {
@@ -2031,21 +2039,21 @@ public class AntForestV2 extends ModelTask {
     private void queryAnimalPropList() {
         try {
             JSONObject jo = new JSONObject(AntForestRpcCall.queryAnimalPropList());
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
-                JSONArray animalProps = jo.getJSONObject("resData").getJSONArray("animalProps");
-                JSONObject animalProp = null;
-                for (int i = 0; i < animalProps.length(); i++) {
-                    jo = animalProps.getJSONObject(i);
-                    if (animalProp == null
-                            || jo.getJSONObject("main").getInt("holdsNum")
-                            > animalProp.getJSONObject("main").getInt("holdsNum")) {
-                        animalProp = jo;
-                    }
-                }
-                consumeAnimalProp(animalProp);
-            } else {
+            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
                 Log.i(TAG, jo.getString("resultDesc"));
+                return;
             }
+            JSONArray animalProps = jo.getJSONArray("animalProps");
+            JSONObject animalProp = null;
+            for (int i = 0; i < animalProps.length(); i++) {
+                jo = animalProps.getJSONObject(i);
+                if (animalProp == null
+                        || jo.getJSONObject("main").getInt("holdsNum") > animalProp.getJSONObject("main")
+                                .getInt("holdsNum")) {
+                    animalProp = jo;
+                }
+            }
+            consumeAnimalProp(animalProp);
         } catch (Throwable t) {
             Log.i(TAG, "queryAnimalPropList err:");
             Log.printStackTrace(TAG, t);
@@ -2073,37 +2081,26 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
-    private void queryAnimalAndPiece(boolean canConsumeProp) {
+    private void queryAnimalAndPiece() {
         try {
             JSONObject jo = new JSONObject(AntForestRpcCall.queryAnimalAndPiece(0));
             if ("SUCCESS".equals(jo.getString("resultCode"))) {
                 JSONArray animalProps = jo.getJSONArray("animalProps");
-                JSONObject animalProp = null;
                 for (int i = 0; i < animalProps.length(); i++) {
+                    boolean canCombineAnimalPiece = true;
                     jo = animalProps.getJSONObject(i);
-                    if (animalConsumeProp.getValue() && canConsumeProp) {
-                        if (animalProp == null
-                                || jo.getJSONObject("main").getInt("holdsNum")
-                                > animalProp.getJSONObject("main").getInt("holdsNum")) {
-                            animalProp = jo;
-                        }
-                    }
                     JSONArray pieces = jo.getJSONArray("pieces");
-                    boolean canCombine = true;
                     int id = jo.getJSONObject("animal").getInt("id");
                     for (int j = 0; j < pieces.length(); j++) {
                         jo = pieces.optJSONObject(j);
                         if (jo == null || jo.optInt("holdsNum", 0) <= 0) {
-                            canCombine = false;
+                            canCombineAnimalPiece = false;
                             break;
                         }
                     }
-                    if (canCombine) {
+                    if (canCombineAnimalPiece) {
                         combineAnimalPiece(id);
                     }
-                }
-                if (animalProp != null) {
-                    AnimalConsumeProp(animalProp.getJSONObject("animal").getInt("id"));
                 }
             } else {
                 Log.i(TAG, jo.getString("resultDesc"));
@@ -2114,6 +2111,7 @@ public class AntForestV2 extends ModelTask {
         }
     }
 
+    // 旧版 派遣动物
     private boolean AnimalConsumeProp(int animalId) {
         try {
             JSONObject jo = new JSONObject(AntForestRpcCall.queryAnimalAndPiece(animalId));
@@ -2153,18 +2151,18 @@ public class AntForestV2 extends ModelTask {
                     int id = animal.getInt("id");
                     String name = animal.getString("name");
                     JSONArray pieces = jo.getJSONArray("pieces");
-                    boolean canCombine = true;
+                    boolean canCombineAnimalPiece = true;
                     JSONArray piecePropIds = new JSONArray();
                     for (int j = 0; j < pieces.length(); j++) {
                         jo = pieces.optJSONObject(j);
                         if (jo == null || jo.optInt("holdsNum", 0) <= 0) {
-                            canCombine = false;
+                            canCombineAnimalPiece = false;
                             break;
                         } else {
                             piecePropIds.put(jo.getJSONArray("propIdList").getString(0));
                         }
                     }
-                    if (canCombine) {
+                    if (canCombineAnimalPiece) {
                         jo = new JSONObject(AntForestRpcCall.combineAnimalPiece(id, piecePropIds.toString()));
                         if ("SUCCESS".equals(jo.getString("resultCode"))) {
                             Log.forest("合成动物💡[" + name + "]");

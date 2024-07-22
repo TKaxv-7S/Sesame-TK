@@ -176,7 +176,7 @@ public class AntForestRpcCall {
                 "[{\"propGroup\":\"" + propGroup
                         + "\",\"propType\":\"" + propType
                         + "\",\"replace\":\"" + (replace ? "true" : "false")
-                        + "\",\"sToken\":\"" + System.currentTimeMillis()
+                        + "\",\"sToken\":\"" + System.currentTimeMillis() + "_" + RandomUtil.getRandomString(8)
                         + "\",\"source\":\"chInfo_ch_appcenter__chsub_9patch\"}]");
     }
 
