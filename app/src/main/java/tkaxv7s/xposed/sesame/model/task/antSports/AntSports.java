@@ -18,8 +18,10 @@ import tkaxv7s.xposed.sesame.model.base.TaskCommon;
 import tkaxv7s.xposed.sesame.model.normal.base.BaseModel;
 import tkaxv7s.xposed.sesame.util.*;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -28,6 +30,8 @@ public class AntSports extends ModelTask {
     private static final String TAG = AntSports.class.getSimpleName();
 
     private int tmpStepCount = -1;
+    private BooleanModelField walkGo;
+    private String pathId = "p0002023122214520001";
     private BooleanModelField openTreasureBox;
     private BooleanModelField receiveCoinAsset;
     private BooleanModelField donateCharityCoin;
@@ -55,6 +59,7 @@ public class AntSports extends ModelTask {
     @Override
     public ModelFields getFields() {
         ModelFields modelFields = new ModelFields();
+        modelFields.addField(walkGo = new BooleanModelField("walkGo", "行走路线", false));
         modelFields.addField(openTreasureBox = new BooleanModelField("openTreasureBox", "开启宝箱", false));
         modelFields.addField(sportsTasks = new BooleanModelField("sportsTasks", "开启运动任务", false));
         modelFields.addField(receiveCoinAsset = new BooleanModelField("receiveCoinAsset", "收运动币", false));
@@ -121,7 +126,10 @@ public class AntSports extends ModelTask {
                 sportsTasks();
 
             ClassLoader loader = ApplicationHook.getClassLoader();
-            if (openTreasureBox.getValue())
+            if (walkGo.getValue()) {
+                walkGo(pathId);
+            }
+            if (openTreasureBox.getValue() && !walkGo.getValue())
                 queryMyHomePage(loader);
 
             if (donateCharityCoin.getValue() && Status.canDonateCharityCoin())
@@ -238,6 +246,105 @@ public class AntSports extends ModelTask {
             }
         } catch (Throwable t) {
             Log.i(TAG, "receiveCoinAsset err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private void walkGo(String pathId) {
+        try {
+            JSONObject user = new JSONObject(AntSportsRpcCall.queryUser());
+            if (!user.getBoolean("success")) {
+                return;
+            }
+            String joinedPathId = user.getJSONObject("data").getString("joinedPathId");
+            if (joinedPathId == null) {
+                joinPath(pathId);
+                return;
+            }
+            JSONObject path = queryPath(joinedPathId);
+            JSONObject userPathStep = path.getJSONObject("userPathStep");
+            if ("COMPLETED".equals(userPathStep.getString("pathCompleteStatus"))) {
+                Log.record("完成路线🚶🏻‍♂️[" + userPathStep.getString("pathName") + "]");
+                joinPath(pathId);
+                return;
+            }
+            int minGoStepCount = path.getJSONObject("path").getInt("minGoStepCount");
+            int pathStepCount = path.getJSONObject("path").getInt("pathStepCount");
+            int forwardStepCount = userPathStep.getInt("forwardStepCount");
+            int remainStepCount = userPathStep.getInt("remainStepCount");
+            int needStepCount = pathStepCount - forwardStepCount;
+            if  (remainStepCount >= minGoStepCount) {
+                int useStepCount = Math.min(remainStepCount, needStepCount);
+                walkGo(userPathStep.getString("pathId"), useStepCount, userPathStep.getString("pathName"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "walkGo err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private void walkGo(String pathId, int useStepCount, String pathName) {
+        try {
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            JSONObject jo = new JSONObject(AntSportsRpcCall.walkGo("202312191135", sdf.format(date), pathId, useStepCount));
+            if (jo.getBoolean("success")) {
+                Log.record("行走路线🚶🏻‍♂️[" + pathName + "]#前进了" + useStepCount + "步");
+                queryPath(pathId);
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "walkGo err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private JSONObject queryPath(String pathId) {
+        JSONObject path = null;
+        try {
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            JSONObject jo = new JSONObject(AntSportsRpcCall.queryPath("202312191135", sdf.format(date), pathId));
+            if (jo.getBoolean("success")) {
+                path = jo.getJSONObject("data");
+                JSONArray ja = jo.getJSONObject("data").getJSONArray("treasureBoxList");
+                for (int i = 0; i < ja.length(); i++) {
+                    JSONObject treasureBox = ja.getJSONObject(i);
+                    receiveEvent(treasureBox.getString("boxNo"));
+                }
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "queryPath err:");
+            Log.printStackTrace(TAG, t);
+        }
+        return path;
+    }
+
+    private void receiveEvent(String eventBillNo) {
+        try {
+            JSONObject jo = new JSONObject(AntSportsRpcCall.receiveEvent(eventBillNo));
+            if (!jo.getBoolean("success")) {
+                return;
+            }
+            JSONArray ja = jo.getJSONObject("data").getJSONArray("rewards");
+            for (int i = 0; i < ja.length(); i++) {
+                jo = ja.getJSONObject(i);
+                Log.record("行走路线🎁开宝箱获得[" + jo.getString("rewardName") + "]*" + jo.getInt("count"));
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "receiveEvent err:");
+            Log.printStackTrace(TAG, t);
+        }
+    }
+
+    private void joinPath(String pathId) {
+        try {
+            JSONObject jo = new JSONObject(AntSportsRpcCall.joinPath(pathId));
+            if (jo.getBoolean("success")) {
+                JSONObject path = queryPath(pathId);
+                Log.record("加入路线🚶🏻‍♂️[" + path.getJSONObject("path").getString("name") + "]");
+            }
+        } catch (Throwable t) {
+            Log.i(TAG, "joinPath err:");
             Log.printStackTrace(TAG, t);
         }
     }
