@@ -177,8 +177,7 @@ public class AntSports extends ModelTask {
     // 运动
     private void sportsTasks() {
         try {
-            Log.record("运动任务开始");
-
+            sportsCheck_in();
             JSONObject jo = new JSONObject(AntSportsRpcCall.queryCoinTaskPanel());
             if (jo.getBoolean("success")) {
                 JSONObject data = jo.getJSONObject("data");
@@ -201,13 +200,10 @@ public class AntSports extends ModelTask {
                         jo = new JSONObject(AntSportsRpcCall.completeExerciseTasks(taskId));
                         if (jo.getBoolean("success")) {
                             Log.record("做任务得运动币👯[完成任务：" + taskName + "，得" + prizeAmount + "🪙]");
-//                                Log.record(jo.toString());
                             receiveCoinAsset();
-                        }else {
-//                                Log.record(jo.toString());
                         }
                         if (limitConfigNum>1)
-                            Thread.sleep(5000);
+                            Thread.sleep(10000);
                         else
                             Thread.sleep(1000);
                     }
@@ -219,7 +215,30 @@ public class AntSports extends ModelTask {
             Log.printStackTrace(e);
         }
     }
-
+    private void sportsCheck_in() {
+        try {
+            JSONObject jo = new JSONObject(AntSportsRpcCall.sportsCheck_in());
+            if (jo.getBoolean("success")) {
+                JSONObject data = jo.getJSONObject("data");
+                if(!data.getBoolean("signed")){
+                    JSONObject subscribeConfig;
+                    if (data.has("subscribeConfig")) {
+                        subscribeConfig = data.getJSONObject("subscribeConfig");
+                        Log.record("做任务得运动币👯[完成任务：签到" + subscribeConfig.getString("subscribeExpireDays")+"天，"+data.getString("toast") + "🪙]");
+                    }else {
+//                        Log.record("没有签到");
+                    }
+                }else {
+                    Log.record("运动签到今日已签到");
+                }
+            }else {
+                Log.record(jo.toString());
+            }
+        } catch (Exception e) {
+            Log.record("sportsCheck_in err");
+            Log.printStackTrace(e);
+        }
+    }
 
     private void receiveCoinAsset() {
         try {
