@@ -1200,8 +1200,10 @@ public class AntFarm extends ModelTask {
                 isUseAccelerateTool = true;
                 Status.useAccelerateTool();
                 TimeUtil.sleep(1000);
+            } else {
+                break;
             }
-            if (!isUseAccelerateTool || !useAccelerateToolContinue.getValue()) {
+            if (!useAccelerateToolContinue.getValue()) {
                 break;
             }
         }
