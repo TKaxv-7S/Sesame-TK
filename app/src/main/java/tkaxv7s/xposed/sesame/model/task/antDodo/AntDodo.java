@@ -196,7 +196,7 @@ public class AntDodo extends ModelTask {
                             if (TaskStatus.FINISHED.name().equals(taskStatus)) {
                                 JSONObject joAward = new JSONObject(
                                         AntDodoRpcCall.receiveTaskAward(sceneCode, taskType));
-                                if (joAward.getBoolean("success"))
+                                if (joAward.optBoolean("success"))
                                     Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
                                 else
                                     Log.record("领取失败，" + s);
@@ -205,7 +205,7 @@ public class AntDodo extends ModelTask {
                                 if ("SEND_FRIEND_CARD".equals(taskType)) {
                                     JSONObject joFinishTask = new JSONObject(
                                             AntDodoRpcCall.finishTask(sceneCode, taskType));
-                                    if (joFinishTask.getBoolean("success")) {
+                                    if (joFinishTask.optBoolean("success")) {
                                         Log.forest("物种任务🧾️[" + taskTitle + "]");
                                         continue th;
                                     } else {

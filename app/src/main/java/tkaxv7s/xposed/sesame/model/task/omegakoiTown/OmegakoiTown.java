@@ -88,7 +88,7 @@ public class OmegakoiTown extends ModelTask {
         try {
             String s = OmegakoiTownRpcCall.getUserTasks();
             JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 JSONObject result = jo.getJSONObject("result");
                 JSONArray tasks = result.getJSONArray("tasks");
                 for (int i = 0; i < tasks.length(); i++) {
@@ -106,7 +106,7 @@ public class OmegakoiTown extends ModelTask {
                         try {
                             RewardType rewardType = RewardType.valueOf(itemId);
                             jo = new JSONObject(OmegakoiTownRpcCall.triggerTaskReward(taskId));
-                            if (jo.getBoolean("success")) {
+                            if (jo.optBoolean("success")) {
                                 Log.other("小镇任务🌇[" + name + "]#" + amount + "[" + rewardType.rewardName() + "]");
                             }
                         } catch (Throwable th) {
@@ -128,7 +128,7 @@ public class OmegakoiTown extends ModelTask {
         try {
             String s = OmegakoiTownRpcCall.getSignInStatus();
             JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 boolean signed = jo.getJSONObject("result").getBoolean("signed");
                 if (!signed) {
                     jo = new JSONObject(OmegakoiTownRpcCall.signIn());
@@ -149,7 +149,7 @@ public class OmegakoiTown extends ModelTask {
         try {
             String s = OmegakoiTownRpcCall.houseProduct();
             JSONObject jo = new JSONObject(s);
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 JSONObject result = jo.getJSONObject("result");
                 JSONArray userHouses = result.getJSONArray("userHouses");
                 for (int i = 0; i < userHouses.length(); i++) {
@@ -165,7 +165,7 @@ public class OmegakoiTown extends ModelTask {
                         String houseId = jo.getString("houseId");
                         long id = jo.getLong("id");
                         jo = new JSONObject(OmegakoiTownRpcCall.collect(houseId, id));
-                        if (jo.getBoolean("success")) {
+                        if (jo.optBoolean("success")) {
                             HouseType houseType = HouseType.valueOf(houseId);
                             String itemId = jo.getJSONObject("result").getJSONArray("rewards").getJSONObject(0)
                                     .getString("itemId");

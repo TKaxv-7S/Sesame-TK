@@ -55,7 +55,7 @@ public class BaseTaskRpcCall {
         try {
             String s = taskQuery(appletId);
             JSONObject jo = new JSONObject(s);
-            if (!jo.getBoolean("success")) {
+            if (!jo.optBoolean("success")) {
                 Log.i(tag + ".doTask.taskQuery", jo.optString("resultDesc"));
                 return;
             }
@@ -75,7 +75,7 @@ public class BaseTaskRpcCall {
                     //领取奖品，任务待领奖
                     s = taskTrigger(taskId, "receive", appletId);
                     jo = new JSONObject(s);
-                    if (!jo.getBoolean("success")) {
+                    if (!jo.optBoolean("success")) {
                         Log.i(tag + ".doTask.receive", jo.optString("resultDesc"));
                         continue;
                     }
@@ -83,7 +83,7 @@ public class BaseTaskRpcCall {
                     //没有报名的，先报名，再完成
                     s = taskTrigger(taskId, "signup", appletId);
                     jo = new JSONObject(s);
-                    if (!jo.getBoolean("success")) {
+                    if (!jo.optBoolean("success")) {
                         Log.i(tag + ".doTask.signup", jo.optString("resultDesc"));
                         continue;
                     }
@@ -92,7 +92,7 @@ public class BaseTaskRpcCall {
                     //已报名，待完成，去完成
                     s = taskTrigger(taskId, "send", appletId);
                     jo = new JSONObject(s);
-                    if (!jo.getBoolean("success")) {
+                    if (!jo.optBoolean("success")) {
                         Log.i(tag + ".doTask.send", jo.optString("resultDesc"));
                         continue;
                     }

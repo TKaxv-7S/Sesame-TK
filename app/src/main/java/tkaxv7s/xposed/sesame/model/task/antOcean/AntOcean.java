@@ -518,7 +518,7 @@ public class AntOcean extends ModelTask {
                         String sceneCode = taskJson.getString("sceneCode");
                         jo = new JSONObject(AntOceanRpcCall.finishTask(sceneCode, taskType));
                         TimeUtil.sleep(500);
-                        if (jo.getBoolean("success")) {
+                        if (jo.optBoolean("success")) {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[完成:" + taskTitle + "]");
                             // 答题操作
@@ -533,7 +533,7 @@ public class AntOcean extends ModelTask {
                         String sceneCode = taskJson.getString("sceneCode");
                         jo = new JSONObject(AntOceanRpcCall.finishTask(sceneCode, taskType));
                         TimeUtil.sleep(500);
-                        if (jo.getBoolean("success")) {
+                        if (jo.optBoolean("success")) {
                             String taskTitle = bizInfo.optString("taskTitle", taskType);
                             Log.forest("海洋任务🧾[完成:" + taskTitle + "]");
                             // 答题操作
@@ -569,7 +569,7 @@ public class AntOcean extends ModelTask {
                     String sceneCode = jo.getString("sceneCode");
                     jo = new JSONObject(AntOceanRpcCall.receiveTaskAward(sceneCode, taskType));
                     TimeUtil.sleep(500);
-                    if (jo.getBoolean("success")) {
+                    if (jo.optBoolean("success")) {
                         String taskTitle = bizInfo.optString("taskTitle", taskType);
                         String awardCount = bizInfo.optString("awardCount", "0");
                         Log.forest("海洋奖励🎖️[领取:" + taskTitle + "]获得:" + awardCount + "块碎片");

@@ -155,7 +155,7 @@ public class AntForestV2 extends ModelTask {
         modelFields.addField(batchRobEnergy = new BooleanModelField("batchRobEnergy", "一键收取", false));
         modelFields.addField(queryInterval = new StringModelField("queryInterval", "查询间隔(毫秒或毫秒范围)", "500-1000"));
         modelFields.addField(collectInterval = new StringModelField("collectInterval", "收取间隔(毫秒或毫秒范围)", "1000-1500"));
-        modelFields.addField(doubleCollectInterval = new StringModelField("doubleCollectInterval", "双击收取间隔(毫秒或毫秒范围)", "50-150"));
+        modelFields.addField(doubleCollectInterval = new StringModelField("doubleCollectInterval", "双击间隔(毫秒或毫秒范围)", "50-150"));
         modelFields.addField(balanceNetworkDelay = new BooleanModelField("balanceNetworkDelay", "平衡网络延迟", true));
         modelFields.addField(advanceTime = new IntegerModelField("advanceTime", "提前时间(毫秒)", 0, Integer.MIN_VALUE, 500));
         modelFields.addField(tryCount = new IntegerModelField("tryCount", "尝试收取(次数)", 1, 0, 10));
@@ -1081,7 +1081,7 @@ public class AntForestV2 extends ModelTask {
             String s = AntForestRpcCall.query_forest_energy();
             JSONObject jo = new JSONObject(s);
             int countj = 0;
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 JSONObject response = jo.getJSONObject("data").getJSONObject("response");
                 JSONArray energyGeneratedList = response.optJSONArray("energyGeneratedList");
                 if (energyGeneratedList != null && energyGeneratedList.length() > 0) {
@@ -1106,7 +1106,7 @@ public class AntForestV2 extends ModelTask {
                                 if (!"null".equals(feedId)) {
                                     jo = new JSONObject(AntForestRpcCall.produce_forest_energy(feedId));
                                     TimeUtil.sleep(300);
-                                    if (jo.getBoolean("success")) {
+                                    if (jo.optBoolean("success")) {
                                         response = jo.getJSONObject("data").getJSONObject("response");
                                         int cumulativeEnergy = response.optInt("cumulativeEnergy");
                                         if (cumulativeEnergy > 0) {
@@ -1143,7 +1143,7 @@ public class AntForestV2 extends ModelTask {
                 String id = jo.getString("id");
                 jo = new JSONObject(AntForestRpcCall.harvest_forest_energy(energy, id));
                 TimeUtil.sleep(300);
-                if (jo.getBoolean("success")) {
+                if (jo.optBoolean("success")) {
                     Log.forest("健康医疗🚑[收取能量]#" + energy + "g");
                 }
             }
@@ -1158,7 +1158,7 @@ public class AntForestV2 extends ModelTask {
         try {
             long start = System.currentTimeMillis();
             JSONObject jo = new JSONObject(AntForestRpcCall.startWhackMole());
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 JSONArray moleInfo = jo.optJSONArray("moleInfo");
                 if (moleInfo != null) {
                     List<String> whackMoleIdList = new ArrayList<>();
@@ -1205,11 +1205,11 @@ public class AntForestV2 extends ModelTask {
     private void sendEnergyByAction(String sourceType) {
         try {
             JSONObject jo = new JSONObject(AntForestRpcCall.consultForSendEnergyByAction(sourceType));
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 JSONObject data = jo.getJSONObject("data");
                 if (data.optBoolean("canSendEnergy", false)) {
                     jo = new JSONObject(AntForestRpcCall.sendEnergyByAction(sourceType));
-                    if (jo.getBoolean("success")) {
+                    if (jo.optBoolean("success")) {
                         data = jo.getJSONObject("data");
                         if (data.optBoolean("canSendEnergy", false)) {
                             int receivedEnergyAmount = data.getInt("receivedEnergyAmount");
@@ -1343,7 +1343,7 @@ public class AntForestV2 extends ModelTask {
             String skuId = null;
             String spuId = null;
             double price = 0d;
-            if (jo.getBoolean("success")) {
+            if (jo.optBoolean("success")) {
                 JSONArray itemInfoVOList = jo.optJSONArray("itemInfoVOList");
                 if (itemInfoVOList != null && itemInfoVOList.length() > 0) {
                     for (int i = 0; i < itemInfoVOList.length(); i++) {
@@ -1467,7 +1467,7 @@ public class AntForestV2 extends ModelTask {
                             if (TaskStatus.FINISHED.name().equals(taskStatus)) {
                                 JSONObject joAward = new JSONObject(AntForestRpcCall.receiveTaskAward(sceneCode, taskType));
                                 TimeUtil.sleep(500);
-                                if (joAward.getBoolean("success")) {
+                                if (joAward.optBoolean("success")) {
                                     Log.forest("任务奖励🎖️[" + taskTitle + "]#" + awardCount + "个");
                                     doubleCheck = true;
                                 } else {
@@ -1481,7 +1481,7 @@ public class AntForestV2 extends ModelTask {
                                     JSONObject joFinishTask = new JSONObject(
                                             AntForestRpcCall.finishTask(sceneCode, taskType));
                                     TimeUtil.sleep(500);
-                                    if (joFinishTask.getBoolean("success")) {
+                                    if (joFinishTask.optBoolean("success")) {
                                         Log.forest("森林任务🧾️[" + taskTitle + "]");
                                         doubleCheck = true;
                                     } else {
@@ -1531,7 +1531,7 @@ public class AntForestV2 extends ModelTask {
                         JSONObject joFinishTask = new JSONObject(
                                 AntForestRpcCall.finishTask(sceneCode, taskType));
                         TimeUtil.sleep(500);
-                        if (joFinishTask.getBoolean("success")) {
+                        if (joFinishTask.optBoolean("success")) {
                             Log.forest("完成任务🧾️[" + taskTitle + "]");
                         } else {
                             Log.record("完成任务" + taskTitle + "失败,");
@@ -1772,7 +1772,7 @@ public class AntForestV2 extends ModelTask {
     private void ecoLife() {
         try {
             JSONObject jsonObject = new JSONObject(EcoLifeRpcCall.queryHomePage());
-            if (!jsonObject.getBoolean("success")) {
+            if (!jsonObject.optBoolean("success")) {
                 Log.i(TAG + ".ecoLife.queryHomePage", jsonObject.optString("resultDesc"));
                 return;
             }
@@ -1782,7 +1782,7 @@ public class AntForestV2 extends ModelTask {
                 return;
             } else if (!data.getBoolean("openStatus")) {
                 jsonObject = new JSONObject(EcoLifeRpcCall.openEcolife());
-                if (!jsonObject.getBoolean("success")) {
+                if (!jsonObject.optBoolean("success")) {
                     Log.i(TAG + ".ecoLife.openEcolife", jsonObject.optString("resultDesc"));
                     return;
                 }
@@ -1853,7 +1853,7 @@ public class AntForestV2 extends ModelTask {
             //检查今日任务状态
             String str = EcoLifeRpcCall.queryDish(source, dayPoint);
             JSONObject jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
+            if (!jsonObject.optBoolean("success")) {
                 Log.i(TAG + ".photoGuangPan.ecolifeQueryDish", jsonObject.optString("resultDesc"));
                 return;
             }
@@ -1896,7 +1896,7 @@ public class AntForestV2 extends ModelTask {
             str = EcoLifeRpcCall.uploadDishImage("BEFORE_MEALS",
                     photoGuangPanBeforeStr, 0.16571736, 0.07448776, 0.7597949, dayPoint);
             jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
+            if (!jsonObject.optBoolean("success")) {
                 Log.i(TAG + ".photoGuangPan.uploadDishImage", jsonObject.optString("resultDesc"));
                 return;
             }
@@ -1904,14 +1904,14 @@ public class AntForestV2 extends ModelTask {
             str = EcoLifeRpcCall.uploadDishImage("AFTER_MEALS",
                     photoGuangPanAfterStr, 0.00040030346, 0.99891376, 0.0006858421, dayPoint);
             jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
+            if (!jsonObject.optBoolean("success")) {
                 Log.i(TAG + ".photoGuangPan.uploadDishImage", jsonObject.optString("resultDesc"));
                 return;
             }
             //提交
             str = EcoLifeRpcCall.tick("photoguangpan", dayPoint, source);
             jsonObject = new JSONObject(str);
-            if (!jsonObject.getBoolean("success")) {
+            if (!jsonObject.optBoolean("success")) {
                 Log.i(TAG + ".photoGuangPan.tick", jsonObject.optString("resultDesc"));
                 return;
             }
@@ -2049,7 +2049,7 @@ public class AntForestV2 extends ModelTask {
                 jo = animalProps.getJSONObject(i);
                 if (animalProp == null
                         || jo.getJSONObject("main").getInt("holdsNum") > animalProp.getJSONObject("main")
-                                .getInt("holdsNum")) {
+                        .getInt("holdsNum")) {
                     animalProp = jo;
                 }
             }
@@ -2295,7 +2295,7 @@ public class AntForestV2 extends ModelTask {
         try {
             // 获取商店信息
             JSONObject jo = new JSONObject(AntForestRpcCall.itemList("SC_ASSETS"));
-            if (!jo.getBoolean("success")) {
+            if (!jo.optBoolean("success")) {
                 Log.record(jo.getString("desc"));
                 Log.i(jo.toString());
                 return sku;
