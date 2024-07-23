@@ -29,6 +29,7 @@ public class AntFarm extends ModelTask {
     private double benevolenceScore;
     private double harvestBenevolenceScore;
     private int unreceiveTaskAward = 0;
+    private double finalScore = 0d;
 
     private FarmTool[] farmTools;
 
@@ -92,6 +93,7 @@ public class AntFarm extends ModelTask {
     private BooleanModelField receiveFarmTaskAward;
     private BooleanModelField useAccelerateTool;
     private BooleanModelField useAccelerateToolContinue;
+    private BooleanModelField useAccelerateToolWhenMaxEmotion;
     private SelectAndCountModelField feedFriendAnimalList;
     private BooleanModelField notifyFriend;
     private ChoiceModelField notifyFriendType;
@@ -137,6 +139,7 @@ public class AntFarm extends ModelTask {
         modelFields.addField(donationCount = new ChoiceModelField("donationCount", "每日捐蛋 | 次数", DonationCount.ONE, DonationCount.nickNames));
         modelFields.addField(useAccelerateTool = new BooleanModelField("useAccelerateTool", "加速卡 | 使用", false));
         modelFields.addField(useAccelerateToolContinue = new BooleanModelField("useAccelerateToolContinue", "加速卡 | 连续使用", false));
+        modelFields.addField(useAccelerateToolWhenMaxEmotion = new BooleanModelField("useAccelerateToolWhenMaxEmotion", "加速卡 | 仅在满状态时使用", false));
         modelFields.addField(useSpecialFood = new BooleanModelField("useSpecialFood", "使用特殊食品", false));
         modelFields.addField(useNewEggTool = new BooleanModelField("useNewEggTool", "使用新蛋卡", false));
         modelFields.addField(receiveFarmTaskAward = new BooleanModelField("receiveFarmTaskAward", "收取饲料奖励", false));
@@ -1187,13 +1190,17 @@ public class AntFarm extends ModelTask {
         // consumeSpeed: g/s
         // AccelerateTool: -1h = -60m = -3600s
         boolean isUseAccelerateTool = false;
-        while (180 - allFoodHaveEatten >= consumeSpeed * 3600
-                && useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
-            allFoodHaveEatten += consumeSpeed * 3600;
-            isUseAccelerateTool = true;
-            Status.useAccelerateTool();
-            TimeUtil.sleep(1000);
-            if (!useAccelerateToolContinue.getValue()) {
+        while (180 - allFoodHaveEatten >= consumeSpeed * 3600) {
+            if ((useAccelerateToolWhenMaxEmotion.getValue() && finalScore != 100)) {
+                break;
+            }
+            if (useFarmTool(ownerFarmId, ToolType.ACCELERATETOOL)) {
+                allFoodHaveEatten += consumeSpeed * 3600;
+                isUseAccelerateTool = true;
+                Status.useAccelerateTool();
+                TimeUtil.sleep(1000);
+            }
+            if (!isUseAccelerateTool || !useAccelerateToolContinue.getValue()) {
                 break;
             }
         }
@@ -1412,6 +1419,9 @@ public class AntFarm extends ModelTask {
             JSONObject jo = new JSONObject(resp);
             if (!jo.has("subFarmVO")) {
                 return;
+            }
+            if (jo.has("emotionInfo")) {
+                finalScore = jo.getJSONObject("emotionInfo").getDouble("finalScore");
             }
             JSONObject subFarmVO = jo.getJSONObject("subFarmVO");
             if (subFarmVO.has("foodStock")) {
