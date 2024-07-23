@@ -91,6 +91,7 @@ public class AntFarm extends ModelTask {
     private BooleanModelField answerQuestion;
     private BooleanModelField receiveFarmTaskAward;
     private BooleanModelField useAccelerateTool;
+    private BooleanModelField useAccelerateToolContinue;
     private SelectAndCountModelField feedFriendAnimalList;
     private BooleanModelField notifyFriend;
     private ChoiceModelField notifyFriendType;
@@ -134,7 +135,8 @@ public class AntFarm extends ModelTask {
         modelFields.addField(notifyFriendList = new SelectModelField("notifyFriendList", "通知赶鸡 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(donation = new BooleanModelField("donation", "每日捐蛋 | 开启", false));
         modelFields.addField(donationCount = new ChoiceModelField("donationCount", "每日捐蛋 | 次数", DonationCount.ONE, DonationCount.nickNames));
-        modelFields.addField(useAccelerateTool = new BooleanModelField("useAccelerateTool", "使用加速卡", false));
+        modelFields.addField(useAccelerateTool = new BooleanModelField("useAccelerateTool", "加速卡 | 使用", false));
+        modelFields.addField(useAccelerateToolContinue = new BooleanModelField("useAccelerateToolContinue", "加速卡 | 连续使用", false));
         modelFields.addField(useSpecialFood = new BooleanModelField("useSpecialFood", "使用特殊食品", false));
         modelFields.addField(useNewEggTool = new BooleanModelField("useNewEggTool", "使用新蛋卡", false));
         modelFields.addField(receiveFarmTaskAward = new BooleanModelField("receiveFarmTaskAward", "收取饲料奖励", false));
@@ -1168,6 +1170,9 @@ public class AntFarm extends ModelTask {
         if (!Status.canUseAccelerateTool()) {
             return false;
         }
+        if (!useAccelerateToolContinue.getValue() && AnimalBuff.ACCELERATING.name().equals(ownerAnimal.animalBuff)) {
+            return false;
+        }
         syncAnimalStatus(ownerFarmId);
         double consumeSpeed = 0d;
         double allFoodHaveEatten = 0d;
@@ -1188,6 +1193,9 @@ public class AntFarm extends ModelTask {
             isUseAccelerateTool = true;
             Status.useAccelerateTool();
             TimeUtil.sleep(1000);
+            if (!useAccelerateToolContinue.getValue()) {
+                break;
+            }
         }
         return isUseAccelerateTool;
     }
