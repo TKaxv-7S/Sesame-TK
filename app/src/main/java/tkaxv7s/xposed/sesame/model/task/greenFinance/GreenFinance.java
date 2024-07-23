@@ -215,12 +215,12 @@ public class GreenFinance extends ModelTask {
                     continue;
                 }
                 str = GreenFinanceRpcCall.submitTick(type, jsonObject.getString("behaviorCode"));
-                TimeUtil.sleep(1000);
+                TimeUtil.sleep(1500);
                 JSONObject object = new JSONObject(str);
                 if (!object.optBoolean("success")
                         || !String.valueOf(true).equals(JsonUtil.getValueByPath(object, "result.result"))) {
-                    Log.i(TAG + ".doTick.submitTick", object.optString("resultDesc"));
-                    continue;
+                    Log.other("绿色经营📊[" + jsonObject.getString("title") + "]打卡失败");
+                    break;
                 }
                 Log.other("绿色经营📊[" + jsonObject.getString("title") + "]打卡成功");
 //                Thread.sleep(executeIntervalInt);
