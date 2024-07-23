@@ -36,6 +36,9 @@ public class AntDodo extends ModelTask {
     private SelectModelField collectToFriendList;
     private SelectModelField sendFriendCard;
     private BooleanModelField useProp;
+    private BooleanModelField usePropCollectTimes7Days;
+    private BooleanModelField usePropCollectHistoryAnimal7Days;
+    private BooleanModelField usePropCollectToFriendTimes7Days;
 
     @Override
     public ModelFields getFields() {
@@ -44,7 +47,10 @@ public class AntDodo extends ModelTask {
         modelFields.addField(collectToFriendType = new ChoiceModelField("collectToFriendType", "帮抽卡 | 动作", CollectToFriendType.COLLECT, CollectToFriendType.nickNames));
         modelFields.addField(collectToFriendList = new SelectModelField("collectToFriendList", "帮抽卡 | 好友列表", new LinkedHashSet<>(), AlipayUser::getList));
         modelFields.addField(sendFriendCard = new SelectModelField("sendFriendCard", "送卡片好友列表(当前图鉴所有卡片)", new LinkedHashSet<>(), AlipayUser::getList));
-        modelFields.addField(useProp = new BooleanModelField("useProp", "使用道具", false));
+        modelFields.addField(useProp = new BooleanModelField("useProp", "使用道具 | 所有", false));
+        modelFields.addField(usePropCollectTimes7Days = new BooleanModelField("usePropCollectTimes7Days", "使用道具 | 抽卡道具", false));
+        modelFields.addField(usePropCollectHistoryAnimal7Days = new BooleanModelField("usePropCollectHistoryAnimal7Days", "使用道具 | 抽历史卡道具", false));
+        modelFields.addField(usePropCollectToFriendTimes7Days = new BooleanModelField("usePropCollectToFriendTimes7Days", "使用道具 | 抽好友卡道具", false));
         return modelFields;
     }
 
@@ -234,18 +240,34 @@ public class AntDodo extends ModelTask {
                     for (int i = 0; i < propList.length(); i++) {
                         JSONObject prop = propList.getJSONObject(i);
                         String propType = prop.getString("propType");
+                        
+                        boolean usePropType = useProp.getValue();
                         if ("COLLECT_TIMES_7_DAYS".equals(propType)) {
-                            JSONArray propIdList = prop.getJSONArray("propIdList");
-                            String propId = propIdList.getString(0);
-                            String propName = prop.getJSONObject("propConfig").getString("propName");
-                            int holdsNum = prop.optInt("holdsNum", 0);
-                            jo = new JSONObject(AntDodoRpcCall.consumeProp(propId, propType));
-                            TimeUtil.sleep(300);
-                            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
-                                Log.record(jo.getString("resultDesc"));
-                                Log.i(jo.toString());
-                                continue;
-                            }
+                            usePropType = usePropType || usePropCollectTimes7Days.getValue();
+                        }
+                        if ("COLLECT_HISTORY_ANIMAL_7_DAYS".equals(propType)) {
+                            usePropType = usePropType || usePropCollectHistoryAnimal7Days.getValue();
+                        }
+                        if ("COLLECT_TO_FRIEND_TIMES_7_DAYS".equals(propType)) {
+                            usePropType = usePropType || usePropCollectToFriendTimes7Days.getValue();
+                        }
+                        if (!usePropType) {
+                            continue;
+                        }
+
+                        JSONArray propIdList = prop.getJSONArray("propIdList");
+                        String propId = propIdList.getString(0);
+                        String propName = prop.getJSONObject("propConfig").getString("propName");
+                        int holdsNum = prop.optInt("holdsNum", 0);
+                        jo = new JSONObject(AntDodoRpcCall.consumeProp(propId, propType));
+                        TimeUtil.sleep(300);
+                        if (!"SUCCESS".equals(jo.getString("resultCode"))) {
+                            Log.record(jo.getString("resultDesc"));
+                            Log.i(jo.toString());
+                            continue;
+                        }
+
+                        if ("COLLECT_TIMES_7_DAYS".equals(propType)) {
                             JSONObject useResult = jo.getJSONObject("data").getJSONObject("useResult");
                             JSONObject animal = useResult.getJSONObject("animal");
                             String ecosystem = animal.getString("ecosystem");
@@ -261,25 +283,11 @@ public class AntDodo extends ModelTask {
                                     break;
                                 }
                             }
-                            if (holdsNum > 1) {
-                                continue th;
-                            }
-                        } else if (useProp.getValue()) {
-                            JSONArray propIdList = prop.getJSONArray("propIdList");
-                            String propId = propIdList.getString(0);
-                            String propName = prop.getJSONObject("propConfig").getString("propName");
-                            int holdsNum = prop.optInt("holdsNum", 0);
-                            jo = new JSONObject(AntDodoRpcCall.consumeProp(propId, propType));
-                            TimeUtil.sleep(300);
-                            if (!"SUCCESS".equals(jo.getString("resultCode"))) {
-                                Log.record(jo.getString("resultDesc"));
-                                Log.i(jo.toString());
-                                continue;
-                            }
+                        } else {
                             Log.forest("使用道具🎭[" + propName + "]");
-                            if (holdsNum > 1) {
-                                continue th;
-                            }
+                        }
+                        if (holdsNum > 1) {
+                            continue th;
                         }
                     }
                 }
