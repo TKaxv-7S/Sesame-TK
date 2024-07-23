@@ -322,14 +322,15 @@ public class AntFarm extends ModelTask {
 
                 if (needReload) {
                     enterFarm();
+                    syncAnimalStatus(ownerFarmId);
                 }
+
+                autoFeedAnimal();
 
                 // 小鸡换装
                 if (listOrnaments.getValue() && Status.canOrnamentToday()) {
                     listOrnaments();
                 }
-
-                autoFeedAnimal();
 
                 if (unreceiveTaskAward > 0) {
                     Log.record("还有待领取的饲料");
@@ -1169,7 +1170,7 @@ public class AntFarm extends ModelTask {
         }
     }
 
-    private boolean useAccelerateTool() {
+    private Boolean useAccelerateTool() {
         if (!Status.canUseAccelerateTool()) {
             return false;
         }
