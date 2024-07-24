@@ -566,7 +566,7 @@ public class AntForestV2 extends ModelTask {
             userHomeObject = new JSONObject(AntForestRpcCall.queryHomePage());
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            int offsetTime = offsetTimeMath.nextInteger((int) (start + (end - start) * 2 / 3 - serverTime));
+            int offsetTime = offsetTimeMath.nextInteger((int) ((start + end) / 2 - serverTime));
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime);
         } catch (Throwable t) {
             Log.printStackTrace(t);
@@ -581,7 +581,7 @@ public class AntForestV2 extends ModelTask {
             userHomeObject = new JSONObject(AntForestRpcCall.queryFriendHomePage(userId));
             long end = System.currentTimeMillis();
             long serverTime = userHomeObject.getLong("now");
-            int offsetTime = offsetTimeMath.nextInteger((int) (start + (end - start) * 2 / 3 - serverTime));
+            int offsetTime = offsetTimeMath.nextInteger((int) ((start + end) / 2 - serverTime));
             Log.i("服务器时间：" + serverTime + "，本地与服务器时间差：" + offsetTime);
         } catch (Throwable t) {
             Log.printStackTrace(t);
