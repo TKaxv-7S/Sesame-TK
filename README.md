@@ -4,6 +4,8 @@
 [![Latest Release](https://img.shields.io/github/release/TKaxv-7S/Sesame-TK.svg)](../../releases)
 [![All Releases Download](https://img.shields.io/github/downloads/TKaxv-7S/Sesame-TK/total.svg)](../../releases)
 
+# 本仓库已存档，新版本可前往由 [@LazyImmortal](https://github.com/LazyImmortal) 维护的 [Sesame](https://github.com/LazyImmortal/Sesame) 更新
+
 # 为了大家的资金安全与个人信息安全，强烈建议
 ## 不要使用任何未开放源代码的修改版！
 ## 不要使用任何未开放源代码的修改版！
