@@ -435,14 +435,12 @@ public class AntStall extends ModelTask {
         }
     }
 
-    private void openShop(String seatId, String userId, Queue<String> shopIds) {
-        String shopId = shopIds.peek();
+    private void openShop(String seatId, String userId, String shopId) {
         String s = AntStallRpcCall.shopOpen(seatId, userId, shopId);
         try {
             JSONObject jo = new JSONObject(s);
-            if ("SUCCESS".equals(jo.getString("resultCode"))) {
+            if ("SUCCESS".equals(jo.optString("resultCode"))) {
                 Log.farm("蚂蚁新村⛪在[" + UserIdMap.getMaskName(userId) + "]家摆摊");
-                shopIds.poll();
             }
         } catch (Throwable t) {
             Log.i(TAG, "openShop err:");
@@ -452,9 +450,11 @@ public class AntStall extends ModelTask {
 
     private void friendHomeOpen(List<Seat> seats, Queue<String> shopIds) {
         Collections.sort(seats, (e1, e2) -> e2.hot - e1.hot);
-        int idx = 0;
-        while (seats.size() > idx && !shopIds.isEmpty()) {
-            Seat seat = seats.get(idx);
+        for (Seat seat : seats) {
+            String shopId = shopIds.poll();
+            if (shopId == null) {
+                return;
+            }
             String userId = seat.userId;
             try {
                 String s = AntStallRpcCall.friendHome(userId);
@@ -463,11 +463,11 @@ public class AntStall extends ModelTask {
                     JSONObject seatsMap = jo.getJSONObject("seatsMap");
                     JSONObject guest = seatsMap.getJSONObject("GUEST_01");
                     if (guest.getBoolean("canOpenShop")) {
-                        openShop(guest.getString("seatId"), userId, shopIds);
+                        openShop(guest.getString("seatId"), userId, shopId);
                     } else {
                         guest = seatsMap.getJSONObject("GUEST_02");
                         if (guest.getBoolean("canOpenShop")) {
-                            openShop(guest.getString("seatId"), userId, shopIds);
+                            openShop(guest.getString("seatId"), userId, shopId);
                         }
                     }
                 } else {
@@ -477,7 +477,6 @@ public class AntStall extends ModelTask {
             } catch (Throwable t) {
                 Log.printStackTrace(TAG, t);
             }
-            idx++;
         }
     }
 
@@ -1053,7 +1052,7 @@ public class AntStall extends ModelTask {
     }
 
     public interface StallThrowManureType {
-    
+
         int THROW = 0;
         int DONT_THROW = 1;
 
